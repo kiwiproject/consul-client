@@ -1,5 +1,8 @@
-![Build Status](https://github.com/rickfast/consul-client/actions/workflows/maven.yml/badge.svg)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.orbitz.consul/consul-client/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.orbitz.consul/consul-client)
+---
+
+🥝 _This repository is a work in progress as we transition consul-client from rickfast to kiwiproject._ 🥝
+
+---
 
 Consul Client for Java
 ======================
