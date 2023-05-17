@@ -164,7 +164,7 @@ System.out.println(statusClient.getLeader()); // 127.0.0.1:8300
 Development Notes
 -----------
 
-`consul-client` makes use of [immutables](https://immutables.github.io/) to generate code for many of the value classes.
+`consul-client` makes use of [Immutables](https://immutables.github.io/) to generate code for many of the value classes.
 This provides a lot of functionality and benefit for little code, but it does require some additional development setup.
 
 Official instructions are [here](https://immutables.github.io/apt.html), although you may want to change the target directories to the more gradle-like "generated/source/apt/main" and  "generated/source/apt/test" targets.
