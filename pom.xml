@@ -36,6 +36,7 @@
         <commonscodec.version>1.15</commonscodec.version>
         <guava.version>31.1-jre</guava.version>
         <immutables.version>2.9.3</immutables.version>
+        <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
         <jackson.version>2.15.1</jackson.version>
         <junit.version>4.13.2</junit.version>
         <junitparams.version>1.1.1</junitparams.version>
@@ -44,7 +45,13 @@
         <okhttp.version>4.11.0</okhttp.version>
         <slf4j.version>2.0.7</slf4j.version>
         <logback.version>1.3.7</logback.version>
+        <sonar-maven-plugin.version>3.9.1.2184</sonar-maven-plugin.version>
         <testcontainers.version>1.18.1</testcontainers.version>
+
+        <!-- Sonar properties -->
+         <sonar.projectKey>kiwiproject_consul-client</sonar.projectKey>
+        <sonar.organization>kiwiproject</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
     <distributionManagement>
         <snapshotRepository>
@@ -224,6 +231,12 @@
     </profiles>
     <build>
         <plugins>
+             <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-maven-plugin.version}</version>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -323,6 +336,12 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>${sonar-maven-plugin.version}</version>
             </plugin>
 
             <plugin>
