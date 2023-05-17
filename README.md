@@ -7,7 +7,7 @@
 Consul Client for Java
 ======================
 
-Simple client for the Consul HTTP API.  For more information about the Consul HTTP API, go [here](http://www.consul.io/docs/agent/http.html).
+Simple client for the Consul HTTP API.  For more information about the Consul HTTP API, go [here](https://developer.hashicorp.com/consul/api-docs).
 
 Notes from the maintainer
 -------------------------
@@ -164,10 +164,10 @@ System.out.println(statusClient.getLeader()); // 127.0.0.1:8300
 Development Notes
 -----------
 
-`consul-client` makes use of [immutables](http://immutables.github.io/) to generate code for many of the value classes.
+`consul-client` makes use of [immutables](https://immutables.github.io/) to generate code for many of the value classes.
 This provides a lot of functionality and benefit for little code, but it does require some additional development setup.
 
-Official instructions are [here](http://immutables.github.io/apt.html), although you may want to change the target directories to the more gradle-like "generated/source/apt/main" and  "generated/source/apt/test" targets.
+Official instructions are [here](https://immutables.github.io/apt.html), although you may want to change the target directories to the more gradle-like "generated/source/apt/main" and  "generated/source/apt/test" targets.
 
 ### Integration Tests
 
