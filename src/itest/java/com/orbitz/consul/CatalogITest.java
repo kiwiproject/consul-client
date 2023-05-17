@@ -284,7 +284,7 @@ public class CatalogITest extends BaseIntegrationTest {
 
         String nodeName = "node";
         String serviceName = UUID.randomUUID().toString();
-        String serviceId = createAutoDeregisterServiceId();
+        String serviceId = UUID.randomUUID().toString();
         String catalogId = UUID.randomUUID().toString();
 
         CatalogRegistration registration = ImmutableCatalogRegistration.builder()

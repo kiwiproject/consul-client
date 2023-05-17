@@ -5,13 +5,18 @@ import com.orbitz.consul.config.CacheConfig;
 import com.orbitz.consul.config.ClientConfig;
 import org.junit.After;
 import org.junit.BeforeClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+
 public abstract class BaseIntegrationTest {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BaseIntegrationTest.class);
 
     private final List<String> deregisterServices = new CopyOnWriteArrayList<>();
 
@@ -58,12 +63,30 @@ public abstract class BaseIntegrationTest {
 
     @After
     public void after() {
-        deregisterServices.forEach(client.agentClient()::deregister);
-        deregisterServices.clear();
+        try {
+            deregisterServices.forEach(client.agentClient()::deregister);
+        } catch (ConsulException e) {
+            String message = createDeregistrationErrorMessage(e);
+            LOG.warn(message, e.getMessage());
+            throw new RuntimeException(message, e);
+        } finally {
+            deregisterServices.clear();
+        }
+    }
+
+    private static String createDeregistrationErrorMessage(ConsulException e) {
+        return String.format(
+            "Unable to degister service. The serviceId was created using" +
+            " createAutoDeregisterServiceId, but maybe it should not have been." +
+            " For example, using the /agent/services endpoint only returns" +
+            " services registered against the specific local agent with" +
+            " which you are communicating. Message from the ConsulException: [%s]",
+            e.getMessage());
     }
 
     protected String createAutoDeregisterServiceId() {
         String serviceId = UUID.randomUUID().toString();
+        LOG.info("Created auto-deregister serviceId {}", serviceId);
         deregisterServices.add(serviceId);
 
         return serviceId;
