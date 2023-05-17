@@ -32,8 +32,8 @@
         <java.version>11</java.version>
 
         <apache.commons.version>3.12.0</apache.commons.version>
+        <checker-qual.version>3.34.0</checker-qual.version>
         <commonscodec.version>1.15</commonscodec.version>
-        <findbugs.version>3.0.2</findbugs.version>
         <guava.version>31.1-jre</guava.version>
         <immutables.version>2.9.3</immutables.version>
         <jackson.version>2.15.1</jackson.version>
@@ -99,12 +99,10 @@
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
         </dependency>
-        <!-- this dependency is required to avoid javax.annotation.CheckReturnValue,
-         see https://github.com/google/guava/issues/2450 for more details -->
         <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>jsr305</artifactId>
-            <version>${findbugs.version}</version>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
+            <version>3.34.0</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
