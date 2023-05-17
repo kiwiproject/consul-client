@@ -1,3 +1,4 @@
+
 ---
 
 🥝 _This repository is a work in progress as we transition consul-client from rickfast to kiwiproject._ 🥝
@@ -9,10 +10,26 @@ Consul Client for Java
 
 Simple client for the Consul HTTP API.  For more information about the Consul HTTP API, go [here](https://developer.hashicorp.com/consul/api-docs).
 
-Notes from the maintainer
--------------------------
+Background
+----------
+This library was imported from [rickfast/consul-client](https://github.com/rickfast/consul-client), which is no longer
+being maintained per a [note](https://github.com/rickfast/consul-client#notes-from-the-maintainer) from the original
+maintainer.
 
-Although this is pretty obvious to those following this repo, I am no longer actively enhancing or fixing issues for this library. I will continue to merge PRs and cut releases. I am in the process of moving off of Travis to Actions, and will set up automatic releases for any merge to master.
+Since we are still using this library in our services which use Dropwizard and Consul, we decided to import the original
+repository and continue maintaining it for our own use, and anyone else who might want to use it. We make no guarantees
+whatsoever about how long we will maintain it, and also plan to make our own changes such as changing the base package
+name to `org.kiwiproject` to be consistent with our other libraries.
+
+All other [kiwiproject](https://github.com/kiwiproject/) projects are MIT-licensed. However, because the original
+`consul-client` uses the Apache 2.0 license, we are keeping the Apache 2.0 license (otherwise to switch to MIT we
+would have to gain consent of all contributors, which we do not want to do).
+
+Another thing to note is that we _imported_ this repository from the original, so that it is a "disconnected fork". We
+did not want a reference to the original repository since it is no longer maintained and no changes here will ever
+be pushed back upstream. Thus, while we maintain the history that this is a fork , it is completely disconnected and is
+now a standalone (normal) repository.
+
 
 Installation
 -----------

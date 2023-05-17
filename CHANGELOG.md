@@ -1,5 +1,18 @@
 # Change Log
 
+## 🥝 Kiwi Project Notice 🥝
+
+_Under Kiwi Project this changelog will not be updated. It is here to retain history of the original project which
+was maintained at [rickfast/consul-client](https://github.com/rickfast/consul-client/). Instead, we will use the
+GitHub [Releases](https://github.com/kiwiproject/consul-client/releases) page as the offical changelog for
+all releases performed under the `org.kiwiproject` Maven groupId._
+
+_What follows is the original, unaltered changelog. It was never updated for releases after 1.0.1, which
+includes a large number of releases up to the latest 1.5.3 release in July 2021. See the
+[full list of releases](https://mvnrepository.com/artifact/com.orbitz.consul/consul-client) for more information.
+Note that no release documentation was produced for releases after 1.0.1, except for a few things noted in the
+"Unreleased" section below. There is a link to the "Full Changelog" from 1.0.1 to HEAD (in the original repository)._
+
 ## [Unreleased](https://github.com/rickfast/consul-client/tree/HEAD)
 
 [Full Changelog](https://github.com/rickfast/consul-client/compare/1.0.1...HEAD)
