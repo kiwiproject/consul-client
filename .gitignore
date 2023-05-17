@@ -1,19 +1,23 @@
+### Maven template
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
 dependency-reduced-pom.xml
-data
-.DS_Store
-build
-*.iml
+buildNumber.properties
+.mvn/timing.properties
+
+# Avoid ignoring Maven wrapper jar file (.jar files are usually ignored)
+!/.mvn/wrapper/maven-wrapper.jar
+
+# IntelliJ project files
 .idea
-.gradle
-out
-generated
-target
-src/gradlew
-src/gradlew.bat
-gradle/gradlew
-gradle/gradlew.bat
-gradle/gradle
-src/gradle
-.classpath
-.project
-.settings
+*.iml
+
+# Deployment log
+maven-central-deploy.log
+
+# VS Code configuration files
+.vscode
