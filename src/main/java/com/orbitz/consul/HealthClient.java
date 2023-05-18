@@ -1,6 +1,5 @@
 package com.orbitz.consul;
 
-import com.google.common.collect.ImmutableMap;
 import com.orbitz.consul.async.ConsulResponseCallback;
 import com.orbitz.consul.config.ClientConfig;
 import com.orbitz.consul.model.ConsulResponse;

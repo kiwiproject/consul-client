@@ -622,7 +622,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * @param operations A list of KV operations.
      * @return A {@link ConsulResponse} containing results and potential errors.
      */
-    @Deprecated
+    @Deprecated(since = "0.5.0", forRemoval = true)
     public ConsulResponse<TxResponse> performTransaction(ConsistencyMode consistency, Operation... operations) {
 
         Map<String, Object> query = consistencyQueryFor(consistency);

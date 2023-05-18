@@ -23,32 +23,32 @@ public class AclClient extends BaseClient {
         this.api = retrofit.create(Api.class);
     }
 
-    @Deprecated
+    @Deprecated(since = "0.5.0", forRemoval = true)
     public String createAcl(AclToken aclToken) {
         return http.extract(api.createAcl(aclToken)).id();
     }
 
-    @Deprecated
+    @Deprecated(since = "0.5.0", forRemoval = true)
     public void updateAcl(AclToken aclToken) {
         http.handle(api.updateAcl(aclToken));
     }
 
-    @Deprecated
+    @Deprecated(since = "0.5.0", forRemoval = true)
     public void destroyAcl(String id) {
         http.handle(api.destroyAcl(id));
     }
 
-    @Deprecated
+    @Deprecated(since = "0.5.0", forRemoval = true)
     public List<AclResponse> getAclInfo(String id) {
         return http.extract(api.getAclInfo(id));
     }
 
-    @Deprecated
+    @Deprecated(since = "0.5.0", forRemoval = true)
     public String cloneAcl(String id) {
         return http.extract(api.cloneAcl(id)).id();
     }
 
-    @Deprecated
+    @Deprecated(since = "0.5.0", forRemoval = true)
     public List<AclResponse> listAcls() {
         return http.extract(api.listAcls());
     }
@@ -139,27 +139,27 @@ public class AclClient extends BaseClient {
 
     interface Api {
 
-        @Deprecated
+        @Deprecated(since = "0.5.0", forRemoval = true)
         @PUT("acl/create")
         Call<AclTokenId> createAcl(@Body AclToken aclToken);
 
-        @Deprecated
+        @Deprecated(since = "0.5.0", forRemoval = true)
         @PUT("acl/update")
         Call<Void> updateAcl(@Body AclToken aclToken);
 
-        @Deprecated
+        @Deprecated(since = "0.5.0", forRemoval = true)
         @PUT("acl/destroy/{id}")
         Call<Void> destroyAcl(@Path("id") String id);
 
-        @Deprecated
+        @Deprecated(since = "0.5.0", forRemoval = true)
         @GET("acl/info/{id}")
         Call<List<AclResponse>> getAclInfo(@Path("id") String id);
 
-        @Deprecated
+        @Deprecated(since = "0.5.0", forRemoval = true)
         @PUT("acl/clone/{id}")
         Call<AclTokenId> cloneAcl(@Path("id") String id);
 
-        @Deprecated
+        @Deprecated(since = "0.5.0", forRemoval = true)
         @GET("acl/list")
         Call<List<AclResponse>> listAcls();
 
