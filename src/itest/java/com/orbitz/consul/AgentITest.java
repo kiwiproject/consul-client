@@ -8,6 +8,7 @@ import com.orbitz.consul.model.agent.ImmutableFullService;
 import com.orbitz.consul.model.agent.ImmutableRegCheck;
 import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.orbitz.consul.model.agent.Registration;
+import com.orbitz.consul.model.catalog.CatalogService;
 import com.orbitz.consul.model.catalog.ImmutableServiceWeights;
 import com.orbitz.consul.model.health.HealthCheck;
 import com.orbitz.consul.model.health.ImmutableService;
@@ -16,7 +17,6 @@ import com.orbitz.consul.model.health.ServiceHealth;
 import com.orbitz.consul.option.ImmutableQueryOptions;
 import com.orbitz.consul.option.ImmutableQueryParameterOptions;
 import com.orbitz.consul.option.QueryOptions;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.net.MalformedURLException;
@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static java.util.stream.Collectors.toList;
 import static org.hamcrest.core.AnyOf.anyOf;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.*;
@@ -54,7 +55,6 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    @Ignore
     public void shouldRegisterTtlCheck() throws UnknownHostException, InterruptedException {
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
@@ -76,7 +76,6 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    @Ignore
     public void shouldRegisterHttpCheck() throws UnknownHostException, InterruptedException, MalformedURLException {
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
@@ -98,7 +97,6 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    @Ignore
     public void shouldRegisterGrpcCheck() throws UnknownHostException, InterruptedException, MalformedURLException {
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
@@ -106,6 +104,7 @@ public class AgentITest extends BaseIntegrationTest {
         Registration registration = ImmutableRegistration.builder()
                 .name(serviceName)
                 .id(serviceId)
+                .port(12345)
                 .addChecks(ImmutableRegCheck.builder()
                     .grpc("localhost:12345")
                     .interval("10s")
@@ -128,7 +127,6 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    @Ignore
     public void shouldRegisterCheckWithId() throws UnknownHostException, InterruptedException {
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
@@ -137,6 +135,7 @@ public class AgentITest extends BaseIntegrationTest {
         Registration registration = ImmutableRegistration.builder()
                 .name(serviceName)
                 .id(serviceId)
+                .port(8085)
                 .addChecks(ImmutableRegCheck.builder()
                         .id(checkId)
                         .ttl("10s")
@@ -161,7 +160,6 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    @Ignore
     public void shouldRegisterCheckWithName() throws UnknownHostException, InterruptedException {
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
@@ -170,6 +168,7 @@ public class AgentITest extends BaseIntegrationTest {
         Registration registration = ImmutableRegistration.builder()
                 .name(serviceName)
                 .id(serviceId)
+                .port(9142)
                 .addChecks(ImmutableRegCheck.builder()
                         .name(checkName)
                         .ttl("10s")
@@ -194,7 +193,6 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    @Ignore
     public void shouldRegisterMultipleChecks() throws UnknownHostException, InterruptedException, MalformedURLException {
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
@@ -223,7 +221,6 @@ public class AgentITest extends BaseIntegrationTest {
     // to register a single "Check"
     // and multiple "Checks" in one call
     @Test
-    @Ignore
     public void shouldRegisterMultipleChecks2() throws UnknownHostException, InterruptedException, MalformedURLException {
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
@@ -533,14 +530,31 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    @Ignore
     public void shouldEnableMaintenanceMode() throws InterruptedException, MalformedURLException {
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
         String reason = UUID.randomUUID().toString();
 
         client.agentClient().register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
+
+        List<String> healthCheckNames = getHealthCheckNames(serviceName);
+        assertFalse(healthCheckNames.contains("Service Maintenance Mode"));
+
         client.agentClient().toggleMaintenanceMode(serviceId, true, reason);
+
+        List<String> updatedHealthCheckNames = getHealthCheckNames(serviceName);
+        assertTrue(updatedHealthCheckNames.contains("Service Maintenance Mode"));
+    }
+
+    private List<String> getHealthCheckNames(String serviceName) {
+        CatalogService catalogService = client.catalogClient().getService(serviceName).getResponse().get(0);
+        String node = catalogService.getNode();
+        List<String> healthCheckNames = client.healthClient()
+                .getNodeChecks(node, QueryOptions.BLANK).getResponse()
+                .stream()
+                .map(HealthCheck::getName)
+                .collect(toList());
+        return healthCheckNames;
     }
 
 
