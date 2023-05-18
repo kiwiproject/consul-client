@@ -9,7 +9,6 @@ import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.http.*;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -61,7 +60,7 @@ public class SessionClient extends BaseClient {
     }
 
     private Map<String, String> dcQuery(String dc) {
-        return dc != null ? Map.of("dc", dc) : Collections.emptyMap();
+        return dc != null ? Map.of("dc", dc) : Map.of();
     }
 
     public Optional<SessionInfo> renewSession(final String sessionId) {
