@@ -90,11 +90,11 @@ public class CatalogITest extends BaseIntegrationTest {
     }
 
     @Test
-    @Ignore
     public void shouldGetTaggedAddressesForNodesLists() throws UnknownHostException {
         CatalogClient catalogClient = client.catalogClient();
 
         final List<Node> nodesResp = catalogClient.getNodes().getResponse();
+        assertFalse(nodesResp.isEmpty());
         for (Node node : nodesResp) {
             assertNotNull(node.getTaggedAddresses());
             assertNotNull(node.getTaggedAddresses().get().getWan());
@@ -108,6 +108,7 @@ public class CatalogITest extends BaseIntegrationTest {
         CatalogClient catalogClient = client.catalogClient();
 
         final List<Node> nodesResp = catalogClient.getNodes().getResponse();
+        assertFalse(nodesResp.isEmpty());
         for (Node tmp : nodesResp) {
             final Node node = catalogClient.getNode(tmp.getNode()).getResponse().getNode();
             assertNotNull(node.getTaggedAddresses());

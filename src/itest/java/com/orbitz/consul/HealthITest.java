@@ -9,7 +9,6 @@ import com.orbitz.consul.model.health.HealthCheck;
 import com.orbitz.consul.model.health.ServiceHealth;
 import com.orbitz.consul.option.ImmutableQueryOptions;
 import com.orbitz.consul.option.QueryOptions;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.math.BigInteger;
@@ -29,7 +28,6 @@ public class HealthITest extends BaseIntegrationTest {
     private static final Map<String, String> NO_META = Collections.emptyMap();
 
     @Test
-    @Ignore
     public void shouldFetchPassingNode() throws NotRegisteredException {
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
