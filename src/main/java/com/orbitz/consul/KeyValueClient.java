@@ -627,9 +627,7 @@ public class KeyValueClient extends BaseCacheableClient {
     @Deprecated
     public ConsulResponse<TxResponse> performTransaction(ConsistencyMode consistency, Operation... operations) {
 
-        Map<String, Object> query = consistency == ConsistencyMode.DEFAULT
-                ? ImmutableMap.of()
-                : ImmutableMap.of(consistency.toParam().get(), "true");
+        Map<String, Object> query = consistencyQueryFor(consistency);
 
         try {
             return http.extractConsulResponse(api.performTransaction(RequestBody.create(MediaType.parse("application/json"),
@@ -637,6 +635,12 @@ public class KeyValueClient extends BaseCacheableClient {
         } catch (JsonProcessingException e) {
             throw new ConsulException(e);
         }
+    }
+
+    static ImmutableMap<String, Object> consistencyQueryFor(ConsistencyMode consistency) {
+        return consistency.toParam()
+            .map(paramValue -> ImmutableMap.<String, Object>of(paramValue, "true"))
+            .orElseGet(ImmutableMap::of);
     }
 
     /**

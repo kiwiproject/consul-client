@@ -20,7 +20,6 @@ import com.orbitz.consul.option.PutOptions;
 import com.orbitz.consul.option.QueryOptions;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.net.UnknownHostException;
@@ -461,7 +460,6 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    @Ignore
     public void testBasicTxn() throws Exception {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = UUID.randomUUID().toString();
@@ -473,7 +471,37 @@ public class KeyValueITest extends BaseIntegrationTest {
         ConsulResponse<TxResponse> response = keyValueClient.performTransaction(operation);
 
         assertEquals(value, keyValueClient.getValueAsString(key).get());
-        assertEquals(response.getIndex(), keyValueClient.getValue(key).get().getModifyIndex());
+        assertEquals(key, response.getResponse().results().get(0).get("KV").getKey());
+    }
+
+    @Test
+    public void testBasicTxn_Deprecated_Using_DEFAULT_ConsistencyMode() throws Exception {
+        KeyValueClient keyValueClient = client.keyValueClient();
+        String key = UUID.randomUUID().toString();
+        String value = Base64.encodeBase64String(RandomStringUtils.random(20).getBytes());
+        Operation[] operation = new Operation[] {ImmutableOperation.builder().verb("set")
+                .key(key)
+                .value(value).build()};
+
+        ConsulResponse<TxResponse> response = keyValueClient.performTransaction(ConsistencyMode.DEFAULT, operation);
+
+        assertEquals(value, keyValueClient.getValueAsString(key).get());
+        assertEquals(key, response.getResponse().results().get(0).get("KV").getKey());
+    }
+
+    @Test
+    public void testBasicTxn_Deprecated_Using_CONSISTENT_ConsistencyMode() throws Exception {
+        KeyValueClient keyValueClient = client.keyValueClient();
+        String key = UUID.randomUUID().toString();
+        String value = Base64.encodeBase64String(RandomStringUtils.random(20).getBytes());
+        Operation[] operation = new Operation[] {ImmutableOperation.builder().verb("set")
+                .key(key)
+                .value(value).build()};
+
+        ConsulResponse<TxResponse> response = keyValueClient.performTransaction(ConsistencyMode.CONSISTENT, operation);
+
+        assertEquals(value, keyValueClient.getValueAsString(key).get());
+        assertEquals(key, response.getResponse().results().get(0).get("KV").getKey());
     }
 
     @Test
