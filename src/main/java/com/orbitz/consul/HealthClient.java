@@ -187,7 +187,7 @@ public class HealthClient extends BaseCacheableClient {
     public ConsulResponse<List<ServiceHealth>> getHealthyServiceInstances(String service,
                                                                           QueryOptions queryOptions) {
         return http.extractConsulResponse(api.getServiceInstances(service,
-                optionsFrom(ImmutableMap.of("passing", "true"), queryOptions.toQuery()),
+                optionsFrom(Map.of("passing", "true"), queryOptions.toQuery()),
                 queryOptions.getTag(), queryOptions.getNodeMeta(), queryOptions.toHeaders()));
     }
 
@@ -207,7 +207,7 @@ public class HealthClient extends BaseCacheableClient {
     public void getHealthyServiceInstances(String service, QueryOptions queryOptions,
                                            ConsulResponseCallback<List<ServiceHealth>> callback) {
         http.extractConsulResponse(api.getServiceInstances(service,
-                optionsFrom(ImmutableMap.of("passing", "true"), queryOptions.toQuery()),
+                optionsFrom(Map.of("passing", "true"), queryOptions.toQuery()),
                 queryOptions.getTag(), queryOptions.getNodeMeta(), queryOptions.toHeaders()), callback);
     }
 

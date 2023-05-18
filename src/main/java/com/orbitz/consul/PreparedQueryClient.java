@@ -1,6 +1,5 @@
 package com.orbitz.consul;
 
-import com.google.common.collect.ImmutableMap;
 import com.orbitz.consul.async.Callback;
 import com.orbitz.consul.config.ClientConfig;
 import com.orbitz.consul.model.query.PreparedQuery;
@@ -60,14 +59,14 @@ public class PreparedQueryClient extends BaseClient {
     }
 
     private Map<String, String> dcQuery(String dc) {
-        return dc != null ? ImmutableMap.of("dc", dc): Collections.emptyMap();
+        return dc != null ? Map.of("dc", dc): Collections.emptyMap();
     }
-    
+
     /**
      * Retrieves the list of prepared queries.
-     * 
+     *
      * GET /v1/query
-     * 
+     *
      * @return The list of prepared queries.
      */
     public List<StoredQuery> getPreparedQueries() {
@@ -138,7 +137,7 @@ public class PreparedQueryClient extends BaseClient {
      * Retrofit API interface.
      */
     interface Api {
-	
+
         @GET("query")
         Call<List<StoredQuery>> getPreparedQueries(@QueryMap Map<String, String> queryMap);
 

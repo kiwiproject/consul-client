@@ -1,6 +1,5 @@
 package com.orbitz.consul;
 
-import com.google.common.collect.ImmutableMap;
 import com.orbitz.consul.config.ClientConfig;
 import com.orbitz.consul.model.coordinate.Coordinate;
 import com.orbitz.consul.model.coordinate.Datacenter;
@@ -48,7 +47,7 @@ public class CoordinateClient extends BaseClient {
     }
 
     private Map<String, String> dcQuery(String dc) {
-        return dc != null ? ImmutableMap.of("dc", dc) : Collections.emptyMap();
+        return dc != null ? Map.of("dc", dc) : Collections.emptyMap();
     }
 
     /**

@@ -6,7 +6,6 @@ import java.nio.charset.Charset;
 import java.util.Optional;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.UnsignedLongs;
 import com.orbitz.consul.async.ConsulResponseCallback;
 import com.orbitz.consul.config.ClientConfig;
@@ -636,10 +635,10 @@ public class KeyValueClient extends BaseCacheableClient {
         }
     }
 
-    static ImmutableMap<String, Object> consistencyQueryFor(ConsistencyMode consistency) {
+    private static Map<String, Object> consistencyQueryFor(ConsistencyMode consistency) {
         return consistency.toParam()
-            .map(paramValue -> ImmutableMap.<String, Object>of(paramValue, "true"))
-            .orElseGet(ImmutableMap::of);
+            .map(paramValue -> Map.<String, Object>of(paramValue, "true"))
+            .orElseGet(Map::of);
     }
 
     /**

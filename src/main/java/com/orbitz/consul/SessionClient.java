@@ -1,6 +1,5 @@
 package com.orbitz.consul;
 
-import com.google.common.collect.ImmutableMap;
 import com.orbitz.consul.config.ClientConfig;
 import com.orbitz.consul.model.session.Session;
 import com.orbitz.consul.model.session.SessionCreatedResponse;
@@ -62,7 +61,7 @@ public class SessionClient extends BaseClient {
     }
 
     private Map<String, String> dcQuery(String dc) {
-        return dc != null ? ImmutableMap.of("dc", dc) : Collections.emptyMap();
+        return dc != null ? Map.of("dc", dc) : Collections.emptyMap();
     }
 
     public Optional<SessionInfo> renewSession(final String sessionId) {
@@ -78,7 +77,7 @@ public class SessionClient extends BaseClient {
      */
     public Optional<SessionInfo> renewSession(final String dc, final String sessionId) {
         List<SessionInfo> sessionInfo = http.extract(api.renewSession(sessionId,
-                ImmutableMap.of(), dcQuery(dc)));
+                Map.of(), dcQuery(dc)));
 
         return sessionInfo == null || sessionInfo.isEmpty() ? Optional.empty() :
                 Optional.of(sessionInfo.get(0));
