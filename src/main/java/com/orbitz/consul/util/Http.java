@@ -1,7 +1,6 @@
 package com.orbitz.consul.util;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import com.orbitz.consul.ConsulException;
 import com.orbitz.consul.async.Callback;

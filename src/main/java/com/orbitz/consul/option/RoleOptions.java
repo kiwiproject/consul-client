@@ -1,12 +1,9 @@
 package com.orbitz.consul.option;
 
-import com.google.common.collect.ImmutableList;
 import org.immutables.value.Value;
 
-import java.math.BigInteger;
 import java.util.*;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.orbitz.consul.option.Options.optionallyAdd;
 
 /**
