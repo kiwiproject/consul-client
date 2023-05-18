@@ -81,7 +81,7 @@ public class Consul {
                 StatusClient statusClient, SessionClient sessionClient,
                 EventClient eventClient, PreparedQueryClient preparedQueryClient,
                 CoordinateClient coordinateClient, OperatorClient operatorClient,
-                ExecutorService executorService, ConnectionPool connectionPool, 
+                ExecutorService executorService, ConnectionPool connectionPool,
                 AclClient aclClient, SnapshotClient snapshotClient,
                 OkHttpClient okHttpClient) {
         this.agentClient = agentClient;
@@ -469,12 +469,12 @@ public class Consul {
 
             return this;
         }
-        
+
         /**
         * Sets the list of hosts to contact if the current request target is
         * unavailable. When the call to a particular URL fails for any reason, the next {@link HostAndPort} specified
         * is used to retry the request. This will continue until all urls are exhuasted.
-        * 
+        *
         * @param hostAndPort A collection of {@link HostAndPort} that define the list of Consul agent addresses to use.
         * @param blacklistTimeInMillis The timeout (in milliseconds) to blacklist a particular {@link HostAndPort} before trying to use it again.
         * @return The builder.
@@ -484,11 +484,11 @@ public class Consul {
             Preconditions.checkArgument(hostAndPort.size() >= 2, "Minimum of 2 addresses are required");
 
             consulFailoverInterceptor = new ConsulFailoverInterceptor(hostAndPort, blacklistTimeInMillis);
-            withHostAndPort(hostAndPort.stream().findFirst().get());
-            
+            withHostAndPort(hostAndPort.stream().findFirst().orElseThrow());
+
             return this;
         }
-        
+
         /**
          * Constructs a failover interceptor with the given {@link ConsulFailoverStrategy}.
          * @param strategy The strategy to use.
@@ -496,7 +496,7 @@ public class Consul {
          */
         public Builder withFailoverInterceptor(ConsulFailoverStrategy strategy) {
         	Preconditions.checkArgument(strategy != null, "Must not provide a null strategy");
-        	
+
         	consulFailoverInterceptor = new ConsulFailoverInterceptor(strategy);
         	return this;
         }
