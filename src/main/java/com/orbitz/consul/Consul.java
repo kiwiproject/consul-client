@@ -3,6 +3,7 @@ package com.orbitz.consul;
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -16,7 +17,6 @@ import javax.net.ssl.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.io.BaseEncoding;
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.cache.TimeoutInterceptor;
 import com.orbitz.consul.config.ClientConfig;
@@ -356,7 +356,7 @@ public class Consul {
         */
         public Builder withBasicAuth(String username, String password) {
             String credentials = username + ":" + password;
-            final String basic = "Basic " + BaseEncoding.base64().encode(credentials.getBytes());
+            final String basic = "Basic " + Base64.getEncoder().encodeToString(credentials.getBytes());
             authInterceptor = chain -> {
                 Request original = chain.request();
 
