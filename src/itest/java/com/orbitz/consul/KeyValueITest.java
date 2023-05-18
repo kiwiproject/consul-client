@@ -2,8 +2,8 @@ package com.orbitz.consul;
 
 import java.nio.charset.Charset;
 import java.util.Optional;
+import java.util.Set;
 
-import com.google.common.collect.ImmutableSet;
 import com.orbitz.consul.async.ConsulResponseCallback;
 import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.model.kv.ImmutableOperation;
@@ -162,7 +162,7 @@ public class KeyValueITest extends BaseIntegrationTest {
 
         assertTrue(keyValueClient.putValue(key, value));
         assertTrue(keyValueClient.putValue(key2, value2));
-        assertEquals(ImmutableSet.of(value, value2), new HashSet<>(keyValueClient.getValuesAsString(key)));
+        assertEquals(Set.of(value, value2), new HashSet<>(keyValueClient.getValuesAsString(key)));
     }
 
     @Test
@@ -175,7 +175,7 @@ public class KeyValueITest extends BaseIntegrationTest {
 
         assertTrue(keyValueClient.putValue(key, value, TEST_CHARSET));
         assertTrue(keyValueClient.putValue(key2, value2, TEST_CHARSET));
-        assertEquals(ImmutableSet.of(value, value2), new HashSet<>(keyValueClient.getValuesAsString(key, TEST_CHARSET)));
+        assertEquals(Set.of(value, value2), new HashSet<>(keyValueClient.getValuesAsString(key, TEST_CHARSET)));
     }
 
     @Test
