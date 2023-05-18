@@ -7,8 +7,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
-
 import com.orbitz.consul.model.agent.Check;
 import com.orbitz.consul.model.health.Service;
 import org.immutables.value.Value;
