@@ -416,7 +416,7 @@ public class KeyValueClient extends BaseCacheableClient {
                     query));
         } else {
             return http.extract(api.putValue(trimLeadingSlash(key),
-                    RequestBody.create(MediaType.parse("text/plain; charset=" + charset.name()), value), query));
+                    RequestBody.create(value, MediaType.parse("text/plain; charset=" + charset.name())), query));
         }
     }
 
@@ -442,7 +442,7 @@ public class KeyValueClient extends BaseCacheableClient {
                     query));
         } else {
             return http.extract(api.putValue(trimLeadingSlash(key),
-                    RequestBody.create(MediaType.parse("application/octet-stream"), value), query));
+                    RequestBody.create(value, MediaType.parse("application/octet-stream")), query));
         }
     }
 
@@ -628,8 +628,9 @@ public class KeyValueClient extends BaseCacheableClient {
         Map<String, Object> query = consistencyQueryFor(consistency);
 
         try {
-            return http.extractConsulResponse(api.performTransaction(RequestBody.create(MediaType.parse("application/json"),
-                    Jackson.MAPPER.writeValueAsString(kv(operations))), query));
+            String json = Jackson.MAPPER.writeValueAsString(kv(operations));
+            RequestBody requestBody = RequestBody.create(json, MediaType.parse("application/json"));
+            return http.extractConsulResponse(api.performTransaction(requestBody, query));
         } catch (JsonProcessingException e) {
             throw new ConsulException(e);
         }
@@ -654,8 +655,9 @@ public class KeyValueClient extends BaseCacheableClient {
         Map<String, Object> query = transactionOptions.toQuery();
 
         try {
-            return http.extractConsulResponse(api.performTransaction(RequestBody.create(MediaType.parse("application/json"),
-                Jackson.MAPPER.writeValueAsString(kv(operations))), query));
+            String json = Jackson.MAPPER.writeValueAsString(kv(operations));
+            RequestBody requestBody = RequestBody.create(json, MediaType.parse("application/json"));
+            return http.extractConsulResponse(api.performTransaction(requestBody, query));
         } catch (JsonProcessingException e) {
             throw new ConsulException(e);
         }

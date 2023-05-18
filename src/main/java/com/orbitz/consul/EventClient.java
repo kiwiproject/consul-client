@@ -53,7 +53,7 @@ public class EventClient extends BaseClient {
      */
     public Event fireEvent(String name, EventOptions eventOptions, String payload) {
         return http.extract(api.fireEvent(name,
-                RequestBody.create(MediaType.parse("text/plain"), payload),
+                RequestBody.create(payload, MediaType.parse("text/plain")),
                 eventOptions.toQuery()));
     }
 
