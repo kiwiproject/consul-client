@@ -78,7 +78,7 @@ public class SnapshotClient extends BaseClient {
      * @param callback callback called once the operation is over.
      */
     public void restore(File sourceFile, QueryOptions queryOptions, Callback<Void> callback) {
-        RequestBody requestBody = RequestBody.create(MediaType.parse("application/binary"), sourceFile);
+        RequestBody requestBody = RequestBody.create(sourceFile, MediaType.parse("application/binary"));
         http.extractBasicResponse(api.restoreSnapshot(queryOptions.toQuery(), requestBody), callback);
     }
 
