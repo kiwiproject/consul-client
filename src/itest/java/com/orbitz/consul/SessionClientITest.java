@@ -43,6 +43,16 @@ public class SessionClientITest extends BaseIntegrationTest {
     }
 
     @Test
+    public void shouldCreateSessionInDatacenter() {
+        String datacenter = client.coordinateClient().getDatacenters().get(0).getDatacenter();
+
+        ImmutableSession newSession = ImmutableSession.builder().build();
+        SessionCreatedResponse sessionResponse = sessionClient.createSession(newSession, datacenter);
+        assertNotNull(sessionResponse);
+        sessionClient.destroySession(sessionResponse.getId());
+    }
+
+    @Test
     public void testRenewSession() throws Exception {
         final Session value = ImmutableSession.builder().name("session_" + UUID.randomUUID().toString()).build();
 
