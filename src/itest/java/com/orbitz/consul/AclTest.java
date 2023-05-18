@@ -2,6 +2,8 @@ package com.orbitz.consul;
 
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.model.acl.*;
+
+import org.hamcrest.MatcherAssert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -13,7 +15,7 @@ import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.*;
 import org.testcontainers.containers.GenericContainer;
 
-public class AclTestIgnore {
+public class AclTest {
 
     public static GenericContainer<?> consulContainerAcl;
     static {
@@ -183,7 +185,7 @@ public class AclTestIgnore {
         AclClient aclClient = client.aclClient();
 
         TokenResponse selfToken = aclClient.readSelfToken();
-        assertThat(selfToken.description(), is("Master Token"));
+        assertThat(selfToken.description(), is("Initial Management Token"));
     }
 
     @Test
@@ -193,9 +195,21 @@ public class AclTestIgnore {
         String policyName = UUID.randomUUID().toString();
         PolicyResponse createdPolicy = aclClient.createPolicy(ImmutablePolicy.builder().name(policyName).build());
 
-        TokenResponse createdToken = aclClient.createToken(ImmutableToken.builder().description("none").local(false).addPolicies(ImmutablePolicyLink.builder().id(createdPolicy.id()).build()).build());
+        ImmutableToken newToken = ImmutableToken.builder()
+                .description("none")
+                .local(false)
+                .addPolicies(ImmutablePolicyLink.builder().id(createdPolicy.id()).build())
+                .build();
+        TokenResponse createdToken = aclClient.createToken(newToken);
+
         String newDescription = UUID.randomUUID().toString();
-        aclClient.updateToken(createdToken.accessorId(), ImmutableToken.builder().local(false).description(newDescription).build());
+        ImmutableToken tokenUpdates = ImmutableToken.builder()
+                .id(createdToken.accessorId())
+                .local(false)
+                .description(newDescription)
+                .build();
+        TokenResponse updatedToken = aclClient.updateToken(createdToken.accessorId(), tokenUpdates);
+        MatcherAssert.assertThat(updatedToken.description(), is(newDescription));
 
         TokenResponse readToken = aclClient.readToken(createdToken.accessorId());
         assertThat(readToken.description(), is(newDescription));
@@ -206,7 +220,7 @@ public class AclTestIgnore {
         AclClient aclClient = client.aclClient();
 
         assertTrue(aclClient.listTokens().stream().anyMatch(p -> Objects.equals(p.description(), "Anonymous Token")));
-        assertTrue(aclClient.listTokens().stream().anyMatch(p -> Objects.equals(p.description(), "Master Token")));
+        assertTrue(aclClient.listTokens().stream().anyMatch(p -> Objects.equals(p.description(), "Initial Management Token")));
     }
 
     @Test
