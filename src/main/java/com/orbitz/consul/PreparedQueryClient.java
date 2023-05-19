@@ -19,7 +19,7 @@ import java.util.Optional;
 
 public class PreparedQueryClient extends BaseClient {
 
-    private static String CLIENT_NAME = "preparedquery";
+    private static final String CLIENT_NAME = "preparedquery";
 
     private final Api api;
 

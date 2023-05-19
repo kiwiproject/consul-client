@@ -20,7 +20,7 @@ import java.util.Map;
  */
 public class CoordinateClient extends BaseClient {
 
-    private static String CLIENT_NAME = "coordinate";
+    private static final String CLIENT_NAME = "coordinate";
 
     private final Api api;
 

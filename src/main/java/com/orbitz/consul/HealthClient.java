@@ -25,7 +25,7 @@ import java.util.Map;
  */
 public class HealthClient extends BaseCacheableClient {
 
-    private static String CLIENT_NAME = "health";
+    private static final String CLIENT_NAME = "health";
 
     private final Api api;
 

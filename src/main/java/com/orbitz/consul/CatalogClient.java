@@ -22,7 +22,7 @@ import java.util.Map;
  */
 public class CatalogClient extends BaseCacheableClient {
 
-    private static String CLIENT_NAME = "catalog";
+    private static final String CLIENT_NAME = "catalog";
 
     private final Api api;
 

@@ -49,7 +49,7 @@ import static com.orbitz.consul.util.Strings.trimLeadingSlash;
  */
 public class KeyValueClient extends BaseCacheableClient {
 
-    private static String CLIENT_NAME = "keyvalue";
+    private static final String CLIENT_NAME = "keyvalue";
     public static final int NOT_FOUND_404 = 404;
 
     private final Api api;

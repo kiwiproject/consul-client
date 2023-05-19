@@ -28,7 +28,7 @@ import java.util.Map;
  */
 public class SnapshotClient extends BaseClient {
 
-    private static String CLIENT_NAME = "snapshot";
+    private static final String CLIENT_NAME = "snapshot";
 
     private final Api api;
 
