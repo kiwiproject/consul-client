@@ -32,9 +32,14 @@ public class CacheConfig {
     private final boolean timeoutAutoAdjustmentEnabled;
     private final RefreshErrorLogConsumer refreshErrorLogConsumer;
 
-    private CacheConfig(Duration watchDuration, Duration minBackOffDelay, Duration maxBackOffDelay, Duration minDelayBetweenRequests,
-                        Duration minDelayOnEmptyResult, boolean timeoutAutoAdjustmentEnabled,
-                        Duration timeoutAutoAdjustmentMargin, RefreshErrorLogConsumer refreshErrorLogConsumer) {
+    private CacheConfig(Duration watchDuration,
+                        Duration minBackOffDelay,
+                        Duration maxBackOffDelay,
+                        Duration minDelayBetweenRequests,
+                        Duration minDelayOnEmptyResult,
+                        boolean timeoutAutoAdjustmentEnabled,
+                        Duration timeoutAutoAdjustmentMargin,
+                        RefreshErrorLogConsumer refreshErrorLogConsumer) {
         this.watchDuration = watchDuration;
         this.minBackOffDelay = minBackOffDelay;
         this.maxBackOffDelay = maxBackOffDelay;
@@ -219,8 +224,13 @@ public class CacheConfig {
         }
 
         public CacheConfig build() {
-            return new CacheConfig(watchDuration, minBackOffDelay, maxBackOffDelay, minDelayBetweenRequests, minDelayOnEmptyResult,
-                    timeoutAutoAdjustmentEnabled, timeoutAutoAdjustmentMargin,
+            return new CacheConfig(watchDuration,
+                    minBackOffDelay,
+                    maxBackOffDelay,
+                    minDelayBetweenRequests,
+                    minDelayOnEmptyResult,
+                    timeoutAutoAdjustmentEnabled,
+                    timeoutAutoAdjustmentMargin,
                     refreshErrorLogConsumer);
         }
     }

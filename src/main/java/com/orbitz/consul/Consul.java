@@ -74,17 +74,23 @@ public class Consul {
     private boolean destroyed;
 
     /**
-    * Private constructor.
-    *
-    */
-    protected Consul(AgentClient agentClient, HealthClient healthClient,
-                KeyValueClient keyValueClient, CatalogClient catalogClient,
-                StatusClient statusClient, SessionClient sessionClient,
-                EventClient eventClient, PreparedQueryClient preparedQueryClient,
-                CoordinateClient coordinateClient, OperatorClient operatorClient,
-                ExecutorService executorService, ConnectionPool connectionPool,
-                AclClient aclClient, SnapshotClient snapshotClient,
-                OkHttpClient okHttpClient) {
+     * Package-private constructor.
+     */
+    protected Consul(AgentClient agentClient,
+                     HealthClient healthClient,
+                     KeyValueClient keyValueClient,
+                     CatalogClient catalogClient,
+                     StatusClient statusClient,
+                     SessionClient sessionClient,
+                     EventClient eventClient,
+                     PreparedQueryClient preparedQueryClient,
+                     CoordinateClient coordinateClient,
+                     OperatorClient operatorClient,
+                     ExecutorService executorService,
+                     ConnectionPool connectionPool,
+                     AclClient aclClient,
+                     SnapshotClient snapshotClient,
+                     OkHttpClient okHttpClient) {
         this.agentClient = agentClient;
         this.healthClient = healthClient;
         this.keyValueClient = keyValueClient;
@@ -720,10 +726,21 @@ public class Consul {
             if (ping) {
                 agentClient.ping();
             }
-            return new Consul(agentClient, healthClient, keyValueClient,
-                    catalogClient, statusClient, sessionClient, eventClient,
-                    preparedQueryClient, coordinateClient, operatorClient,
-                    localExecutorService, connectionPool, aclClient, snapshotClient, okHttpClient);
+            return new Consul(agentClient,
+                    healthClient,
+                    keyValueClient,
+                    catalogClient,
+                    statusClient,
+                    sessionClient,
+                    eventClient,
+                    preparedQueryClient,
+                    coordinateClient,
+                    operatorClient,
+                    localExecutorService,
+                    connectionPool,
+                    aclClient,
+                    snapshotClient,
+                    okHttpClient);
         }
 
         private String buildUrl(URL url) {
