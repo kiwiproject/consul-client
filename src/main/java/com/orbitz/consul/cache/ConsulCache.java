@@ -44,7 +44,9 @@ import static com.google.common.base.Preconditions.checkState;
  * @param <V>
  */
 public class ConsulCache<K, V> implements AutoCloseable {
-    enum State {latent, starting, started, stopped }
+    enum State {
+        LATENT, STARTING, STARTED, STOPPED
+    }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConsulCache.class);
 
@@ -53,7 +55,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
     private final AtomicBoolean isKnownLeader = new AtomicBoolean();
     private final AtomicReference<ConsulResponse.CacheResponseInfo> lastCacheInfo = new AtomicReference<>(null);
     private final AtomicReference<ImmutableMap<K, V>> lastResponse = new AtomicReference<>(null);
-    private final AtomicReference<State> state = new AtomicReference<>(State.latent);
+    private final AtomicReference<State> state = new AtomicReference<>(State.LATENT);
     private final CountDownLatch initLatch = new CountDownLatch(1);
     private final Scheduler scheduler;
     private final CopyOnWriteArrayList<Listener<K, V>> listeners = new CopyOnWriteArrayList<>();
@@ -139,7 +141,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
 
                 if (changed) {
                     boolean locked = false;
-                    if (state.get() == State.starting) {
+                    if (state.get() == State.STARTING) {
                         listenersStartingLock.lock();
                         locked = true;
                     }
@@ -159,7 +161,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
                     }
                 }
 
-                if (state.compareAndSet(State.starting, State.started)) {
+                if (state.compareAndSet(State.STARTING, State.STARTED)) {
                     initLatch.countDown();
                 }
 
@@ -197,7 +199,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
     }
 
     public void start() {
-        checkState(state.compareAndSet(State.latent, State.starting),"Cannot transition from state %s to %s", state.get(), State.starting);
+        checkState(state.compareAndSet(State.LATENT, State.STARTING),"Cannot transition from state %s to %s", state.get(), State.STARTING);
         eventHandler.cacheStart(cacheDescriptor);
         runCallback();
     }
@@ -209,11 +211,11 @@ public class ConsulCache<K, V> implements AutoCloseable {
             LOGGER.error("Unable to propagate cache stop event. ", ree);
         }
 
-        State previous = state.getAndSet(State.stopped);
+        State previous = state.getAndSet(State.STOPPED);
         if (stopWatch.isRunning()) {
             stopWatch.stop();
         }
-        if (previous != State.stopped) {
+        if (previous != State.STOPPED) {
             scheduler.shutdownNow();
         }
     }
@@ -231,7 +233,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
     }
 
     private boolean isRunning() {
-        return state.get() == State.started || state.get() == State.starting;
+        return state.get() == State.STARTED || state.get() == State.STARTING;
     }
 
     public boolean awaitInitialized(long timeout, TimeUnit unit) throws InterruptedException {
@@ -328,13 +330,13 @@ public class ConsulCache<K, V> implements AutoCloseable {
     public boolean addListener(Listener<K, V> listener) {
         boolean locked = false;
         boolean added;
-        if (state.get() == State.starting) {
+        if (state.get() == State.STARTING) {
             listenersStartingLock.lock();
             locked = true;
         }
         try {
             added = listeners.add(listener);
-            if (state.get() == State.started) {
+            if (state.get() == State.STARTED) {
                 try {
                     listener.notify(lastResponse.get());
                 } catch (RuntimeException e) {

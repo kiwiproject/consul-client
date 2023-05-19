@@ -188,14 +188,14 @@ public class KVCacheITest extends BaseIntegrationTest {
         String root = UUID.randomUUID().toString();
 
         KVCache nc = KVCache.newCache(kvClient, root, 10);
-        assertEquals(ConsulCache.State.latent, nc.getState());
+        assertEquals(ConsulCache.State.LATENT, nc.getState());
         nc.start();
-        assertThat(nc.getState(), anyOf(is(ConsulCache.State.starting), is(ConsulCache.State.started)));
+        assertThat(nc.getState(), anyOf(is(ConsulCache.State.STARTING), is(ConsulCache.State.STARTED)));
 
         if (!nc.awaitInitialized(10, TimeUnit.SECONDS)) {
             fail("cache initialization failed");
         }
-        assertEquals(ConsulCache.State.started, nc.getState());
+        assertEquals(ConsulCache.State.STARTED, nc.getState());
 
         assertThrows(IllegalStateException.class, () -> nc.start());
     }
@@ -208,15 +208,15 @@ public class KVCacheITest extends BaseIntegrationTest {
 
         KVCache nc = KVCache.newCache(kvClient, root, 10);
         nc.addListener(events::add);
-        assertEquals(ConsulCache.State.latent, nc.getState());
+        assertEquals(ConsulCache.State.LATENT, nc.getState());
 
         nc.start();
-        assertThat(nc.getState(), anyOf(is(ConsulCache.State.starting), is(ConsulCache.State.started)));
+        assertThat(nc.getState(), anyOf(is(ConsulCache.State.STARTING), is(ConsulCache.State.STARTED)));
 
         if (!nc.awaitInitialized(1, TimeUnit.SECONDS)) {
             fail("cache initialization failed");
         }
-        assertEquals(ConsulCache.State.started, nc.getState());
+        assertEquals(ConsulCache.State.STARTED, nc.getState());
 
 
         for (int i = 0; i < 5; i++) {
@@ -226,7 +226,7 @@ public class KVCacheITest extends BaseIntegrationTest {
         assertEquals(6, events.size());
 
         nc.stop();
-        assertEquals(ConsulCache.State.stopped, nc.getState());
+        assertEquals(ConsulCache.State.STOPPED, nc.getState());
 
         // now assert that we get no more update to the listener
         for (int i = 0; i < 5; i++) {
