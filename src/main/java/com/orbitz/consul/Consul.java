@@ -1,6 +1,5 @@
 package com.orbitz.consul;
 
-import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.util.Base64;
