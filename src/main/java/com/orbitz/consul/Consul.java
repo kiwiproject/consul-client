@@ -2,7 +2,6 @@ package com.orbitz.consul;
 
 import java.net.MalformedURLException;
 import java.net.Proxy;
-import java.net.URI;
 import java.net.URL;
 import java.util.Base64;
 import java.util.Collection;
@@ -297,14 +296,6 @@ public class Consul {
         private ConnectionPool connectionPool;
         private ClientConfig clientConfig;
         private ClientEventCallback clientEventCallback;
-
-        // {
-        //     try {
-        //         url = new URL(scheme, DEFAULT_HTTP_HOST, DEFAULT_HTTP_PORT, "");
-        //     } catch (MalformedURLException e) {
-        //         throw new RuntimeException(e);
-        //     }
-        // }
 
         /**
         * Constructs a new builder.
