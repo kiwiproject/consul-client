@@ -46,7 +46,7 @@ import static com.google.common.base.Preconditions.checkState;
 public class ConsulCache<K, V> implements AutoCloseable {
     enum State {latent, starting, started, stopped }
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(ConsulCache.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConsulCache.class);
 
     private final AtomicReference<BigInteger> latestIndex = new AtomicReference<>(null);
     private final AtomicLong lastContact = new AtomicLong();

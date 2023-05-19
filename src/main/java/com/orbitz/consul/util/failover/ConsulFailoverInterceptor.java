@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ConsulFailoverInterceptor implements Interceptor {
-	private final static Logger LOGGER = LoggerFactory.getLogger(ConsulFailoverInterceptor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ConsulFailoverInterceptor.class);
 
 	// The consul failover strategy
 	private ConsulFailoverStrategy strategy;

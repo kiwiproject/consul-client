@@ -5,9 +5,9 @@ import java.util.Map;
 import java.util.Optional;
 
 public class ConsistencyMode {
-    public final static ConsistencyMode DEFAULT = new ConsistencyMode("DEFAULT", 0, null);
-    public final static ConsistencyMode STALE = new ConsistencyMode("STALE", 1, "stale");
-    public final static ConsistencyMode CONSISTENT = new ConsistencyMode("CONSISTENT", 2, "consistent");
+    public static final ConsistencyMode DEFAULT = new ConsistencyMode("DEFAULT", 0, null);
+    public static final ConsistencyMode STALE = new ConsistencyMode("STALE", 1, "stale");
+    public static final ConsistencyMode CONSISTENT = new ConsistencyMode("CONSISTENT", 2, "consistent");
 
     private final String name;
     private final int ordinal;
@@ -48,7 +48,7 @@ public class ConsistencyMode {
      * @return a not null ConsistencyMode
      * @see https://www.consul.io/api/features/caching.html#simple-caching
      */
-    public final static ConsistencyMode createCachedConsistencyWithMaxAgeAndStale(final Optional<Long> maxAgeInSeconds,
+    public static final ConsistencyMode createCachedConsistencyWithMaxAgeAndStale(final Optional<Long> maxAgeInSeconds,
             final Optional<Long> maxStaleInSeconds) {
         String maxAge = "";
         if (maxAgeInSeconds.isPresent()) {
