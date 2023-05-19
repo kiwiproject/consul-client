@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 public class TimeoutInterceptor implements Interceptor {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(TimeoutInterceptor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TimeoutInterceptor.class);
 
     private CacheConfig config;
 
