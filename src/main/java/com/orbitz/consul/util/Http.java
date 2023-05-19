@@ -120,7 +120,7 @@ public class Http {
 
         BigInteger index = indexHeaderValue == null ? BigInteger.ZERO : new BigInteger(indexHeaderValue);
         long lastContact = lastContactHeaderValue == null ? 0 : NumberUtils.toLong(lastContactHeaderValue);
-        boolean knownLeader = knownLeaderHeaderValue == null ? false : Boolean.valueOf(knownLeaderHeaderValue);
+        boolean knownLeader = knownLeaderHeaderValue != null && Boolean.valueOf(knownLeaderHeaderValue);
         return new ConsulResponse<>(response.body(), lastContact, knownLeader, index,
                                     headers.get("X-Cache"), headers.get("Age"));
     }

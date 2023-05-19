@@ -89,11 +89,12 @@ public class ConsistencyMode {
 
     @Override
     public final String toString() {
-        String s = name();
-        for (Map.Entry<String, String> en : getAdditionalHeaders().entrySet()) {
-            s += String.format("[%s=%s]", en.getKey(), en.getValue());
+        var builder = new StringBuilder(name());
+        for (var entry : getAdditionalHeaders().entrySet()) {
+            builder.append(String.format("[%s=%s]", entry.getKey(), entry.getValue()));
         }
-        return s;
+
+        return builder.toString();
     }
 
     public int ordinal(){

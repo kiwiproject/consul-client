@@ -2,6 +2,7 @@ package com.orbitz.consul;
 
 import java.net.MalformedURLException;
 import java.net.Proxy;
+import java.net.URI;
 import java.net.URL;
 import java.util.Base64;
 import java.util.Collection;
@@ -297,19 +298,23 @@ public class Consul {
         private ClientConfig clientConfig;
         private ClientEventCallback clientEventCallback;
 
-        {
-            try {
-                url = new URL(scheme, DEFAULT_HTTP_HOST, DEFAULT_HTTP_PORT, "");
-            } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        // {
+        //     try {
+        //         url = new URL(scheme, DEFAULT_HTTP_HOST, DEFAULT_HTTP_PORT, "");
+        //     } catch (MalformedURLException e) {
+        //         throw new RuntimeException(e);
+        //     }
+        // }
 
         /**
         * Constructs a new builder.
         */
         Builder() {
-
+            try {
+                url = new URL(scheme, DEFAULT_HTTP_HOST, DEFAULT_HTTP_PORT, "");
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         /**
@@ -688,13 +693,13 @@ public class Consul {
             final Retrofit retrofit;
 
             // if an ExecutorService is provided to the Builder, we use it, otherwise, we create one
-            ExecutorService executorService = this.executorService;
-            if (executorService == null) {
+            ExecutorService localExecutorService = this.executorService;
+            if (localExecutorService == null) {
                 /**
                 * mimics okhttp3.Dispatcher#executorService implementation, except
                 * using daemon thread so shutdown is not blocked (issue #133)
                 */
-                executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60, TimeUnit.SECONDS,
+                localExecutorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60, TimeUnit.SECONDS,
                         new SynchronousQueue<>(), Util.threadFactory("OkHttp Dispatcher", true));
             }
 
@@ -709,7 +714,7 @@ public class Consul {
                     this.trustManager,
                     this.hostnameVerifier,
                     this.proxy,
-                    executorService,
+                    localExecutorService,
                     connectionPool,
                     config);
             NetworkTimeoutConfig networkTimeoutConfig = new NetworkTimeoutConfig.Builder()
@@ -750,7 +755,7 @@ public class Consul {
             return new Consul(agentClient, healthClient, keyValueClient,
                     catalogClient, statusClient, sessionClient, eventClient,
                     preparedQueryClient, coordinateClient, operatorClient,
-                    executorService, connectionPool, aclClient, snapshotClient, okHttpClient);
+                    localExecutorService, connectionPool, aclClient, snapshotClient, okHttpClient);
         }
 
         private String buildUrl(URL url) {

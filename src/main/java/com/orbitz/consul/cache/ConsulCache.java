@@ -138,7 +138,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
                 }
 
                 if (changed) {
-                    Boolean locked = false;
+                    boolean locked = false;
                     if (state.get() == State.starting) {
                         listenersStartingLock.lock();
                         locked = true;
@@ -259,7 +259,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
                 if (!keySet.contains(key)) {
                     builder.put(key, v);
                 } else {
-                    LOGGER.warn("Duplicate service encountered. May differ by tags. Try using more specific tags? " + key.toString());
+                    LOGGER.warn("Duplicate service encountered. May differ by tags. Try using more specific tags? {}", key);
                 }
             }
             keySet.add(key);
@@ -326,7 +326,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
     }
 
     public boolean addListener(Listener<K, V> listener) {
-        Boolean locked = false;
+        boolean locked = false;
         boolean added;
         if (state.get() == State.starting) {
             listenersStartingLock.lock();

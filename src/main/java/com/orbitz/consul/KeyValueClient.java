@@ -182,7 +182,7 @@ public class KeyValueClient extends BaseCacheableClient {
     }
 
     private Optional<Value> getSingleValue(List<Value> values) {
-        return values != null && values.size() != 0 ? Optional.of(values.get(0)) : Optional.empty();
+        return values != null && !values.isEmpty() ? Optional.of(values.get(0)) : Optional.empty();
     }
 
     /**
@@ -671,11 +671,11 @@ public class KeyValueClient extends BaseCacheableClient {
      * @param operations An array of ops.
      * @return An array of wrapped ops.
      */
-    static Kv[] kv(Operation... operations) {
-        Kv[] kvs = new Kv[operations.length];
+    static KvOperation[] kv(Operation... operations) {
+        KvOperation[] kvs = new KvOperation[operations.length];
 
         for (int i = 0; i < operations.length; i ++) {
-            kvs[i] = new Kv(operations[i]);
+            kvs[i] = new KvOperation(operations[i]);
         }
 
         return kvs;
@@ -716,10 +716,10 @@ public class KeyValueClient extends BaseCacheableClient {
     /**
      * Wrapper for Transaction KV entry.
      */
-    static class Kv {
+    static class KvOperation {
         private Operation kv;
 
-        private Kv(Operation operation) {
+        private KvOperation(Operation operation) {
             kv = operation;
         }
 
