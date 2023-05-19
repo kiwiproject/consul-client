@@ -32,6 +32,7 @@
         <java.version>11</java.version>
 
         <apache.commons.version>3.12.0</apache.commons.version>
+        <build-helper-maven-plugin.version>3.4.0</build-helper-maven-plugin.version>
         <checker-qual.version>3.34.0</checker-qual.version>
         <commonscodec.version>1.15</commonscodec.version>
         <guava.version>31.1-jre</guava.version>
@@ -354,6 +355,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${build-helper-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>add-test-source</id>
