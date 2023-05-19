@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class StatusClient extends BaseClient {
 
-    private static String CLIENT_NAME = "status";
+    private static final String CLIENT_NAME = "status";
 
     private final Api api;
 

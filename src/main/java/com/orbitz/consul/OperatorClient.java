@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class OperatorClient extends BaseClient {
 
-    private static String CLIENT_NAME = "operator";
+    private static final String CLIENT_NAME = "operator";
 
     private final Api api;
 

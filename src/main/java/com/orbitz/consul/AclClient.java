@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class AclClient extends BaseClient {
 
-    private static String CLIENT_NAME = "acl";
+    private static final String CLIENT_NAME = "acl";
 
     private final Api api;
 

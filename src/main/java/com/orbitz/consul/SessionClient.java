@@ -20,7 +20,7 @@ import java.util.Optional;
  */
 public class SessionClient extends BaseClient {
 
-    private static String CLIENT_NAME = "session";
+    private static final String CLIENT_NAME = "session";
 
     private final Api api;
 

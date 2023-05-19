@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public class EventClient extends BaseClient {
 
-    private static String CLIENT_NAME = "event";
+    private static final String CLIENT_NAME = "event";
 
     private final Api api;
 

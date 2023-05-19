@@ -29,7 +29,7 @@ import java.util.Optional;
  */
 public class AgentClient extends BaseClient {
 
-    private static String CLIENT_NAME = "agent";
+    private static final String CLIENT_NAME = "agent";
 
     private final Api api;
 
