@@ -13,7 +13,6 @@ import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import junitparams.naming.TestCaseName;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -183,7 +182,7 @@ public class KVCacheITest extends BaseIntegrationTest {
         assertEquals(0, map.size());
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testLifeCycleDoubleStart() throws Exception {
         KeyValueClient kvClient = consulClient.keyValueClient();
         String root = UUID.randomUUID().toString();
@@ -197,8 +196,8 @@ public class KVCacheITest extends BaseIntegrationTest {
             fail("cache initialization failed");
         }
         assertEquals(ConsulCache.State.started, nc.getState());
-        nc.start();
 
+        assertThrows(IllegalStateException.class, () -> nc.start());
     }
 
     @Test
