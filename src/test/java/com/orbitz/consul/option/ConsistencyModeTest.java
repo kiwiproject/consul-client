@@ -2,6 +2,8 @@ package com.orbitz.consul.option;
 
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Optional;
@@ -49,5 +51,14 @@ public class ConsistencyModeTest {
     @Test(expected = IllegalArgumentException.class)
     public void checkBadMaxStaleError() {
         ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(Optional.empty(), Optional.of(-2L));
+    }
+
+    @Test
+    public void shouldHaveToString() {
+        var maxAgeSeconds = Optional.of(Long.valueOf(30));
+        var maxStaleSeconds = Optional.of(60L);
+        var consistency = ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(maxAgeSeconds, maxStaleSeconds);
+
+        assertThat(consistency.toString(), containsString("CACHED[Cache-Control=max-age=30,stale-if-error=60]"));
     }
 }
