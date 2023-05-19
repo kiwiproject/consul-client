@@ -23,6 +23,7 @@ import com.orbitz.consul.config.ClientConfig;
 import com.orbitz.consul.monitoring.ClientEventCallback;
 import com.orbitz.consul.util.Jackson;
 import com.orbitz.consul.util.TrustManagerUtils;
+import com.orbitz.consul.util.UncheckedMalformedURLException;
 import com.orbitz.consul.util.bookend.ConsulBookend;
 import com.orbitz.consul.util.bookend.ConsulBookendInterceptor;
 import com.orbitz.consul.util.failover.ConsulFailoverInterceptor;
@@ -304,7 +305,7 @@ public class Consul {
             try {
                 url = new URL(scheme, DEFAULT_HTTP_HOST, DEFAULT_HTTP_PORT, "");
             } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
+                throw new UncheckedMalformedURLException(e);
             }
         }
 
@@ -339,7 +340,7 @@ public class Consul {
                 try {
                     this.url = new URL(scheme, this.url.getHost(), this.url.getPort(), "");
                 } catch (MalformedURLException e) {
-                    throw new RuntimeException(e);
+                    throw new UncheckedMalformedURLException(e);
                 }
             }
             return this;
@@ -474,7 +475,7 @@ public class Consul {
             try {
                 this.url = new URL(scheme, hostAndPort.getHost(), hostAndPort.getPort(), "");
             } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
+                throw new UncheckedMalformedURLException(e);
             }
 
             return this;
@@ -521,7 +522,7 @@ public class Consul {
             try {
                 this.url = new URL(url);
             } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
+                throw new UncheckedMalformedURLException(e);
             }
 
             return this;
@@ -720,7 +721,7 @@ public class Consul {
                         Jackson.MAPPER,
                         okHttpClient);
             } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
+                throw new UncheckedMalformedURLException(e);
             }
 
             ClientEventCallback eventCallback = clientEventCallback != null ?

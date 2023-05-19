@@ -8,18 +8,23 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 
 public class TrustManagerUtils {
+
+    private TrustManagerUtils() {
+        // utility class
+    }
+
     public static X509TrustManager getDefaultTrustManager() {
         try {
             TrustManagerFactory factory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             factory.init((KeyStore) null);
             for (TrustManager manager : factory.getTrustManagers()) {
-                if(manager instanceof X509TrustManager) {
+                if (manager instanceof X509TrustManager) {
                     return (X509TrustManager) manager;
                 }
             }
             throw new IllegalStateException("Default X509TrustManager not found");
         } catch (NoSuchAlgorithmException | KeyStoreException e) {
-            throw new Error(e);
+            throw new UncheckedGeneralSecurityException(e);
         }
     }
 
