@@ -30,7 +30,7 @@ public class TimeoutInterceptorTest {
 
         TimeoutInterceptor interceptor = new TimeoutInterceptor(config);
         interceptor.intercept(chain);
-        verify(chain).withReadTimeout(eq(expectedTimeoutMs), eq(TimeUnit.MILLISECONDS));
+        verify(chain).withReadTimeout(expectedTimeoutMs, TimeUnit.MILLISECONDS);
     }
 
     public Object getInterceptParameters() {
