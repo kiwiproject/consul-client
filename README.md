@@ -75,7 +75,7 @@ Basic Usage
 ### Example 1: Connect to Consul.
 
 ```java
-Consul client = Consul.builder().build(); // connect on localhost
+Consul client = Consul.builder().build(); // connect on localhost to default port 8500
 ```
 
 ### Example 2: Register and check your service in with Consul.
