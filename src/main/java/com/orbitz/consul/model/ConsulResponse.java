@@ -113,7 +113,7 @@ public class ConsulResponse<T> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ConsulResponse that = (ConsulResponse) o;
+        ConsulResponse<?> that = (ConsulResponse<?>) o;
 
         return Objects.equal(this.response, that.response) &&
                 Objects.equal(this.lastContact, that.lastContact) &&
