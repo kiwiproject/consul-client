@@ -489,7 +489,7 @@ public class AgentITest extends BaseIntegrationTest {
             HealthCheck check = client.agentClient().getChecks().get(checkId);
 
             assertEquals(check.getCheckId(), checkId);
-            assertEquals(check.getName(), "test-validate");
+            assertEquals("test-validate", check.getName());
         }
         finally {
             client.agentClient().deregisterCheck(checkId);
@@ -506,7 +506,7 @@ public class AgentITest extends BaseIntegrationTest {
             HealthCheck check = client.agentClient().getChecks().get(checkId);
 
             assertEquals(check.getCheckId(), checkId);
-            assertEquals(check.getName(), "test-validate");
+            assertEquals("test-validate", check.getName());
         }
         finally {
             client.agentClient().deregisterCheck(checkId);
@@ -522,7 +522,7 @@ public class AgentITest extends BaseIntegrationTest {
             HealthCheck check = client.agentClient().getChecks().get(checkId);
 
             assertEquals(check.getCheckId(), checkId);
-            assertEquals(check.getName(), "test-validate");
+            assertEquals("test-validate", check.getName());
         }
         finally {
             client.agentClient().deregisterCheck(checkId);

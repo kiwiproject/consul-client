@@ -10,16 +10,16 @@ public class ConsistencyModeTest {
 
     @Test
     public void checkCompatinbilityWithOldEnum(){
-        assertEquals(ConsistencyMode.values().length, 3);
+        assertEquals(3, ConsistencyMode.values().length);
         for (int i = 0; i < ConsistencyMode.values().length; i++) {
             assertEquals(ConsistencyMode.values()[i].ordinal(), i);
         }
-        assertEquals(ConsistencyMode.values()[0], ConsistencyMode.DEFAULT);
-        assertEquals(ConsistencyMode.values()[0].name(), "DEFAULT");
-        assertEquals(ConsistencyMode.values()[1], ConsistencyMode.STALE);
-        assertEquals(ConsistencyMode.values()[1].name(), "STALE");
-        assertEquals(ConsistencyMode.values()[2], ConsistencyMode.CONSISTENT);
-        assertEquals(ConsistencyMode.values()[2].name(), "CONSISTENT");
+        assertEquals(ConsistencyMode.DEFAULT, ConsistencyMode.values()[0]);
+        assertEquals("DEFAULT", ConsistencyMode.values()[0].name());
+        assertEquals(ConsistencyMode.STALE, ConsistencyMode.values()[1]);
+        assertEquals("STALE", ConsistencyMode.values()[1].name());
+        assertEquals(ConsistencyMode.CONSISTENT, ConsistencyMode.values()[2]);
+        assertEquals("CONSISTENT", ConsistencyMode.values()[2].name());
     }
 
     @Test
