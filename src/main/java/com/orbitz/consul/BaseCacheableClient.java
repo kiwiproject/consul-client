@@ -2,8 +2,6 @@ package com.orbitz.consul;
 
 import com.orbitz.consul.config.ClientConfig;
 import com.orbitz.consul.monitoring.ClientEventCallback;
-import com.orbitz.consul.monitoring.ClientEventHandler;
-import com.orbitz.consul.util.Http;
 
 abstract class BaseCacheableClient extends BaseClient {
 
