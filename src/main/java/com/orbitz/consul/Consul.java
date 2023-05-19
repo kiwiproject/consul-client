@@ -71,6 +71,7 @@ public class Consul {
     private final ExecutorService executorService;
     private final ConnectionPool connectionPool;
     private final OkHttpClient okHttpClient;
+    private boolean destroyed;
 
     /**
     * Private constructor.
@@ -105,9 +106,19 @@ public class Consul {
     * Destroys the Object internal state.
     */
     public void destroy() {
+        this.destroyed = true;
         this.okHttpClient.dispatcher().cancelAll();
         this.executorService.shutdownNow();
         this.connectionPool.evictAll();
+    }
+
+    /**
+     * Check whether the internal state has been shut down.
+     *
+     * @return true if {@link #destroy()} was called, otherwise false
+     */
+    public boolean isDestroyed() {
+        return destroyed;
     }
 
     /**
