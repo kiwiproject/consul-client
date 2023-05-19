@@ -336,9 +336,10 @@ public class AclTest {
         RoleResponse roleResponse = aclClient.readRole(role.id());
         assertEquals(roleName, roleResponse.name());
 
-        aclClient.deleteRole(roleResponse.id());
+        String id = roleResponse.id();
+        aclClient.deleteRole(id);
 
-        assertThrows(ConsulException.class, () -> aclClient.readRole(roleResponse.id()));
+        assertThrows(ConsulException.class, () -> aclClient.readRole(id));
     }
 
 }

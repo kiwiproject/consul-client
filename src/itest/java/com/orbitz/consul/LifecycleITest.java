@@ -11,21 +11,26 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class LifecycleITest extends BaseIntegrationTest {
 
     @Test
     public void shouldBeDestroyable() {
-        ConnectionPool connectionPool = new ConnectionPool();
         Consul client = Consul.builder().withHostAndPort(defaultClientHostAndPort).build();
+        assertFalse(client.isDestroyed());
+
         client.destroy();
+
+        assertTrue(client.isDestroyed());
     }
 
     @Test
     public void shouldDestroyTheExecutorServiceWhenDestroyMethodIsInvoked() throws InterruptedException {
         ConnectionPool connectionPool = new ConnectionPool();
-        ExecutorService executorService = mock(ExecutorService.class, (Answer) invocationOnMock -> {
+        ExecutorService executorService = mock(ExecutorService.class, (Answer<?>) invocationOnMock -> {
             throw new UnsupportedOperationException("Mock Method should not be called");
         });
 
@@ -51,6 +56,7 @@ public class LifecycleITest extends BaseIntegrationTest {
         Consul client = Consul.builder().withHostAndPort(defaultClientHostAndPort)
             .withExecutorService(executorService).withConnectionPool(connectionPool).build();
         client.destroy();
+        assertTrue(client.isDestroyed());
     }
 
     public static void main(String[] args) {

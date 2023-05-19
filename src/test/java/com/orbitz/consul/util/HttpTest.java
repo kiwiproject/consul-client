@@ -70,6 +70,8 @@ public class HttpTest {
         doReturn(response).when(call).execute();
 
         http.handle(call);
+
+        verify(call).execute();
     }
 
     @Test

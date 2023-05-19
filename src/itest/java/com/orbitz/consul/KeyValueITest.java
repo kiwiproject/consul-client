@@ -391,7 +391,7 @@ public class KeyValueITest extends BaseIntegrationTest {
 
         keyValueClient.deleteKey(key);
 
-        assertTrue(response.get().getResponse().getKey().equals(key));
+        assertEquals(key, response.get().getResponse().getKey());
         assertTrue(response.get().getResponse().getValue().isPresent());
         assertNotNull(response.get().getIndex());
     }
