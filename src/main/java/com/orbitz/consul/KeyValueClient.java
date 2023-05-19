@@ -50,6 +50,9 @@ import static com.orbitz.consul.util.Strings.trimLeadingSlash;
 public class KeyValueClient extends BaseCacheableClient {
 
     private static final String CLIENT_NAME = "keyvalue";
+    private static final String KEY_MUST_BE_DEFINED = "Key must be defined";
+    private static final String RECURSE = "recurse";
+
     public static final int NOT_FOUND_404 = 404;
 
     private final Api api;
@@ -222,7 +225,7 @@ public class KeyValueClient extends BaseCacheableClient {
     public List<Value> getValues(String key, QueryOptions queryOptions) {
         Map<String, Object> query = queryOptions.toQuery();
 
-        query.put("recurse", "true");
+        query.put(RECURSE, "true");
 
         List<Value> result = http.extract(api.getValue(trimLeadingSlash(key), query), NOT_FOUND_404);
 
@@ -243,7 +246,7 @@ public class KeyValueClient extends BaseCacheableClient {
     public ConsulResponse<List<Value>> getConsulResponseWithValues(String key, QueryOptions queryOptions) {
         Map<String, Object> query = queryOptions.toQuery();
 
-        query.put("recurse", "true");
+        query.put(RECURSE, "true");
 
         return http.extractConsulResponse(api.getValue(trimLeadingSlash(key), query), NOT_FOUND_404);
     }
@@ -261,7 +264,7 @@ public class KeyValueClient extends BaseCacheableClient {
     public void getValues(String key, QueryOptions queryOptions, ConsulResponseCallback<List<Value>> callback) {
         Map<String, Object> query = queryOptions.toQuery();
 
-        query.put("recurse", "true");
+        query.put(RECURSE, "true");
 
         http.extractConsulResponse(api.getValue(trimLeadingSlash(key), query), callback, NOT_FOUND_404);
     }
@@ -404,7 +407,7 @@ public class KeyValueClient extends BaseCacheableClient {
      */
     public boolean putValue(String key, String value, long flags, PutOptions putOptions, Charset charset) {
 
-        checkArgument(StringUtils.isNotEmpty(key), "Key must be defined");
+        checkArgument(StringUtils.isNotEmpty(key), KEY_MUST_BE_DEFINED);
         Map<String, Object> query = putOptions.toQuery();
 
         if (flags != 0) {
@@ -430,7 +433,7 @@ public class KeyValueClient extends BaseCacheableClient {
      */
     public boolean putValue(String key, byte[] value, long flags, PutOptions putOptions) {
 
-        checkArgument(StringUtils.isNotEmpty(key), "Key must be defined");
+        checkArgument(StringUtils.isNotEmpty(key), KEY_MUST_BE_DEFINED);
         Map<String, Object> query = putOptions.toQuery();
 
         if (flags != 0) {
@@ -537,7 +540,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * @param deleteOptions DELETE options (e.g. recurse, cas)
      */
     public void deleteKey(String key, DeleteOptions deleteOptions) {
-        checkArgument(StringUtils.isNotEmpty(key), "Key must be defined");
+        checkArgument(StringUtils.isNotEmpty(key), KEY_MUST_BE_DEFINED);
         Map<String, Object> query = deleteOptions.toQuery();
 
         http.handle(api.deleteValues(trimLeadingSlash(key), query));
