@@ -112,6 +112,9 @@ public class CacheConfig {
     }
 
     public static class Builder {
+
+        private static final String DELAY_CANNOT_BE_NULL = "Delay cannot be null";
+
         private Duration watchDuration = DEFAULT_WATCH_DURATION;
         private Duration minBackOffDelay = DEFAULT_BACKOFF_DELAY;
         private Duration maxBackOffDelay = DEFAULT_BACKOFF_DELAY;
@@ -130,7 +133,7 @@ public class CacheConfig {
          * @throws IllegalArgumentException if {@code delay} is negative.
          */
         public Builder withWatchDuration(Duration delay) {
-            this.watchDuration = Preconditions.checkNotNull(delay, "Delay cannot be null");
+            this.watchDuration = Preconditions.checkNotNull(delay, DELAY_CANNOT_BE_NULL);
             Preconditions.checkArgument(!delay.isNegative(), "Delay must be positive");
             return this;
         }
@@ -140,7 +143,7 @@ public class CacheConfig {
          * @throws IllegalArgumentException if {@code delay} is negative.
          */
         public Builder withBackOffDelay(Duration delay) {
-            this.minBackOffDelay = Preconditions.checkNotNull(delay, "Delay cannot be null");
+            this.minBackOffDelay = Preconditions.checkNotNull(delay, DELAY_CANNOT_BE_NULL);
             this.maxBackOffDelay = delay;
             Preconditions.checkArgument(!delay.isNegative(), "Delay must be positive");
             return this;
@@ -162,7 +165,7 @@ public class CacheConfig {
          * Sets the minimum time between two requests for caches.
          */
         public Builder withMinDelayBetweenRequests(Duration delay) {
-            this.minDelayBetweenRequests = Preconditions.checkNotNull(delay, "Delay cannot be null");
+            this.minDelayBetweenRequests = Preconditions.checkNotNull(delay, DELAY_CANNOT_BE_NULL);
             return this;
         }
 
@@ -170,7 +173,7 @@ public class CacheConfig {
          * Sets the minimum time between two requests for caches when an empty result is returned.
          */
         public Builder withMinDelayOnEmptyResult(Duration delay) {
-            this.minDelayOnEmptyResult = Preconditions.checkNotNull(delay, "Delay cannot be null");
+            this.minDelayOnEmptyResult = Preconditions.checkNotNull(delay, DELAY_CANNOT_BE_NULL);
             return this;
         }
 

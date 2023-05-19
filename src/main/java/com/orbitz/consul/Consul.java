@@ -265,6 +265,9 @@ public class Consul {
     * Builder for {@link Consul} client objects.
     */
     public static class Builder {
+
+        private static final String NEGATIVE_VALUE = "Negative value";
+
         private String scheme = "http";
         private URL url;
         private SSLContext sslContext;
@@ -571,7 +574,7 @@ public class Consul {
         * @return The builder
         */
         public Builder withConnectTimeoutMillis(long timeoutMillis) {
-            Preconditions.checkArgument(timeoutMillis >= 0, "Negative value");
+            Preconditions.checkArgument(timeoutMillis >= 0, NEGATIVE_VALUE);
             this.networkTimeoutConfigBuilder.withConnectTimeout((int) timeoutMillis);
             return this;
         }
@@ -582,7 +585,7 @@ public class Consul {
         * @return The builder
         */
         public Builder withReadTimeoutMillis(long timeoutMillis) {
-            Preconditions.checkArgument(timeoutMillis >= 0, "Negative value");
+            Preconditions.checkArgument(timeoutMillis >= 0, NEGATIVE_VALUE);
             this.networkTimeoutConfigBuilder.withReadTimeout((int) timeoutMillis);
 
             return this;
@@ -594,7 +597,7 @@ public class Consul {
         * @return The builder
         */
         public Builder withWriteTimeoutMillis(long timeoutMillis) {
-            Preconditions.checkArgument(timeoutMillis >= 0, "Negative value");
+            Preconditions.checkArgument(timeoutMillis >= 0, NEGATIVE_VALUE);
             this.networkTimeoutConfigBuilder.withWriteTimeout((int) timeoutMillis);
 
             return this;
