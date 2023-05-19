@@ -23,7 +23,7 @@ import com.orbitz.consul.config.ClientConfig;
 import com.orbitz.consul.monitoring.ClientEventCallback;
 import com.orbitz.consul.util.Jackson;
 import com.orbitz.consul.util.TrustManagerUtils;
-import com.orbitz.consul.util.UncheckedMalformedURLException;
+import com.orbitz.consul.util.Urls;
 import com.orbitz.consul.util.bookend.ConsulBookend;
 import com.orbitz.consul.util.bookend.ConsulBookendInterceptor;
 import com.orbitz.consul.util.failover.ConsulFailoverInterceptor;
@@ -302,11 +302,7 @@ public class Consul {
         * Constructs a new builder.
         */
         Builder() {
-            try {
-                url = new URL(scheme, DEFAULT_HTTP_HOST, DEFAULT_HTTP_PORT, "");
-            } catch (MalformedURLException e) {
-                throw new UncheckedMalformedURLException(e);
-            }
+            url = Urls.newUrl(scheme, DEFAULT_HTTP_HOST, DEFAULT_HTTP_PORT);
         }
 
         /**
@@ -337,11 +333,7 @@ public class Consul {
             //if url was already generated from a call to withMultipleHostAndPort or withMultipleHostAndPort
             //it might have the old scheme saved into url, so recreate it here if it has changed
             if (!this.url.getProtocol().equals(this.scheme)) {
-                try {
-                    this.url = new URL(scheme, this.url.getHost(), this.url.getPort(), "");
-                } catch (MalformedURLException e) {
-                    throw new UncheckedMalformedURLException(e);
-                }
+                this.url = Urls.newUrl(scheme, this.url.getHost(), this.url.getPort());
             }
             return this;
         }
@@ -472,11 +464,7 @@ public class Consul {
         * @return The builder.
         */
         public Builder withHostAndPort(HostAndPort hostAndPort) {
-            try {
-                this.url = new URL(scheme, hostAndPort.getHost(), hostAndPort.getPort(), "");
-            } catch (MalformedURLException e) {
-                throw new UncheckedMalformedURLException(e);
-            }
+            this.url = Urls.newUrl(scheme, hostAndPort.getHost(), hostAndPort.getPort());
 
             return this;
         }
@@ -519,11 +507,7 @@ public class Consul {
         * @return The builder.
         */
         public Builder withUrl(String url) {
-            try {
-                this.url = new URL(url);
-            } catch (MalformedURLException e) {
-                throw new UncheckedMalformedURLException(e);
-            }
+            this.url = Urls.newUrl(url);
 
             return this;
         }
@@ -715,14 +699,7 @@ public class Consul {
                 .withWriteTimeout(okHttpClient::writeTimeoutMillis)
                 .build();
 
-            try {
-                retrofit = createRetrofit(
-                        buildUrl(this.url),
-                        Jackson.MAPPER,
-                        okHttpClient);
-            } catch (MalformedURLException e) {
-                throw new UncheckedMalformedURLException(e);
-            }
+            retrofit = createRetrofit(buildUrl(this.url), Jackson.MAPPER, okHttpClient);
 
             ClientEventCallback eventCallback = clientEventCallback != null ?
                     clientEventCallback :
@@ -818,13 +795,17 @@ public class Consul {
             return builder.build();
         }
 
-        private Retrofit createRetrofit(String url, ObjectMapper mapper, OkHttpClient okHttpClient) throws MalformedURLException {
+        private Retrofit createRetrofit(String url, ObjectMapper mapper, OkHttpClient okHttpClient) {
 
-            final URL consulUrl = new URL(url);
+            final URL consulUrl = Urls.newUrl(url);
+
+            var baseUrl = Urls.newUrl(consulUrl.getProtocol(),
+                    consulUrl.getHost(),
+                    consulUrl.getPort(),
+                    consulUrl.getFile());
 
             return new Retrofit.Builder()
-                    .baseUrl(new URL(consulUrl.getProtocol(), consulUrl.getHost(),
-                            consulUrl.getPort(), consulUrl.getFile()).toExternalForm())
+                    .baseUrl(baseUrl.toExternalForm())
                     .addConverterFactory(JacksonConverterFactory.create(mapper))
                     .client(okHttpClient)
                     .build();
