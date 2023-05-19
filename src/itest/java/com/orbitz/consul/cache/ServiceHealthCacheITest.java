@@ -71,7 +71,7 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
                     .orElseThrow(() -> new RuntimeException("Cannot find service key 2 from serviceHealthCache"));
 
             ImmutableMap<ServiceHealthKey, ServiceHealth> healthMap = svHealth.getMap();
-            assertEquals(healthMap.size(), 2);
+            assertEquals(2, healthMap.size());
             ServiceHealth health =healthMap.get(serviceKey1);
             ServiceHealth health2 = healthMap.get(serviceKey2);
 
