@@ -13,7 +13,6 @@ import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import junitparams.naming.TestCaseName;
 import org.apache.commons.lang3.time.StopWatch;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.GreaterOrEqual;
@@ -29,6 +28,7 @@ import java.util.function.Function;
 
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -110,7 +110,7 @@ public class ConsulCacheTest {
         CacheConfig cacheConfig = CacheConfig.builder().withBackOffDelay(minDelay, maxDelay).build();
         for (int i=0; i < 1000; i++) {
             long retryDurationMs = ConsulCache.computeBackOffDelayMs(cacheConfig);
-            Assert.assertThat(
+            assertThat(
                     String.format("Retry duration expected between %s and %s but got %d ms", minDelay, maxDelay, retryDurationMs),
                     retryDurationMs,
                     is(allOf(new GreaterOrEqual<>(minDelay.toMillis()), new LessOrEqual<>(maxDelay.toMillis()))));

@@ -124,7 +124,7 @@ public class HttpTest {
     }
 
     private <U, V> void checkForInvalidRequest(Function<Call<U>, V> httpCall) throws IOException {
-        Response<String> response = Response.error(400, ResponseBody.create(MediaType.parse(""), "failure"));
+        Response<String> response = Response.error(400, ResponseBody.create("failure", MediaType.parse("")));
         Call<U> call = mock(Call.class);
         doReturn(response).when(call).execute();
 
@@ -201,7 +201,7 @@ public class HttpTest {
     }
 
     private <U, V> void checkInvalidEventIsSentWhenRequestIsInvalid(Function<Call<U>, V> httpCall) throws IOException {
-        Response<String> response = Response.error(400, ResponseBody.create(MediaType.parse(""), "failure"));
+        Response<String> response = Response.error(400, ResponseBody.create("failure", MediaType.parse("")));
         Call<U> call = mock(Call.class);
         doReturn(response).when(call).execute();
 
@@ -259,7 +259,7 @@ public class HttpTest {
         when(call.request()).thenReturn(request);
         Callback<String> callCallback = http.createCallback(call, callback);
 
-        Response<String> response = Response.error(400, ResponseBody.create(MediaType.parse(""), "failure"));
+        Response<String> response = Response.error(400, ResponseBody.create("failure", MediaType.parse("")));
         callCallback.onResponse(call, response);
         latch.await(1, TimeUnit.SECONDS);
 
