@@ -1,18 +1,32 @@
 package com.orbitz.consul;
 
 import com.google.common.net.HostAndPort;
-import com.orbitz.consul.model.acl.*;
+import com.orbitz.consul.model.acl.ImmutablePolicy;
+import com.orbitz.consul.model.acl.ImmutablePolicyLink;
+import com.orbitz.consul.model.acl.ImmutableRole;
+import com.orbitz.consul.model.acl.ImmutableRolePolicyLink;
+import com.orbitz.consul.model.acl.ImmutableToken;
+import com.orbitz.consul.model.acl.PolicyResponse;
+import com.orbitz.consul.model.acl.RoleResponse;
+import com.orbitz.consul.model.acl.Token;
+import com.orbitz.consul.model.acl.TokenResponse;
 
-import org.hamcrest.MatcherAssert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.time.Duration;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+
 import org.testcontainers.containers.GenericContainer;
 
 public class AclTest {
@@ -62,9 +76,26 @@ public class AclTest {
         String policyName = UUID.randomUUID().toString();
         PolicyResponse policy = aclClient.createPolicy(ImmutablePolicy.builder().name(policyName).build());
         assertThat(policy.name(), is(policyName));
+        assertThat(policy.datacenters(), is(Optional.empty()));
 
         policy = aclClient.readPolicy(policy.id());
         assertThat(policy.name(), is(policyName));
+        assertThat(policy.datacenters(), is(Optional.empty()));
+    }
+
+    @Test
+    public void testCreateAndReadPolicy_WithDatacenters() {
+        AclClient aclClient = client.aclClient();
+
+        String policyName = UUID.randomUUID().toString();
+        ImmutablePolicy newPolicy = ImmutablePolicy.builder().name(policyName).datacenters(List.of("dc1")).build();
+        PolicyResponse policy = aclClient.createPolicy(newPolicy);
+        assertThat(policy.name(), is(policyName));
+        assertThat(policy.datacenters(), is(Optional.of(List.of("dc1"))));
+
+        policy = aclClient.readPolicy(policy.id());
+        assertThat(policy.name(), is(policyName));
+        assertThat(policy.datacenters(), is(Optional.of(List.of("dc1"))));
     }
 
     @Test
@@ -209,7 +240,7 @@ public class AclTest {
                 .description(newDescription)
                 .build();
         TokenResponse updatedToken = aclClient.updateToken(createdToken.accessorId(), tokenUpdates);
-        MatcherAssert.assertThat(updatedToken.description(), is(newDescription));
+        assertThat(updatedToken.description(), is(newDescription));
 
         TokenResponse readToken = aclClient.readToken(createdToken.accessorId());
         assertThat(readToken.description(), is(newDescription));

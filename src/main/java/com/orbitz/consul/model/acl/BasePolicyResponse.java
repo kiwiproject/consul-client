@@ -3,6 +3,7 @@ package com.orbitz.consul.model.acl;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigInteger;
+import java.util.List;
 import java.util.Optional;
 
 public abstract class BasePolicyResponse {
@@ -14,7 +15,7 @@ public abstract class BasePolicyResponse {
     public abstract String name();
 
     @JsonProperty("Datacenters")
-    public abstract Optional<String> datacenters();
+    public abstract Optional<List<String>> datacenters();
 
     @JsonProperty("Hash")
     public abstract String hash();
