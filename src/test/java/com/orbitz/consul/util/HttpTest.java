@@ -54,7 +54,7 @@ public class HttpTest {
     public void extractingBodyShouldSucceedWhenRequestSucceed() throws IOException {
         String expectedBody = "success";
         Response<String> response = Response.success(expectedBody);
-        Call<String> call = mock(Call.class);
+        Call<String> call = createMockCallWithType(String.class);
         doReturn(response).when(call).execute();
 
         String body = http.extract(call);
@@ -66,7 +66,7 @@ public class HttpTest {
     public void handlingRequestShouldNotThrowWhenRequestSucceed() throws IOException {
         String expectedBody = "success";
         Response<String> response = Response.success(expectedBody);
-        Call<Void> call = mock(Call.class);
+        Call<Void> call = createMockCallWithType(Void.class);
         doReturn(response).when(call).execute();
 
         http.handle(call);
@@ -78,7 +78,7 @@ public class HttpTest {
     public void extractingConsulResponseShouldSucceedWhenRequestSucceed() throws IOException {
         String expectedBody = "success";
         Response<String> response = Response.success(expectedBody);
-        Call<String> call = mock(Call.class);
+        Call<String> call = createMockCallWithType(String.class);
         doReturn(response).when(call).execute();
 
         ConsulResponse<String> consulResponse = http.extractConsulResponse(call);
@@ -101,6 +101,7 @@ public class HttpTest {
         checkForFailedRequest(createExtractConsulResponseWrapper());
     }
 
+    @SuppressWarnings("unchecked")
     private <U, V> void checkForFailedRequest(Function<Call<U>, V> httpCall) throws IOException {
         Call<U> call = mock(Call.class);
         doThrow(new IOException("failure")).when(call).execute();
@@ -123,6 +124,7 @@ public class HttpTest {
         checkForInvalidRequest(createExtractConsulResponseWrapper());
     }
 
+    @SuppressWarnings("unchecked")
     private <U, V> void checkForInvalidRequest(Function<Call<U>, V> httpCall) throws IOException {
         Response<String> response = Response.error(400, ResponseBody.create("failure", MediaType.parse("")));
         Call<U> call = mock(Call.class);
@@ -146,6 +148,7 @@ public class HttpTest {
         checkSuccessEventIsSentWhenRequestSucceed(createExtractConsulResponseWrapper());
     }
 
+    @SuppressWarnings("unchecked")
     private <U, V> void checkSuccessEventIsSentWhenRequestSucceed(Function<Call<U>, V> httpCall) throws IOException {
         String expectedBody = "success";
         Response<String> response = Response.success(expectedBody);
@@ -172,6 +175,7 @@ public class HttpTest {
         checkFailureEventIsSentWhenRequestFailed(createExtractConsulResponseWrapper());
     }
 
+    @SuppressWarnings("unchecked")
     private <U, V> void checkFailureEventIsSentWhenRequestFailed(Function<Call<U>, V> httpCall) throws IOException {
         Call<U> call = mock(Call.class);
         doThrow(new IOException("failure")).when(call).execute();
@@ -200,6 +204,7 @@ public class HttpTest {
         checkInvalidEventIsSentWhenRequestIsInvalid(createExtractConsulResponseWrapper());
     }
 
+    @SuppressWarnings("unchecked")
     private <U, V> void checkInvalidEventIsSentWhenRequestIsInvalid(Function<Call<U>, V> httpCall) throws IOException {
         Response<String> response = Response.error(400, ResponseBody.create("failure", MediaType.parse("")));
         Call<U> call = mock(Call.class);
@@ -228,7 +233,7 @@ public class HttpTest {
             @Override
             public void onFailure(Throwable throwable) { }
         };
-        Call<String> call = mock(Call.class);
+        Call<String> call = createMockCallWithType(String.class);
         Request request = new Request.Builder().url("http://localhost:8500/this/endpoint").build();
         when(call.request()).thenReturn(request);
         Callback<String> callCallback = http.createCallback(call, callback);
@@ -254,7 +259,7 @@ public class HttpTest {
                 latch.countDown();
             }
         };
-        Call<String> call = mock(Call.class);
+        Call<String> call = createMockCallWithType(String.class);
         Request request = new Request.Builder().url("http://localhost:8500/this/endpoint").build();
         when(call.request()).thenReturn(request);
         Callback<String> callCallback = http.createCallback(call, callback);
@@ -278,13 +283,18 @@ public class HttpTest {
                 latch.countDown();
             }
         };
-        Call<String> call = mock(Call.class);
+        Call<String> call = createMockCallWithType(String.class);
         Callback<String> callCallback = http.createCallback(call, callback);
 
         callCallback.onFailure(call, new RuntimeException("the request failed"));
 
         latch.await(1, TimeUnit.SECONDS);
         verify(clientEventHandler, only()).httpRequestFailure(any(Request.class), any(Throwable.class));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> Call<T> createMockCallWithType(Class<T> resultType) {
+        return mock(Call.class);
     }
 
     @Test
