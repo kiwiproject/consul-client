@@ -55,7 +55,7 @@ public class ConsulFailoverInterceptor implements Interceptor {
 			Optional<Request> nextRequest;
 
 			// Get the next viable request
-			while ((nextRequest = strategy.computeNextStage(previousRequest, previousResponse)).isPresent())
+			while ((nextRequest = strategy.computeNextStage(previousRequest, previousResponse)).isPresent()) {
 				// Get the response from the last viable request
 				try {
 
@@ -70,10 +70,13 @@ public class ConsulFailoverInterceptor implements Interceptor {
 					LOGGER.debug("Failed to connect to {}", nextRequest.get().url(), ex);
 					strategy.markRequestFailed(nextRequest.get());
 				}
+			}
+
 			throw new ConsulException("Unable to successfully determine a viable host for communication.");
 
-		} else
-			throw new ConsulException("Consul failover strategy has determined that there are no viable hosts remaining.");
-
+		} else {
+			throw new ConsulException(
+					"Consul failover strategy has determined that there are no viable hosts remaining.");
+		}
 	}
 }
