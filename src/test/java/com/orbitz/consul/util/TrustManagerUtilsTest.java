@@ -1,8 +1,8 @@
 package com.orbitz.consul.util;
 
-import org.junit.Test;
+import static org.junit.Assert.assertNotNull;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 public class TrustManagerUtilsTest {
     @Test

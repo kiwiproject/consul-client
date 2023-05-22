@@ -7,7 +7,11 @@ import com.orbitz.consul.model.session.SessionInfo;
 import com.orbitz.consul.monitoring.ClientEventCallback;
 import retrofit2.Call;
 import retrofit2.Retrofit;
-import retrofit2.http.*;
+import retrofit2.http.Body;
+import retrofit2.http.GET;
+import retrofit2.http.PUT;
+import retrofit2.http.Path;
+import retrofit2.http.QueryMap;
 
 import java.util.List;
 import java.util.Map;

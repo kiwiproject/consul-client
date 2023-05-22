@@ -1,13 +1,18 @@
 package com.orbitz.consul.util.failover;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Optional;
+
+import okhttp3.Interceptor;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.ConsulException;
-import com.orbitz.consul.util.failover.strategy.*;
+import com.orbitz.consul.util.failover.strategy.BlacklistingConsulFailoverStrategy;
+import com.orbitz.consul.util.failover.strategy.ConsulFailoverStrategy;
 
-import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
