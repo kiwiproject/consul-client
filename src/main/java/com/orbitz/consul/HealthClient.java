@@ -257,6 +257,7 @@ public class HealthClient extends BaseCacheableClient {
                 queryOptions.getTag(), queryOptions.getNodeMeta(), queryOptions.toHeaders()), callback);
     }
 
+    @SafeVarargs
     private static Map<String, Object> optionsFrom(Map<String, ?>... options) {
         Map<String, Object> result = new HashMap<>();
 
