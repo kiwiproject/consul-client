@@ -2,6 +2,8 @@ package com.orbitz.consul;
 
 import com.orbitz.consul.async.Callback;
 import com.orbitz.consul.option.QueryOptions;
+
+import org.awaitility.Durations;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +19,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.*;
 
 public class SnapshotClientITest extends BaseIntegrationTest {
@@ -57,8 +60,8 @@ public class SnapshotClientITest extends BaseIntegrationTest {
         assertFalse(checkIfServiceExist(serviceName));
 
         ensureRestoreSnapshot();
-        Thread.sleep(Duration.ofSeconds(1).toMillis());
-        assertTrue(checkIfServiceExist(serviceName));
+
+        await().atMost(Durations.TWO_SECONDS).until(() -> checkIfServiceExist(serviceName));
     }
 
     private void ensureSaveSnapshot() throws InterruptedException {

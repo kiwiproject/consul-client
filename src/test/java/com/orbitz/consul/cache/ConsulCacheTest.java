@@ -12,7 +12,8 @@ import com.orbitz.consul.option.QueryOptions;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import junitparams.naming.TestCaseName;
-import org.apache.commons.lang3.time.StopWatch;
+
+import org.awaitility.Durations;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.GreaterOrEqual;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -51,12 +53,13 @@ public class ConsulCacheTest {
 
         final StubCallbackConsumer callbackConsumer = new StubCallbackConsumer(Collections.emptyList());
 
-        final ConsulCache<String, Value> consulCache = new ConsulCache<>(keyExtractor, callbackConsumer, cacheConfig, eventHandler, new CacheDescriptor(""));
-        final ConsulResponse<List<Value>> consulResponse = new ConsulResponse<>(response, 0, false, BigInteger.ONE, null, null);
-        final ImmutableMap<String, Value> map = consulCache.convertToMap(consulResponse);
-        assertNotNull(map);
-        // Second copy has been weeded out
-        assertEquals(1, map.size());
+        try (var consulCache = new ConsulCache<String, Value>(keyExtractor, callbackConsumer, cacheConfig, eventHandler, new CacheDescriptor(""))) {
+            final ConsulResponse<List<Value>> consulResponse = new ConsulResponse<>(response, 0, false, BigInteger.ONE, null, null);
+            final ImmutableMap<String, Value> map = consulCache.convertToMap(consulResponse);
+            assertNotNull(map);
+            // Second copy has been weeded out
+            assertEquals(1, map.size());
+        }
     }
 
     @Test
@@ -131,6 +134,7 @@ public class ConsulCacheTest {
     @Test
     public void testListenerIsCalled() {
         final Function<Value, String> keyExtractor = Value::getKey;
+
         final CacheConfig cacheConfig = CacheConfig.builder().build();
         ClientEventHandler eventHandler = mock(ClientEventHandler.class);
 
@@ -143,27 +147,23 @@ public class ConsulCacheTest {
                 .flags(0)
                 .build();
         final List<Value> result = Collections.singletonList(value);
-        final StubCallbackConsumer callbackConsumer = new StubCallbackConsumer(
-                result);
+        final StubCallbackConsumer callbackConsumer = new StubCallbackConsumer(result);
 
-        final ConsulCache<String, Value> cache = new ConsulCache<>(keyExtractor, callbackConsumer, cacheConfig,
-                eventHandler, new CacheDescriptor(""));
-        try {
-            final StubListener listener = new StubListener();
+        try (var cache = new ConsulCache<String, Value>(keyExtractor, callbackConsumer, cacheConfig,
+                eventHandler, new CacheDescriptor(""))) {
+                final StubListener listener = new StubListener();
 
-            cache.addListener(listener);
-            cache.start();
+                cache.addListener(listener);
+                cache.start();
 
-            assertEquals(1, listener.getCallCount());
-            assertEquals(1, callbackConsumer.getCallCount());
+                assertEquals(1, listener.getCallCount());
+                assertEquals(1, callbackConsumer.getCallCount());
 
-            final Map<String, Value> lastValues = listener.getLastValues();
-            assertNotNull(lastValues);
-            assertEquals(result.size(), lastValues.size());
-            assertTrue(lastValues.containsKey(key));
-            assertEquals(value, lastValues.get(key));
-        } finally {
-            cache.stop();
+                final Map<String, Value> lastValues = listener.getLastValues();
+                assertNotNull(lastValues);
+                assertEquals(result.size(), lastValues.size());
+                assertTrue(lastValues.containsKey(key));
+                assertEquals(value, lastValues.get(key));
         }
     }
 
@@ -195,13 +195,7 @@ public class ConsulCacheTest {
                 cache.addListener(goodListener);
                 cache.start();
 
-                final StopWatch stopWatch = new StopWatch();
-                stopWatch.start();
-
-                // Make sure that we wait some duration of time for asynchronous things to occur
-                while (stopWatch.getTime() < 5000 && goodListener.getCallCount() < 1) {
-                    Thread.sleep(50);
-                }
+                await().atMost(Durations.FIVE_SECONDS).until(() -> goodListener.getCallCount() > 0);
 
                 assertEquals(1, goodListener.getCallCount());
                 assertEquals(1, callbackConsumer.getCallCount());
