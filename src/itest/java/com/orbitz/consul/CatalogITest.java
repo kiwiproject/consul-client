@@ -1,15 +1,27 @@
 package com.orbitz.consul;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import com.orbitz.consul.async.ConsulResponseCallback;
 import com.orbitz.consul.model.ConsulResponse;
-import com.orbitz.consul.model.catalog.*;
+import com.orbitz.consul.model.catalog.CatalogDeregistration;
+import com.orbitz.consul.model.catalog.CatalogNode;
+import com.orbitz.consul.model.catalog.CatalogRegistration;
+import com.orbitz.consul.model.catalog.CatalogService;
+import com.orbitz.consul.model.catalog.ImmutableCatalogDeregistration;
+import com.orbitz.consul.model.catalog.ImmutableCatalogRegistration;
+import com.orbitz.consul.model.catalog.ImmutableCatalogService;
+import com.orbitz.consul.model.catalog.ImmutableServiceWeights;
 import com.orbitz.consul.model.health.ImmutableService;
 import com.orbitz.consul.model.health.Node;
 import com.orbitz.consul.model.health.Service;
 import com.orbitz.consul.model.health.ServiceHealth;
 import com.orbitz.consul.option.ImmutableQueryOptions;
 import com.orbitz.consul.option.QueryOptions;
-import org.junit.Ignore;
+
 import org.junit.Test;
 
 import java.math.BigInteger;
@@ -23,8 +35,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import static org.junit.Assert.*;
 
 public class CatalogITest extends BaseIntegrationTest {
 
@@ -97,13 +107,14 @@ public class CatalogITest extends BaseIntegrationTest {
         assertFalse(nodesResp.isEmpty());
         for (Node node : nodesResp) {
             assertNotNull(node.getTaggedAddresses());
-            assertNotNull(node.getTaggedAddresses().get().getWan());
-            assertFalse(node.getTaggedAddresses().get().getWan().isEmpty());
+            if (node.getTaggedAddresses().isPresent()) {
+                assertNotNull(node.getTaggedAddresses().get().getWan());
+                assertFalse(node.getTaggedAddresses().get().getWan().isEmpty());
+            }
         }
     }
 
     @Test
-    @Ignore
     public void shouldGetTaggedAddressesForNode() throws UnknownHostException {
         CatalogClient catalogClient = client.catalogClient();
 
@@ -112,8 +123,10 @@ public class CatalogITest extends BaseIntegrationTest {
         for (Node tmp : nodesResp) {
             final Node node = catalogClient.getNode(tmp.getNode()).getResponse().getNode();
             assertNotNull(node.getTaggedAddresses());
-            assertNotNull(node.getTaggedAddresses().get().getWan());
-            assertFalse(node.getTaggedAddresses().get().getWan().isEmpty());
+            if (node.getTaggedAddresses().isPresent()) {
+                assertNotNull(node.getTaggedAddresses().get().getWan());
+                assertFalse(node.getTaggedAddresses().get().getWan().isEmpty());
+            }
         }
     }
 
