@@ -2,7 +2,9 @@ package com.orbitz.consul.option;
 
 import org.immutables.value.Value;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 
 import static com.orbitz.consul.option.Options.optionallyAdd;
 

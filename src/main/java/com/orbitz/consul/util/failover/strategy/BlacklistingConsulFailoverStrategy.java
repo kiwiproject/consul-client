@@ -1,11 +1,18 @@
 package com.orbitz.consul.util.failover.strategy;
 
-import java.time.*;
-import java.util.*;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import okhttp3.HttpUrl;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import com.google.common.net.HostAndPort;
-
-import okhttp3.*;
 
 /**
  * @author Troy Heanssgen

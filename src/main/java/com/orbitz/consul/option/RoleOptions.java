@@ -2,7 +2,9 @@ package com.orbitz.consul.option;
 
 import org.immutables.value.Value;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import static com.orbitz.consul.option.Options.optionallyAdd;
 

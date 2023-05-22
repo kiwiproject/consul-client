@@ -1,13 +1,28 @@
 package com.orbitz.consul;
 
 import com.orbitz.consul.config.ClientConfig;
-import com.orbitz.consul.model.acl.*;
+import com.orbitz.consul.model.acl.AclResponse;
+import com.orbitz.consul.model.acl.AclToken;
+import com.orbitz.consul.model.acl.AclTokenId;
+import com.orbitz.consul.model.acl.Policy;
+import com.orbitz.consul.model.acl.PolicyResponse;
+import com.orbitz.consul.model.acl.Role;
+import com.orbitz.consul.model.acl.RoleListResponse;
+import com.orbitz.consul.model.acl.RoleResponse;
+import com.orbitz.consul.model.acl.Token;
+import com.orbitz.consul.model.acl.TokenListResponse;
+import com.orbitz.consul.model.acl.TokenResponse;
 import com.orbitz.consul.monitoring.ClientEventCallback;
 import com.orbitz.consul.option.RoleOptions;
 import com.orbitz.consul.option.TokenQueryOptions;
 import retrofit2.Call;
 import retrofit2.Retrofit;
-import retrofit2.http.*;
+import retrofit2.http.Body;
+import retrofit2.http.DELETE;
+import retrofit2.http.GET;
+import retrofit2.http.PUT;
+import retrofit2.http.Path;
+import retrofit2.http.QueryMap;
 
 import java.util.List;
 import java.util.Map;

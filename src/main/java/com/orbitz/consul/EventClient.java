@@ -15,7 +15,11 @@ import okhttp3.RequestBody;
 import org.apache.commons.lang3.StringUtils;
 import retrofit2.Call;
 import retrofit2.Retrofit;
-import retrofit2.http.*;
+import retrofit2.http.Body;
+import retrofit2.http.GET;
+import retrofit2.http.PUT;
+import retrofit2.http.Path;
+import retrofit2.http.QueryMap;
 
 import java.util.List;
 import java.util.Map;
