@@ -1,22 +1,21 @@
 package com.orbitz.consul.cache;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.google.common.util.concurrent.Uninterruptibles;
 import com.orbitz.consul.BaseIntegrationTest;
 import com.orbitz.consul.model.catalog.CatalogService;
-import com.orbitz.consul.Synchroniser;
+
+import org.awaitility.Durations;
 import org.junit.Test;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class ServiceCatalogCacheITest extends BaseIntegrationTest {
@@ -31,22 +30,17 @@ public class ServiceCatalogCacheITest extends BaseIntegrationTest {
         String serviceId2 = createAutoDeregisterServiceId();
 
         List<Map<String, CatalogService>> result = new CopyOnWriteArrayList<>();
-        CountDownLatch finish = new CountDownLatch(3);
 
         ServiceCatalogCache cache = ServiceCatalogCache.newCache(client.catalogClient(), name);
-        cache.addListener(serviceMap -> {
-            result.add(serviceMap);
-            finish.countDown();
-        });
+        cache.addListener(result::add);
 
         cache.start();
         cache.awaitInitialized(3, TimeUnit.SECONDS);
 
         client.agentClient().register(20001, 20, name, serviceId1, NO_TAGS, NO_META);
-        Synchroniser.pause(Duration.ofMillis(100));
         client.agentClient().register(20002, 20, name, serviceId2, NO_TAGS, NO_META);
 
-        Uninterruptibles.awaitUninterruptibly(finish, 1, TimeUnit.SECONDS);
+        await().atMost(Durations.ONE_SECOND).until(() -> result.size() == 3);
 
         assertEquals(0, result.get(0).size());
         assertEquals(1, result.get(1).size());
