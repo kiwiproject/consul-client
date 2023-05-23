@@ -1,17 +1,23 @@
 package com.orbitz.consul.cache;
 
+import static com.orbitz.consul.Awaiting.awaitWith25MsPoll;
+import static java.util.Objects.isNull;
+import static org.awaitility.Awaitility.await;
+import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 import com.google.common.collect.ImmutableMap;
+import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.BaseIntegrationTest;
 import com.orbitz.consul.HealthClient;
+import com.orbitz.consul.model.State;
 import com.orbitz.consul.model.health.ServiceHealth;
-import com.orbitz.consul.Synchroniser;
+
+import org.awaitility.Durations;
+import org.junit.Before;
 import org.junit.Test;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,15 +32,23 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
     private static final List<String> NO_TAGS = Collections.emptyList();
     private static final Map<String, String> NO_META = Collections.emptyMap();
 
+    private AgentClient agentClient;
+
+    @Before
+    public void setUp() {
+        agentClient = client.agentClient();
+    }
+
     @Test
     public void nodeCacheServicePassingTest() throws Exception {
         HealthClient healthClient = client.healthClient();
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
 
-        client.agentClient().register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
-        client.agentClient().pass(serviceId);
-        Synchroniser.pause(Duration.ofMillis(100));
+        agentClient.register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
+        agentClient.pass(serviceId);
+
+       awaitWith25MsPoll().atMost(ONE_HUNDRED_MILLISECONDS).until(() -> serviceHasPassingCheck(serviceId));
 
         try (ServiceHealthCache svHealth = ServiceHealthCache.newCache(healthClient, serviceName)) {
             svHealth.start();
@@ -47,11 +61,19 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
             assertNotNull(health);
             assertEquals(serviceId, health.getService().getId());
 
-            client.agentClient().fail(serviceId);
-            Synchroniser.pause(Duration.ofMillis(100));
-            health = svHealth.getMap().get(serviceKey);
-            assertNull(health);
+            agentClient.fail(serviceId);
+
+            awaitWith25MsPoll().atMost(ONE_HUNDRED_MILLISECONDS)
+                    .until(() -> isNull(svHealth.getMap().get(serviceKey)));
         }
+    }
+
+    private boolean serviceHasPassingCheck(String serviceId) {
+        return agentClient.getChecks()
+            .values()
+            .stream()
+            .anyMatch(check ->
+                check.getCheckId().equals("service:" + serviceId) && State.fromName(check.getStatus()) == State.PASS);
     }
 
     @Test
@@ -61,11 +83,11 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
         String serviceId = UUID.randomUUID().toString();
         String serviceId2 = UUID.randomUUID().toString();
 
-        client.agentClient().register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
-        client.agentClient().pass(serviceId);
+        agentClient.register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
+        agentClient.pass(serviceId);
 
-        client.agentClient().register(8080, 20L, serviceName, serviceId2, NO_TAGS, NO_META);
-        client.agentClient().pass(serviceId2);
+        agentClient.register(8080, 20L, serviceName, serviceId2, NO_TAGS, NO_META);
+        agentClient.pass(serviceId2);
 
         try (ServiceHealthCache svHealth = ServiceHealthCache.newCache(healthClient, serviceName)) {
             svHealth.start();
@@ -99,22 +121,25 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
 
-        client.agentClient().register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
-        client.agentClient().pass(serviceId);
+        agentClient.register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
+        agentClient.pass(serviceId);
 
         ServiceHealthCache svHealth = ServiceHealthCache.newCache(client.healthClient(), serviceName);
 
         final List<Map<ServiceHealthKey, ServiceHealth>> events = new ArrayList<>();
         svHealth.addListener(events::add);
 
+        assertEquals(0, events.size());
+
         svHealth.start();
         svHealth.awaitInitialized(1000, TimeUnit.MILLISECONDS);
 
-        Synchroniser.pause(Duration.ofMillis(200));
-        client.agentClient().deregister(serviceId);
-        Synchroniser.pause(Duration.ofMillis(200));
+        assertEquals(1, events.size());
 
-        assertEquals(2, events.size());
+        agentClient.deregister(serviceId);
+
+        awaitWith25MsPoll().atMost(ONE_HUNDRED_MILLISECONDS).until(() -> events.size() == 2);
+
         Map<ServiceHealthKey, ServiceHealth> event0 = events.get(0);
 
         assertEquals(1, event0.size());
@@ -156,14 +181,13 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
             eventCount.incrementAndGet();
             Thread t = new Thread(() -> svHealth.addListener(newValues1 -> eventCount.incrementAndGet()));
             t.start();
-            Synchroniser.pause(Duration.ofMillis(500));
         });
 
         svHealth.start();
         svHealth.awaitInitialized(1000, TimeUnit.MILLISECONDS);
 
-        Synchroniser.pause(Duration.ofSeconds(1));
-        assertEquals(2, eventCount.get());
+        await().atMost(Durations.ONE_SECOND).until(() -> eventCount.get() == 2);
+
         svHealth.stop();
     }
 }
