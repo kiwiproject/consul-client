@@ -575,7 +575,7 @@ public class AgentClient extends BaseClient {
 
     /**
      * Prepends the default TTL prefix to the serviceId to produce a check id,
-     * then delegates to check(String checkId, State state, String note)
+     * then delegates to {@link #check(String, State, String)}.
      * This method only works with TTL checks that have not been given a custom
      * name.
      */
