@@ -1,20 +1,30 @@
 package com.orbitz.consul.cache;
 
+import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.BaseIntegrationTest;
 import com.orbitz.consul.HealthClient;
 import com.orbitz.consul.model.State;
 import com.orbitz.consul.model.health.HealthCheck;
-import com.orbitz.consul.Synchroniser;
+
+import org.junit.Before;
 import org.junit.Test;
 
-import java.time.Duration;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import static com.orbitz.consul.Awaiting.awaitWith25MsPoll;
+import static java.util.Objects.isNull;
+import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class HealthCheckCacheITest extends BaseIntegrationTest {
+
+    private AgentClient agentClient;
+
+    @Before
+    public void setUp() {
+        agentClient = client.agentClient();
+    }
 
     @Test
     public void cacheShouldContainPassingTestsOnly() throws Exception {
@@ -22,10 +32,10 @@ public class HealthCheckCacheITest extends BaseIntegrationTest {
         String checkName = UUID.randomUUID().toString();
         String checkId = UUID.randomUUID().toString();
 
-        client.agentClient().registerCheck(checkId, checkName, 20L);
+        agentClient.registerCheck(checkId, checkName, 20L);
         try {
-            client.agentClient().passCheck(checkId);
-            Synchroniser.pause(Duration.ofMillis(100));
+            agentClient.passCheck(checkId);
+            awaitWith25MsPoll().atMost(ONE_HUNDRED_MILLISECONDS).until(() -> checkIsPassing(checkId));
 
             try (HealthCheckCache hCheck = HealthCheckCache.newCache(healthClient, State.PASS)) {
                 hCheck.start();
@@ -34,15 +44,22 @@ public class HealthCheckCacheITest extends BaseIntegrationTest {
                 HealthCheck check = hCheck.getMap().get(checkId);
                 assertEquals(checkId, check.getCheckId());
 
-                client.agentClient().failCheck(checkId);
-                Synchroniser.pause(Duration.ofMillis(100));
+                agentClient.failCheck(checkId);
 
-                check = hCheck.getMap().get(checkId);
-                assertNull(check);
+                awaitWith25MsPoll().atMost(ONE_HUNDRED_MILLISECONDS)
+                        .until(() -> isNull(hCheck.getMap().get(checkId)));
             }
         }
         finally {
-            client.agentClient().deregisterCheck(checkId);
+            agentClient.deregisterCheck(checkId);
         }
+    }
+
+    private boolean checkIsPassing(String checkId) {
+        return agentClient.getChecks()
+            .values()
+            .stream()
+            .anyMatch(check ->
+                check.getCheckId().equals(checkId) && State.fromName(check.getStatus()) == State.PASS);
     }
 }
