@@ -12,15 +12,15 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.Duration;
 import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.orbitz.consul.Awaiting.awaitWith25MsPoll;
 import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertFalse;
+import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -52,18 +52,16 @@ public class SnapshotClientITest extends BaseIntegrationTest {
 
         client.agentClient().register(8080, new URL("http://localhost:123/health"), 1000L, serviceName, serviceId,
                 Collections.emptyList(), Collections.emptyMap());
-        Synchroniser.pause(Duration.ofMillis(100));
-        assertTrue(checkIfServiceExist(serviceName));
+        awaitWith25MsPoll().atMost(TWO_HUNDRED_MILLISECONDS).until(() -> serviceExists(serviceName));
 
         ensureSaveSnapshot();
 
         client.agentClient().deregister(serviceId);
-        Synchroniser.pause(Duration.ofMillis(100));
-        assertFalse(checkIfServiceExist(serviceName));
+        awaitWith25MsPoll().atMost(TWO_HUNDRED_MILLISECONDS).until(() -> !serviceExists(serviceName));
 
         ensureRestoreSnapshot();
 
-        await().atMost(Durations.TWO_SECONDS).until(() -> checkIfServiceExist(serviceName));
+        await().atMost(Durations.TWO_SECONDS).until(() -> serviceExists(serviceName));
     }
 
     private void ensureSaveSnapshot() throws InterruptedException {
@@ -82,8 +80,9 @@ public class SnapshotClientITest extends BaseIntegrationTest {
         assertTrue(success.get());
     }
 
-    private boolean checkIfServiceExist(String serviceName) {
-        return !client.healthClient().getAllServiceInstances(serviceName).getResponse().isEmpty();
+    private boolean serviceExists(String serviceName) {
+        var serviceHealthList = client.healthClient().getAllServiceInstances(serviceName).getResponse();
+        return !serviceHealthList.isEmpty();
     }
 
     private <T> Callback<T> createCallback(final CountDownLatch latch, final AtomicBoolean success) {

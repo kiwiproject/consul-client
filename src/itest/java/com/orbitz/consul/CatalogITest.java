@@ -1,5 +1,8 @@
 package com.orbitz.consul;
 
+import static com.orbitz.consul.Awaiting.awaitWith25MsPoll;
+import static java.util.Objects.nonNull;
+import static org.awaitility.Durations.FIVE_HUNDRED_MILLISECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -18,15 +21,14 @@ import com.orbitz.consul.model.catalog.ImmutableServiceWeights;
 import com.orbitz.consul.model.health.ImmutableService;
 import com.orbitz.consul.model.health.Node;
 import com.orbitz.consul.model.health.Service;
-import com.orbitz.consul.model.health.ServiceHealth;
 import com.orbitz.consul.option.ImmutableQueryOptions;
 import com.orbitz.consul.option.QueryOptions;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigInteger;
 import java.net.UnknownHostException;
-import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -35,39 +37,49 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class CatalogITest extends BaseIntegrationTest {
 
+    private CatalogClient catalogClient;
+
+    @Before
+    public void setUp() {
+        catalogClient = client.catalogClient();
+    }
+
     @Test
     public void shouldGetNodes() throws UnknownHostException {
-        CatalogClient catalogClient = client.catalogClient();
-
         assertFalse(catalogClient.getNodes().getResponse().isEmpty());
     }
 
     @Test
     public void shouldGetNodesByDatacenter() throws UnknownHostException {
-        CatalogClient catalogClient = client.catalogClient();
-
-        assertFalse(catalogClient.getNodes(ImmutableQueryOptions.builder().datacenter("dc1").build()).getResponse().isEmpty());
+        var queryOptions = ImmutableQueryOptions.builder().datacenter("dc1").build();
+        assertFalse(catalogClient.getNodes(queryOptions).getResponse().isEmpty());
     }
 
+    /**
+     * @implNote This test necessarily blocks, and QueryOptions doesn't support granularity less than
+     * seconds, so the minimum time that can be used here is one second.
+     */
     @Test
     public void shouldGetNodesByDatacenterBlock() throws UnknownHostException {
-        CatalogClient catalogClient = client.catalogClient();
+        var start = System.nanoTime();
+        var index = new BigInteger(Integer.toString(Integer.MAX_VALUE));
+        var queryOptions = QueryOptions
+                .blockSeconds(1, index)
+                .datacenter("dc1")
+                .build();
+        ConsulResponse<List<Node>> response = catalogClient.getNodes(queryOptions);
+        var time = System.nanoTime() - start;
 
-        long start = System.currentTimeMillis();
-        ConsulResponse<List<Node>> response = catalogClient.getNodes(QueryOptions.blockSeconds(2,
-                new BigInteger(Integer.toString(Integer.MAX_VALUE))).datacenter("dc1").build());
-        long time = System.currentTimeMillis() - start;
-
-        assertTrue(time >= 2000);
+        assertTrue(time >= TimeUnit.SECONDS.toNanos(1));
         assertFalse(response.getResponse().isEmpty());
     }
 
     @Test
     public void shouldGetDatacenters() throws UnknownHostException {
-        CatalogClient catalogClient = client.catalogClient();
         List<String> datacenters = catalogClient.getDatacenters();
 
         assertEquals(1, datacenters.size());
@@ -76,7 +88,6 @@ public class CatalogITest extends BaseIntegrationTest {
 
     @Test
     public void shouldGetServices() throws Exception {
-        CatalogClient catalogClient = client.catalogClient();
         ConsulResponse<Map<String, List<String>>> services = catalogClient.getServices();
 
         assertTrue(services.getResponse().containsKey("consul"));
@@ -84,7 +95,6 @@ public class CatalogITest extends BaseIntegrationTest {
 
     @Test
     public void shouldGetService() throws Exception {
-        CatalogClient catalogClient = client.catalogClient();
         ConsulResponse<List<CatalogService>> services = catalogClient.getService("consul");
 
         assertEquals("consul", services.getResponse().iterator().next().getServiceName());
@@ -92,7 +102,6 @@ public class CatalogITest extends BaseIntegrationTest {
 
     @Test
     public void shouldGetNode() throws Exception {
-        CatalogClient catalogClient = client.catalogClient();
         ConsulResponse<CatalogNode> node = catalogClient.getNode(catalogClient.getNodes()
                 .getResponse().iterator().next().getNode());
 
@@ -101,8 +110,6 @@ public class CatalogITest extends BaseIntegrationTest {
 
     @Test
     public void shouldGetTaggedAddressesForNodesLists() throws UnknownHostException {
-        CatalogClient catalogClient = client.catalogClient();
-
         final List<Node> nodesResp = catalogClient.getNodes().getResponse();
         assertFalse(nodesResp.isEmpty());
         for (Node node : nodesResp) {
@@ -116,8 +123,6 @@ public class CatalogITest extends BaseIntegrationTest {
 
     @Test
     public void shouldGetTaggedAddressesForNode() throws UnknownHostException {
-        CatalogClient catalogClient = client.catalogClient();
-
         final List<Node> nodesResp = catalogClient.getNodes().getResponse();
         assertFalse(nodesResp.isEmpty());
         for (Node tmp : nodesResp) {
@@ -214,8 +219,6 @@ public class CatalogITest extends BaseIntegrationTest {
 
     @Test
     public void shouldDeregisterWithDefaultDC() throws InterruptedException {
-        CatalogClient catalogClient = client.catalogClient();
-
         String service = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
         String catalogId = UUID.randomUUID().toString();
@@ -238,6 +241,10 @@ public class CatalogITest extends BaseIntegrationTest {
 
         catalogClient.register(registration);
 
+        awaitWith25MsPoll()
+                .atMost(FIVE_HUNDRED_MILLISECONDS)
+                .until(() -> serviceExists(service, serviceId));
+
         CatalogDeregistration deregistration = ImmutableCatalogDeregistration.builder()
                 .node("node")
                 .serviceId(serviceId)
@@ -245,22 +252,20 @@ public class CatalogITest extends BaseIntegrationTest {
 
         catalogClient.deregister(deregistration);
 
-        Synchroniser.pause(Duration.ofSeconds(1));
-        boolean found = false;
+        awaitWith25MsPoll()
+                .atMost(FIVE_HUNDRED_MILLISECONDS)
+                .until(() -> !serviceExists(service, serviceId));
+    }
 
-        for (ServiceHealth health : client.healthClient().getAllServiceInstances(service).getResponse()) {
-            if (health.getService().getId().equals(serviceId)) {
-                found = true;
-            }
-        }
+    private boolean serviceExists(String serviceName, String serviceId) {
+        var serviceHealthList = client.healthClient().getAllServiceInstances(serviceName).getResponse();
 
-        assertFalse(found);
+        return serviceHealthList.stream()
+                .anyMatch(health -> health.getService().getId().equals(serviceId));
     }
 
     @Test
     public void shouldGetServicesInCallback() throws ExecutionException, InterruptedException, TimeoutException {
-        CatalogClient catalogClient = client.catalogClient();
-
         String serviceName = UUID.randomUUID().toString();
         String serviceId = createAutoDeregisterServiceId();
         client.agentClient().register(20001, 20, serviceName, serviceId, Collections.emptyList(), Collections.emptyMap());
@@ -275,8 +280,6 @@ public class CatalogITest extends BaseIntegrationTest {
 
     @Test
     public void shouldGetServiceInCallback() throws ExecutionException, InterruptedException, TimeoutException {
-        CatalogClient catalogClient = client.catalogClient();
-
         String serviceName = UUID.randomUUID().toString();
         String serviceId = createAutoDeregisterServiceId();
         client.agentClient().register(20001, 20, serviceName, serviceId, Collections.emptyList(), Collections.emptyMap());
@@ -294,8 +297,6 @@ public class CatalogITest extends BaseIntegrationTest {
 
     @Test
     public void shouldGetNodeInCallback() throws ExecutionException, InterruptedException, TimeoutException {
-        CatalogClient catalogClient = client.catalogClient();
-
         String nodeName = "node";
         String serviceName = UUID.randomUUID().toString();
         String serviceId = UUID.randomUUID().toString();
@@ -343,23 +344,29 @@ public class CatalogITest extends BaseIntegrationTest {
     }
 
     private void createAndCheckService(CatalogService expectedService, CatalogRegistration registration) {
-        CatalogClient catalogClient = client.catalogClient();
         catalogClient.register(registration);
-        Synchroniser.pause(Duration.ofMillis(100));
 
-        String serviceName = registration.service().get().getService();
+        var serviceName = registration.service().get().getService();
 
-        ConsulResponse<List<CatalogService>> response = catalogClient.getService(serviceName);
+        var foundServiceRef = new AtomicReference<CatalogService>();
+        awaitWith25MsPoll()
+                .atMost(FIVE_HUNDRED_MILLISECONDS)
+                .until(() -> serviceWithNameExists(serviceName, foundServiceRef));
 
-        assertFalse(response.getResponse().isEmpty());
+        assertNotNull(foundServiceRef.get());
+        assertEquals(expectedService, foundServiceRef.get());
+    }
 
-        CatalogService registeredService = null;
-        for (CatalogService catalogService : response.getResponse()) {
-            if (catalogService.getServiceName().equals(serviceName)) {
-                registeredService = catalogService;
-            }
-        }
-        assertNotNull(String.format("Service \"%s\" not found", serviceName), registeredService);
-        assertEquals(expectedService, registeredService);
+    private boolean serviceWithNameExists(String serviceName, AtomicReference<CatalogService> foundServiceRef) {
+        var catalogServices = catalogClient.getService(serviceName).getResponse();
+
+        var foundService = catalogServices.stream()
+                .filter(service -> service.getServiceName().equals(serviceName))
+                .findFirst()
+                .orElse(null);
+
+        foundServiceRef.set(foundService);
+
+        return nonNull(foundService);
     }
 }
