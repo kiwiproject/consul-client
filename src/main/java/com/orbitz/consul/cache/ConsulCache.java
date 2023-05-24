@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -353,7 +352,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
     }
 
     public List<Listener<K, V>> getListeners() {
-        return Collections.unmodifiableList(listeners);
+        return List.copyOf(listeners);
     }
 
     public boolean removeListener(Listener<K, V> listener) {

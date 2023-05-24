@@ -3,10 +3,9 @@ package com.orbitz.consul.util.failover.strategy;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import okhttp3.HttpUrl;
 import okhttp3.Request;
@@ -20,7 +19,7 @@ import com.google.common.net.HostAndPort;
 public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrategy {
 
 	// The map of blacklisted addresses
-	private Map<HostAndPort, Instant> blacklist = Collections.synchronizedMap(new HashMap<>());
+	private Map<HostAndPort, Instant> blacklist = new ConcurrentHashMap<>();
 
 	// The map of viable targets
 	private Collection<HostAndPort> targets;

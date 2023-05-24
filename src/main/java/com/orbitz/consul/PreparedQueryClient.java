@@ -17,7 +17,6 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.QueryMap;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -64,7 +63,7 @@ public class PreparedQueryClient extends BaseClient {
     }
 
     private Map<String, String> dcQuery(String dc) {
-        return dc != null ? Map.of("dc", dc): Collections.emptyMap();
+        return dc != null ? Map.of("dc", dc): Map.of();
     }
 
     /**
@@ -124,7 +123,7 @@ public class PreparedQueryClient extends BaseClient {
      * @return A {@link QueryResults} object containing service instances.
      */
     public QueryResults execute(String nameOrId) {
-        return http.extract(api.execute(nameOrId, Collections.emptyMap()));
+        return http.extract(api.execute(nameOrId, Map.of()));
     }
 
     /**

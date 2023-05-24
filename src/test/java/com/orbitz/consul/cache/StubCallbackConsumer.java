@@ -5,19 +5,15 @@ import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.model.kv.Value;
 
 import java.math.BigInteger;
-import java.util.Collections;
 import java.util.List;
 
-/**
- *
- */
 public class StubCallbackConsumer implements ConsulCache.CallbackConsumer<Value> {
 
     private final List<Value> result;
     private int callCount;
 
     public StubCallbackConsumer(List<Value> result) {
-        this.result = Collections.unmodifiableList(result);
+        this.result = List.copyOf(result);
     }
 
     @Override
