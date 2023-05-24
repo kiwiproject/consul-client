@@ -12,7 +12,7 @@ import java.util.function.Function;
 public class HealthCheckCache extends ConsulCache<String, HealthCheck> {
 
     private HealthCheckCache(HealthClient healthClient,
-                             com.orbitz.consul.model.State state,
+                             com.orbitz.consul.model.State checkState,
                              int watchSeconds,
                              QueryOptions queryOptions,
                              Function<HealthCheck, String> keyExtractor,
@@ -21,11 +21,11 @@ public class HealthCheckCache extends ConsulCache<String, HealthCheck> {
             (index, callback) -> {
                 checkWatch(healthClient.getNetworkTimeoutConfig().getClientReadTimeoutMillis(), watchSeconds);
                 QueryOptions params = watchParams(index, watchSeconds, queryOptions);
-                healthClient.getChecksByState(state, params, callback);
+                healthClient.getChecksByState(checkState, params, callback);
             },
             healthClient.getConfig().getCacheConfig(),
             healthClient.getEventHandler(),
-            new CacheDescriptor("health.state", state.getName()),
+            new CacheDescriptor("health.state", checkState.getName()),
             callbackScheduler);
     }
 
@@ -35,51 +35,51 @@ public class HealthCheckCache extends ConsulCache<String, HealthCheck> {
      * Keys will be the {@link HealthCheck#getCheckId()}.
      *
      * @param healthClient the {@link HealthClient}
-     * @param state        the state fo filter checks
+     * @param checkState   the state fo filter checks
      * @return a cache object
      */
     public static HealthCheckCache newCache(
             final HealthClient healthClient,
-            final com.orbitz.consul.model.State state,
+            final com.orbitz.consul.model.State checkState,
             final int watchSeconds,
             final QueryOptions queryOptions,
             final Function<HealthCheck, String> keyExtractor,
             final ScheduledExecutorService callbackExecutorService) {
 
         Scheduler callbackScheduler = createExternal(callbackExecutorService);
-        return new HealthCheckCache(healthClient, state, watchSeconds, queryOptions, keyExtractor, callbackScheduler);
+        return new HealthCheckCache(healthClient, checkState, watchSeconds, queryOptions, keyExtractor, callbackScheduler);
     }
 
     public static HealthCheckCache newCache(
             final HealthClient healthClient,
-            final com.orbitz.consul.model.State state,
+            final com.orbitz.consul.model.State checkState,
             final int watchSeconds,
             final QueryOptions queryOptions,
             final Function<HealthCheck, String> keyExtractor) {
 
-        return new HealthCheckCache(healthClient, state, watchSeconds, queryOptions, keyExtractor, createDefault());
+        return new HealthCheckCache(healthClient, checkState, watchSeconds, queryOptions, keyExtractor, createDefault());
     }
     public static HealthCheckCache newCache(
             final HealthClient healthClient,
-            final com.orbitz.consul.model.State state,
+            final com.orbitz.consul.model.State checkState,
             final int watchSeconds,
             final QueryOptions queryOptions) {
 
-        return newCache(healthClient, state, watchSeconds, queryOptions, HealthCheck::getCheckId);
+        return newCache(healthClient, checkState, watchSeconds, queryOptions, HealthCheck::getCheckId);
     }
 
     public static HealthCheckCache newCache(
             final HealthClient healthClient,
-            final com.orbitz.consul.model.State state,
+            final com.orbitz.consul.model.State checkState,
             final int watchSeconds) {
 
-        return newCache(healthClient, state, watchSeconds, QueryOptions.BLANK);
+        return newCache(healthClient, checkState, watchSeconds, QueryOptions.BLANK);
     }
 
-    public static HealthCheckCache newCache(final HealthClient healthClient, final com.orbitz.consul.model.State state) {
+    public static HealthCheckCache newCache(final HealthClient healthClient, final com.orbitz.consul.model.State checkState) {
         CacheConfig cacheConfig = healthClient.getConfig().getCacheConfig();
         int watchSeconds = Ints.checkedCast(cacheConfig.getWatchDuration().getSeconds());
-        return newCache(healthClient, state, watchSeconds);
+        return newCache(healthClient, checkState, watchSeconds);
     }
 
 }

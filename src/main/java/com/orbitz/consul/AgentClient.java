@@ -165,7 +165,7 @@ public class AgentClient extends BaseClient {
     }
 
     /**
-     * Registers the client as a service with Consul with an existing {@link com.orbitz.consul.model.agent.Registration.RegCheck}
+     * Registers the client as a service with Consul with an existing {@link Registration.RegCheck}
      *
      * @param port  The public facing port of the service to register with Consul.
      * @param check The health check to run periodically.  Can be null.
@@ -484,7 +484,7 @@ public class AgentClient extends BaseClient {
      *
      * @param id           The service id.
      * @param queryOptions The Query Options to use.
-     * @return A {@link com.orbitz.consul.model.ConsulResponse} containing {@link FullService} object.
+     * @return A {@link ConsulResponse} containing {@link FullService} object.
      */
     public ConsulResponse<FullService> getService(String id, QueryOptions queryOptions) throws NotRegisteredException {
         try {

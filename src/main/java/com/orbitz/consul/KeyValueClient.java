@@ -72,7 +72,7 @@ public class KeyValueClient extends BaseCacheableClient {
     }
 
     /**
-     * Retrieves a {@link com.orbitz.consul.model.kv.Value} for a specific key
+     * Retrieves a {@link Value} for a specific key
      * from the key/value store.
      *
      * GET /v1/kv/{key}
@@ -85,8 +85,8 @@ public class KeyValueClient extends BaseCacheableClient {
     }
 
     /**
-     * Retrieves a {@link com.orbitz.consul.model.ConsulResponse} with the
-     * {@link com.orbitz.consul.model.kv.Value} for a spefici key from the
+     * Retrieves a {@link ConsulResponse} with the
+     * {@link Value} for a spefici key from the
      * key/value store
      * @param key The key to retrieve
      * @return An {@link Optional} containing the {@link ConsulResponse} or {@link Optional#empty()()}
@@ -96,7 +96,7 @@ public class KeyValueClient extends BaseCacheableClient {
     }
 
     /**
-     * Retrieves a {@link com.orbitz.consul.model.kv.Value} for a specific key
+     * Retrieves a {@link Value} for a specific key
      * from the key/value store.
      *
      * GET /v1/kv/{key}
@@ -151,7 +151,7 @@ public class KeyValueClient extends BaseCacheableClient {
     }
 
     /**
-     * Asynchronously retrieves a {@link com.orbitz.consul.model.kv.Value} for a specific key
+     * Asynchronously retrieves a {@link Value} for a specific key
      * from the key/value store.
      *
      * GET /v1/kv/{key}
@@ -185,13 +185,13 @@ public class KeyValueClient extends BaseCacheableClient {
     }
 
     /**
-     * Retrieves a list of {@link com.orbitz.consul.model.kv.Value} objects for a specific key
+     * Retrieves a list of {@link Value} objects for a specific key
      * from the key/value store.
      *
      * GET /v1/kv/{key}?recurse
      *
      * @param key The key to retrieve.
-     * @return A list of zero to many {@link com.orbitz.consul.model.kv.Value} objects.
+     * @return A list of zero to many {@link Value} objects.
      */
     public List<Value> getValues(String key) {
         return getValues(key, QueryOptions.BLANK);
@@ -212,14 +212,14 @@ public class KeyValueClient extends BaseCacheableClient {
     }
 
     /**
-     * Retrieves a list of {@link com.orbitz.consul.model.kv.Value} objects for a specific key
+     * Retrieves a list of {@link Value} objects for a specific key
      * from the key/value store.
      *
      * GET /v1/kv/{key}?recurse
      *
      * @param key The key to retrieve.
      * @param queryOptions The query options.
-     * @return A list of zero to many {@link com.orbitz.consul.model.kv.Value} objects.
+     * @return A list of zero to many {@link Value} objects.
      */
     public List<Value> getValues(String key, QueryOptions queryOptions) {
         Map<String, Object> query = queryOptions.toQuery();
@@ -251,7 +251,7 @@ public class KeyValueClient extends BaseCacheableClient {
     }
 
     /**
-     * Asynchronously retrieves a list of {@link com.orbitz.consul.model.kv.Value} objects for a specific key
+     * Asynchronously retrieves a list of {@link Value} objects for a specific key
      * from the key/value store.
      *
      * GET /v1/kv/{key}?recurse

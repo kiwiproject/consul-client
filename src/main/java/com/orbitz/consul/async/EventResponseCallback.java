@@ -9,7 +9,7 @@ import com.orbitz.consul.model.EventResponse;
 public interface EventResponseCallback {
 
     /**
-     * Callback for a successful {@link com.orbitz.consul.model.EventResponse}.
+     * Callback for a successful {@link EventResponse}.
      *
      * @param eventResponse The Consul event response.
      */

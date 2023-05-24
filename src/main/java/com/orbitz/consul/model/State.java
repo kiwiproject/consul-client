@@ -39,8 +39,7 @@ public enum State {
     }
 
     /**
-     * Returns the appropriate {@link com.orbitz.consul.model.State} given the
-     * name.
+     * Returns the appropriate {@link State} given the name.
      *
      * @param name The state name e.g. "passing".
      * @return The state.

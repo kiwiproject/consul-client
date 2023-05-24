@@ -53,7 +53,7 @@ public class EventClient extends BaseClient {
      * @param name The name of the event.
      * @param eventOptions The event specific options to use.
      * @param payload Optional string payload.
-     * @return The newly created {@link com.orbitz.consul.model.event.Event}.
+     * @return The newly created {@link Event}.
      */
     public Event fireEvent(String name, EventOptions eventOptions, String payload) {
         return http.extract(api.fireEvent(name,
@@ -67,7 +67,7 @@ public class EventClient extends BaseClient {
      * PUT /v1/event/fire/{name}
      *
      * @param name The name of the event.
-     * @return The newly created {@link com.orbitz.consul.model.event.Event}.
+     * @return The newly created {@link Event}.
      */
     public Event fireEvent(String name) {
         return fireEvent(name, EventOptions.BLANK);
@@ -80,7 +80,7 @@ public class EventClient extends BaseClient {
      *
      * @param name The name of the event.
      * @param eventOptions The event specific options to use.
-     * @return The newly created {@link com.orbitz.consul.model.event.Event}.
+     * @return The newly created {@link Event}.
      */
     public Event fireEvent(String name, EventOptions eventOptions) {
         return http.extract(api.fireEvent(name, eventOptions.toQuery()));
@@ -93,7 +93,7 @@ public class EventClient extends BaseClient {
      *
      * @param name The name of the event.
      * @param payload Optional string payload.
-     * @return The newly created {@link com.orbitz.consul.model.event.Event}.
+     * @return The newly created {@link Event}.
      */
     public Event fireEvent(String name, String payload) {
         return fireEvent(name, EventOptions.BLANK, payload);
@@ -106,8 +106,8 @@ public class EventClient extends BaseClient {
      *
      * @param name Event name to filter.
      * @param queryOptions The query options to use.
-     * @return A {@link com.orbitz.consul.model.ConsulResponse} object containing
-     *  a list of {@link com.orbitz.consul.model.event.Event} objects.
+     * @return A {@link ConsulResponse} object containing
+     *  a list of {@link Event} objects.
      */
     public EventResponse listEvents(String name, QueryOptions queryOptions) {
         final Map<String, Object> query = queryOptions.toQuery();
@@ -125,8 +125,8 @@ public class EventClient extends BaseClient {
      * GET /v1/event/list?name={name}
      *
      * @param name Event name to filter.
-     * @return A {@link com.orbitz.consul.model.ConsulResponse} object containing
-     *  a list of {@link com.orbitz.consul.model.event.Event} objects.
+     * @return A {@link ConsulResponse} object containing
+     *  a list of {@link Event} objects.
      */
     public EventResponse listEvents(String name) {
         return listEvents(name, QueryOptions.BLANK);
@@ -138,8 +138,8 @@ public class EventClient extends BaseClient {
      * GET /v1/event/list
      *
      * @param queryOptions The query options to use.
-     * @return A {@link com.orbitz.consul.model.ConsulResponse} object containing
-     *  a list of {@link com.orbitz.consul.model.event.Event} objects.
+     * @return A {@link ConsulResponse} object containing
+     *  a list of {@link Event} objects.
      */
     public EventResponse listEvents(QueryOptions queryOptions) {
         return listEvents(null, queryOptions);
@@ -150,8 +150,8 @@ public class EventClient extends BaseClient {
      *
      * GET /v1/event/list
      *
-     * @return A {@link com.orbitz.consul.model.ConsulResponse} object containing
-     *  a list of {@link com.orbitz.consul.model.event.Event} objects.
+     * @return A {@link ConsulResponse} object containing
+     *  a list of {@link Event} objects.
      */
     public EventResponse listEvents() {
         return listEvents(null, QueryOptions.BLANK);
