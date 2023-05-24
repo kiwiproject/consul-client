@@ -2,7 +2,7 @@ package com.orbitz.consul.model.health;
 
 import org.junit.Test;
 
-import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -17,7 +17,7 @@ public class HealthCheckTest {
                 .status("passing")
                 .build();
 
-        assertEquals(Collections.emptyList(), check.getServiceTags());
+        assertEquals(List.of(), check.getServiceTags());
     }
 
     @Test
@@ -30,6 +30,6 @@ public class HealthCheckTest {
                 .addServiceTags("myTag")
                 .build();
 
-        assertEquals(Collections.singletonList("myTag"), check.getServiceTags());
+        assertEquals(List.of("myTag"), check.getServiceTags());
     }
 }

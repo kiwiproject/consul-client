@@ -19,7 +19,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,8 +28,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ServiceHealthCacheITest extends BaseIntegrationTest {
 
-    private static final List<String> NO_TAGS = Collections.emptyList();
-    private static final Map<String, String> NO_META = Collections.emptyMap();
+    private static final List<String> NO_TAGS = List.of();
+    private static final Map<String, String> NO_META = Map.of();
 
     private AgentClient agentClient;
 

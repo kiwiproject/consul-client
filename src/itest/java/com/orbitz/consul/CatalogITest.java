@@ -29,7 +29,6 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 import java.net.UnknownHostException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -268,7 +267,7 @@ public class CatalogITest extends BaseIntegrationTest {
     public void shouldGetServicesInCallback() throws ExecutionException, InterruptedException, TimeoutException {
         String serviceName = UUID.randomUUID().toString();
         String serviceId = createAutoDeregisterServiceId();
-        client.agentClient().register(20001, 20, serviceName, serviceId, Collections.emptyList(), Collections.emptyMap());
+        client.agentClient().register(20001, 20, serviceName, serviceId, List.of(), Map.of());
 
         CompletableFuture<Map<String, List<String>>> cf = new CompletableFuture<>();
         catalogClient.getServices(QueryOptions.BLANK, callbackFuture(cf));
@@ -282,7 +281,7 @@ public class CatalogITest extends BaseIntegrationTest {
     public void shouldGetServiceInCallback() throws ExecutionException, InterruptedException, TimeoutException {
         String serviceName = UUID.randomUUID().toString();
         String serviceId = createAutoDeregisterServiceId();
-        client.agentClient().register(20001, 20, serviceName, serviceId, Collections.emptyList(), Collections.emptyMap());
+        client.agentClient().register(20001, 20, serviceName, serviceId, List.of(), Map.of());
 
         CompletableFuture<List<CatalogService>> cf = new CompletableFuture<>();
         catalogClient.getService(serviceName, QueryOptions.BLANK, callbackFuture(cf));

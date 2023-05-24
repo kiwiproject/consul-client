@@ -11,7 +11,6 @@ import com.orbitz.consul.model.catalog.CatalogService;
 import org.awaitility.Durations;
 import org.junit.Test;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -20,8 +19,8 @@ import java.util.concurrent.TimeUnit;
 
 public class ServiceCatalogCacheITest extends BaseIntegrationTest {
 
-    private static final List<String> NO_TAGS = Collections.emptyList();
-    private static final Map<String, String> NO_META = Collections.emptyMap();
+    private static final List<String> NO_TAGS = List.of();
+    private static final Map<String, String> NO_META = Map.of();
 
     @Test
     public void testWatchService() throws InterruptedException {

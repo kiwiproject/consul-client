@@ -9,14 +9,11 @@ import retrofit2.Response;
 import retrofit2.mock.BehaviorDelegate;
 import retrofit2.mock.Calls;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-/**
- *
- */
 public class MockApiService implements KeyValueClient.Api {
+
     private final BehaviorDelegate<KeyValueClient.Api> delegate;
 
     public MockApiService(BehaviorDelegate<KeyValueClient.Api> delegate) {
@@ -26,13 +23,13 @@ public class MockApiService implements KeyValueClient.Api {
     @Override
     public Call<List<Value>> getValue(String key, Map<String, Object> query) {
         final Headers headers = Headers.of("X-Consul-Knownleader", "true");
-        final Call<List<Object>> call = Calls.response(Response.success(Collections.emptyList(), headers));
+        final Call<List<Object>> call = Calls.response(Response.success(List.of(), headers));
         return delegate.returning(call).getValue(key, query);
     }
 
     @Override
     public Call<List<String>> getKeys(String key, Map<String, Object> query) {
-        return delegate.returningResponse(Collections.emptyList()).getKeys(key, query);
+        return delegate.returningResponse(List.of()).getKeys(key, query);
     }
 
     @Override

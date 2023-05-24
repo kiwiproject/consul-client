@@ -14,7 +14,6 @@ import com.orbitz.consul.model.kv.Value;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,8 +41,8 @@ public class ReadmeExamplesTest extends BaseIntegrationTest {
                 .name("myService")
                 .port(8080)
                 .check(Registration.RegCheck.ttl(3L)) // registers with a TTL of 3 seconds
-                .tags(Collections.singletonList("tag1"))
-                .meta(Collections.singletonMap("version", "1.0"))
+                .tags(List.of("tag1"))
+                .meta(Map.of("version", "1.0"))
                 .build();
 
         agentClient.register(service);
