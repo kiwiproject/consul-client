@@ -2,6 +2,8 @@ package com.orbitz.consul;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -13,13 +15,13 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class StatusClientITest extends BaseIntegrationTest {
+
+    private static Logger LOG = LoggerFactory.getLogger(StatusClientITest.class);
 
     private static Set<InetAddress> ips = new HashSet<>();
 
@@ -29,7 +31,7 @@ public class StatusClientITest extends BaseIntegrationTest {
             InetAddress[] externalIps = InetAddress.getAllByName(InetAddress.getLocalHost().getCanonicalHostName());
             ips.addAll(Arrays.asList(externalIps));
         } catch (UnknownHostException ex) {
-            Logger.getLogger(StatusClientITest.class.getName()).log(Level.WARNING, "Could not determine fully qualified host name. Continuing.", ex);
+           LOG.warn("Could not determine fully qualified host name. Continuing.", ex);
         }
         Enumeration<NetworkInterface> netInts;
         try {
@@ -40,7 +42,7 @@ public class StatusClientITest extends BaseIntegrationTest {
                 }
             }
         } catch (SocketException ex) {
-            Logger.getLogger(StatusClientITest.class.getName()).log(Level.WARNING, "Could not access local network adapters. Continuing", ex);
+            LOG.warn("Could not access local network adapters. Continuing", ex);
         }
         if (ips.isEmpty()) {
             throw new RuntimeException("Unable to discover any local IP addresses");
