@@ -3,7 +3,7 @@ package com.orbitz.consul.model.agent;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 
-import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -41,7 +41,7 @@ public class CheckTest {
     public void buildingCheckWithArgsThrowsIfMissingInterval() {
         ImmutableCheck.builder()
                 .id("id")
-                .args(Collections.singletonList("/bin/echo \"hi\""))
+                .args(List.of("/bin/echo \"hi\""))
                 .name("name")
                 .build();
     }
@@ -67,7 +67,7 @@ public class CheckTest {
                 .id("id")
                 .build();
 
-        assertEquals(Collections.emptyList(), check.getServiceTags());
+        assertEquals(List.of(), check.getServiceTags());
     }
 
     @Test
@@ -79,6 +79,6 @@ public class CheckTest {
                 .addServiceTags("myTag")
                 .build();
 
-        assertEquals(Collections.singletonList("myTag"), check.getServiceTags());
+        assertEquals(List.of("myTag"), check.getServiceTags());
     }
 }

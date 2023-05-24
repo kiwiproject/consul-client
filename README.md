@@ -89,8 +89,8 @@ Registration service = ImmutableRegistration.builder()
         .name("myService")
         .port(8080)
         .check(Registration.RegCheck.ttl(3L)) // registers with a TTL of 3 seconds
-        .tags(Collections.singletonList("tag1"))
-        .meta(Collections.singletonMap("version", "1.0"))
+        .tags(List.of("tag1"))
+        .meta(Map.of("version", "1.0"))
         .build();
 
 agentClient.register(service);

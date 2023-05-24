@@ -22,7 +22,6 @@ import org.mockito.internal.matchers.LessOrEqual;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -51,7 +50,7 @@ public class ConsulCacheTest {
         CacheConfig cacheConfig = mock(CacheConfig.class);
         ClientEventHandler eventHandler = mock(ClientEventHandler.class);
 
-        final StubCallbackConsumer callbackConsumer = new StubCallbackConsumer(Collections.emptyList());
+        final StubCallbackConsumer callbackConsumer = new StubCallbackConsumer(List.of());
 
         try (var consulCache = new ConsulCache<String, Value>(keyExtractor, callbackConsumer, cacheConfig, eventHandler, new CacheDescriptor(""))) {
             final ConsulResponse<List<Value>> consulResponse = new ConsulResponse<>(response, 0, false, BigInteger.ONE, null, null);
@@ -146,7 +145,7 @@ public class ConsulCacheTest {
                 .key(key)
                 .flags(0)
                 .build();
-        final List<Value> result = Collections.singletonList(value);
+        final List<Value> result = List.of(value);
         final StubCallbackConsumer callbackConsumer = new StubCallbackConsumer(result);
 
         try (var cache = new ConsulCache<String, Value>(keyExtractor, callbackConsumer, cacheConfig,
@@ -183,7 +182,7 @@ public class ConsulCacheTest {
                 .key(key)
                 .flags(0)
                 .build();
-        final List<Value> result = Collections.singletonList(value);
+        final List<Value> result = List.of(value);
         try (final AsyncCallbackConsumer callbackConsumer = new AsyncCallbackConsumer(result)) {
             try (final ConsulCache<String, Value> cache = new ConsulCache<>(keyExtractor, callbackConsumer, cacheConfig,
                         eventHandler, new CacheDescriptor(""))) {
@@ -225,7 +224,7 @@ public class ConsulCacheTest {
                 .key(key)
                 .flags(0)
                 .build();
-        final List<Value> result = Collections.singletonList(value);
+        final List<Value> result = List.of(value);
         final StubCallbackConsumer callbackConsumer = new StubCallbackConsumer(
                 result);
 

@@ -1,8 +1,8 @@
 package com.orbitz.consul;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
@@ -44,7 +44,7 @@ public class PreparedQueryITest extends BaseIntegrationTest {
     public void shouldCreateAndFindPreparedQuery() {
         var serviceName = UUID.randomUUID().toString();
         var query = UUID.randomUUID().toString();
-        client.agentClient().register(8080, 10000L, serviceName, serviceName + "1", Collections.emptyList(), Collections.emptyMap());
+        client.agentClient().register(8080, 10000L, serviceName, serviceName + "1", List.of(), Map.of());
 
         var preparedQuery = ImmutablePreparedQuery.builder()
                 .name(query)
@@ -72,7 +72,7 @@ public class PreparedQueryITest extends BaseIntegrationTest {
     public void shouldCreatePreparedQueryWithFailoverProperties() {
         var serviceName = UUID.randomUUID().toString();
         var query = UUID.randomUUID().toString();
-        client.agentClient().register(8080, 10000L, serviceName, serviceName + "1", Collections.emptyList(), Collections.emptyMap());
+        client.agentClient().register(8080, 10000L, serviceName, serviceName + "1", List.of(), Map.of());
 
         var preparedQuery = ImmutablePreparedQuery.builder()
                 .name(query)
@@ -108,11 +108,11 @@ public class PreparedQueryITest extends BaseIntegrationTest {
     public void shouldListPreparedQueries() {
         var serviceName1 = UUID.randomUUID().toString();
         var query1 = UUID.randomUUID().toString();
-        client.agentClient().register(8080, 10000L, serviceName1, serviceName1 + "_id", Collections.emptyList(), Collections.emptyMap());
+        client.agentClient().register(8080, 10000L, serviceName1, serviceName1 + "_id", List.of(), Map.of());
 
         var serviceName2 = UUID.randomUUID().toString();
         var query2 = UUID.randomUUID().toString();
-        client.agentClient().register(8080, 10000L, serviceName2, serviceName2 + "_id", Collections.emptyList(), Collections.emptyMap());
+        client.agentClient().register(8080, 10000L, serviceName2, serviceName2 + "_id", List.of(), Map.of());
 
         var preparedQuery1 = ImmutablePreparedQuery.builder()
                 .name(query1)

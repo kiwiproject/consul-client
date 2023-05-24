@@ -12,7 +12,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -51,7 +52,7 @@ public class SnapshotClientITest extends BaseIntegrationTest {
         String serviceId = UUID.randomUUID().toString();
 
         client.agentClient().register(8080, new URL("http://localhost:123/health"), 1000L, serviceName, serviceId,
-                Collections.emptyList(), Collections.emptyMap());
+                List.of(), Map.of());
         awaitWith25MsPoll().atMost(TWO_HUNDRED_MILLISECONDS).until(() -> serviceExists(serviceName));
 
         ensureSaveSnapshot();

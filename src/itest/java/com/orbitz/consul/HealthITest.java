@@ -13,7 +13,6 @@ import org.junit.Test;
 
 import java.math.BigInteger;
 import java.net.UnknownHostException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -24,8 +23,8 @@ import static org.junit.Assert.assertTrue;
 
 public class HealthITest extends BaseIntegrationTest {
 
-    private static final List<String> NO_TAGS = Collections.emptyList();
-    private static final Map<String, String> NO_META = Collections.emptyMap();
+    private static final List<String> NO_TAGS = List.of();
+    private static final Map<String, String> NO_META = Map.of();
 
     @Test
     public void shouldFetchPassingNode() throws NotRegisteredException {
