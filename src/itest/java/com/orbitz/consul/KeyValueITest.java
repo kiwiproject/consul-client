@@ -307,7 +307,6 @@ public class KeyValueITest extends BaseIntegrationTest {
         String testString = "Hello World!";
         String key = "my_key";
         kvClient.putValue(key, testString);
-        // check keys (this line throws com.orbitz.consul.ConsulException: Consul request failed)
         List<String> list = kvClient.getKeys(key);
 
         assertFalse(list.isEmpty());

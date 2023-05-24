@@ -28,7 +28,7 @@ public class ConsulException extends RuntimeException {
      * Constructs an instance of this class.
      *
      * @param message The exception message.
-     * @param throwable The wrapped {@link java.lang.Throwable} object.
+     * @param throwable The wrapped {@link Throwable} object.
      */
     public ConsulException(String message, Throwable throwable) {
         super(message, throwable);

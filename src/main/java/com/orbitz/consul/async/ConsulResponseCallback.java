@@ -11,7 +11,7 @@ import com.orbitz.consul.model.ConsulResponse;
 public interface ConsulResponseCallback<T> {
 
     /**
-     * Callback for a successful {@link com.orbitz.consul.model.ConsulResponse}.
+     * Callback for a successful {@link ConsulResponse}.
      *
      * @param consulResponse The Consul response.
      */

@@ -67,21 +67,19 @@ public class CatalogClient extends BaseCacheableClient {
      * <p/>
      * GET /v1/catalog/nodes
      *
-     * @return A {@link com.orbitz.consul.model.ConsulResponse} containing a list of
-     * {@link com.orbitz.consul.model.health.Node} objects.
+     * @return A {@link ConsulResponse} containing a list of {@link Node} objects.
      */
     public ConsulResponse<List<Node>> getNodes() {
         return getNodes(QueryOptions.BLANK);
     }
 
     /**
-     * Retrieves all nodes for a given datacenter with {@link com.orbitz.consul.option.QueryOptions}.
+     * Retrieves all nodes for a given datacenter with {@link QueryOptions}.
      * <p/>
      * GET /v1/catalog/nodes?dc={datacenter}
      *
      * @param queryOptions The Query Options to use.
-     * @return A {@link com.orbitz.consul.model.ConsulResponse} containing a list of
-     * {@link com.orbitz.consul.model.health.Node} objects.
+     * @return A {@link ConsulResponse} containing a list of {@link Node} objects.
      */
     public ConsulResponse<List<Node>> getNodes(QueryOptions queryOptions) {
         return http.extractConsulResponse(api.getNodes(queryOptions.toQuery(),
@@ -90,13 +88,12 @@ public class CatalogClient extends BaseCacheableClient {
     }
 
     /**
-     * Asynchronously retrieves the nodes for a given datacenter with {@link com.orbitz.consul.option.QueryOptions}.
+     * Asynchronously retrieves the nodes for a given datacenter with {@link QueryOptions}.
      * <p/>
      * GET /v1/catalog/nodes?dc={datacenter}
      *
      * @param queryOptions The Query Options to use.
-     * @param callback     Callback implemented by callee to handle results.
-     *                     {@link com.orbitz.consul.model.health.Node} objects.
+     * @param callback     Callback implemented by callee to handle results, which are list of {@link Node} objects.
      */
     public void getNodes(QueryOptions queryOptions, ConsulResponseCallback<List<Node>> callback) {
         http.extractConsulResponse(api.getNodes(queryOptions.toQuery(), queryOptions.getTag(),
@@ -108,7 +105,7 @@ public class CatalogClient extends BaseCacheableClient {
      * <p/>
      * GET /v1/catalog/services?dc={datacenter}
      *
-     * @return A {@link com.orbitz.consul.model.ConsulResponse} containing a map of service name to list of tags.
+     * @return A {@link ConsulResponse} containing a map of service name to list of tags.
      */
     public ConsulResponse<Map<String, List<String>>> getServices() {
         return getServices(QueryOptions.BLANK);
@@ -120,7 +117,7 @@ public class CatalogClient extends BaseCacheableClient {
      * GET /v1/catalog/services?dc={datacenter}
      *
      * @param callback     Callback implemented by callee to handle results.
-     * @return A {@link com.orbitz.consul.model.ConsulResponse} containing a map of service name to list of tags.
+     * @return A {@link ConsulResponse} containing a map of service name to list of tags.
      */
     public void getServices(ConsulResponseCallback<Map<String, List<String>>> callback) {
         getServices(QueryOptions.BLANK, callback);
@@ -132,7 +129,7 @@ public class CatalogClient extends BaseCacheableClient {
      * GET /v1/catalog/services?dc={datacenter}
      *
      * @param queryOptions The Query Options to use.
-     * @return A {@link com.orbitz.consul.model.ConsulResponse} containing a map of service name to list of tags.
+     * @return A {@link ConsulResponse} containing a map of service name to list of tags.
      */
     public ConsulResponse<Map<String, List<String>>> getServices(QueryOptions queryOptions) {
         return http.extractConsulResponse(api.getServices(queryOptions.toQuery(),
@@ -146,7 +143,7 @@ public class CatalogClient extends BaseCacheableClient {
      *
      * @param queryOptions The Query Options to use.
      * @param callback     Callback implemented by callee to handle results.
-     * @return A {@link com.orbitz.consul.model.ConsulResponse} containing a map of service name to list of tags.
+     * @return A {@link ConsulResponse} containing a map of service name to list of tags.
      */
     public void getServices(QueryOptions queryOptions, ConsulResponseCallback<Map<String, List<String>>> callback) {
         http.extractConsulResponse(api.getServices(queryOptions.toQuery(),
@@ -158,21 +155,19 @@ public class CatalogClient extends BaseCacheableClient {
      * <p/>
      * GET /v1/catalog/service/{service}
      *
-     * @return A {@link com.orbitz.consul.model.ConsulResponse} containing
-     * {@link com.orbitz.consul.model.catalog.CatalogService} objects.
+     * @return A {@link ConsulResponse} containing {@link CatalogService} objects.
      */
     public ConsulResponse<List<CatalogService>> getService(String service) {
         return getService(service, QueryOptions.BLANK);
     }
 
     /**
-     * Retrieves a single service for a given datacenter with {@link com.orbitz.consul.option.QueryOptions}.
+     * Retrieves a single service for a given datacenter with {@link QueryOptions}.
      * <p/>
      * GET /v1/catalog/service/{service}?dc={datacenter}
      *
      * @param queryOptions The Query Options to use.
-     * @return A {@link com.orbitz.consul.model.ConsulResponse} containing
-     * {@link com.orbitz.consul.model.catalog.CatalogService} objects.
+     * @return A {@link ConsulResponse} containing {@link CatalogService} objects.
      */
     public ConsulResponse<List<CatalogService>> getService(String service, QueryOptions queryOptions) {
         return http.extractConsulResponse(api.getService(service, queryOptions.toQuery(),
@@ -180,14 +175,14 @@ public class CatalogClient extends BaseCacheableClient {
     }
 
     /**
-     * Asynchronously retrieves the single service for a given datacenter with {@link com.orbitz.consul.option.QueryOptions}.
+     * Asynchronously retrieves the single service for a given datacenter with {@link QueryOptions}.
      * <p/>
      * GET /v1/catalog/service/{service}?dc={datacenter}
      *
      * @param queryOptions The Query Options to use.
      * @param callback     Callback implemented by callee to handle results.
-     * @return A {@link com.orbitz.consul.model.ConsulResponse} containing
-     * {@link com.orbitz.consul.model.catalog.CatalogService} objects.
+     * @return A {@link ConsulResponse} containing
+     * {@link CatalogService} objects.
      */
     public void getService(String service, QueryOptions queryOptions, ConsulResponseCallback<List<CatalogService>> callback) {
         http.extractConsulResponse(api.getService(service, queryOptions.toQuery(),
@@ -199,19 +194,19 @@ public class CatalogClient extends BaseCacheableClient {
      * <p/>
      * GET /v1/catalog/node/{node}
      *
-     * @return A list of matching {@link com.orbitz.consul.model.catalog.CatalogService} objects.
+     * @return A list of matching {@link CatalogService} objects.
      */
     public ConsulResponse<CatalogNode> getNode(String node) {
         return getNode(node, QueryOptions.BLANK);
     }
 
     /**
-     * Retrieves a single node for a given datacenter with {@link com.orbitz.consul.option.QueryOptions}.
+     * Retrieves a single node for a given datacenter with {@link QueryOptions}.
      * <p/>
      * GET /v1/catalog/node/{node}?dc={datacenter}
      *
      * @param queryOptions The Query Options to use.
-     * @return A list of matching {@link com.orbitz.consul.model.catalog.CatalogService} objects.
+     * @return A list of matching {@link CatalogService} objects.
      */
     public ConsulResponse<CatalogNode> getNode(String node, QueryOptions queryOptions) {
         return http.extractConsulResponse(api.getNode(node, queryOptions.toQuery(),
@@ -219,7 +214,7 @@ public class CatalogClient extends BaseCacheableClient {
     }
 
     /**
-     * Asynchronously retrieves the single node for a given datacenter with {@link com.orbitz.consul.option.QueryOptions}.
+     * Asynchronously retrieves the single node for a given datacenter with {@link QueryOptions}.
      * <p/>
      * GET /v1/catalog/node/{node}?dc={datacenter}
      *
