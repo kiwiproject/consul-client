@@ -4,11 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.immutables.value.Value.Immutable;
 import java.util.Optional;
 
 import java.math.BigInteger;
 
-@org.immutables.value.Value.Immutable
+@Immutable
 @JsonDeserialize(as = ImmutableTxError.class)
 @JsonSerialize(as = ImmutableTxError.class)
 @JsonIgnoreProperties(ignoreUnknown = true)

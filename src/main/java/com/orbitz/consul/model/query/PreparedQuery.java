@@ -4,14 +4,16 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.immutables.value.Value.Immutable;
+
 import java.util.Optional;
 
-@org.immutables.value.Value.Immutable
+@Immutable
 @JsonDeserialize(as = ImmutablePreparedQuery.class)
 @JsonSerialize(as = ImmutablePreparedQuery.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class PreparedQuery {
-    
+
     @JsonProperty("Template")
     public abstract Optional<Template> getTemplate();
 

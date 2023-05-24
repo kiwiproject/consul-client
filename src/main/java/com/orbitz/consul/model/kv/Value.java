@@ -6,12 +6,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.orbitz.consul.util.UnsignedLongDeserializer;
+import org.immutables.value.Value.Immutable;
+import org.immutables.value.Value.Lazy;
 
 import java.nio.charset.Charset;
 import java.util.Base64;
 import java.util.Optional;
 
-@org.immutables.value.Value.Immutable
+@Immutable
 @JsonDeserialize(as = ImmutableValue.class)
 @JsonSerialize(as = ImmutableValue.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -40,19 +42,19 @@ public abstract class Value {
     public abstract Optional<String> getSession();
 
     @JsonIgnore
-    @org.immutables.value.Value.Lazy
+    @Lazy
     public Optional<String> getValueAsString() {
         return getValueAsString(Charset.defaultCharset());
     }
 
     @JsonIgnore
-    @org.immutables.value.Value.Lazy
+    @Lazy
     public Optional<String> getValueAsString(Charset charset) {
         return getValue().map(s -> new String(Base64.getDecoder().decode(s), charset));
     }
 
     @JsonIgnore
-    @org.immutables.value.Value.Lazy
+    @Lazy
     public Optional<byte[]> getValueAsBytes() {
         return getValue().map(s -> Base64.getDecoder().decode(s));
     }
