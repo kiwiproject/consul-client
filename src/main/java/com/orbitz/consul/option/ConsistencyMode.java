@@ -1,6 +1,5 @@
 package com.orbitz.consul.option;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
@@ -15,7 +14,7 @@ public class ConsistencyMode {
     private final Map<String, String> additionalHeaders;
 
     private ConsistencyMode(final String name, int ordinal, final String param) {
-        this(name, ordinal, param, Collections.emptyMap());
+        this(name, ordinal, param, Map.of());
     }
 
     private ConsistencyMode(final String name, int ordinal, final String param, final Map<String, String> headers) {
@@ -71,7 +70,7 @@ public class ConsistencyMode {
         }
         Map<String, String> headers;
         if (maxAge.isEmpty()) {
-            headers = Collections.emptyMap();
+            headers = Map.of();
         } else {
             headers = Map.of("Cache-Control", maxAge);
         }

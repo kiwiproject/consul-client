@@ -5,19 +5,15 @@ import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.model.kv.Value;
 
 import java.math.BigInteger;
-import java.util.Collections;
 import java.util.List;
 
-/**
- *
- */
 public class AsyncCallbackConsumer implements ConsulCache.CallbackConsumer<Value>, AutoCloseable {
     private final List<Value> result;
     private int callCount;
     private Thread thread;
 
     public AsyncCallbackConsumer(List<Value> result) {
-        this.result = Collections.unmodifiableList(result);
+        this.result = List.copyOf(result);
     }
 
     @Override

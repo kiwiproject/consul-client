@@ -9,7 +9,6 @@ import retrofit2.Retrofit;
 import retrofit2.http.GET;
 import retrofit2.http.QueryMap;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +46,7 @@ public class CoordinateClient extends BaseClient {
     }
 
     private Map<String, String> dcQuery(String dc) {
-        return dc != null ? Map.of("dc", dc) : Collections.emptyMap();
+        return dc != null ? Map.of("dc", dc) : Map.of();
     }
 
     /**

@@ -37,7 +37,6 @@ import retrofit2.http.Path;
 import retrofit2.http.QueryMap;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -229,7 +228,7 @@ public class KeyValueClient extends BaseCacheableClient {
 
         List<Value> result = http.extract(api.getValue(trimLeadingSlash(key), query), NOT_FOUND_404);
 
-        return result == null ? Collections.emptyList() : result;
+        return result == null ? List.of() : result;
     }
 
     /**
@@ -506,7 +505,7 @@ public class KeyValueClient extends BaseCacheableClient {
         }
 
         List<String> result = http.extract(api.getKeys(trimLeadingSlash(key), query), NOT_FOUND_404);
-        return result == null ? Collections.emptyList() : result;
+        return result == null ? List.of() : result;
     }
 
     /**

@@ -28,7 +28,6 @@ import retrofit2.http.QueryMap;
 import retrofit2.http.QueryName;
 
 import java.net.URL;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -110,7 +109,7 @@ public class AgentClient extends BaseClient {
      */
     public void register(int port, String args, long interval, String name, String id,
                          List<String> tags, Map<String, String> meta) {
-        Registration.RegCheck check = Registration.RegCheck.args(Collections.singletonList(args), interval);
+        Registration.RegCheck check = Registration.RegCheck.args(List.of(args), interval);
         register(port, check, name, id, tags, meta);
     }
 
@@ -320,7 +319,7 @@ public class AgentClient extends BaseClient {
         Check check = ImmutableCheck.builder()
                 .id(checkId)
                 .name(name)
-                .args(Collections.singletonList(args))
+                .args(List.of(args))
                 .interval(String.format("%ss", interval))
                 .notes(Optional.ofNullable(notes))
                 .build();
