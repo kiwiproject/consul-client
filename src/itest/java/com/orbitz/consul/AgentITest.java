@@ -1,34 +1,6 @@
 package com.orbitz.consul;
 
-import com.google.common.collect.ImmutableList;
-import com.orbitz.consul.model.ConsulResponse;
-import com.orbitz.consul.model.agent.Agent;
-import com.orbitz.consul.model.agent.FullService;
-import com.orbitz.consul.model.agent.ImmutableFullService;
-import com.orbitz.consul.model.agent.ImmutableRegCheck;
-import com.orbitz.consul.model.agent.ImmutableRegistration;
-import com.orbitz.consul.model.agent.Registration;
-import com.orbitz.consul.model.catalog.CatalogService;
-import com.orbitz.consul.model.catalog.ImmutableServiceWeights;
-import com.orbitz.consul.model.health.HealthCheck;
-import com.orbitz.consul.model.health.ImmutableService;
-import com.orbitz.consul.model.health.Service;
-import com.orbitz.consul.model.health.ServiceHealth;
-import com.orbitz.consul.option.ImmutableQueryOptions;
-import com.orbitz.consul.option.ImmutableQueryParameterOptions;
-import com.orbitz.consul.option.QueryOptions;
-
-import org.junit.Test;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.time.Duration;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
+import static com.orbitz.consul.Awaiting.awaitAtMost100ms;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.AnyOf.anyOf;
@@ -37,17 +9,54 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
+
+import com.orbitz.consul.model.ConsulResponse;
+import com.orbitz.consul.model.agent.FullService;
+import com.orbitz.consul.model.agent.ImmutableFullService;
+import com.orbitz.consul.model.agent.ImmutableRegCheck;
+import com.orbitz.consul.model.agent.ImmutableRegistration;
+import com.orbitz.consul.model.agent.Registration;
+import com.orbitz.consul.model.catalog.ImmutableServiceWeights;
+import com.orbitz.consul.model.health.HealthCheck;
+import com.orbitz.consul.model.health.ImmutableService;
+import com.orbitz.consul.model.health.Service;
+import com.orbitz.consul.model.health.ServiceHealth;
+import com.orbitz.consul.option.ImmutableQueryOptions;
+import com.orbitz.consul.option.ImmutableQueryParameterOptions;
+import com.orbitz.consul.option.QueryOptions;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class AgentITest extends BaseIntegrationTest {
 
-    private static final List<String> NO_TAGS = Collections.emptyList();
-    private static final Map<String, String> NO_META = Collections.emptyMap();
+    private static final List<String> NO_TAGS = List.of();
+    private static final Map<String, String> NO_META = Map.of();
+
+    private AgentClient agentClient;
+
+    @Before
+    public void setUp() {
+        agentClient = client.agentClient();
+    }
 
     @Test
     public void shouldRetrieveAgentInformation() {
-        Agent agent = client.agentClient().getAgent();
+        var agent = agentClient.getAgent();
 
-        org.junit.Assume.assumeTrue(agent.getDebugConfig() != null);
+        assumeTrue(agent.getDebugConfig() != null);
 
         assertNotNull(agent);
         assertNotNull(agent.getConfig());
@@ -60,84 +69,64 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldRegisterTtlCheck() throws UnknownHostException, InterruptedException {
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
+    public void shouldRegisterTtlCheck() {
+        var serviceName = UUID.randomUUID().toString();
+        var serviceId = UUID.randomUUID().toString();
 
-        client.agentClient().register(8080, 10000L, serviceName, serviceId, NO_TAGS, NO_META);
+        agentClient.register(8080, 10000L, serviceName, serviceId, NO_TAGS, NO_META);
 
-        Synchroniser.pause(Duration.ofMillis(100));
+        var serviceHealthRef = new AtomicReference<ServiceHealth>();
+        awaitAtMost100ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
-        boolean found = false;
-
-        for (ServiceHealth health : client.healthClient().getAllServiceInstances(serviceName).getResponse()) {
-            if (health.getService().getId().equals(serviceId)) {
-                found = true;
-                assertThat(health.getChecks().size(), is(2));
-            }
-        }
-
-        assertTrue(found);
+        var serviceHealth = getValueOrFail(serviceHealthRef);
+        assertThat(serviceHealth.getChecks().size(), is(2));
     }
 
     @Test
-    public void shouldRegisterHttpCheck() throws UnknownHostException, InterruptedException, MalformedURLException {
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
+    public void shouldRegisterHttpCheck() throws MalformedURLException {
+        var serviceName = UUID.randomUUID().toString();
+        var serviceId = UUID.randomUUID().toString();
 
-        client.agentClient().register(8080, new URL("http://localhost:1337/health"), 1000L, serviceName, serviceId, NO_TAGS, NO_META);
+        var healthCheclkUrl = URI.create("http://localhost:1337/health").toURL();
+        agentClient.register(8080, healthCheclkUrl, 1000L, serviceName, serviceId, NO_TAGS, NO_META);
 
-        Synchroniser.pause(Duration.ofMillis(100));
+        var serviceHealthRef = new AtomicReference<ServiceHealth>();
+        awaitAtMost100ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
-        boolean found = false;
-
-        for (ServiceHealth health : client.healthClient().getAllServiceInstances(serviceName).getResponse()) {
-            if (health.getService().getId().equals(serviceId)) {
-                found = true;
-                assertThat(health.getChecks().size(), is(2));
-            }
-        }
-
-        assertTrue(found);
+        var serviceHealth = getValueOrFail(serviceHealthRef);
+        assertThat(serviceHealth.getChecks().size(), is(2));
     }
 
     @Test
-    public void shouldRegisterGrpcCheck() throws UnknownHostException, InterruptedException, MalformedURLException {
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
+    public void shouldRegisterGrpcCheck() {
+        var serviceName = UUID.randomUUID().toString();
+        var serviceId = UUID.randomUUID().toString();
 
-        Registration registration = ImmutableRegistration.builder()
+        var registration = ImmutableRegistration.builder()
                 .name(serviceName)
                 .id(serviceId)
                 .port(12345)
                 .addChecks(ImmutableRegCheck.builder()
-                    .grpc("localhost:12345")
-                    .interval("10s")
-                    .build())
+                        .grpc("localhost:12345")
+                        .interval("10s")
+                        .build())
                 .build();
-        client.agentClient().register(registration);
+        agentClient.register(registration);
 
-        Synchroniser.pause(Duration.ofMillis(100));
+        var serviceHealthRef = new AtomicReference<ServiceHealth>();
+        awaitAtMost100ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
-        boolean found = false;
-
-        for (ServiceHealth health : client.healthClient().getAllServiceInstances(serviceName).getResponse()) {
-            if (health.getService().getId().equals(serviceId)) {
-                found = true;
-                assertThat(health.getChecks().size(), is(2));
-            }
-        }
-
-        assertTrue(found);
+        var serviceHealth = getValueOrFail(serviceHealthRef);
+        assertThat(serviceHealth.getChecks().size(), is(2));
     }
 
     @Test
-    public void shouldRegisterCheckWithId() throws UnknownHostException, InterruptedException {
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
-        String checkId = UUID.randomUUID().toString();
+    public void shouldRegisterCheckWithId() {
+        var serviceName = UUID.randomUUID().toString();
+        var serviceId = UUID.randomUUID().toString();
+        var checkId = UUID.randomUUID().toString();
 
-        Registration registration = ImmutableRegistration.builder()
+        var registration = ImmutableRegistration.builder()
                 .name(serviceName)
                 .id(serviceId)
                 .port(8085)
@@ -147,30 +136,23 @@ public class AgentITest extends BaseIntegrationTest {
                         .build())
                 .build();
 
-        client.agentClient().register(registration);
+        agentClient.register(registration);
 
-        Synchroniser.pause(Duration.ofMillis(100));
+        var serviceHealthRef = new AtomicReference<ServiceHealth>();
+        awaitAtMost100ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
-        boolean found = false;
-
-        for (ServiceHealth health : client.healthClient().getAllServiceInstances(serviceName).getResponse()) {
-            if (health.getService().getId().equals(serviceId)) {
-                found = true;
-                assertThat(health.getChecks().size(), is(2));
-                assertTrue(health.getChecks().stream().anyMatch(check -> check.getCheckId().equals(checkId)));
-            }
-        }
-
-        assertTrue(found);
+        var serviceHealth = getValueOrFail(serviceHealthRef);
+        assertThat(serviceHealth.getChecks().size(), is(2));
+        assertTrue(serviceHealth.getChecks().stream().anyMatch(check -> check.getCheckId().equals(checkId)));
     }
 
     @Test
-    public void shouldRegisterCheckWithName() throws UnknownHostException, InterruptedException {
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
-        String checkName = UUID.randomUUID().toString();
+    public void shouldRegisterCheckWithName() {
+        var serviceName = UUID.randomUUID().toString();
+        var serviceId = UUID.randomUUID().toString();
+        var checkName = UUID.randomUUID().toString();
 
-        Registration registration = ImmutableRegistration.builder()
+        var registration = ImmutableRegistration.builder()
                 .name(serviceName)
                 .id(serviceId)
                 .port(9142)
@@ -180,95 +162,73 @@ public class AgentITest extends BaseIntegrationTest {
                         .build())
                 .build();
 
-        client.agentClient().register(registration);
+        agentClient.register(registration);
 
-        Synchroniser.pause(Duration.ofMillis(100));
+        var serviceHealthRef = new AtomicReference<ServiceHealth>();
+        awaitAtMost100ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
-        boolean found = false;
-
-        for (ServiceHealth health : client.healthClient().getAllServiceInstances(serviceName).getResponse()) {
-            if (health.getService().getId().equals(serviceId)) {
-                found = true;
-                assertThat(health.getChecks().size(), is(2));
-                assertTrue(health.getChecks().stream().anyMatch(check -> check.getName().equals(checkName)));
-            }
-        }
-
-        assertTrue(found);
+        var serviceHealth = getValueOrFail(serviceHealthRef);
+        assertThat(serviceHealth.getChecks().size(), is(2));
+        assertTrue(serviceHealth.getChecks().stream().anyMatch(check -> check.getName().equals(checkName)));
     }
 
     @Test
-    public void shouldRegisterMultipleChecks() throws UnknownHostException, InterruptedException, MalformedURLException {
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
+    public void shouldRegisterMultipleChecks() {
+        var serviceName = UUID.randomUUID().toString();
+        var serviceId = UUID.randomUUID().toString();
 
-        List<Registration.RegCheck> regChecks = ImmutableList.of(
-                Registration.RegCheck.args(Collections.singletonList("/usr/bin/echo \"sup\""), 10, 1, "Custom description."),
+        var regChecks = List.of(
+                Registration.RegCheck.args(List.of("/usr/bin/echo \"sup\""), 10, 1, "Custom description."),
                 Registration.RegCheck.http("http://localhost:8080/health", 10, 1, "Custom description."));
 
-        client.agentClient().register(8080, regChecks, serviceName, serviceId, NO_TAGS, NO_META);
+        agentClient.register(8080, regChecks, serviceName, serviceId, NO_TAGS, NO_META);
 
-        Synchroniser.pause(Duration.ofMillis(100));
+        var serviceHealthRef = new AtomicReference<ServiceHealth>();
+        awaitAtMost100ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
-        boolean found = false;
-
-        for (ServiceHealth health : client.healthClient().getAllServiceInstances(serviceName).getResponse()) {
-            if (health.getService().getId().equals(serviceId)) {
-                found = true;
-                assertThat(health.getChecks().size(), is(3));
-            }
-        }
-
-        assertTrue(found);
+        var serviceHealth = getValueOrFail(serviceHealthRef);
+        assertThat(serviceHealth.getChecks().size(), is(3));
     }
 
     // This is apparently valid
     // to register a single "Check"
     // and multiple "Checks" in one call
     @Test
-    public void shouldRegisterMultipleChecks2() throws UnknownHostException, InterruptedException, MalformedURLException {
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
+    public void shouldRegisterMultipleChecks2() {
+        var serviceName = UUID.randomUUID().toString();
+        var serviceId = UUID.randomUUID().toString();
 
-        Registration.RegCheck single= Registration.RegCheck.args(Collections.singletonList("/usr/bin/echo \"sup\""), 10);
+        var singleCheck = Registration.RegCheck.args(List.of("/usr/bin/echo \"sup\""), 10);
 
-        List<Registration.RegCheck> regChecks = ImmutableList.of(
-                Registration.RegCheck.http("http://localhost:8080/health", 10));
+        var regChecks = List.of(Registration.RegCheck.http("http://localhost:8080/health", 10));
 
-        Registration reg = ImmutableRegistration.builder()
-                .check(single)
+        var reg = ImmutableRegistration.builder()
+                .check(singleCheck)
                 .checks(regChecks)
                 .address("localhost")
                 .port(8080)
                 .name(serviceName)
                 .id(serviceId)
                 .build();
-        client.agentClient().register(reg);
+        agentClient.register(reg);
 
-        Synchroniser.pause(Duration.ofMillis(100));
+        var serviceHealthRef = new AtomicReference<ServiceHealth>();
+        awaitAtMost100ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
-        boolean found = false;
-
-        for (ServiceHealth health : client.healthClient().getAllServiceInstances(serviceName).getResponse()) {
-            if (health.getService().getId().equals(serviceId)) {
-                found = true;
-                assertThat(health.getChecks().size(), is(3));
-            }
-        }
-
-        assertTrue(found);
+        var serviceHealth = getValueOrFail(serviceHealthRef);
+        assertThat(serviceHealth.getChecks().size(), is(3));
     }
 
     @Test
     public void shouldRegisterChecksFromCleanState() {
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
+        var serviceName = UUID.randomUUID().toString();
+        var serviceId = UUID.randomUUID().toString();
 
-        List<Registration.RegCheck> regChecks = ImmutableList.of(
-                Registration.RegCheck.args(Collections.singletonList("/usr/bin/echo \"sup\""), 10, 1, "Custom description."),
+        var regChecks = List.of(
+                Registration.RegCheck.args(List.of("/usr/bin/echo \"sup\""), 10, 1, "Custom description."),
                 Registration.RegCheck.http("http://localhost:8080/health", 10, 1, "Custom description."));
 
-        Registration reg = ImmutableRegistration.builder()
+        var reg = ImmutableRegistration.builder()
                 .checks(regChecks)
                 .address("localhost")
                 .port(8080)
@@ -276,14 +236,14 @@ public class AgentITest extends BaseIntegrationTest {
                 .id(serviceId)
                 .build();
 
-        client.agentClient().register(reg, QueryOptions.BLANK);
+        agentClient.register(reg, QueryOptions.BLANK);
 
-        Synchroniser.pause(Duration.ofMillis(100));
+        awaitAtMost100ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId));
 
-        List<Registration.RegCheck> regCheck = ImmutableList.of(
-                Registration.RegCheck.args(Collections.singletonList("/usr/bin/echo \"sup\""), 10, 1, "Custom description."));
+        var regCheck = List.of(
+                Registration.RegCheck.args(List.of("/usr/bin/echo \"sup\""), 10, 1, "Custom description."));
 
-        Registration secondRegistration = ImmutableRegistration.builder()
+        var secondRegistration = ImmutableRegistration.builder()
                 .checks(regCheck)
                 .address("localhost")
                 .port(8080)
@@ -291,73 +251,53 @@ public class AgentITest extends BaseIntegrationTest {
                 .id(serviceId)
                 .build();
 
-        ImmutableQueryParameterOptions queryParameterOptions = ImmutableQueryParameterOptions.builder()
+        var queryParameterOptions = ImmutableQueryParameterOptions.builder()
                 .replaceExistingChecks(true)
                 .build();
 
-        client.agentClient().register(secondRegistration, QueryOptions.BLANK, queryParameterOptions);
+        agentClient.register(secondRegistration, QueryOptions.BLANK, queryParameterOptions);
 
-        Synchroniser.pause(Duration.ofMillis(100));
+        var serviceHealthRef = new AtomicReference<ServiceHealth>();
+        awaitAtMost100ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
-        boolean found = false;
-
-        for (ServiceHealth health : client.healthClient().getAllServiceInstances(serviceName).getResponse()) {
-            if (health.getService().getId().equals(serviceId)) {
-                found = true;
-                assertThat(health.getChecks().size(), is(2));
-            }
-        }
-
-        assertTrue(found);
+        var serviceHealth = getValueOrFail(serviceHealthRef);
+        assertThat(serviceHealth.getChecks().size(), is(2));
     }
 
     @Test
-    public void shouldDeregister() throws UnknownHostException, InterruptedException {
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
+    public void shouldDeregister() {
+        var serviceName = UUID.randomUUID().toString();
+        var serviceId = UUID.randomUUID().toString();
 
-        client.agentClient().register(8080, 10000L, serviceName, serviceId, NO_TAGS, NO_META);
-        client.agentClient().deregister(serviceId);
-        Synchroniser.pause(Duration.ofSeconds(1));
-        boolean found = false;
+        agentClient.register(8080, 10000L, serviceName, serviceId, NO_TAGS, NO_META);
+        agentClient.deregister(serviceId);
 
-        for (ServiceHealth health : client.healthClient().getAllServiceInstances(serviceName).getResponse()) {
-            if (health.getService().getId().equals(serviceId)) {
-                found = true;
-            }
-        }
-
-        assertFalse(found);
+        awaitAtMost100ms().until(() -> !serviceHealthExistsWithNameAndId(serviceName, serviceId));
     }
 
     @Test
     public void shouldGetChecks() {
-        String id = UUID.randomUUID().toString();
-        client.agentClient().register(8080, 20L, UUID.randomUUID().toString(), id, NO_TAGS, NO_META);
+        var serviceId = UUID.randomUUID().toString();
+        var serviceName = UUID.randomUUID().toString();
+        agentClient.register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
 
-        boolean found = false;
-
-        for (Map.Entry<String, HealthCheck> check : client.agentClient().getChecks().entrySet()) {
-            if (check.getValue().getCheckId().equals("service:" + id)) {
-                found = true;
-            }
-        }
-
-        assertTrue(found);
+        awaitAtMost100ms().until(() -> checkExistsWithId("service:" + serviceId));
     }
 
     @Test
     public void shouldGetServices() {
-        String id = UUID.randomUUID().toString();
-        String name = UUID.randomUUID().toString();
-        List<String> tags = Collections.singletonList(UUID.randomUUID().toString());
-        Map<String, String> meta = Collections.singletonMap(UUID.randomUUID().toString(), UUID.randomUUID().toString());
-        client.agentClient().register(8080, 20L, name, id, tags, meta);
-        Synchroniser.pause(Duration.ofMillis(100));
+        var serviceId = UUID.randomUUID().toString();
+        var serviceName = UUID.randomUUID().toString();
+        var tags = List.of(UUID.randomUUID().toString());
+        var meta = Map.of(UUID.randomUUID().toString(), UUID.randomUUID().toString());
 
-        Service expectedService = ImmutableService.builder()
-                .id(id)
-                .service(name)
+        agentClient.register(8080, 20L, serviceName, serviceId, tags, meta);
+
+        awaitAtMost100ms().until(() -> serviceExistsWithId(serviceId));
+
+        var expectedService = ImmutableService.builder()
+                .id(serviceId)
+                .service(serviceName)
                 .address("")
                 .port(8080)
                 .tags(tags)
@@ -365,31 +305,27 @@ public class AgentITest extends BaseIntegrationTest {
                 .enableTagOverride(false)
                 .weights(ImmutableServiceWeights.builder().warning(1).passing(1).build())
                 .build();
-        Service registeredService = null;
-        for (Map.Entry<String, Service> service : client.agentClient().getServices().entrySet()) {
-            if (service.getValue().getId().equals(id)) {
-                registeredService = service.getValue();
-            }
-        }
 
-        assertNotNull(String.format("Service \"%s\" not found", name), registeredService);
+        var registeredService = findService(service -> service.getId().equals(serviceId)).orElseThrow();
         assertEquals(expectedService, registeredService);
     }
 
     @Test
     public void shouldGetServicesFiltered() {
-        String id = UUID.randomUUID().toString();
-        String name = UUID.randomUUID().toString();
-        List<String> tags = Collections.singletonList(UUID.randomUUID().toString());
-        String metaKey = "MetaKey";
-        String metaValue = UUID.randomUUID().toString();
-        Map<String, String> meta = Collections.singletonMap(metaKey, metaValue);
-        client.agentClient().register(8080, 20L, name, id, tags, meta);
-        Synchroniser.pause(Duration.ofMillis(100));
+        var serviceId = UUID.randomUUID().toString();
+        var serviceName = UUID.randomUUID().toString();
+        var tags = List.of(UUID.randomUUID().toString());
+        var metaKey = "MetaKey";
+        var metaValue = UUID.randomUUID().toString();
+        var meta = Map.of(metaKey, metaValue);
 
-        Service expectedService = ImmutableService.builder()
-                .id(id)
-                .service(name)
+        agentClient.register(8080, 20L, serviceName, serviceId, tags, meta);
+
+        awaitAtMost100ms().until(() -> serviceExistsWithId(serviceId));
+
+        var expectedService = ImmutableService.builder()
+                .id(serviceId)
+                .service(serviceName)
                 .address("")
                 .port(8080)
                 .tags(tags)
@@ -397,36 +333,32 @@ public class AgentITest extends BaseIntegrationTest {
                 .enableTagOverride(false)
                 .weights(ImmutableServiceWeights.builder().warning(1).passing(1).build())
                 .build();
-        Service registeredService = null;
-        Map<String, Service> services = client.agentClient().getServices(
-                ImmutableQueryOptions.builder()
-                        .filter(String.format("Meta.%s == `%s`", metaKey, metaValue))
-                        .build()
-        );
-        for (Map.Entry<String, Service> service : services.entrySet()) {
-            if (service.getValue().getId().equals(id)) {
-                registeredService = service.getValue();
-            }
-        }
 
-        assertNotNull(String.format("Service \"%s\" not found", name), registeredService);
+        var queryOptions = ImmutableQueryOptions.builder()
+                .filter(String.format("Meta.%s == `%s`", metaKey, metaValue))
+                .build();
+        var services = agentClient.getServices(queryOptions).values();
+
+        var registeredService = findService(services, service -> service.getId().equals(serviceId)).orElseThrow();
         assertEquals(expectedService, registeredService);
     }
 
     @Test
     public void shouldGetService() throws NotRegisteredException {
-        String id = UUID.randomUUID().toString();
-        String name = UUID.randomUUID().toString();
-        List<String> tags = Collections.singletonList(UUID.randomUUID().toString());
-        Map<String, String> meta = Collections.singletonMap(UUID.randomUUID().toString(), UUID.randomUUID().toString());
-        client.agentClient().register(8080, 20L, name, id, tags, meta);
-        Synchroniser.pause(Duration.ofMillis(100));
+        var serviceId = UUID.randomUUID().toString();
+        var serviceName = UUID.randomUUID().toString();
+        var tags = List.of(UUID.randomUUID().toString());
+        var meta = Map.of(UUID.randomUUID().toString(), UUID.randomUUID().toString());
 
-        ConsulResponse<FullService> service = client.agentClient().getService(id, QueryOptions.BLANK);
+        agentClient.register(8080, 20L, serviceName, serviceId, tags, meta);
+
+        awaitAtMost100ms().until(() -> serviceExistsWithId(serviceId));
+
+        ConsulResponse<FullService> service = agentClient.getService(serviceId, QueryOptions.BLANK);
 
         FullService expectedService = ImmutableFullService.builder()
-                .id(id)
-                .service(name)
+                .id(serviceId)
+                .service(serviceName)
                 .address("")
                 .port(8080)
                 .tags(tags)
@@ -441,141 +373,215 @@ public class AgentITest extends BaseIntegrationTest {
 
     @Test
     public void shouldGetServiceWithWait() throws NotRegisteredException {
-        String id = UUID.randomUUID().toString();
-        String name = UUID.randomUUID().toString();
-        List<String> tags = Collections.singletonList(UUID.randomUUID().toString());
-        Map<String, String> meta = Collections.singletonMap(UUID.randomUUID().toString(), UUID.randomUUID().toString());
-        client.agentClient().register(8080, 20L, name, id, tags, meta);
-        Synchroniser.pause(Duration.ofMillis(100));
+        var serviceId = UUID.randomUUID().toString();
+        var serviceName = UUID.randomUUID().toString();
+        var tags = List.of(UUID.randomUUID().toString());
+        var meta = Map.of(UUID.randomUUID().toString(), UUID.randomUUID().toString());
 
-        ConsulResponse<FullService> service = client.agentClient().getService(id, QueryOptions.BLANK);
-        ConsulResponse<FullService> other = client.agentClient().getService(id,
-                QueryOptions.blockSeconds(20, service.getResponse().getContentHash()).build());
+        var ttl = 2;  // seconds
+        agentClient.register(8080, ttl, serviceName, serviceId, tags, meta);
+
+        awaitAtMost100ms().until(() -> serviceExistsWithId(serviceId));
+
+        ConsulResponse<FullService> service = agentClient.getService(serviceId, QueryOptions.BLANK);
+
+        var blockingQueryOptions = QueryOptions.blockSeconds(ttl, service.getResponse().getContentHash()).build();
+
+        var start = System.nanoTime();
+        ConsulResponse<FullService> other = agentClient.getService(serviceId, blockingQueryOptions);
+        var elapsed = System.nanoTime() - start;
 
         assertEquals(service.getResponse(), other.getResponse());
+        assertTrue("Elapsed time should be equal or more than blocking time",
+                TimeUnit.NANOSECONDS.toMillis(elapsed) >= TimeUnit.SECONDS.toMillis(ttl));
     }
 
     @Test(expected = NotRegisteredException.class)
     public void shouldGetServiceThrowErrorWhenServiceIsUnknown() throws NotRegisteredException {
-        client.agentClient().getService(UUID.randomUUID().toString(), QueryOptions.BLANK);
+        agentClient.getService(UUID.randomUUID().toString(), QueryOptions.BLANK);
     }
 
     @Test
-    public void shouldSetWarning() throws UnknownHostException, NotRegisteredException {
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
-        String note = UUID.randomUUID().toString();
+    public void shouldSetWarning() throws NotRegisteredException {
+        var serviceName = UUID.randomUUID().toString();
+        var serviceId = UUID.randomUUID().toString();
+        var note = UUID.randomUUID().toString();
 
-        client.agentClient().register(8080, 20L, serviceName, serviceId, Collections.emptyList(), Collections.emptyMap());
-        client.agentClient().warn(serviceId, note);
+        agentClient.register(8080, 20L, serviceName, serviceId, List.of(), Map.of());
+
+        awaitAtMost100ms().until(() -> serviceExistsWithId(serviceId));
+
+        agentClient.warn(serviceId, note);
 
         verifyState("warning", client, serviceId, serviceName, note);
     }
 
     @Test
-    public void shouldSetFailing() throws UnknownHostException, NotRegisteredException {
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
-        String note = UUID.randomUUID().toString();
+    public void shouldSetFailing() throws NotRegisteredException {
+        var serviceName = UUID.randomUUID().toString();
+        var serviceId = UUID.randomUUID().toString();
+        var note = UUID.randomUUID().toString();
 
-        client.agentClient().register(8080, 20L, serviceName, serviceId, Collections.emptyList(), Collections.emptyMap());
-        client.agentClient().fail(serviceId, note);
+        agentClient.register(8080, 20L, serviceName, serviceId, List.of(), Map.of());
+
+        awaitAtMost100ms().until(() -> serviceExistsWithId(serviceId));
+
+        agentClient.fail(serviceId, note);
 
         verifyState("critical", client, serviceId, serviceName, note);
     }
 
     @Test
-    public void shouldRegisterNodeScriptCheck() throws InterruptedException {
-        String checkId = UUID.randomUUID().toString();
+    public void shouldRegisterNodeScriptCheck() {
+        var checkId = UUID.randomUUID().toString();
 
-        client.agentClient().registerCheck(checkId, "test-validate", "/usr/bin/echo \"sup\"", 30);
+        agentClient.registerCheck(checkId, "test-validate", "/usr/bin/echo \"sup\"", 30);
+
+        awaitAtMost100ms().until(() -> checkExistsWithId(checkId));
+
         try {
-
-            HealthCheck check = client.agentClient().getChecks().get(checkId);
+            HealthCheck check = agentClient.getChecks().get(checkId);
 
             assertEquals(check.getCheckId(), checkId);
             assertEquals("test-validate", check.getName());
-        }
-        finally {
-            client.agentClient().deregisterCheck(checkId);
+        } finally {
+            agentClient.deregisterCheck(checkId);
         }
     }
 
     @Test
-    public void shouldRegisterNodeHttpCheck() throws InterruptedException, MalformedURLException {
-        String checkId = UUID.randomUUID().toString();
+    public void shouldRegisterNodeHttpCheck() throws MalformedURLException {
+        var checkId = UUID.randomUUID().toString();
 
-        client.agentClient().registerCheck(checkId, "test-validate", new URL("http://foo.local:1337/check"), 30);
+        var healthCheckUrl = URI.create("http://foo.local:1337/check").toURL();
+        agentClient.registerCheck(checkId, "test-validate", healthCheckUrl, 30);
+
+        awaitAtMost100ms().until(() -> checkExistsWithId(checkId));
 
         try {
-            HealthCheck check = client.agentClient().getChecks().get(checkId);
+            HealthCheck check = agentClient.getChecks().get(checkId);
 
             assertEquals(check.getCheckId(), checkId);
             assertEquals("test-validate", check.getName());
-        }
-        finally {
-            client.agentClient().deregisterCheck(checkId);
+        } finally {
+            agentClient.deregisterCheck(checkId);
         }
     }
 
     @Test
-    public void shouldRegisterNodeTtlCheck() throws InterruptedException, MalformedURLException {
-        String checkId = UUID.randomUUID().toString();
+    public void shouldRegisterNodeTtlCheck() {
+        var checkId = UUID.randomUUID().toString();
 
-        client.agentClient().registerCheck(checkId, "test-validate", 30);
+        agentClient.registerCheck(checkId, "test-validate", 30);
+
+        awaitAtMost100ms().until(() -> checkExistsWithId(checkId));
+
         try {
-            HealthCheck check = client.agentClient().getChecks().get(checkId);
+            HealthCheck check = agentClient.getChecks().get(checkId);
 
             assertEquals(check.getCheckId(), checkId);
             assertEquals("test-validate", check.getName());
-        }
-        finally {
-            client.agentClient().deregisterCheck(checkId);
+        } finally {
+            agentClient.deregisterCheck(checkId);
         }
     }
 
     @Test
-    public void shouldEnableMaintenanceMode() throws InterruptedException, MalformedURLException {
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
-        String reason = UUID.randomUUID().toString();
+    public void shouldEnableMaintenanceMode() {
+        var serviceName = UUID.randomUUID().toString();
+        var serviceId = UUID.randomUUID().toString();
+        var reason = UUID.randomUUID().toString();
 
-        client.agentClient().register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
+        agentClient.register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
+
+        awaitAtMost100ms().until(() -> serviceExistsWithId(serviceId));
 
         List<String> healthCheckNames = getHealthCheckNames(serviceName);
         assertFalse(healthCheckNames.contains("Service Maintenance Mode"));
 
-        client.agentClient().toggleMaintenanceMode(serviceId, true, reason);
+        agentClient.toggleMaintenanceMode(serviceId, true, reason);
 
         List<String> updatedHealthCheckNames = getHealthCheckNames(serviceName);
         assertTrue(updatedHealthCheckNames.contains("Service Maintenance Mode"));
     }
 
+    private boolean serviceExistsWithId(String serviceId) {
+        return serviceExistsWithId(serviceId, new AtomicReference<>());
+    }
+
+    private boolean serviceExistsWithId(String serviceId, AtomicReference<Service> serviceRef) {
+        var services = agentClient.getServices().values();
+        var serviceOptional = findService(services, service -> service.getId().equals(serviceId));
+
+        serviceRef.set(serviceOptional.orElse(null));
+
+        return serviceOptional.isPresent();
+    }
+
+    private Optional<Service> findService(Predicate<Service> predicate) {
+        var services = agentClient.getServices().values();
+        return findService(services, predicate);
+    }
+
+    private Optional<Service> findService(Collection<Service> services, Predicate<Service> predicate) {
+        return findService(services.stream(), predicate);
+    }
+
+    private Optional<Service> findService(Stream<Service> services, Predicate<Service> predicate) {
+        return services.filter(predicate).findFirst();
+    }
+
+    private boolean checkExistsWithId(String checkId) {
+        return agentClient.getChecks()
+                .values()
+                .stream()
+                .anyMatch(healthCheck -> healthCheck.getCheckId().equals(checkId));
+    }
+
+    private boolean serviceHealthExistsWithNameAndId(String serviceName, String serviceId) {
+        return serviceHealthExistsWithNameAndId(serviceName, serviceId, new AtomicReference<>());
+    }
+
+    private boolean serviceHealthExistsWithNameAndId(String serviceName,
+                                                     String serviceId,
+                                                     AtomicReference<ServiceHealth> serviceHealthRef) {
+
+        var serviceHealthList = client.healthClient().getAllServiceInstances(serviceName).getResponse();
+        var serviceHealthOptional = serviceHealthList.stream()
+                .filter(serviceHealth -> serviceHealth.getService().getId().equals(serviceId))
+                .findFirst();
+
+        serviceHealthRef.set(serviceHealthOptional.orElse(null));
+
+        return serviceHealthOptional.isPresent();
+    }
+
+    private static <T> T getValueOrFail(AtomicReference<T> ref) {
+        assertNotNull(ref.get());
+        return ref.get();
+    }
+
     private List<String> getHealthCheckNames(String serviceName) {
-        CatalogService catalogService = client.catalogClient().getService(serviceName).getResponse().get(0);
+        var catalogService = client.catalogClient().getService(serviceName).getResponse().get(0);
         String node = catalogService.getNode();
-        List<String> healthCheckNames = client.healthClient()
+        return client.healthClient()
                 .getNodeChecks(node, QueryOptions.BLANK).getResponse()
                 .stream()
                 .map(HealthCheck::getName)
                 .collect(toList());
-        return healthCheckNames;
     }
 
-
-    private void verifyState(String state, Consul client, String serviceId,
-                             String serviceName, String output) throws UnknownHostException {
-
+    private void verifyState(String state, Consul client, String serviceId, String serviceName, String output) {
         Map<String, HealthCheck> checks = client.agentClient().getChecks();
         HealthCheck check = checks.get("service:" + serviceId);
 
         assertNotNull(check);
-        assertEquals(serviceId, check.getServiceId().get());
-        assertEquals(serviceName, check.getServiceName().get());
+        assertEquals(serviceId, check.getServiceId().orElseThrow());
+        assertEquals(serviceName, check.getServiceName().orElseThrow());
         assertEquals(state, check.getStatus());
 
         if (output != null) {
-            assertEquals(output, check.getOutput().get());
+            assertEquals(output, check.getOutput().orElseThrow());
         }
     }
 }
