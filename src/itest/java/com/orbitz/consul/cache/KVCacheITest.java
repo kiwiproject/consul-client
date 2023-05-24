@@ -29,6 +29,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.orbitz.consul.Awaiting.awaitAtMost100ms;
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -40,7 +41,9 @@ import static org.junit.Assert.fail;
 @RunWith(JUnitParamsRunner.class)
 public class KVCacheITest extends BaseIntegrationTest {
 
-    Consul consulClient;
+    private Consul consulClient;
+    private KeyValueClient kvClient;
+
     @Before
     public void before() {
         consulClient = Consul.builder()
@@ -50,12 +53,12 @@ public class KVCacheITest extends BaseIntegrationTest {
                 .withConnectTimeoutMillis(Duration.ofMillis(500).toMillis())
                 .withWriteTimeoutMillis(Duration.ofMillis(500).toMillis())
                 .build();
+
+        kvClient = consulClient.keyValueClient();
     }
 
     @Test
     public void nodeCacheKvTest() throws Exception {
-
-        KeyValueClient kvClient = consulClient.keyValueClient();
         String root = UUID.randomUUID().toString();
 
         for (int i = 0; i < 5; i++) {
@@ -84,7 +87,7 @@ public class KVCacheITest extends BaseIntegrationTest {
             }
         }
 
-        Synchroniser.pause(Duration.ofMillis(100));
+        awaitAtMost100ms().until(() -> nc.getMap().size() == 5);
 
         map = nc.getMap();
         for (int i = 0; i < 5; i++) {
@@ -99,7 +102,6 @@ public class KVCacheITest extends BaseIntegrationTest {
 
     @Test
     public void testListeners() throws Exception {
-        KeyValueClient kvClient = consulClient.keyValueClient();
         String root = UUID.randomUUID().toString();
         final List<Map<String, Value>> events = new ArrayList<>();
 
@@ -139,7 +141,6 @@ public class KVCacheITest extends BaseIntegrationTest {
 
     @Test
     public void testLateListenersGetValues() throws Exception {
-        KeyValueClient kvClient = consulClient.keyValueClient();
         String root = UUID.randomUUID().toString();
 
         KVCache nc = KVCache.newCache(
@@ -173,7 +174,6 @@ public class KVCacheITest extends BaseIntegrationTest {
 
     @Test
     public void testListenersNonExistingKeys() throws Exception {
-        KeyValueClient kvClient = consulClient.keyValueClient();
         String root = UUID.randomUUID().toString();
 
         KVCache nc = KVCache.newCache(kvClient, root, 10);
@@ -185,7 +185,7 @@ public class KVCacheITest extends BaseIntegrationTest {
             fail("cache initialization failed");
         }
 
-        Synchroniser.pause(Duration.ofMillis(100));
+        awaitAtMost100ms().until(() -> events.size() == 1);
 
         assertEquals(1, events.size());
         Map<String, Value> map = events.get(0);
@@ -194,7 +194,6 @@ public class KVCacheITest extends BaseIntegrationTest {
 
     @Test
     public void testLifeCycleDoubleStart() throws Exception {
-        KeyValueClient kvClient = consulClient.keyValueClient();
         String root = UUID.randomUUID().toString();
 
         KVCache nc = KVCache.newCache(kvClient, root, 10);
@@ -212,7 +211,6 @@ public class KVCacheITest extends BaseIntegrationTest {
 
     @Test
     public void testLifeCycle() throws Exception {
-        KeyValueClient kvClient = consulClient.keyValueClient();
         String root = UUID.randomUUID().toString();
         final List<Map<String, Value>> events = new ArrayList<>();
 
@@ -252,15 +250,14 @@ public class KVCacheITest extends BaseIntegrationTest {
 
     @Test
     public void ensureCacheInitialization() throws InterruptedException {
-        KeyValueClient keyValueClient = consulClient.keyValueClient();
         String key = UUID.randomUUID().toString();
         String value = UUID.randomUUID().toString();
-        keyValueClient.putValue(key, value);
+        kvClient.putValue(key, value);
 
         final CountDownLatch completed = new CountDownLatch(1);
         final AtomicBoolean success = new AtomicBoolean(false);
 
-        try (KVCache cache = KVCache.newCache(keyValueClient, key, (int)Duration.ofSeconds(1).getSeconds())) {
+        try (KVCache cache = KVCache.newCache(kvClient, key, (int)Duration.ofSeconds(1).getSeconds())) {
             cache.addListener(values -> {
                 success.set(isValueEqualsTo(values, value));
                 completed.countDown();
@@ -271,7 +268,7 @@ public class KVCacheITest extends BaseIntegrationTest {
         } catch (Exception e) {
             fail(e.getMessage());
         } finally {
-            keyValueClient.deleteKey(key);
+            kvClient.deleteKey(key);
         }
 
         assertTrue(success.get());
@@ -285,28 +282,27 @@ public class KVCacheITest extends BaseIntegrationTest {
                 new ThreadFactoryBuilder().setDaemon(true).setNameFormat("kvcache-itest-%d").build()
         );
 
-        KeyValueClient keyValueClient = consulClient.keyValueClient();
         String key = UUID.randomUUID().toString();
         String value = UUID.randomUUID().toString();
         String newValue = UUID.randomUUID().toString();
-        keyValueClient.putValue(key, value);
+        kvClient.putValue(key, value);
 
         final CountDownLatch completed = new CountDownLatch(2);
         final AtomicBoolean success = new AtomicBoolean(false);
 
-        try (KVCache cache = KVCache.newCache(keyValueClient, key, queryDurationSec)) {
+        try (KVCache cache = KVCache.newCache(kvClient, key, queryDurationSec)) {
             cache.addListener(values -> {
                 success.set(isValueEqualsTo(values, newValue));
                 completed.countDown();
             });
 
             cache.start();
-            executor.schedule(() -> keyValueClient.putValue(key, newValue), 3, TimeUnit.SECONDS);
+            executor.schedule(() -> kvClient.putValue(key, newValue), 3, TimeUnit.SECONDS);
             completed.await(4, TimeUnit.SECONDS);
         } catch (Exception e) {
             fail(e.getMessage());
         } finally {
-            keyValueClient.deleteKey(key);
+            kvClient.deleteKey(key);
             executor.shutdownNow();
         }
 
