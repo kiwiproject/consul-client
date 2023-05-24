@@ -10,7 +10,6 @@ import static org.junit.Assert.assertNotNull;
 import com.google.common.collect.ImmutableMap;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.BaseIntegrationTest;
-import com.orbitz.consul.HealthClient;
 import com.orbitz.consul.model.State;
 import com.orbitz.consul.model.health.ServiceHealth;
 
@@ -40,30 +39,30 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
 
     @Test
     public void nodeCacheServicePassingTest() throws Exception {
-        HealthClient healthClient = client.healthClient();
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
+        var healthClient = client.healthClient();
+        var serviceName = UUID.randomUUID().toString();
+        var serviceId = UUID.randomUUID().toString();
 
         agentClient.register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
         agentClient.pass(serviceId);
 
        awaitWith25MsPoll().atMost(ONE_HUNDRED_MILLISECONDS).until(() -> serviceHasPassingCheck(serviceId));
 
-        try (ServiceHealthCache svHealth = ServiceHealthCache.newCache(healthClient, serviceName)) {
-            svHealth.start();
-            svHealth.awaitInitialized(3, TimeUnit.SECONDS);
+        try (var cache = ServiceHealthCache.newCache(healthClient, serviceName)) {
+            cache.start();
+            cache.awaitInitialized(3, TimeUnit.SECONDS);
 
-            ServiceHealthKey serviceKey = getServiceHealthKeyFromCache(svHealth, serviceId, 8080)
+            ServiceHealthKey serviceKey = getServiceHealthKeyFromCache(cache, serviceId, 8080)
                     .orElseThrow(() -> new RuntimeException("Cannot find service key from serviceHealthCache"));
 
-            ServiceHealth health = svHealth.getMap().get(serviceKey);
+            ServiceHealth health = cache.getMap().get(serviceKey);
             assertNotNull(health);
             assertEquals(serviceId, health.getService().getId());
 
             agentClient.fail(serviceId);
 
             awaitWith25MsPoll().atMost(ONE_HUNDRED_MILLISECONDS)
-                    .until(() -> isNull(svHealth.getMap().get(serviceKey)));
+                    .until(() -> isNull(cache.getMap().get(serviceKey)));
         }
     }
 
@@ -77,10 +76,10 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
 
     @Test
     public void testServicesAreUniqueByID() throws Exception {
-        HealthClient healthClient = client.healthClient();
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
-        String serviceId2 = UUID.randomUUID().toString();
+        var healthClient = client.healthClient();
+        var serviceName = UUID.randomUUID().toString();
+        var serviceId = UUID.randomUUID().toString();
+        var serviceId2 = UUID.randomUUID().toString();
 
         agentClient.register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
         agentClient.pass(serviceId);
@@ -88,19 +87,19 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
         agentClient.register(8080, 20L, serviceName, serviceId2, NO_TAGS, NO_META);
         agentClient.pass(serviceId2);
 
-        try (ServiceHealthCache svHealth = ServiceHealthCache.newCache(healthClient, serviceName)) {
-            svHealth.start();
-            svHealth.awaitInitialized(3, TimeUnit.SECONDS);
+        try (var cache = ServiceHealthCache.newCache(healthClient, serviceName)) {
+            cache.start();
+            cache.awaitInitialized(3, TimeUnit.SECONDS);
 
-            ServiceHealthKey serviceKey1 = getServiceHealthKeyFromCache(svHealth, serviceId, 8080)
+            ServiceHealthKey serviceKey1 = getServiceHealthKeyFromCache(cache, serviceId, 8080)
                     .orElseThrow(() -> new RuntimeException("Cannot find service key 1 from serviceHealthCache"));
 
-            ServiceHealthKey serviceKey2 = getServiceHealthKeyFromCache(svHealth, serviceId2, 8080)
+            ServiceHealthKey serviceKey2 = getServiceHealthKeyFromCache(cache, serviceId2, 8080)
                     .orElseThrow(() -> new RuntimeException("Cannot find service key 2 from serviceHealthCache"));
 
-            ImmutableMap<ServiceHealthKey, ServiceHealth> healthMap = svHealth.getMap();
+            ImmutableMap<ServiceHealthKey, ServiceHealth> healthMap = cache.getMap();
             assertEquals(2, healthMap.size());
-            ServiceHealth health =healthMap.get(serviceKey1);
+            ServiceHealth health = healthMap.get(serviceKey1);
             ServiceHealth health2 = healthMap.get(serviceKey2);
 
             assertEquals(serviceId, health.getService().getId());
@@ -117,76 +116,74 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
 
     @Test
     public void shouldNotifyListener() throws Exception {
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
+        var serviceName = UUID.randomUUID().toString();
+        var serviceId = UUID.randomUUID().toString();
 
         agentClient.register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
         agentClient.pass(serviceId);
 
-        ServiceHealthCache svHealth = ServiceHealthCache.newCache(client.healthClient(), serviceName);
+        try (var cache = ServiceHealthCache.newCache(client.healthClient(), serviceName)) {
+            final List<Map<ServiceHealthKey, ServiceHealth>> events = new ArrayList<>();
+            cache.addListener(events::add);
 
-        final List<Map<ServiceHealthKey, ServiceHealth>> events = new ArrayList<>();
-        svHealth.addListener(events::add);
+            assertEquals(0, events.size());
 
-        assertEquals(0, events.size());
+            cache.start();
+            cache.awaitInitialized(1000, TimeUnit.MILLISECONDS);
 
-        svHealth.start();
-        svHealth.awaitInitialized(1000, TimeUnit.MILLISECONDS);
+            assertEquals(1, events.size());
 
-        assertEquals(1, events.size());
+            agentClient.deregister(serviceId);
 
-        agentClient.deregister(serviceId);
+            awaitWith25MsPoll().atMost(ONE_HUNDRED_MILLISECONDS).until(() -> events.size() == 2);
 
-        awaitWith25MsPoll().atMost(ONE_HUNDRED_MILLISECONDS).until(() -> events.size() == 2);
+            Map<ServiceHealthKey, ServiceHealth> event0 = events.get(0);
 
-        Map<ServiceHealthKey, ServiceHealth> event0 = events.get(0);
+            assertEquals(1, event0.size());
+            for (Map.Entry<ServiceHealthKey, ServiceHealth> kv : event0.entrySet()) {
+                assertEquals(kv.getKey().getServiceId(), serviceId);
+            }
 
-        assertEquals(1, event0.size());
-        for (Map.Entry<ServiceHealthKey, ServiceHealth> kv : event0.entrySet()) {
-            assertEquals(kv.getKey().getServiceId(), serviceId);
+            Map<ServiceHealthKey, ServiceHealth> event1 = events.get(1);
+            assertEquals(0, event1.size());
         }
-
-        Map<ServiceHealthKey, ServiceHealth> event1 = events.get(1);
-        assertEquals(0, event1.size());
-        svHealth.stop();
     }
 
     @Test
     public void shouldNotifyLateListenersIfNoService() throws Exception {
-        String serviceName = UUID.randomUUID().toString();
+        var serviceName = UUID.randomUUID().toString();
 
-        ServiceHealthCache svHealth = ServiceHealthCache.newCache(client.healthClient(), serviceName);
+        try (ServiceHealthCache cache = ServiceHealthCache.newCache(client.healthClient(), serviceName)) {
+            final List<Map<ServiceHealthKey, ServiceHealth>> events = new ArrayList<>();
+            cache.addListener(events::add);
 
-        final List<Map<ServiceHealthKey, ServiceHealth>> events = new ArrayList<>();
-        svHealth.addListener(events::add);
+            cache.start();
+            cache.awaitInitialized(1000, TimeUnit.MILLISECONDS);
 
-        svHealth.start();
-        svHealth.awaitInitialized(1000, TimeUnit.MILLISECONDS);
-
-        assertEquals(1, events.size());
-        Map<ServiceHealthKey, ServiceHealth> event0 = events.get(0);
-        assertEquals(0, event0.size());
-        svHealth.stop();
+            assertEquals(1, events.size());
+            Map<ServiceHealthKey, ServiceHealth> event0 = events.get(0);
+            assertEquals(0, event0.size());
+        }
     }
 
     @Test
     public void shouldNotifyLateListenersRaceCondition() throws Exception {
-        String serviceName = UUID.randomUUID().toString();
+        var serviceName = UUID.randomUUID().toString();
 
-        final ServiceHealthCache svHealth = ServiceHealthCache.newCache(client.healthClient(), serviceName);
+        try (var cache = ServiceHealthCache.newCache(client.healthClient(), serviceName)) {
+            final var eventCount = new AtomicInteger(0);
+            cache.addListener(newValues -> {
+                eventCount.incrementAndGet();
+                Thread t = new Thread(() -> cache.addListener(newValues1 -> eventCount.incrementAndGet()));
+                t.start();
+            });
 
-        final AtomicInteger eventCount = new AtomicInteger(0);
-        svHealth.addListener(newValues -> {
-            eventCount.incrementAndGet();
-            Thread t = new Thread(() -> svHealth.addListener(newValues1 -> eventCount.incrementAndGet()));
-            t.start();
-        });
+            cache.start();
+            cache.awaitInitialized(1000, TimeUnit.MILLISECONDS);
 
-        svHealth.start();
-        svHealth.awaitInitialized(1000, TimeUnit.MILLISECONDS);
+            await().atMost(Durations.ONE_SECOND).until(() -> eventCount.get() == 2);
 
-        await().atMost(Durations.ONE_SECOND).until(() -> eventCount.get() == 2);
-
-        svHealth.stop();
+            cache.stop();
+        }
     }
 }
