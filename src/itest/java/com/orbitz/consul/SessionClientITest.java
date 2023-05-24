@@ -1,19 +1,20 @@
 package com.orbitz.consul;
 
-import com.orbitz.consul.model.session.ImmutableSession;
-import com.orbitz.consul.model.session.Session;
-import com.orbitz.consul.model.session.SessionCreatedResponse;
-import com.orbitz.consul.model.session.SessionInfo;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.List;
-import java.util.UUID;
-
+import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
+import com.orbitz.consul.model.session.ImmutableSession;
+import com.orbitz.consul.model.session.Session;
+import com.orbitz.consul.model.session.SessionCreatedResponse;
+import com.orbitz.consul.model.session.SessionInfo;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.List;
 
 public class SessionClientITest extends BaseIntegrationTest {
 
@@ -28,7 +29,7 @@ public class SessionClientITest extends BaseIntegrationTest {
 
     @Test
     public void testCreateAndDestroySession() throws Exception {
-        final Session value = ImmutableSession.builder().name("session_" + UUID.randomUUID().toString()).build();
+        final Session value = ImmutableSession.builder().name("session_" + randomUUIDString()).build();
         SessionCreatedResponse session = sessionClient.createSession(value);
         assertNotNull(session);
 
@@ -54,7 +55,7 @@ public class SessionClientITest extends BaseIntegrationTest {
 
     @Test
     public void testRenewSession() throws Exception {
-        final Session value = ImmutableSession.builder().name("session_" + UUID.randomUUID().toString()).build();
+        final Session value = ImmutableSession.builder().name("session_" + randomUUIDString()).build();
 
         SessionCreatedResponse session = sessionClient.createSession(value);
         assertNotNull(session);
@@ -69,9 +70,9 @@ public class SessionClientITest extends BaseIntegrationTest {
 
     @Test
     public void testAcquireLock() {
-        String key = UUID.randomUUID().toString();
+        String key = randomUUIDString();
 
-        Session value = ImmutableSession.builder().name("session_" + UUID.randomUUID().toString()).build();
+        Session value = ImmutableSession.builder().name("session_" + randomUUIDString()).build();
         String sessionId = sessionClient.createSession(value).getId();
         String valueName = value.getName().get();
 
@@ -88,9 +89,9 @@ public class SessionClientITest extends BaseIntegrationTest {
 
     @Test
     public void testAcquireLockTwiceFromSameSession() {
-        String key = UUID.randomUUID().toString();
+        String key = randomUUIDString();
 
-        Session value = ImmutableSession.builder().name("session_" + UUID.randomUUID().toString()).build();
+        Session value = ImmutableSession.builder().name("session_" + randomUUIDString()).build();
         String sessionId = sessionClient.createSession(value).getId();
         String valueName = value.getName().get();
 
@@ -109,13 +110,13 @@ public class SessionClientITest extends BaseIntegrationTest {
 
     @Test
     public void testAcquireLockTwiceFromDifferentSessions() {
-        String key = UUID.randomUUID().toString();
+        String key = randomUUIDString();
 
-        Session firstSessionValue = ImmutableSession.builder().name("session_" + UUID.randomUUID().toString()).build();
+        Session firstSessionValue = ImmutableSession.builder().name("session_" + randomUUIDString()).build();
         String firstSessionId = sessionClient.createSession(firstSessionValue).getId();
         String firstSessionValueContent = firstSessionValue.getName().get();
 
-        Session secondSessionValue = ImmutableSession.builder().name("session_" + UUID.randomUUID().toString()).build();
+        Session secondSessionValue = ImmutableSession.builder().name("session_" + randomUUIDString()).build();
         String secondSessionId = sessionClient.createSession(secondSessionValue).getId();
         String secondSessionValueNameContent = secondSessionValue.getName().get();
 
@@ -136,9 +137,9 @@ public class SessionClientITest extends BaseIntegrationTest {
 
     @Test
     public void testGetSessionInfo() throws Exception {
-        String key = UUID.randomUUID().toString();
+        String key = randomUUIDString();
 
-        Session value = ImmutableSession.builder().name("session_" + UUID.randomUUID().toString()).build();
+        Session value = ImmutableSession.builder().name("session_" + randomUUIDString()).build();
         String sessionId = sessionClient.createSession(value).getId();
         String valueName = value.getName().get();
 
@@ -158,9 +159,9 @@ public class SessionClientITest extends BaseIntegrationTest {
 
     @Test
     public void testListSessions() throws Exception {
-        String key = UUID.randomUUID().toString();
+        String key = randomUUIDString();
 
-        Session value = ImmutableSession.builder().name("session_" + UUID.randomUUID().toString()).build();
+        Session value = ImmutableSession.builder().name("session_" + randomUUIDString()).build();
         String sessionId = sessionClient.createSession(value).getId();
 
         try {

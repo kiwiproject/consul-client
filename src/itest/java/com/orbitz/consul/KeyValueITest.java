@@ -1,8 +1,11 @@
 package com.orbitz.consul;
 
-import java.nio.charset.Charset;
-import java.util.Optional;
-import java.util.Set;
+import static com.orbitz.consul.TestUtils.randomUUIDString;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import com.orbitz.consul.async.ConsulResponseCallback;
 import com.orbitz.consul.model.ConsulResponse;
@@ -14,17 +17,21 @@ import com.orbitz.consul.model.session.ImmutableSession;
 import com.orbitz.consul.model.session.SessionCreatedResponse;
 import com.orbitz.consul.option.ConsistencyMode;
 import com.orbitz.consul.option.ImmutableDeleteOptions;
-import com.orbitz.consul.option.ImmutableQueryOptions;
 import com.orbitz.consul.option.ImmutableDeleteOptions.Builder;
+import com.orbitz.consul.option.ImmutableQueryOptions;
 import com.orbitz.consul.option.PutOptions;
 import com.orbitz.consul.option.QueryOptions;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadLocalRandom;
@@ -32,20 +39,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 public class KeyValueITest extends BaseIntegrationTest {
     private static final Charset TEST_CHARSET = Charset.forName("IBM297");
 
     @Test
     public void shouldPutAndReceiveString() throws UnknownHostException {
         KeyValueClient keyValueClient = client.keyValueClient();
-        String key = UUID.randomUUID().toString();
-        String value = UUID.randomUUID().toString();
+        String key = randomUUIDString();
+        String value = randomUUIDString();
 
         assertTrue(keyValueClient.putValue(key, value));
         assertEquals(value, keyValueClient.getValueAsString(key).get());
@@ -54,8 +55,8 @@ public class KeyValueITest extends BaseIntegrationTest {
     @Test
     public void shouldPutAndReceiveStringWithAnotherCharset() throws UnknownHostException {
         KeyValueClient keyValueClient = client.keyValueClient();
-        String key = UUID.randomUUID().toString();
-        String value = UUID.randomUUID().toString();
+        String key = randomUUIDString();
+        String value = randomUUIDString();
 
         assertTrue(keyValueClient.putValue(key, value, TEST_CHARSET));
         assertEquals(value, keyValueClient.getValueAsString(key, TEST_CHARSET).get());
@@ -64,8 +65,8 @@ public class KeyValueITest extends BaseIntegrationTest {
     @Test
     public void shouldPutAndReceiveValue() throws UnknownHostException {
         KeyValueClient keyValueClient = client.keyValueClient();
-        String key = UUID.randomUUID().toString();
-        String value = UUID.randomUUID().toString();
+        String key = randomUUIDString();
+        String value = randomUUIDString();
 
         assertTrue(keyValueClient.putValue(key, value));
         Value received = keyValueClient.getValue(key).get();
@@ -76,8 +77,8 @@ public class KeyValueITest extends BaseIntegrationTest {
     @Test
     public void shouldPutAndReceiveValueWithAnotherCharset() throws UnknownHostException {
         KeyValueClient keyValueClient = client.keyValueClient();
-        String key = UUID.randomUUID().toString();
-        String value = UUID.randomUUID().toString();
+        String key = randomUUIDString();
+        String value = randomUUIDString();
 
         assertTrue(keyValueClient.putValue(key, value, TEST_CHARSET));
         Value received = keyValueClient.getValue(key).get();
@@ -88,8 +89,8 @@ public class KeyValueITest extends BaseIntegrationTest {
     @Test
     public void shouldPutAndReceiveWithFlags() throws UnknownHostException {
         KeyValueClient keyValueClient = client.keyValueClient();
-        String key = UUID.randomUUID().toString();
-        String value = UUID.randomUUID().toString();
+        String key = randomUUIDString();
+        String value = randomUUIDString();
         long flags = UUID.randomUUID().getMostSignificantBits();
 
         assertTrue(keyValueClient.putValue(key, value, flags));
@@ -101,8 +102,8 @@ public class KeyValueITest extends BaseIntegrationTest {
     @Test
     public void shouldPutAndReceiveWithFlagsAndCharset() throws UnknownHostException {
         KeyValueClient keyValueClient = client.keyValueClient();
-        String key = UUID.randomUUID().toString();
-        String value = UUID.randomUUID().toString();
+        String key = randomUUIDString();
+        String value = randomUUIDString();
         long flags = UUID.randomUUID().getMostSignificantBits();
 
         assertTrue(keyValueClient.putValue(key, value, flags, TEST_CHARSET));
@@ -114,7 +115,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     @Test
     public void putNullValue() {
         KeyValueClient keyValueClient = client.keyValueClient();
-        String key = UUID.randomUUID().toString();
+        String key = randomUUIDString();
 
         assertTrue(keyValueClient.putValue(key));
 
@@ -125,7 +126,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     @Test
     public void putNullValueWithAnotherCharset() {
         KeyValueClient keyValueClient = client.keyValueClient();
-        String key = UUID.randomUUID().toString();
+        String key = randomUUIDString();
 
         assertTrue(keyValueClient.putValue(key, null, 0, PutOptions.BLANK, TEST_CHARSET));
 
@@ -139,7 +140,7 @@ public class KeyValueITest extends BaseIntegrationTest {
         byte[] value = new byte[256];
         ThreadLocalRandom.current().nextBytes(value);
 
-        String key = UUID.randomUUID().toString();
+        String key = randomUUIDString();
 
         assertTrue(keyValueClient.putValue(key, value, 0, PutOptions.BLANK));
 
@@ -155,10 +156,10 @@ public class KeyValueITest extends BaseIntegrationTest {
     @Test
     public void shouldPutAndReceiveStrings() throws UnknownHostException {
         KeyValueClient keyValueClient = client.keyValueClient();
-        String key = UUID.randomUUID().toString();
-        String key2 = key + "/" + UUID.randomUUID().toString();
-        final String value = UUID.randomUUID().toString();
-        final String value2 = UUID.randomUUID().toString();
+        String key = randomUUIDString();
+        String key2 = key + "/" + randomUUIDString();
+        final String value = randomUUIDString();
+        final String value2 = randomUUIDString();
 
         assertTrue(keyValueClient.putValue(key, value));
         assertTrue(keyValueClient.putValue(key2, value2));
@@ -168,10 +169,10 @@ public class KeyValueITest extends BaseIntegrationTest {
     @Test
     public void shouldPutAndReceiveStringsWithAnotherCharset() throws UnknownHostException {
         KeyValueClient keyValueClient = client.keyValueClient();
-        String key = UUID.randomUUID().toString();
-        String key2 = key + "/" + UUID.randomUUID().toString();
-        final String value = UUID.randomUUID().toString();
-        final String value2 = UUID.randomUUID().toString();
+        String key = randomUUIDString();
+        String key2 = key + "/" + randomUUIDString();
+        final String value = randomUUIDString();
+        final String value2 = randomUUIDString();
 
         assertTrue(keyValueClient.putValue(key, value, TEST_CHARSET));
         assertTrue(keyValueClient.putValue(key2, value2, TEST_CHARSET));
@@ -181,8 +182,8 @@ public class KeyValueITest extends BaseIntegrationTest {
     @Test
     public void shouldDelete() throws Exception {
         KeyValueClient keyValueClient = client.keyValueClient();
-        String key = UUID.randomUUID().toString();
-        final String value = UUID.randomUUID().toString();
+        String key = randomUUIDString();
+        final String value = randomUUIDString();
 
         keyValueClient.putValue(key, value);
         assertTrue(keyValueClient.getValueAsString(key).isPresent());
@@ -195,10 +196,10 @@ public class KeyValueITest extends BaseIntegrationTest {
     @Test
     public void shouldDeleteRecursively() throws Exception {
         KeyValueClient keyValueClient = client.keyValueClient();
-        String key = UUID.randomUUID().toString();
-        String childKEY = key + "/" + UUID.randomUUID().toString();
+        String key = randomUUIDString();
+        String childKEY = key + "/" + randomUUIDString();
 
-        final String value = UUID.randomUUID().toString();
+        final String value = randomUUIDString();
 
         keyValueClient.putValue(key);
         keyValueClient.putValue(childKEY, value);
@@ -214,8 +215,8 @@ public class KeyValueITest extends BaseIntegrationTest {
     @Test
     public void shouldDeleteCas() throws Exception {
         KeyValueClient keyValueClient = client.keyValueClient();
-        String key = UUID.randomUUID().toString();
-        final String value = UUID.randomUUID().toString();
+        String key = randomUUIDString();
+        final String value = randomUUIDString();
 
         /**
          * Update the value twice and remember the value at each step
@@ -226,7 +227,7 @@ public class KeyValueITest extends BaseIntegrationTest {
         assertTrue(valueAfter1stPut.isPresent());
         assertTrue(valueAfter1stPut.get().getValueAsString().isPresent());
 
-        keyValueClient.putValue(key, UUID.randomUUID().toString());
+        keyValueClient.putValue(key, randomUUIDString());
 
         final Optional<Value> valueAfter2ndPut = keyValueClient.getValue(key);
         assertTrue(valueAfter2ndPut.isPresent());
@@ -259,8 +260,8 @@ public class KeyValueITest extends BaseIntegrationTest {
     public void acquireAndReleaseLock() throws Exception {
         KeyValueClient keyValueClient = client.keyValueClient();
         SessionClient sessionClient = client.sessionClient();
-        String key = UUID.randomUUID().toString();
-        String value = "session_" + UUID.randomUUID().toString();
+        String key = randomUUIDString();
+        String value = "session_" + randomUUIDString();
         SessionCreatedResponse response = sessionClient.createSession(ImmutableSession.builder().name(value).build());
         String sessionId = response.getId();
 
@@ -282,13 +283,13 @@ public class KeyValueITest extends BaseIntegrationTest {
         KeyValueClient keyValueClient = client.keyValueClient();
         SessionClient sessionClient = client.sessionClient();
 
-        String key = UUID.randomUUID().toString();
-        String value = UUID.randomUUID().toString();
+        String key = randomUUIDString();
+        String value = randomUUIDString();
         keyValueClient.putValue(key, value);
 
         assertEquals(false, keyValueClient.getSession(key).isPresent());
 
-        String sessionValue = "session_" + UUID.randomUUID().toString();
+        String sessionValue = "session_" + randomUUIDString();
         SessionCreatedResponse response = sessionClient.createSession(ImmutableSession.builder().name(sessionValue).build());
         String sessionId = response.getId();
 
@@ -318,17 +319,17 @@ public class KeyValueITest extends BaseIntegrationTest {
         KeyValueClient keyValueClient = client.keyValueClient();
         SessionClient sessionClient = client.sessionClient();
 
-        String key = UUID.randomUUID().toString();
-        String value = UUID.randomUUID().toString();
+        String key = randomUUIDString();
+        String value = randomUUIDString();
         keyValueClient.putValue(key, value);
 
         assertEquals(false, keyValueClient.getSession(key).isPresent());
 
-        String sessionValue = "session_" + UUID.randomUUID().toString();
+        String sessionValue = "session_" + randomUUIDString();
         SessionCreatedResponse response = sessionClient.createSession(ImmutableSession.builder().name(sessionValue).build());
         String sessionId = response.getId();
 
-        String sessionValue2 = "session_" + UUID.randomUUID().toString();
+        String sessionValue2 = "session_" + randomUUIDString();
         SessionCreatedResponse response2 = sessionClient.createSession(ImmutableSession.builder().name(sessionValue).build());
         String sessionId2 = response2.getId();
 
@@ -354,8 +355,8 @@ public class KeyValueITest extends BaseIntegrationTest {
     @Test
     public void testGetValuesAsync() throws InterruptedException {
         KeyValueClient keyValueClient = client.keyValueClient();
-        String key = UUID.randomUUID().toString();
-        String value = UUID.randomUUID().toString();
+        String key = randomUUIDString();
+        String value = randomUUIDString();
         keyValueClient.putValue(key, value);
 
         final CountDownLatch completed = new CountDownLatch(1);
@@ -382,8 +383,8 @@ public class KeyValueITest extends BaseIntegrationTest {
     @Test
     public void testGetConsulResponseWithValue() {
         KeyValueClient keyValueClient = client.keyValueClient();
-        String key = UUID.randomUUID().toString();
-        String value = UUID.randomUUID().toString();
+        String key = randomUUIDString();
+        String value = randomUUIDString();
         keyValueClient.putValue(key, value);
 
         Optional<ConsulResponse<Value>> response = keyValueClient.getConsulResponseWithValue(key);
@@ -398,8 +399,8 @@ public class KeyValueITest extends BaseIntegrationTest {
     @Test
     public void testGetConsulResponseWithValues() {
         KeyValueClient keyValueClient = client.keyValueClient();
-        String key = UUID.randomUUID().toString();
-        String value = UUID.randomUUID().toString();
+        String key = randomUUIDString();
+        String value = randomUUIDString();
         keyValueClient.putValue(key, value);
 
         ConsulResponse<List<Value>> response = keyValueClient.getConsulResponseWithValues(key);
@@ -413,7 +414,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     @Test
     public void testGetValueNotFoundAsync() throws InterruptedException {
         KeyValueClient keyValueClient = client.keyValueClient();
-        String key = UUID.randomUUID().toString();
+        String key = randomUUIDString();
 
         final int numTests = 2;
         final CountDownLatch completed = new CountDownLatch(numTests);
@@ -461,7 +462,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     @Test
     public void testBasicTxn() throws Exception {
         KeyValueClient keyValueClient = client.keyValueClient();
-        String key = UUID.randomUUID().toString();
+        String key = randomUUIDString();
         String value = Base64.encodeBase64String(RandomStringUtils.random(20).getBytes());
         Operation[] operation = new Operation[] {ImmutableOperation.builder().verb("set")
                 .key(key)
@@ -476,7 +477,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     @Test
     public void testBasicTxn_Deprecated_Using_DEFAULT_ConsistencyMode() throws Exception {
         KeyValueClient keyValueClient = client.keyValueClient();
-        String key = UUID.randomUUID().toString();
+        String key = randomUUIDString();
         String value = Base64.encodeBase64String(RandomStringUtils.random(20).getBytes());
         Operation[] operation = new Operation[] {ImmutableOperation.builder().verb("set")
                 .key(key)
@@ -491,7 +492,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     @Test
     public void testBasicTxn_Deprecated_Using_CONSISTENT_ConsistencyMode() throws Exception {
         KeyValueClient keyValueClient = client.keyValueClient();
-        String key = UUID.randomUUID().toString();
+        String key = randomUUIDString();
         String value = Base64.encodeBase64String(RandomStringUtils.random(20).getBytes());
         Operation[] operation = new Operation[] {ImmutableOperation.builder().verb("set")
                 .key(key)

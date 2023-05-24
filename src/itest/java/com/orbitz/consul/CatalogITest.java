@@ -1,6 +1,7 @@
 package com.orbitz.consul;
 
 import static com.orbitz.consul.Awaiting.awaitWith25MsPoll;
+import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static java.util.Objects.nonNull;
 import static org.awaitility.Durations.FIVE_HUNDRED_MILLISECONDS;
 import static org.junit.Assert.assertEquals;
@@ -31,7 +32,6 @@ import java.math.BigInteger;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -136,9 +136,9 @@ public class CatalogITest extends BaseIntegrationTest {
 
     @Test
     public void shouldRegisterService() {
-        String service = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
-        String catalogId = UUID.randomUUID().toString();
+        String service = randomUUIDString();
+        String serviceId = randomUUIDString();
+        String catalogId = randomUUIDString();
 
         createAndCheckService(
                 ImmutableCatalogService.builder()
@@ -177,9 +177,9 @@ public class CatalogITest extends BaseIntegrationTest {
 
     @Test
     public void shouldRegisterServiceNoWeights() {
-        String service = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
-        String catalogId = UUID.randomUUID().toString();
+        String service = randomUUIDString();
+        String serviceId = randomUUIDString();
+        String catalogId = randomUUIDString();
 
         createAndCheckService(
                 ImmutableCatalogService.builder()
@@ -218,9 +218,9 @@ public class CatalogITest extends BaseIntegrationTest {
 
     @Test
     public void shouldDeregisterWithDefaultDC() throws InterruptedException {
-        String service = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
-        String catalogId = UUID.randomUUID().toString();
+        String service = randomUUIDString();
+        String serviceId = randomUUIDString();
+        String catalogId = randomUUIDString();
 
         CatalogRegistration registration = ImmutableCatalogRegistration.builder()
                 .id(catalogId)
@@ -265,7 +265,7 @@ public class CatalogITest extends BaseIntegrationTest {
 
     @Test
     public void shouldGetServicesInCallback() throws ExecutionException, InterruptedException, TimeoutException {
-        String serviceName = UUID.randomUUID().toString();
+        String serviceName = randomUUIDString();
         String serviceId = createAutoDeregisterServiceId();
         client.agentClient().register(20001, 20, serviceName, serviceId, List.of(), Map.of());
 
@@ -279,7 +279,7 @@ public class CatalogITest extends BaseIntegrationTest {
 
     @Test
     public void shouldGetServiceInCallback() throws ExecutionException, InterruptedException, TimeoutException {
-        String serviceName = UUID.randomUUID().toString();
+        String serviceName = randomUUIDString();
         String serviceId = createAutoDeregisterServiceId();
         client.agentClient().register(20001, 20, serviceName, serviceId, List.of(), Map.of());
 
@@ -297,9 +297,9 @@ public class CatalogITest extends BaseIntegrationTest {
     @Test
     public void shouldGetNodeInCallback() throws ExecutionException, InterruptedException, TimeoutException {
         String nodeName = "node";
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
-        String catalogId = UUID.randomUUID().toString();
+        String serviceName = randomUUIDString();
+        String serviceId = randomUUIDString();
+        String catalogId = randomUUIDString();
 
         CatalogRegistration registration = ImmutableCatalogRegistration.builder()
                 .id(catalogId)

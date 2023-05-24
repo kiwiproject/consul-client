@@ -1,10 +1,6 @@
 package com.orbitz.consul;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
+import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
@@ -22,7 +18,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class PreparedQueryITest extends BaseIntegrationTest {
 
@@ -42,8 +41,8 @@ public class PreparedQueryITest extends BaseIntegrationTest {
 
     @Test
     public void shouldCreateAndFindPreparedQuery() {
-        var serviceName = UUID.randomUUID().toString();
-        var query = UUID.randomUUID().toString();
+        var serviceName = randomUUIDString();
+        var query = randomUUIDString();
         client.agentClient().register(8080, 10000L, serviceName, serviceName + "1", List.of(), Map.of());
 
         var preparedQuery = ImmutablePreparedQuery.builder()
@@ -70,8 +69,8 @@ public class PreparedQueryITest extends BaseIntegrationTest {
 
     @Test
     public void shouldCreatePreparedQueryWithFailoverProperties() {
-        var serviceName = UUID.randomUUID().toString();
-        var query = UUID.randomUUID().toString();
+        var serviceName = randomUUIDString();
+        var query = randomUUIDString();
         client.agentClient().register(8080, 10000L, serviceName, serviceName + "1", List.of(), Map.of());
 
         var preparedQuery = ImmutablePreparedQuery.builder()
@@ -106,12 +105,12 @@ public class PreparedQueryITest extends BaseIntegrationTest {
 
     @Test
     public void shouldListPreparedQueries() {
-        var serviceName1 = UUID.randomUUID().toString();
-        var query1 = UUID.randomUUID().toString();
+        var serviceName1 = randomUUIDString();
+        var query1 = randomUUIDString();
         client.agentClient().register(8080, 10000L, serviceName1, serviceName1 + "_id", List.of(), Map.of());
 
-        var serviceName2 = UUID.randomUUID().toString();
-        var query2 = UUID.randomUUID().toString();
+        var serviceName2 = randomUUIDString();
+        var query2 = randomUUIDString();
         client.agentClient().register(8080, 10000L, serviceName2, serviceName2 + "_id", List.of(), Map.of());
 
         var preparedQuery1 = ImmutablePreparedQuery.builder()

@@ -1,17 +1,24 @@
 package com.orbitz.consul.cache;
 
+import static com.orbitz.consul.Awaiting.awaitAtMost100ms;
+import static com.orbitz.consul.TestUtils.randomUUIDString;
+import static org.hamcrest.CoreMatchers.anyOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.orbitz.consul.BaseIntegrationTest;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.KeyValueClient;
+import com.orbitz.consul.Synchroniser;
 import com.orbitz.consul.config.CacheConfig;
 import com.orbitz.consul.config.ClientConfig;
 import com.orbitz.consul.model.kv.Value;
-import com.orbitz.consul.Synchroniser;
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
-import junitparams.naming.TestCaseName;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -22,20 +29,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.orbitz.consul.Awaiting.awaitAtMost100ms;
-import static org.hamcrest.CoreMatchers.anyOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
+import junitparams.naming.TestCaseName;
 
 @RunWith(JUnitParamsRunner.class)
 public class KVCacheITest extends BaseIntegrationTest {
@@ -58,7 +59,7 @@ public class KVCacheITest extends BaseIntegrationTest {
 
     @Test
     public void nodeCacheKvTest() throws Exception {
-        var root = UUID.randomUUID().toString();
+        var root = randomUUIDString();
 
         for (int i = 0; i < 5; i++) {
             kvClient.putValue(root + "/" + i, String.valueOf(i));
@@ -99,7 +100,7 @@ public class KVCacheITest extends BaseIntegrationTest {
 
     @Test
     public void testListeners() throws Exception {
-        var root = UUID.randomUUID().toString();
+        var root = randomUUIDString();
         final List<Map<String, Value>> events = new ArrayList<>();
 
         try (var cache = KVCache.newCache(kvClient, root, 10)) {
@@ -138,7 +139,7 @@ public class KVCacheITest extends BaseIntegrationTest {
 
     @Test
     public void testLateListenersGetValues() throws Exception {
-        var root = UUID.randomUUID().toString();
+        var root = randomUUIDString();
 
         try (var cache = KVCache.newCache(kvClient, root, 10)) {
             cache.start();
@@ -171,7 +172,7 @@ public class KVCacheITest extends BaseIntegrationTest {
 
     @Test
     public void testListenersNonExistingKeys() throws Exception {
-        var root = UUID.randomUUID().toString();
+        var root = randomUUIDString();
 
         try (var cache = KVCache.newCache(kvClient, root, 10)) {
             final List<Map<String, Value>> events = new ArrayList<>();
@@ -192,7 +193,7 @@ public class KVCacheITest extends BaseIntegrationTest {
 
     @Test
     public void testLifeCycleDoubleStart() throws Exception {
-        var root = UUID.randomUUID().toString();
+        var root = randomUUIDString();
 
         try (var cache = KVCache.newCache(kvClient, root, 10)) {
             assertEquals(ConsulCache.State.LATENT, cache.getState());
@@ -210,7 +211,7 @@ public class KVCacheITest extends BaseIntegrationTest {
 
     @Test
     public void testLifeCycle() throws Exception {
-        var root = UUID.randomUUID().toString();
+        var root = randomUUIDString();
         final List<Map<String, Value>> events = new ArrayList<>();
 
         // intentionally not using try-with-resources to test the cache lifecycle methods
@@ -255,8 +256,8 @@ public class KVCacheITest extends BaseIntegrationTest {
 
     @Test
     public void ensureCacheInitialization() throws InterruptedException {
-        var key = UUID.randomUUID().toString();
-        var value = UUID.randomUUID().toString();
+        var key = randomUUIDString();
+        var value = randomUUIDString();
         kvClient.putValue(key, value);
 
         final CountDownLatch completed = new CountDownLatch(1);
@@ -287,9 +288,9 @@ public class KVCacheITest extends BaseIntegrationTest {
                 new ThreadFactoryBuilder().setDaemon(true).setNameFormat("kvcache-itest-%d").build()
         );
 
-        var key = UUID.randomUUID().toString();
-        var value = UUID.randomUUID().toString();
-        var newValue = UUID.randomUUID().toString();
+        var key = randomUUIDString();
+        var value = randomUUIDString();
+        var newValue = randomUUIDString();
         kvClient.putValue(key, value);
 
         final CountDownLatch completed = new CountDownLatch(2);

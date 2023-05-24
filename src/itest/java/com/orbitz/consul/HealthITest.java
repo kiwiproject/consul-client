@@ -1,5 +1,10 @@
 package com.orbitz.consul;
 
+import static com.orbitz.consul.Consul.builder;
+import static com.orbitz.consul.TestUtils.randomUUIDString;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.model.State;
@@ -9,17 +14,13 @@ import com.orbitz.consul.model.health.HealthCheck;
 import com.orbitz.consul.model.health.ServiceHealth;
 import com.orbitz.consul.option.ImmutableQueryOptions;
 import com.orbitz.consul.option.QueryOptions;
+
 import org.junit.Test;
 
 import java.math.BigInteger;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-
-import static com.orbitz.consul.Consul.builder;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class HealthITest extends BaseIntegrationTest {
 
@@ -28,14 +29,14 @@ public class HealthITest extends BaseIntegrationTest {
 
     @Test
     public void shouldFetchPassingNode() throws NotRegisteredException {
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
+        String serviceName = randomUUIDString();
+        String serviceId = randomUUIDString();
 
         client.agentClient().register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
         client.agentClient().pass(serviceId);
 
         Consul client2 = builder().withHostAndPort(HostAndPort.fromParts("localhost", consulContainer.getFirstMappedPort())).build();
-        String serviceId2 = UUID.randomUUID().toString();
+        String serviceId2 = randomUUIDString();
 
         client2.agentClient().register(8080, 20L, serviceName, serviceId2, NO_TAGS, NO_META);
         client2.agentClient().fail(serviceId2);
@@ -49,8 +50,8 @@ public class HealthITest extends BaseIntegrationTest {
 
     @Test
     public void shouldFetchNode() throws UnknownHostException, NotRegisteredException {
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
+        String serviceName = randomUUIDString();
+        String serviceId = randomUUIDString();
 
         client.agentClient().register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
         client.agentClient().pass(serviceId);
@@ -63,8 +64,8 @@ public class HealthITest extends BaseIntegrationTest {
 
     @Test
     public void shouldFetchNodeDatacenter() throws UnknownHostException, NotRegisteredException {
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
+        String serviceName = randomUUIDString();
+        String serviceId = randomUUIDString();
 
         client.agentClient().register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
         client.agentClient().pass(serviceId);
@@ -77,8 +78,8 @@ public class HealthITest extends BaseIntegrationTest {
 
     @Test
     public void shouldFetchNodeBlock() throws UnknownHostException, NotRegisteredException {
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
+        String serviceName = randomUUIDString();
+        String serviceId = randomUUIDString();
 
         client.agentClient().register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
         client.agentClient().pass(serviceId);
@@ -91,8 +92,8 @@ public class HealthITest extends BaseIntegrationTest {
 
     @Test
     public void shouldFetchChecksForServiceBlock() throws UnknownHostException, NotRegisteredException {
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
+        String serviceName = randomUUIDString();
+        String serviceId = randomUUIDString();
 
         Registration.RegCheck check = Registration.RegCheck.ttl(5);
         Registration registration = ImmutableRegistration
@@ -123,8 +124,8 @@ public class HealthITest extends BaseIntegrationTest {
 
     @Test
     public void shouldFetchByState() throws UnknownHostException, NotRegisteredException {
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
+        String serviceName = randomUUIDString();
+        String serviceId = randomUUIDString();
 
         client.agentClient().register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
         client.agentClient().warn(serviceId);
