@@ -1,10 +1,9 @@
 package com.orbitz.consul.option;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -13,47 +12,47 @@ class ConsistencyModeTest {
 
     @Test
     void checkCompatinbilityWithOldEnum(){
-        assertEquals(3, ConsistencyMode.values().length);
+        assertThat(ConsistencyMode.values().length).isEqualTo(3);
         for (int i = 0; i < ConsistencyMode.values().length; i++) {
-            assertEquals(ConsistencyMode.values()[i].ordinal(), i);
+            assertThat(i).isEqualTo(ConsistencyMode.values()[i].ordinal());
         }
-        assertEquals(ConsistencyMode.DEFAULT, ConsistencyMode.values()[0]);
-        assertEquals("DEFAULT", ConsistencyMode.values()[0].name());
-        assertEquals(ConsistencyMode.STALE, ConsistencyMode.values()[1]);
-        assertEquals("STALE", ConsistencyMode.values()[1].name());
-        assertEquals(ConsistencyMode.CONSISTENT, ConsistencyMode.values()[2]);
-        assertEquals("CONSISTENT", ConsistencyMode.values()[2].name());
+        assertThat(ConsistencyMode.values()[0]).isEqualTo(ConsistencyMode.DEFAULT);
+        assertThat(ConsistencyMode.values()[0].name()).isEqualTo("DEFAULT");
+        assertThat(ConsistencyMode.values()[1]).isEqualTo(ConsistencyMode.STALE);
+        assertThat(ConsistencyMode.values()[1].name()).isEqualTo("STALE");
+        assertThat(ConsistencyMode.values()[2]).isEqualTo(ConsistencyMode.CONSISTENT);
+        assertThat(ConsistencyMode.values()[2].name()).isEqualTo("CONSISTENT");
     }
 
     @Test
     void checkHeadersForCached() {
         ConsistencyMode consistency = ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(Optional.of(Long.valueOf(30)), Optional.of(60L));
-        assertEquals("cached", consistency.toParam().get());
-        assertEquals(1, consistency.getAdditionalHeaders().size());
-        assertEquals("max-age=30,stale-if-error=60", consistency.getAdditionalHeaders().get("Cache-Control"));
+        assertThat(consistency.toParam().get()).isEqualTo("cached");
+        assertThat(consistency.getAdditionalHeaders().size()).isEqualTo(1);
+        assertThat(consistency.getAdditionalHeaders().get("Cache-Control")).isEqualTo("max-age=30,stale-if-error=60");
 
         consistency = ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(Optional.of(30L), Optional.empty());
-        assertEquals("max-age=30", consistency.getAdditionalHeaders().get("Cache-Control"));
+        assertThat(consistency.getAdditionalHeaders().get("Cache-Control")).isEqualTo("max-age=30");
 
         consistency = ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(Optional.empty(), Optional.of(60L));
-        assertEquals("stale-if-error=60", consistency.getAdditionalHeaders().get("Cache-Control"));
+        assertThat(consistency.getAdditionalHeaders().get("Cache-Control")).isEqualTo("stale-if-error=60");
 
         // Consistency cache without Cache-Control directives
         consistency = ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(Optional.empty(), Optional.empty());
-        assertEquals("cached", consistency.toParam().get());
-        assertEquals(0, consistency.getAdditionalHeaders().size());
+        assertThat(consistency.toParam().get()).isEqualTo("cached");
+        assertThat(consistency.getAdditionalHeaders().size()).isEqualTo(0);
     }
 
     @Test
     void checkBadMaxAge() {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> {
             ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(Optional.of(-1L), Optional.empty());
         });
     }
 
     @Test
     void checkBadMaxStaleError() {
-        assertThrows(IllegalArgumentException.class, () -> {
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> {
             ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(Optional.empty(), Optional.of(-2L));
         });
     }

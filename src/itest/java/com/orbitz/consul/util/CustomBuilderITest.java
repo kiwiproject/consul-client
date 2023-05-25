@@ -1,5 +1,7 @@
 package com.orbitz.consul.util;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.orbitz.consul.BaseIntegrationTest;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.model.agent.Agent;
@@ -7,8 +9,6 @@ import org.junit.jupiter.api.Test;
 
 import java.net.Proxy;
 import java.net.UnknownHostException;
-
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class CustomBuilderITest extends BaseIntegrationTest{
 
@@ -22,7 +22,7 @@ class CustomBuilderITest extends BaseIntegrationTest{
                 .withWriteTimeoutMillis(900)
                 .build();
         Agent agent = client.agentClient().getAgent();
-        assertNotNull(agent);
+        assertThat(agent).isNotNull();
     }
 
 }

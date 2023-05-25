@@ -2,7 +2,7 @@ package com.orbitz.consul;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ConsulITest extends BaseIntegrationTest {
 
@@ -10,6 +10,6 @@ class ConsulITest extends BaseIntegrationTest {
     void shouldDestroy() {
         client.destroy();
 
-        assertTrue(client.isDestroyed());
+        assertThat(client.isDestroyed()).isTrue();
     }
 }

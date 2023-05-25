@@ -3,8 +3,7 @@ package com.orbitz.consul.cache;
 import static com.orbitz.consul.Awaiting.awaitAtMost500ms;
 import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static java.util.Objects.isNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.BaseIntegrationTest;
 import com.orbitz.consul.HealthClient;
@@ -41,7 +40,7 @@ class HealthCheckCacheITest extends BaseIntegrationTest {
                 hCheck.awaitInitialized(3, TimeUnit.SECONDS);
 
                 HealthCheck check = hCheck.getMap().get(checkId);
-                assertEquals(checkId, check.getCheckId());
+                assertThat(check.getCheckId()).isEqualTo(checkId);
 
                 agentClient.failCheck(checkId);
 

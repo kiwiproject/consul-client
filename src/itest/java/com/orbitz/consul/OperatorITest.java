@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class OperatorITest extends BaseIntegrationTest {
 
@@ -16,7 +16,7 @@ class OperatorITest extends BaseIntegrationTest {
         RaftConfiguration raftConfiguration = operatorClient.getRaftConfiguration();
 
         List<RaftServer> servers = raftConfiguration.servers();
-        assertFalse(servers.isEmpty());
+        assertThat(servers.isEmpty()).isFalse();
     }
 
     @Test
@@ -27,12 +27,12 @@ class OperatorITest extends BaseIntegrationTest {
         RaftConfiguration raftConfiguration = operatorClient.getRaftConfiguration(datacenter);
 
         List<RaftServer> servers = raftConfiguration.servers();
-        assertFalse(servers.isEmpty());
+        assertThat(servers.isEmpty()).isFalse();
     }
 
     private String getFirstDatacenter() {
         List<String> datacenters = client.catalogClient().getDatacenters();
-        assertFalse(datacenters.isEmpty());
+        assertThat(datacenters.isEmpty()).isFalse();
         String datacenter = datacenters.get(0);
         return datacenter;
     }
@@ -43,7 +43,7 @@ class OperatorITest extends BaseIntegrationTest {
         RaftConfiguration raftConfiguration = operatorClient.getStaleRaftConfiguration();
 
         List<RaftServer> servers = raftConfiguration.servers();
-        assertFalse(servers.isEmpty());
+        assertThat(servers.isEmpty()).isFalse();
     }
 
     @Test
@@ -54,6 +54,6 @@ class OperatorITest extends BaseIntegrationTest {
         RaftConfiguration raftConfiguration = operatorClient.getStaleRaftConfiguration(datacenter);
 
         List<RaftServer> servers = raftConfiguration.servers();
-        assertFalse(servers.isEmpty());
+        assertThat(servers.isEmpty()).isFalse();
     }
 }

@@ -4,9 +4,7 @@ import static com.orbitz.consul.Awaiting.awaitAtMost1s;
 import static com.orbitz.consul.Awaiting.awaitAtMost500ms;
 import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static java.util.Objects.isNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableMap;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.BaseIntegrationTest;
@@ -54,8 +52,8 @@ class ServiceHealthCacheITest extends BaseIntegrationTest {
                     .orElseThrow(() -> new RuntimeException("Cannot find service key from serviceHealthCache"));
 
             ServiceHealth health = cache.getMap().get(serviceKey);
-            assertNotNull(health);
-            assertEquals(serviceId, health.getService().getId());
+            assertThat(health).isNotNull();
+            assertThat(health.getService().getId()).isEqualTo(serviceId);
 
             agentClient.fail(serviceId);
 
@@ -95,12 +93,12 @@ class ServiceHealthCacheITest extends BaseIntegrationTest {
                     .orElseThrow(() -> new RuntimeException("Cannot find service key 2 from serviceHealthCache"));
 
             ImmutableMap<ServiceHealthKey, ServiceHealth> healthMap = cache.getMap();
-            assertEquals(2, healthMap.size());
+            assertThat(healthMap.size()).isEqualTo(2);
             ServiceHealth health = healthMap.get(serviceKey1);
             ServiceHealth health2 = healthMap.get(serviceKey2);
 
-            assertEquals(serviceId, health.getService().getId());
-            assertEquals(serviceId2, health2.getService().getId());
+            assertThat(health.getService().getId()).isEqualTo(serviceId);
+            assertThat(health2.getService().getId()).isEqualTo(serviceId2);
         }
     }
 
@@ -123,12 +121,12 @@ class ServiceHealthCacheITest extends BaseIntegrationTest {
             final List<Map<ServiceHealthKey, ServiceHealth>> events = new ArrayList<>();
             cache.addListener(events::add);
 
-            assertEquals(0, events.size());
+            assertThat(events.size()).isEqualTo(0);
 
             cache.start();
             cache.awaitInitialized(1000, TimeUnit.MILLISECONDS);
 
-            assertEquals(1, events.size());
+            assertThat(events.size()).isEqualTo(1);
 
             agentClient.deregister(serviceId);
 
@@ -136,13 +134,13 @@ class ServiceHealthCacheITest extends BaseIntegrationTest {
 
             Map<ServiceHealthKey, ServiceHealth> event0 = events.get(0);
 
-            assertEquals(1, event0.size());
+            assertThat(event0.size()).isEqualTo(1);
             for (Map.Entry<ServiceHealthKey, ServiceHealth> kv : event0.entrySet()) {
-                assertEquals(kv.getKey().getServiceId(), serviceId);
+                assertThat(serviceId).isEqualTo(kv.getKey().getServiceId());
             }
 
             Map<ServiceHealthKey, ServiceHealth> event1 = events.get(1);
-            assertEquals(0, event1.size());
+            assertThat(event1.size()).isEqualTo(0);
         }
     }
 
@@ -157,9 +155,9 @@ class ServiceHealthCacheITest extends BaseIntegrationTest {
             cache.start();
             cache.awaitInitialized(1000, TimeUnit.MILLISECONDS);
 
-            assertEquals(1, events.size());
+            assertThat(events.size()).isEqualTo(1);
             Map<ServiceHealthKey, ServiceHealth> event0 = events.get(0);
-            assertEquals(0, event0.size());
+            assertThat(event0.size()).isEqualTo(0);
         }
     }
 

@@ -1,9 +1,8 @@
 package com.orbitz.consul.model.catalog;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -33,7 +32,7 @@ class TaggedAddressesTest {
 
     @Test
     void buildingTaggedAddressWithoutWanAddressShouldThrow() {
-        assertThrows(IllegalStateException.class, () -> {
+        assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> {
             ImmutableTaggedAddresses.builder()
                     .lan("127.0.0.1")
                     .build();

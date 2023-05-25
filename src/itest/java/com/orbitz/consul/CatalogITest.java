@@ -3,12 +3,8 @@ package com.orbitz.consul;
 import static com.orbitz.consul.Awaiting.awaitWith25MsPoll;
 import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static java.util.Objects.nonNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Durations.FIVE_HUNDRED_MILLISECONDS;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.orbitz.consul.async.ConsulResponseCallback;
 import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.model.catalog.CatalogDeregistration;
@@ -49,13 +45,13 @@ class CatalogITest extends BaseIntegrationTest {
 
     @Test
     void shouldGetNodes() throws UnknownHostException {
-        assertFalse(catalogClient.getNodes().getResponse().isEmpty());
+        assertThat(catalogClient.getNodes().getResponse().isEmpty()).isFalse();
     }
 
     @Test
     void shouldGetNodesByDatacenter() throws UnknownHostException {
         var queryOptions = ImmutableQueryOptions.builder().datacenter("dc1").build();
-        assertFalse(catalogClient.getNodes(queryOptions).getResponse().isEmpty());
+        assertThat(catalogClient.getNodes(queryOptions).getResponse().isEmpty()).isFalse();
     }
 
     /**
@@ -73,30 +69,30 @@ class CatalogITest extends BaseIntegrationTest {
         ConsulResponse<List<Node>> response = catalogClient.getNodes(queryOptions);
         var time = System.nanoTime() - start;
 
-        assertTrue(time >= TimeUnit.SECONDS.toNanos(1));
-        assertFalse(response.getResponse().isEmpty());
+        assertThat(time >= TimeUnit.SECONDS.toNanos(1)).isTrue();
+        assertThat(response.getResponse().isEmpty()).isFalse();
     }
 
     @Test
     void shouldGetDatacenters() throws UnknownHostException {
         List<String> datacenters = catalogClient.getDatacenters();
 
-        assertEquals(1, datacenters.size());
-        assertEquals("dc1", datacenters.iterator().next());
+        assertThat(datacenters.size()).isEqualTo(1);
+        assertThat(datacenters.iterator().next()).isEqualTo("dc1");
     }
 
     @Test
     void shouldGetServices() throws Exception {
         ConsulResponse<Map<String, List<String>>> services = catalogClient.getServices();
 
-        assertTrue(services.getResponse().containsKey("consul"));
+        assertThat(services.getResponse().containsKey("consul")).isTrue();
     }
 
     @Test
     void shouldGetService() throws Exception {
         ConsulResponse<List<CatalogService>> services = catalogClient.getService("consul");
 
-        assertEquals("consul", services.getResponse().iterator().next().getServiceName());
+        assertThat(services.getResponse().iterator().next().getServiceName()).isEqualTo("consul");
     }
 
     @Test
@@ -104,18 +100,18 @@ class CatalogITest extends BaseIntegrationTest {
         ConsulResponse<CatalogNode> node = catalogClient.getNode(catalogClient.getNodes()
                 .getResponse().iterator().next().getNode());
 
-        assertNotNull(node);
+        assertThat(node).isNotNull();
     }
 
     @Test
     void shouldGetTaggedAddressesForNodesLists() throws UnknownHostException {
         final List<Node> nodesResp = catalogClient.getNodes().getResponse();
-        assertFalse(nodesResp.isEmpty());
+        assertThat(nodesResp.isEmpty()).isFalse();
         for (Node node : nodesResp) {
-            assertNotNull(node.getTaggedAddresses());
+            assertThat(node.getTaggedAddresses()).isNotNull();
             if (node.getTaggedAddresses().isPresent()) {
-                assertNotNull(node.getTaggedAddresses().get().getWan());
-                assertFalse(node.getTaggedAddresses().get().getWan().isEmpty());
+                assertThat(node.getTaggedAddresses().get().getWan()).isNotNull();
+                assertThat(node.getTaggedAddresses().get().getWan().isEmpty()).isFalse();
             }
         }
     }
@@ -123,13 +119,13 @@ class CatalogITest extends BaseIntegrationTest {
     @Test
     void shouldGetTaggedAddressesForNode() throws UnknownHostException {
         final List<Node> nodesResp = catalogClient.getNodes().getResponse();
-        assertFalse(nodesResp.isEmpty());
+        assertThat(nodesResp.isEmpty()).isFalse();
         for (Node tmp : nodesResp) {
             final Node node = catalogClient.getNode(tmp.getNode()).getResponse().getNode();
-            assertNotNull(node.getTaggedAddresses());
+            assertThat(node.getTaggedAddresses()).isNotNull();
             if (node.getTaggedAddresses().isPresent()) {
-                assertNotNull(node.getTaggedAddresses().get().getWan());
-                assertFalse(node.getTaggedAddresses().get().getWan().isEmpty());
+                assertThat(node.getTaggedAddresses().get().getWan()).isNotNull();
+                assertThat(node.getTaggedAddresses().get().getWan().isEmpty()).isFalse();
             }
         }
     }
@@ -274,7 +270,7 @@ class CatalogITest extends BaseIntegrationTest {
 
         Map<String, List<String>> result = cf.get(1, TimeUnit.SECONDS);
 
-        assertTrue(result.containsKey(serviceName));
+        assertThat(result.containsKey(serviceName)).isTrue();
     }
 
     @Test
@@ -288,10 +284,10 @@ class CatalogITest extends BaseIntegrationTest {
 
         List<CatalogService> result = cf.get(1, TimeUnit.SECONDS);
 
-        assertEquals(1, result.size());
+        assertThat(result.size()).isEqualTo(1);
         CatalogService service = result.get(0);
 
-        assertEquals(serviceId, service.getServiceId());
+        assertThat(service.getServiceId()).isEqualTo(serviceId);
     }
 
     @Test
@@ -321,11 +317,11 @@ class CatalogITest extends BaseIntegrationTest {
 
         CatalogNode node = cf.get(1, TimeUnit.SECONDS);
 
-        assertEquals(nodeName, node.getNode().getNode());
+        assertThat(node.getNode().getNode()).isEqualTo(nodeName);
 
         Service service = node.getServices().get(serviceId);
-        assertNotNull(service);
-        assertEquals(serviceName, service.getService());
+        assertThat(service).isNotNull();
+        assertThat(service.getService()).isEqualTo(serviceName);
     }
 
     private static <T> ConsulResponseCallback<T> callbackFuture(CompletableFuture<T> cf) {
@@ -352,8 +348,8 @@ class CatalogITest extends BaseIntegrationTest {
                 .atMost(FIVE_HUNDRED_MILLISECONDS)
                 .until(() -> serviceWithNameExists(serviceName, foundServiceRef));
 
-        assertNotNull(foundServiceRef.get());
-        assertEquals(expectedService, foundServiceRef.get());
+        assertThat(foundServiceRef.get()).isNotNull();
+        assertThat(foundServiceRef.get()).isEqualTo(expectedService);
     }
 
     private boolean serviceWithNameExists(String serviceName, AtomicReference<CatalogService> foundServiceRef) {

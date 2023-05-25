@@ -3,14 +3,12 @@ package com.orbitz.consul;
 import static com.orbitz.consul.Awaiting.awaitAtMost500ms;
 import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.AnyOf.anyOf;
 import static org.hamcrest.core.Is.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.orbitz.consul.model.ConsulResponse;
@@ -145,7 +143,7 @@ class AgentITest extends BaseIntegrationTest {
 
         var serviceHealth = getValueOrFail(serviceHealthRef);
         assertThat(serviceHealth.getChecks().size(), is(2));
-        assertTrue(serviceHealth.getChecks().stream().anyMatch(check -> check.getCheckId().equals(checkId)));
+        assertThat(serviceHealth.getChecks().stream().anyMatch(check -> check.getCheckId().equals(checkId))).isTrue();
     }
 
     @Test
@@ -171,7 +169,7 @@ class AgentITest extends BaseIntegrationTest {
 
         var serviceHealth = getValueOrFail(serviceHealthRef);
         assertThat(serviceHealth.getChecks().size(), is(2));
-        assertTrue(serviceHealth.getChecks().stream().anyMatch(check -> check.getName().equals(checkName)));
+        assertThat(serviceHealth.getChecks().stream().anyMatch(check -> check.getName().equals(checkName))).isTrue();
     }
 
     @Test
@@ -309,7 +307,7 @@ class AgentITest extends BaseIntegrationTest {
                 .build();
 
         var registeredService = findService(service -> service.getId().equals(serviceId)).orElseThrow();
-        assertEquals(expectedService, registeredService);
+        assertThat(registeredService).isEqualTo(expectedService);
     }
 
     @Test
@@ -342,7 +340,7 @@ class AgentITest extends BaseIntegrationTest {
         var services = agentClient.getServices(queryOptions).values();
 
         var registeredService = findService(services, service -> service.getId().equals(serviceId)).orElseThrow();
-        assertEquals(expectedService, registeredService);
+        assertThat(registeredService).isEqualTo(expectedService);
     }
 
     @Test
@@ -370,7 +368,7 @@ class AgentITest extends BaseIntegrationTest {
                 .contentHash(service.getResponse().getContentHash())
                 .build();
 
-        assertEquals(expectedService, service.getResponse());
+        assertThat(service.getResponse()).isEqualTo(expectedService);
     }
 
     @Test
@@ -393,14 +391,13 @@ class AgentITest extends BaseIntegrationTest {
         ConsulResponse<FullService> other = agentClient.getService(serviceId, blockingQueryOptions);
         var elapsed = System.nanoTime() - start;
 
-        assertEquals(service.getResponse(), other.getResponse());
-        assertTrue(TimeUnit.NANOSECONDS.toMillis(elapsed) >= TimeUnit.SECONDS.toMillis(ttl),
-                "Elapsed time should be equal or more than blocking time");
+        assertThat(other.getResponse()).isEqualTo(service.getResponse());
+        assertThat(TimeUnit.NANOSECONDS.toMillis(elapsed) >= TimeUnit.SECONDS.toMillis(ttl)).as("Elapsed time should be equal or more than blocking time").isTrue();
     }
 
     @Test
     void shouldGetServiceThrowErrorWhenServiceIsUnknown() throws NotRegisteredException {
-        assertThrows(NotRegisteredException.class, () -> {
+        assertThatExceptionOfType(NotRegisteredException.class).isThrownBy(() -> {
             agentClient.getService(randomUUIDString(), QueryOptions.BLANK);
         });
     }
@@ -446,8 +443,8 @@ class AgentITest extends BaseIntegrationTest {
         try {
             HealthCheck check = agentClient.getChecks().get(checkId);
 
-            assertEquals(check.getCheckId(), checkId);
-            assertEquals("test-validate", check.getName());
+            assertThat(checkId).isEqualTo(check.getCheckId());
+            assertThat(check.getName()).isEqualTo("test-validate");
         } finally {
             agentClient.deregisterCheck(checkId);
         }
@@ -465,8 +462,8 @@ class AgentITest extends BaseIntegrationTest {
         try {
             HealthCheck check = agentClient.getChecks().get(checkId);
 
-            assertEquals(check.getCheckId(), checkId);
-            assertEquals("test-validate", check.getName());
+            assertThat(checkId).isEqualTo(check.getCheckId());
+            assertThat(check.getName()).isEqualTo("test-validate");
         } finally {
             agentClient.deregisterCheck(checkId);
         }
@@ -483,8 +480,8 @@ class AgentITest extends BaseIntegrationTest {
         try {
             HealthCheck check = agentClient.getChecks().get(checkId);
 
-            assertEquals(check.getCheckId(), checkId);
-            assertEquals("test-validate", check.getName());
+            assertThat(checkId).isEqualTo(check.getCheckId());
+            assertThat(check.getName()).isEqualTo("test-validate");
         } finally {
             agentClient.deregisterCheck(checkId);
         }
@@ -501,12 +498,12 @@ class AgentITest extends BaseIntegrationTest {
         awaitAtMost500ms().until(() -> serviceExistsWithId(serviceId));
 
         List<String> healthCheckNames = getHealthCheckNames(serviceName);
-        assertFalse(healthCheckNames.contains("Service Maintenance Mode"));
+        assertThat(healthCheckNames.contains("Service Maintenance Mode")).isFalse();
 
         agentClient.toggleMaintenanceMode(serviceId, true, reason);
 
         List<String> updatedHealthCheckNames = getHealthCheckNames(serviceName);
-        assertTrue(updatedHealthCheckNames.contains("Service Maintenance Mode"));
+        assertThat(updatedHealthCheckNames.contains("Service Maintenance Mode")).isTrue();
     }
 
     private boolean serviceExistsWithId(String serviceId) {
@@ -580,12 +577,12 @@ class AgentITest extends BaseIntegrationTest {
         HealthCheck check = checks.get("service:" + serviceId);
 
         assertNotNull(check);
-        assertEquals(serviceId, check.getServiceId().orElseThrow());
-        assertEquals(serviceName, check.getServiceName().orElseThrow());
-        assertEquals(state, check.getStatus());
+        assertThat(check.getServiceId().orElseThrow()).isEqualTo(serviceId);
+        assertThat(check.getServiceName().orElseThrow()).isEqualTo(serviceName);
+        assertThat(check.getStatus()).isEqualTo(state);
 
         if (output != null) {
-            assertEquals(output, check.getOutput().orElseThrow());
+            assertThat(check.getOutput().orElseThrow()).isEqualTo(output);
         }
     }
 }

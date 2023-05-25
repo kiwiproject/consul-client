@@ -3,7 +3,7 @@ package com.orbitz.consul.util;
 import com.orbitz.consul.BaseIntegrationTest;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class LeaderElectionUtilITest extends BaseIntegrationTest {
 
@@ -14,8 +14,8 @@ class LeaderElectionUtilITest extends BaseIntegrationTest {
         final String serviceInfo = "serviceinfo";
 
         leutil.releaseLockForService(serviceName);
-        assertFalse(leutil.getLeaderInfoForService(serviceName).isPresent());
-        assertEquals(serviceInfo, leutil.electNewLeaderForService(serviceName, serviceInfo).get());
-        assertTrue(leutil.releaseLockForService(serviceName));
+        assertThat(leutil.getLeaderInfoForService(serviceName).isPresent()).isFalse();
+        assertThat(leutil.electNewLeaderForService(serviceName, serviceInfo).get()).isEqualTo(serviceInfo);
+        assertThat(leutil.releaseLockForService(serviceName)).isTrue();
     }
 }

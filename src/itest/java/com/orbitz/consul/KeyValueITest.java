@@ -1,12 +1,9 @@
 package com.orbitz.consul;
 
 import static com.orbitz.consul.TestUtils.randomUUIDString;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.orbitz.consul.async.ConsulResponseCallback;
 import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.model.kv.ImmutableOperation;
@@ -49,8 +46,8 @@ class KeyValueITest extends BaseIntegrationTest {
         String key = randomUUIDString();
         String value = randomUUIDString();
 
-        assertTrue(keyValueClient.putValue(key, value));
-        assertEquals(value, keyValueClient.getValueAsString(key).get());
+        assertThat(keyValueClient.putValue(key, value)).isTrue();
+        assertThat(keyValueClient.getValueAsString(key).get()).isEqualTo(value);
     }
 
     @Test
@@ -59,8 +56,8 @@ class KeyValueITest extends BaseIntegrationTest {
         String key = randomUUIDString();
         String value = randomUUIDString();
 
-        assertTrue(keyValueClient.putValue(key, value, TEST_CHARSET));
-        assertEquals(value, keyValueClient.getValueAsString(key, TEST_CHARSET).get());
+        assertThat(keyValueClient.putValue(key, value, TEST_CHARSET)).isTrue();
+        assertThat(keyValueClient.getValueAsString(key, TEST_CHARSET).get()).isEqualTo(value);
     }
 
     @Test
@@ -69,10 +66,10 @@ class KeyValueITest extends BaseIntegrationTest {
         String key = randomUUIDString();
         String value = randomUUIDString();
 
-        assertTrue(keyValueClient.putValue(key, value));
+        assertThat(keyValueClient.putValue(key, value)).isTrue();
         Value received = keyValueClient.getValue(key).get();
-        assertEquals(value, received.getValueAsString().get());
-        assertEquals(0L, received.getFlags());
+        assertThat(received.getValueAsString().get()).isEqualTo(value);
+        assertThat(received.getFlags()).isEqualTo(0L);
     }
 
     @Test
@@ -81,10 +78,10 @@ class KeyValueITest extends BaseIntegrationTest {
         String key = randomUUIDString();
         String value = randomUUIDString();
 
-        assertTrue(keyValueClient.putValue(key, value, TEST_CHARSET));
+        assertThat(keyValueClient.putValue(key, value, TEST_CHARSET)).isTrue();
         Value received = keyValueClient.getValue(key).get();
-        assertEquals(value, received.getValueAsString(TEST_CHARSET).get());
-        assertEquals(0L, received.getFlags());
+        assertThat(received.getValueAsString(TEST_CHARSET).get()).isEqualTo(value);
+        assertThat(received.getFlags()).isEqualTo(0L);
     }
 
     @Test
@@ -94,10 +91,10 @@ class KeyValueITest extends BaseIntegrationTest {
         String value = randomUUIDString();
         long flags = UUID.randomUUID().getMostSignificantBits();
 
-        assertTrue(keyValueClient.putValue(key, value, flags));
+        assertThat(keyValueClient.putValue(key, value, flags)).isTrue();
         Value received = keyValueClient.getValue(key).get();
-        assertEquals(value, received.getValueAsString().get());
-        assertEquals(flags, received.getFlags());
+        assertThat(received.getValueAsString().get()).isEqualTo(value);
+        assertThat(received.getFlags()).isEqualTo(flags);
     }
 
     @Test
@@ -107,10 +104,10 @@ class KeyValueITest extends BaseIntegrationTest {
         String value = randomUUIDString();
         long flags = UUID.randomUUID().getMostSignificantBits();
 
-        assertTrue(keyValueClient.putValue(key, value, flags, TEST_CHARSET));
+        assertThat(keyValueClient.putValue(key, value, flags, TEST_CHARSET)).isTrue();
         Value received = keyValueClient.getValue(key).get();
-        assertEquals(value, received.getValueAsString(TEST_CHARSET).get());
-        assertEquals(flags, received.getFlags());
+        assertThat(received.getValueAsString(TEST_CHARSET).get()).isEqualTo(value);
+        assertThat(received.getFlags()).isEqualTo(flags);
     }
 
     @Test
@@ -118,10 +115,10 @@ class KeyValueITest extends BaseIntegrationTest {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
 
-        assertTrue(keyValueClient.putValue(key));
+        assertThat(keyValueClient.putValue(key)).isTrue();
 
         Value received = keyValueClient.getValue(key).get();
-        assertFalse(received.getValue().isPresent());
+        assertThat(received.getValue().isPresent()).isFalse();
     }
 
     @Test
@@ -129,10 +126,10 @@ class KeyValueITest extends BaseIntegrationTest {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
 
-        assertTrue(keyValueClient.putValue(key, null, 0, PutOptions.BLANK, TEST_CHARSET));
+        assertThat(keyValueClient.putValue(key, null, 0, PutOptions.BLANK, TEST_CHARSET)).isTrue();
 
         Value received = keyValueClient.getValue(key).get();
-        assertFalse(received.getValue().isPresent());
+        assertThat(received.getValue().isPresent()).isFalse();
     }
 
     @Test
@@ -143,15 +140,15 @@ class KeyValueITest extends BaseIntegrationTest {
 
         String key = randomUUIDString();
 
-        assertTrue(keyValueClient.putValue(key, value, 0, PutOptions.BLANK));
+        assertThat(keyValueClient.putValue(key, value, 0, PutOptions.BLANK)).isTrue();
 
         Value received = keyValueClient.getValue(key).get();
-        assertTrue(received.getValue().isPresent());
+        assertThat(received.getValue().isPresent()).isTrue();
 
         byte[] receivedBytes = received.getValueAsBytes()
                 .get();
 
-        assertArrayEquals(value, receivedBytes);
+        assertThat(receivedBytes).containsExactly(value);
     }
 
     @Test
@@ -162,9 +159,9 @@ class KeyValueITest extends BaseIntegrationTest {
         final String value = randomUUIDString();
         final String value2 = randomUUIDString();
 
-        assertTrue(keyValueClient.putValue(key, value));
-        assertTrue(keyValueClient.putValue(key2, value2));
-        assertEquals(Set.of(value, value2), new HashSet<>(keyValueClient.getValuesAsString(key)));
+        assertThat(keyValueClient.putValue(key, value)).isTrue();
+        assertThat(keyValueClient.putValue(key2, value2)).isTrue();
+        assertThat(new HashSet<>(keyValueClient.getValuesAsString(key))).isEqualTo(Set.of(value, value2));
     }
 
     @Test
@@ -175,9 +172,9 @@ class KeyValueITest extends BaseIntegrationTest {
         final String value = randomUUIDString();
         final String value2 = randomUUIDString();
 
-        assertTrue(keyValueClient.putValue(key, value, TEST_CHARSET));
-        assertTrue(keyValueClient.putValue(key2, value2, TEST_CHARSET));
-        assertEquals(Set.of(value, value2), new HashSet<>(keyValueClient.getValuesAsString(key, TEST_CHARSET)));
+        assertThat(keyValueClient.putValue(key, value, TEST_CHARSET)).isTrue();
+        assertThat(keyValueClient.putValue(key2, value2, TEST_CHARSET)).isTrue();
+        assertThat(new HashSet<>(keyValueClient.getValuesAsString(key, TEST_CHARSET))).isEqualTo(Set.of(value, value2));
     }
 
     @Test
@@ -187,10 +184,10 @@ class KeyValueITest extends BaseIntegrationTest {
         final String value = randomUUIDString();
 
         keyValueClient.putValue(key, value);
-        assertTrue(keyValueClient.getValueAsString(key).isPresent());
+        assertThat(keyValueClient.getValueAsString(key).isPresent()).isTrue();
 
         keyValueClient.deleteKey(key);
-        assertFalse(keyValueClient.getValueAsString(key).isPresent());
+        assertThat(keyValueClient.getValueAsString(key).isPresent()).isFalse();
     }
 
 
@@ -205,12 +202,12 @@ class KeyValueITest extends BaseIntegrationTest {
         keyValueClient.putValue(key);
         keyValueClient.putValue(childKEY, value);
 
-        assertTrue(keyValueClient.getValueAsString(childKEY).isPresent());
+        assertThat(keyValueClient.getValueAsString(childKEY).isPresent()).isTrue();
 
         keyValueClient.deleteKeys(key);
 
-        assertFalse(keyValueClient.getValueAsString(key).isPresent());
-        assertFalse(keyValueClient.getValueAsString(childKEY).isPresent());
+        assertThat(keyValueClient.getValueAsString(key).isPresent()).isFalse();
+        assertThat(keyValueClient.getValueAsString(childKEY).isPresent()).isFalse();
     }
 
     @Test
@@ -225,14 +222,14 @@ class KeyValueITest extends BaseIntegrationTest {
         keyValueClient.putValue(key, value);
 
         final Optional<Value> valueAfter1stPut = keyValueClient.getValue(key);
-        assertTrue(valueAfter1stPut.isPresent());
-        assertTrue(valueAfter1stPut.get().getValueAsString().isPresent());
+        assertThat(valueAfter1stPut.isPresent()).isTrue();
+        assertThat(valueAfter1stPut.get().getValueAsString().isPresent()).isTrue();
 
         keyValueClient.putValue(key, randomUUIDString());
 
         final Optional<Value> valueAfter2ndPut = keyValueClient.getValue(key);
-        assertTrue(valueAfter2ndPut.isPresent());
-        assertTrue(valueAfter2ndPut.get().getValueAsString().isPresent());
+        assertThat(valueAfter2ndPut.isPresent()).isTrue();
+        assertThat(valueAfter2ndPut.get().getValueAsString().isPresent()).isTrue();
 
         /**
          * Trying to delete the key once with the older lock, which should not work
@@ -243,7 +240,7 @@ class KeyValueITest extends BaseIntegrationTest {
 
         keyValueClient.deleteKey(key, deleteOptionsWithOlderLock);
 
-        assertTrue(keyValueClient.getValueAsString(key).isPresent());
+        assertThat(keyValueClient.getValueAsString(key).isPresent()).isTrue();
 
         /**
          * Deleting the key with the most recent lock, which should work
@@ -254,7 +251,7 @@ class KeyValueITest extends BaseIntegrationTest {
 
         keyValueClient.deleteKey(key, deleteOptionsWithLatestLock);
 
-        assertFalse(keyValueClient.getValueAsString(key).isPresent());
+        assertThat(keyValueClient.getValueAsString(key).isPresent()).isFalse();
     }
 
     @Test
@@ -267,12 +264,12 @@ class KeyValueITest extends BaseIntegrationTest {
         String sessionId = response.getId();
 
         try {
-            assertTrue(keyValueClient.acquireLock(key, value, sessionId));
-            assertTrue(keyValueClient.acquireLock(key, value, sessionId)); // No ideas why there was an assertFalse
+            assertThat(keyValueClient.acquireLock(key, value, sessionId)).isTrue();
+            assertThat(keyValueClient.acquireLock(key, value, sessionId)).isTrue(); // No ideas why there was an assertFalse
 
-            assertTrue(keyValueClient.getValue(key).get().getSession().isPresent(), "SessionId must be present.");
-            assertTrue(keyValueClient.releaseLock(key, sessionId));
-            assertFalse(keyValueClient.getValue(key).get().getSession().isPresent(), "SessionId in the key value should be absent.");
+            assertThat(keyValueClient.getValue(key).get().getSession().isPresent()).as("SessionId must be present.").isTrue();
+            assertThat(keyValueClient.releaseLock(key, sessionId)).isTrue();
+            assertThat(keyValueClient.getValue(key).get().getSession().isPresent()).as("SessionId in the key value should be absent.").isFalse();
             keyValueClient.deleteKey(key);
         } finally {
             sessionClient.destroySession(sessionId);
@@ -288,16 +285,16 @@ class KeyValueITest extends BaseIntegrationTest {
         String value = randomUUIDString();
         keyValueClient.putValue(key, value);
 
-        assertEquals(false, keyValueClient.getSession(key).isPresent());
+        assertThat(keyValueClient.getSession(key).isPresent()).isEqualTo(false);
 
         String sessionValue = "session_" + randomUUIDString();
         SessionCreatedResponse response = sessionClient.createSession(ImmutableSession.builder().name(sessionValue).build());
         String sessionId = response.getId();
 
         try {
-            assertTrue(keyValueClient.acquireLock(key, sessionValue, sessionId));
-            assertTrue(keyValueClient.acquireLock(key, sessionValue, sessionId)); // No ideas why there was an assertFalse
-            assertEquals(sessionId, keyValueClient.getSession(key).get());
+            assertThat(keyValueClient.acquireLock(key, sessionValue, sessionId)).isTrue();
+            assertThat(keyValueClient.acquireLock(key, sessionValue, sessionId)).isTrue(); // No ideas why there was an assertFalse
+            assertThat(keyValueClient.getSession(key).get()).isEqualTo(sessionId);
         } finally {
             sessionClient.destroySession(sessionId);
         }
@@ -311,8 +308,8 @@ class KeyValueITest extends BaseIntegrationTest {
         kvClient.putValue(key, testString);
         List<String> list = kvClient.getKeys(key);
 
-        assertFalse(list.isEmpty());
-        assertEquals(key, list.get(0));
+        assertThat(list.isEmpty()).isFalse();
+        assertThat(list.get(0)).isEqualTo(key);
     }
 
     @Test
@@ -324,7 +321,7 @@ class KeyValueITest extends BaseIntegrationTest {
         String value = randomUUIDString();
         keyValueClient.putValue(key, value);
 
-        assertEquals(false, keyValueClient.getSession(key).isPresent());
+        assertThat(keyValueClient.getSession(key).isPresent()).isEqualTo(false);
 
         String sessionValue = "session_" + randomUUIDString();
         SessionCreatedResponse response = sessionClient.createSession(ImmutableSession.builder().name(sessionValue).build());
@@ -335,18 +332,18 @@ class KeyValueITest extends BaseIntegrationTest {
         String sessionId2 = response2.getId();
 
         try {
-            assertTrue(keyValueClient.acquireLock(key, sessionValue, sessionId));
+            assertThat(keyValueClient.acquireLock(key, sessionValue, sessionId)).isTrue();
             // session-2 can't acquire the lock
-            assertFalse(keyValueClient.acquireLock(key, sessionValue2, sessionId2));
-            assertEquals(sessionId, keyValueClient.getSession(key).get());
+            assertThat(keyValueClient.acquireLock(key, sessionValue2, sessionId2)).isFalse();
+            assertThat(keyValueClient.getSession(key).get()).isEqualTo(sessionId);
 
             keyValueClient.releaseLock(key, sessionId);
 
             // session-2 now can acquire the lock
-            assertTrue(keyValueClient.acquireLock(key, sessionValue2, sessionId2));
+            assertThat(keyValueClient.acquireLock(key, sessionValue2, sessionId2)).isTrue();
             // session-1 can't acquire the lock anymore
-            assertFalse(keyValueClient.acquireLock(key, sessionValue, sessionId));
-            assertEquals(sessionId2, keyValueClient.getSession(key).get());
+            assertThat(keyValueClient.acquireLock(key, sessionValue, sessionId)).isFalse();
+            assertThat(keyValueClient.getSession(key).get()).isEqualTo(sessionId2);
         } finally {
             sessionClient.destroySession(sessionId);
             sessionClient.destroySession(sessionId2);
@@ -378,7 +375,7 @@ class KeyValueITest extends BaseIntegrationTest {
         });
         completed.await(3, TimeUnit.SECONDS);
         keyValueClient.deleteKey(key);
-        assertTrue(success.get());
+        assertThat(success.get()).isTrue();
     }
 
     @Test
@@ -392,9 +389,9 @@ class KeyValueITest extends BaseIntegrationTest {
 
         keyValueClient.deleteKey(key);
 
-        assertEquals(key, response.get().getResponse().getKey());
-        assertTrue(response.get().getResponse().getValue().isPresent());
-        assertNotNull(response.get().getIndex());
+        assertThat(response.get().getResponse().getKey()).isEqualTo(key);
+        assertThat(response.get().getResponse().getValue().isPresent()).isTrue();
+        assertThat(response.get().getIndex()).isNotNull();
     }
 
     @Test
@@ -408,8 +405,8 @@ class KeyValueITest extends BaseIntegrationTest {
 
         keyValueClient.deleteKey(key);
 
-        assertTrue(!response.getResponse().isEmpty());
-        assertNotNull(response.getIndex());
+        assertThat(!response.getResponse().isEmpty()).isTrue();
+        assertThat(response.getIndex()).isNotNull();
     }
 
     @Test
@@ -457,7 +454,7 @@ class KeyValueITest extends BaseIntegrationTest {
 
         completed.await(3, TimeUnit.SECONDS);
         keyValueClient.deleteKey(key);
-        assertEquals(success.get(), numTests, "Should be all success");
+        assertThat(numTests).as("Should be all success").isEqualTo(success.get());
     }
 
     @Test
@@ -471,8 +468,8 @@ class KeyValueITest extends BaseIntegrationTest {
 
         ConsulResponse<TxResponse> response = keyValueClient.performTransaction(operation);
 
-        assertEquals(value, keyValueClient.getValueAsString(key).get());
-        assertEquals(key, response.getResponse().results().get(0).get("KV").getKey());
+        assertThat(keyValueClient.getValueAsString(key).get()).isEqualTo(value);
+        assertThat(response.getResponse().results().get(0).get("KV").getKey()).isEqualTo(key);
     }
 
     @Test
@@ -486,8 +483,8 @@ class KeyValueITest extends BaseIntegrationTest {
 
         ConsulResponse<TxResponse> response = keyValueClient.performTransaction(ConsistencyMode.DEFAULT, operation);
 
-        assertEquals(value, keyValueClient.getValueAsString(key).get());
-        assertEquals(key, response.getResponse().results().get(0).get("KV").getKey());
+        assertThat(keyValueClient.getValueAsString(key).get()).isEqualTo(value);
+        assertThat(response.getResponse().results().get(0).get("KV").getKey()).isEqualTo(key);
     }
 
     @Test
@@ -501,8 +498,8 @@ class KeyValueITest extends BaseIntegrationTest {
 
         ConsulResponse<TxResponse> response = keyValueClient.performTransaction(ConsistencyMode.CONSISTENT, operation);
 
-        assertEquals(value, keyValueClient.getValueAsString(key).get());
-        assertEquals(key, response.getResponse().results().get(0).get("KV").getKey());
+        assertThat(keyValueClient.getValueAsString(key).get()).isEqualTo(value);
+        assertThat(response.getResponse().results().get(0).get("KV").getKey()).isEqualTo(key);
     }
 
     @Test
@@ -512,19 +509,19 @@ class KeyValueITest extends BaseIntegrationTest {
         kvClient.putValue("nested/second", "second");
 
         List<String> keys = kvClient.getKeys("nested", "/");
-        assertEquals(1, keys.size());
-        assertEquals("nested/", keys.get(0));
+        assertThat(keys.size()).isEqualTo(1);
+        assertThat(keys.get(0)).isEqualTo("nested/");
     }
 
     @Test
     void testUnknownKeyGetValues() {
         List<String> shouldBeEmpty = client.keyValueClient().getValuesAsString("unknownKey");
-        assertTrue(shouldBeEmpty.isEmpty());
+        assertThat(shouldBeEmpty.isEmpty()).isTrue();
     }
 
     @Test
     void testUnknownKeyGetKeys() {
         List<String> shouldBeEmpty = client.keyValueClient().getKeys("unknownKey");
-        assertTrue(shouldBeEmpty.isEmpty());
+        assertThat(shouldBeEmpty.isEmpty()).isTrue();
     }
 }

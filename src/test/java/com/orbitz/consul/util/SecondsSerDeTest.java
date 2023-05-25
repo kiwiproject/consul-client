@@ -1,8 +1,6 @@
 package com.orbitz.consul.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -39,7 +37,7 @@ class SecondsSerDeTest {
         String expected = String.format("\"%ss\"", seconds);
         String json = objectMapper.writeValueAsString(new Item(seconds));
 
-        assertTrue(json.contains(expected));
+        assertThat(json.contains(expected)).isTrue();
     }
 
     @Test
@@ -47,7 +45,7 @@ class SecondsSerDeTest {
         Long seconds = new Random().nextLong();
         Item item = objectMapper.readValue(String.format("{\"seconds\": \"%ds\"}", seconds), Item.class);
 
-        assertEquals(seconds, item.getSeconds());
+        assertThat(item.getSeconds()).isEqualTo(seconds);
     }
 
     @Test
@@ -55,6 +53,6 @@ class SecondsSerDeTest {
         Long seconds = new Random().nextLong();
         Item item = objectMapper.readValue(String.format("{\"seconds\": \"%d\"}", seconds), Item.class);
 
-        assertEquals(seconds, item.getSeconds());
+        assertThat(item.getSeconds()).isEqualTo(seconds);
     }
 }

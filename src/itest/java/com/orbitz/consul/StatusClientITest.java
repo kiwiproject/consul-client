@@ -16,8 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class StatusClientITest extends BaseIntegrationTest {
 
@@ -67,8 +66,8 @@ class StatusClientITest extends BaseIntegrationTest {
     private void assertLocalIpAndCorrectPort(String ipAndPort) throws UnknownHostException {
         String ip = getIp(ipAndPort);
         int port = getPort(ipAndPort);
-        assertTrue(isLocalIp(ip));
-        assertEquals(8300, port);
+        assertThat(isLocalIp(ip)).isTrue();
+        assertThat(port).isEqualTo(8300);
     }
 
     @Test

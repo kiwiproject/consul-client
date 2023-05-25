@@ -1,9 +1,7 @@
 package com.orbitz.consul.model.agent;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import com.google.common.collect.Lists;
 
 import org.junit.jupiter.api.Test;
@@ -14,7 +12,7 @@ class CheckTest {
 
     @Test
     void buildingCheckThrowsIfMissingMethod() {
-        assertThrows(IllegalStateException.class, () -> {
+        assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> {
             ImmutableCheck.builder()
                     .id("id")
                     .interval("10s")
@@ -25,7 +23,7 @@ class CheckTest {
 
     @Test
     void buildingCheckWithHttpThrowsIfMissingInterval() {
-        assertThrows(IllegalStateException.class, () -> {
+        assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> {
             ImmutableCheck.builder()
                     .id("id")
                     .http("http://foo.local:1337/health")
@@ -36,7 +34,7 @@ class CheckTest {
 
     @Test
     void buildingCheckWithGrpcThrowsIfMissingInterval() {
-        assertThrows(IllegalStateException.class, () -> {
+        assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> {
             ImmutableCheck.builder()
                     .id("id")
                     .grpc("localhost:12345")
@@ -47,7 +45,7 @@ class CheckTest {
 
     @Test
     void buildingCheckWithArgsThrowsIfMissingInterval() {
-        assertThrows(IllegalStateException.class, () -> {
+        assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> {
             ImmutableCheck.builder()
                     .id("id")
                     .args(List.of("/bin/echo \"hi\""))
@@ -65,8 +63,8 @@ class CheckTest {
                 .name("name")
                 .build();
 
-        assertTrue(check.getArgs().isPresent(), "Args should be present in check");
-        assertEquals(2, check.getArgs().get().size(), "Check should contain 2 args");
+        assertThat(check.getArgs().isPresent()).as("Args should be present in check").isTrue();
+        assertThat(check.getArgs().get().size()).as("Check should contain 2 args").isEqualTo(2);
     }
 
     @Test
@@ -77,7 +75,7 @@ class CheckTest {
                 .id("id")
                 .build();
 
-        assertEquals(List.of(), check.getServiceTags());
+        assertThat(check.getServiceTags()).isEqualTo(List.of());
     }
 
     @Test
@@ -89,6 +87,6 @@ class CheckTest {
                 .addServiceTags("myTag")
                 .build();
 
-        assertEquals(List.of("myTag"), check.getServiceTags());
+        assertThat(check.getServiceTags()).isEqualTo(List.of("myTag"));
     }
 }

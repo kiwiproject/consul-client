@@ -1,8 +1,6 @@
 package com.orbitz.consul.failover;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.BaseIntegrationTest;
 import com.orbitz.consul.Consul;
@@ -45,14 +43,14 @@ class FailoverTest extends BaseIntegrationTest {
 
 		// Get the peers (should fail through 1.2.3.4 and 3.4.5.6 into localhost)
 		List<String> peers1 = client.statusClient().getPeers();
-		assertFalse(peers1.isEmpty());
+        assertThat(peers1.isEmpty()).isFalse();
 
 		Thread.sleep(blacklistTimeInMillis + 1);
 
 		// Get the peers again (should fail through 1.2.3.4 and 3.4.5.6 into localhost since the blacklist timeout has expired)
 		List<String> peers2 = client.statusClient().getPeers();
-		assertFalse(peers2.isEmpty());
+        assertThat(peers2.isEmpty()).isFalse();
 
-		assertEquals(peers1, peers2);
+        assertThat(peers2).isEqualTo(peers1);
 	}
 }

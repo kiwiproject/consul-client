@@ -1,7 +1,7 @@
 package com.orbitz.consul.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -68,7 +68,7 @@ class HttpTest {
 
         String body = http.extract(call);
 
-        assertEquals(expectedBody, body);
+        assertThat(body).isEqualTo(expectedBody);
     }
 
     @Test
@@ -91,26 +91,26 @@ class HttpTest {
 
         ConsulResponse<String> consulResponse = http.extractConsulResponse(call);
 
-        assertEquals(expectedBody, consulResponse.getResponse());
+        assertThat(consulResponse.getResponse()).isEqualTo(expectedBody);
     }
 
     @Test
     void extractingBodyShouldThrowWhenRequestFailed() throws IOException {
-        assertThrows(ConsulException.class, () -> {
+        assertThatExceptionOfType(ConsulException.class).isThrownBy(() -> {
             checkForFailedRequest(createExtractWrapper());
         });
     }
 
     @Test
     void handlingRequestShouldThrowWhenRequestFailed() throws IOException {
-        assertThrows(ConsulException.class, () -> {
+        assertThatExceptionOfType(ConsulException.class).isThrownBy(() -> {
             checkForFailedRequest(createHandleWrapper());
         });
     }
 
     @Test
     void extractingConsulResponseShouldThrowWhenRequestFailed() throws IOException {
-        assertThrows(ConsulException.class, () -> {
+        assertThatExceptionOfType(ConsulException.class).isThrownBy(() -> {
             checkForFailedRequest(createExtractConsulResponseWrapper());
         });
     }
@@ -125,21 +125,21 @@ class HttpTest {
 
     @Test
     void extractingBodyShouldThrowWhenRequestIsInvalid() throws IOException {
-        assertThrows(ConsulException.class, () -> {
+        assertThatExceptionOfType(ConsulException.class).isThrownBy(() -> {
             checkForInvalidRequest(createExtractWrapper());
         });
     }
 
     @Test
     void handlingRequestShouldThrowWhenRequestIsInvalid() throws IOException {
-        assertThrows(ConsulException.class, () -> {
+        assertThatExceptionOfType(ConsulException.class).isThrownBy(() -> {
             checkForInvalidRequest(createHandleWrapper());
         });
     }
 
     @Test
     void extractingConsulResponseShouldThrowWhenRequestIsInvalid() throws IOException {
-        assertThrows(ConsulException.class, () -> {
+        assertThatExceptionOfType(ConsulException.class).isThrownBy(() -> {
             checkForInvalidRequest(createExtractConsulResponseWrapper());
         });
     }
@@ -260,7 +260,7 @@ class HttpTest {
         callCallback.onResponse(call, response);
         latch.await(1, TimeUnit.SECONDS);
 
-        assertEquals(expectedBody, result.get().getResponse());
+        assertThat(result.get().getResponse()).isEqualTo(expectedBody);
         verify(clientEventHandler, only()).httpRequestSuccess(any(Request.class));
     }
 
@@ -324,7 +324,7 @@ class HttpTest {
         Response<String> response = Response.success(responseMessage);
         ConsulResponse<String> consulResponse = Http.consulResponse(response);
 
-        assertEquals(expectedConsulResponse, consulResponse);
+        assertThat(consulResponse).isEqualTo(expectedConsulResponse);
     }
 
     @Test
@@ -332,7 +332,7 @@ class HttpTest {
         Response<String> response = Response.success("", Headers.of("X-Consul-Index", "10"));
         ConsulResponse<String> consulResponse = Http.consulResponse(response);
 
-        assertEquals(BigInteger.TEN, consulResponse.getIndex());
+        assertThat(consulResponse.getIndex()).isEqualTo(BigInteger.TEN);
     }
 
     @Test
@@ -340,7 +340,7 @@ class HttpTest {
         Response<String> response = Response.success("", Headers.of("X-Consul-Lastcontact", "2"));
         ConsulResponse<String> consulResponse = Http.consulResponse(response);
 
-        assertEquals(2L, consulResponse.getLastContact());
+        assertThat(consulResponse.getLastContact()).isEqualTo(2L);
     }
 
     @Test
@@ -348,6 +348,6 @@ class HttpTest {
         Response<String> response = Response.success("", Headers.of("X-Consul-Knownleader", "true"));
         ConsulResponse<String> consulResponse = Http.consulResponse(response);
 
-        assertEquals(true, consulResponse.isKnownLeader());
+        assertThat(consulResponse.isKnownLeader()).isEqualTo(true);
     }
 }

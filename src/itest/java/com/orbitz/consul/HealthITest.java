@@ -2,9 +2,7 @@ package com.orbitz.consul;
 
 import static com.orbitz.consul.Consul.builder;
 import static com.orbitz.consul.TestUtils.randomUUIDString;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.model.State;
@@ -111,13 +109,13 @@ class HealthITest extends BaseIntegrationTest {
                 QueryOptions.blockSeconds(20, new BigInteger("0")).datacenter("dc1").build());
 
         List<HealthCheck> checks = response.getResponse();
-        assertEquals(1, checks.size());
+        assertThat(checks.size()).isEqualTo(1);
         for(HealthCheck ch : checks) {
             if(ch.getServiceId().isPresent() && ch.getServiceId().get().equals(serviceId)) {
                 found = true;
             }
         }
-        assertTrue(found);
+        assertThat(found).isTrue();
         client.agentClient().deregister(serviceId);
     }
 
@@ -138,7 +136,7 @@ class HealthITest extends BaseIntegrationTest {
             }
         }
 
-        assertTrue(found);
+        assertThat(found).isTrue();
         client.agentClient().deregister(serviceId);
     }
 
@@ -146,7 +144,7 @@ class HealthITest extends BaseIntegrationTest {
         boolean found = false;
         List<ServiceHealth> nodes = response.getResponse();
 
-        assertEquals(1, nodes.size());
+        assertThat(nodes.size()).isEqualTo(1);
 
         for(ServiceHealth health : nodes) {
             if(health.getService().getId().equals(serviceId)) {
@@ -154,6 +152,6 @@ class HealthITest extends BaseIntegrationTest {
             }
         }
 
-        assertTrue(found);
+        assertThat(found).isTrue();
     }
 }

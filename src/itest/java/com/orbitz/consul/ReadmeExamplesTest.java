@@ -1,8 +1,6 @@
 package com.orbitz.consul;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import com.orbitz.consul.cache.KVCache;
 import com.orbitz.consul.cache.ServiceHealthCache;
 import com.orbitz.consul.cache.ServiceHealthKey;
@@ -60,7 +58,7 @@ class ReadmeExamplesTest extends BaseIntegrationTest {
         // Discover only "passing" nodes
         List<ServiceHealth> nodes = healthClient.getHealthyServiceInstances("DataService").getResponse();
 
-        assertNotNull(nodes);
+        assertThat(nodes).isNotNull();
     }
 
     @Test
@@ -70,7 +68,7 @@ class ReadmeExamplesTest extends BaseIntegrationTest {
         kvClient.putValue("foo", "bar");
         String value = kvClient.getValueAsString("foo").get(); // bar
 
-        assertEquals("bar", value);
+        assertThat(value).isEqualTo("bar");
     }
 
     @Test

@@ -1,7 +1,6 @@
 package com.orbitz.consul.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.io.BaseEncoding;
 import com.orbitz.consul.model.event.Event;
 import com.orbitz.consul.model.event.ImmutableEvent;
@@ -27,6 +26,6 @@ class Base64EncodingDeserializerTest {
         String serializedEvent = Jackson.MAPPER.writeValueAsString(event);
         Event deserializedEvent = Jackson.MAPPER.readValue(serializedEvent, Event.class);
 
-        assertEquals(value, deserializedEvent.getPayload().get());
+        assertThat(deserializedEvent.getPayload().get()).isEqualTo(value);
     }
 }

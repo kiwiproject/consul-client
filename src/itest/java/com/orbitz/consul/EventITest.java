@@ -9,9 +9,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.orbitz.consul.Awaiting.awaitWith25MsPoll;
 import static java.util.Objects.nonNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class EventITest extends BaseIntegrationTest {
 
@@ -43,8 +42,8 @@ class EventITest extends BaseIntegrationTest {
                 .atMost(TWO_HUNDRED_MILLISECONDS)
                 .until(() -> eventIsFound(firedEvent.getId(), name, foundEventRef));
 
-        assertNotNull(foundEventRef.get());
-        assertEquals(payload, foundEventRef.get().getPayload().get());
+        assertThat(foundEventRef.get()).isNotNull();
+        assertThat(foundEventRef.get().getPayload().get()).isEqualTo(payload);
     }
 
     private boolean eventIsFound(String eventId, String name) {
