@@ -20,7 +20,7 @@ import java.util.Optional;
 /**
  * HTTP Client for /v1/session/ endpoints.
  *
- * @see <a href="http://www.consul.io/docs/agent/http.html#session">The Consul API Docs</a>
+ * @see <a href="https://developer.hashicorp.com/consul/api-docs/session">The Consul API Docs</a>
  */
 public class SessionClient extends BaseClient {
 

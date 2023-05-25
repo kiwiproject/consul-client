@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * HTTP Client for /v1/snapshot/ endpoints.
  *
- * @see <a href="https://www.consul.io/api/snapshot.html">The Consul API Docs</a> for Snapshots
+ * @see <a href="https://developer.hashicorp.com/consul/api-docs/snapshot">The Consul API Docs</a> for Snapshots
  */
 public class SnapshotClient extends BaseClient {
 
@@ -58,7 +58,7 @@ public class SnapshotClient extends BaseClient {
             @Override
             public void onComplete(ConsulResponse<ResponseBody> consulResponse) {
                 // Note that response.body() and response.body().byteStream() should be closed.
-                // see: https://square.github.io/okhttp/3.x/okhttp/okhttp3/ResponseBody.html
+                // see: https://square.github.io/okhttp/4.x/okhttp/okhttp3/-response-body/
                 try (ResponseBody responseBody = consulResponse.getResponse()) {
                     try (InputStream inputStream = responseBody.byteStream()) {
                         Files.copy(inputStream, destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING);

@@ -38,7 +38,7 @@ public class TimeoutInterceptor implements Interceptor {
                 int waitDurationMs = (int) waitDuration.toMillis();
                 int readTimeoutConfigMargin = (int) config.getTimeoutAutoAdjustmentMargin().toMillis();
 
-                // According to https://www.consul.io/api/index.html#blocking-queries
+                // According to https://developer.hashicorp.com/consul/api-docs/features/blocking
                 // A small random amount of additional wait time is added to the supplied maximum wait time by consul
                 // agent to spread out the wake up time of any concurrent requests.
                 // This adds up to (wait / 16) additional time to the maximum duration.
