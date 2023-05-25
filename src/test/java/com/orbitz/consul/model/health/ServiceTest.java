@@ -1,21 +1,21 @@
 package com.orbitz.consul.model.health;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ServiceTest {
+class ServiceTest {
 
     @Test
-    public void testEquals(){
+    void testEquals(){
         Service one = tagged("a", "b");
         Service two = tagged("a", "b");
         assertEquals(one, two);
     }
 
     @Test
-    public void testNullTags(){
+    void testNullTags(){
         Service sv = tagged();
         assertTrue(sv.getTags().isEmpty());
     }

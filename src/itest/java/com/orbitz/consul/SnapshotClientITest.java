@@ -5,15 +5,15 @@ import static com.orbitz.consul.Awaiting.awaitWith25MsPoll;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.FIVE_SECONDS;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.orbitz.consul.async.Callback;
 import com.orbitz.consul.option.QueryOptions;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,29 +25,29 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class SnapshotClientITest extends BaseIntegrationTest {
+class SnapshotClientITest extends BaseIntegrationTest {
 
     private File snapshotFile;
     private SnapshotClient snapshotClient;
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         snapshotClient = client.snapshotClient();
         snapshotFile = File.createTempFile("snapshot", ".gz");
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         snapshotFile.delete();
     }
 
     @Test
-    public void snapshotClientShouldBeAvailableInConsul() {
+    void snapshotClientShouldBeAvailableInConsul() {
         assertNotNull(snapshotClient);
     }
 
     @Test
-    public void shouldBeAbleToSaveAndRestoreSnapshot() throws MalformedURLException, InterruptedException {
+    void shouldBeAbleToSaveAndRestoreSnapshot() throws MalformedURLException, InterruptedException {
         String serviceName = randomUUIDString();
         String serviceId = randomUUIDString();
 

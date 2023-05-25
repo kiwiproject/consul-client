@@ -3,7 +3,7 @@ package com.orbitz.consul.cache;
 import static com.orbitz.consul.Awaiting.awaitAtMost500ms;
 import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static java.util.Objects.isNull;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.BaseIntegrationTest;
@@ -11,22 +11,22 @@ import com.orbitz.consul.HealthClient;
 import com.orbitz.consul.model.State;
 import com.orbitz.consul.model.health.HealthCheck;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
-public class HealthCheckCacheITest extends BaseIntegrationTest {
+class HealthCheckCacheITest extends BaseIntegrationTest {
 
     private AgentClient agentClient;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         agentClient = client.agentClient();
     }
 
     @Test
-    public void cacheShouldContainPassingTestsOnly() throws Exception {
+    void cacheShouldContainPassingTestsOnly() throws Exception {
         HealthClient healthClient = client.healthClient();
         String checkName = randomUUIDString();
         String checkId = randomUUIDString();

@@ -1,19 +1,22 @@
 package com.orbitz.consul.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.orbitz.consul.ConsulException;
 import com.orbitz.consul.async.ConsulResponseCallback;
 import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.monitoring.ClientEventHandler;
-import okhttp3.Headers;
-import okhttp3.MediaType;
-import okhttp3.Request;
-import okhttp3.ResponseBody;
-import org.junit.Before;
-import org.junit.Test;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -22,22 +25,21 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.only;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import okhttp3.Headers;
+import okhttp3.MediaType;
+import okhttp3.Request;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-public class HttpTest {
+class HttpTest {
 
     private ClientEventHandler clientEventHandler;
     private Http http;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         clientEventHandler = mock(ClientEventHandler.class);
         http = new Http(clientEventHandler);
     }
@@ -58,11 +60,11 @@ public class HttpTest {
     }
 
     @Test
-    public void extractingBodyShouldSucceedWhenRequestSucceed() throws IOException {
+    void extractingBodyShouldSucceedWhenRequestSucceed() throws IOException {
         String expectedBody = "success";
         Response<String> response = Response.success(expectedBody);
         Call<String> call = createMockCallWithType(String.class);
-        doReturn(response).when(call).execute();
+        when(call.execute()).thenReturn(response);
 
         String body = http.extract(call);
 
@@ -70,11 +72,10 @@ public class HttpTest {
     }
 
     @Test
-    public void handlingRequestShouldNotThrowWhenRequestSucceed() throws IOException {
-        String expectedBody = "success";
-        Response<String> response = Response.success(expectedBody);
+    void handlingRequestShouldNotThrowWhenRequestSucceed() throws IOException {
+        Response<Void> response = Response.success(204, null);
         Call<Void> call = createMockCallWithType(Void.class);
-        doReturn(response).when(call).execute();
+        when(call.execute()).thenReturn(response);
 
         http.handle(call);
 
@@ -82,30 +83,36 @@ public class HttpTest {
     }
 
     @Test
-    public void extractingConsulResponseShouldSucceedWhenRequestSucceed() throws IOException {
+    void extractingConsulResponseShouldSucceedWhenRequestSucceed() throws IOException {
         String expectedBody = "success";
         Response<String> response = Response.success(expectedBody);
         Call<String> call = createMockCallWithType(String.class);
-        doReturn(response).when(call).execute();
+        when(call.execute()).thenReturn(response);
 
         ConsulResponse<String> consulResponse = http.extractConsulResponse(call);
 
         assertEquals(expectedBody, consulResponse.getResponse());
     }
 
-    @Test(expected = ConsulException.class)
-    public void extractingBodyShouldThrowWhenRequestFailed() throws IOException {
-        checkForFailedRequest(createExtractWrapper());
+    @Test
+    void extractingBodyShouldThrowWhenRequestFailed() throws IOException {
+        assertThrows(ConsulException.class, () -> {
+            checkForFailedRequest(createExtractWrapper());
+        });
     }
 
-    @Test(expected = ConsulException.class)
-    public void handlingRequestShouldThrowWhenRequestFailed() throws IOException {
-        checkForFailedRequest(createHandleWrapper());
+    @Test
+    void handlingRequestShouldThrowWhenRequestFailed() throws IOException {
+        assertThrows(ConsulException.class, () -> {
+            checkForFailedRequest(createHandleWrapper());
+        });
     }
 
-    @Test(expected = ConsulException.class)
-    public void extractingConsulResponseShouldThrowWhenRequestFailed() throws IOException {
-        checkForFailedRequest(createExtractConsulResponseWrapper());
+    @Test
+    void extractingConsulResponseShouldThrowWhenRequestFailed() throws IOException {
+        assertThrows(ConsulException.class, () -> {
+            checkForFailedRequest(createExtractConsulResponseWrapper());
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -116,51 +123,59 @@ public class HttpTest {
         httpCall.apply(call);
     }
 
-    @Test(expected = ConsulException.class)
-    public void extractingBodyShouldThrowWhenRequestIsInvalid() throws IOException {
-        checkForInvalidRequest(createExtractWrapper());
+    @Test
+    void extractingBodyShouldThrowWhenRequestIsInvalid() throws IOException {
+        assertThrows(ConsulException.class, () -> {
+            checkForInvalidRequest(createExtractWrapper());
+        });
     }
 
-    @Test(expected = ConsulException.class)
-    public void handlingRequestShouldThrowWhenRequestIsInvalid() throws IOException {
-        checkForInvalidRequest(createHandleWrapper());
+    @Test
+    void handlingRequestShouldThrowWhenRequestIsInvalid() throws IOException {
+        assertThrows(ConsulException.class, () -> {
+            checkForInvalidRequest(createHandleWrapper());
+        });
     }
 
-    @Test(expected = ConsulException.class)
-    public void extractingConsulResponseShouldThrowWhenRequestIsInvalid() throws IOException {
-        checkForInvalidRequest(createExtractConsulResponseWrapper());
+    @Test
+    void extractingConsulResponseShouldThrowWhenRequestIsInvalid() throws IOException {
+        assertThrows(ConsulException.class, () -> {
+            checkForInvalidRequest(createExtractConsulResponseWrapper());
+        });
     }
 
     @SuppressWarnings("unchecked")
     private <U, V> void checkForInvalidRequest(Function<Call<U>, V> httpCall) throws IOException {
-        Response<String> response = Response.error(400, ResponseBody.create("failure", MediaType.parse("")));
+        Response<U> response = Response.error(400, ResponseBody.create("failure", MediaType.parse("")));
         Call<U> call = mock(Call.class);
-        doReturn(response).when(call).execute();
+        when(call.execute()).thenReturn(response);
 
         httpCall.apply(call);
     }
 
     @Test
-    public void extractingBodyShouldSendSuccessEventWhenRequestSucceed() throws IOException {
+    void extractingBodyShouldSendSuccessEventWhenRequestSucceed() throws IOException {
         checkSuccessEventIsSentWhenRequestSucceed(createExtractWrapper());
     }
 
     @Test
-    public void handlingRequestShouldSendSuccessEventWhenRequestSucceed() throws IOException {
+    void handlingRequestShouldSendSuccessEventWhenRequestSucceed() throws IOException {
         checkSuccessEventIsSentWhenRequestSucceed(createHandleWrapper());
     }
 
     @Test
-    public void extractingConsulResponseShouldSendSuccessEventWhenRequestSucceed() throws IOException {
+    void extractingConsulResponseShouldSendSuccessEventWhenRequestSucceed() throws IOException {
         checkSuccessEventIsSentWhenRequestSucceed(createExtractConsulResponseWrapper());
     }
 
     @SuppressWarnings("unchecked")
     private <U, V> void checkSuccessEventIsSentWhenRequestSucceed(Function<Call<U>, V> httpCall) throws IOException {
-        String expectedBody = "success";
-        Response<String> response = Response.success(expectedBody);
+        var expectedBody = "success";
+        var response = Response.success(expectedBody);
+
         Call<U> call = mock(Call.class);
-        doReturn(response).when(call).execute();
+        when(call.execute()).thenReturn((Response<U>) response);
+        when(call.request()).thenReturn(mock(Request.class));
 
         httpCall.apply(call);
 
@@ -168,17 +183,17 @@ public class HttpTest {
     }
 
     @Test
-    public void extractingBodyShouldSendFailureEventWhenRequestFailed() throws IOException {
+    void extractingBodyShouldSendFailureEventWhenRequestFailed() throws IOException {
         checkFailureEventIsSentWhenRequestFailed(createExtractWrapper());
     }
 
     @Test
-    public void handlingRequestShouldSendFailureEventWhenRequestFailed() throws IOException {
+    void handlingRequestShouldSendFailureEventWhenRequestFailed() throws IOException {
         checkFailureEventIsSentWhenRequestFailed(createHandleWrapper());
     }
 
     @Test
-    public void extractingConsulResponseShouldSendFailureEventWhenRequestFailed() throws IOException {
+    void extractingConsulResponseShouldSendFailureEventWhenRequestFailed() throws IOException {
         checkFailureEventIsSentWhenRequestFailed(createExtractConsulResponseWrapper());
     }
 
@@ -186,48 +201,43 @@ public class HttpTest {
     private <U, V> void checkFailureEventIsSentWhenRequestFailed(Function<Call<U>, V> httpCall) throws IOException {
         Call<U> call = mock(Call.class);
         doThrow(new IOException("failure")).when(call).execute();
+        when(call.request()).thenReturn(mock(Request.class));
 
-        try {
-            httpCall.apply(call);
-        } catch (ConsulException e) {
-            //ignore
-        }
+        Assertions.assertThatThrownBy(() -> httpCall.apply(call)).isInstanceOf(ConsulException.class);
 
         verify(clientEventHandler, only()).httpRequestFailure(any(Request.class), any(Throwable.class));
     }
 
     @Test
-    public void extractingBodyShouldSendInvalidEventWhenRequestIsInvalid() throws IOException {
+    void extractingBodyShouldSendInvalidEventWhenRequestIsInvalid() throws IOException {
         checkInvalidEventIsSentWhenRequestIsInvalid(createExtractWrapper());
     }
 
     @Test
-    public void handlingRequestShouldSendInvalidEventWhenRequestIsInvalid() throws IOException {
+    void handlingRequestShouldSendInvalidEventWhenRequestIsInvalid() throws IOException {
         checkInvalidEventIsSentWhenRequestIsInvalid(createHandleWrapper());
     }
 
     @Test
-    public void extractingConsulResponseShouldSendInvalidEventWhenRequestIsInvalid() throws IOException {
+    void extractingConsulResponseShouldSendInvalidEventWhenRequestIsInvalid() throws IOException {
         checkInvalidEventIsSentWhenRequestIsInvalid(createExtractConsulResponseWrapper());
     }
 
     @SuppressWarnings("unchecked")
     private <U, V> void checkInvalidEventIsSentWhenRequestIsInvalid(Function<Call<U>, V> httpCall) throws IOException {
         Response<String> response = Response.error(400, ResponseBody.create("failure", MediaType.parse("")));
-        Call<U> call = mock(Call.class);
-        doReturn(response).when(call).execute();
 
-        try {
-            httpCall.apply(call);
-        } catch (ConsulException e) {
-            //ignore
-        }
+        Call<U> call = mock(Call.class);
+        when(call.execute()).thenReturn((Response<U>) response);
+        when(call.request()).thenReturn(mock(Request.class));
+
+        Assertions.assertThatThrownBy(() -> httpCall.apply(call)).isInstanceOf(ConsulException.class);
 
         verify(clientEventHandler, only()).httpRequestInvalid(any(Request.class), any(Throwable.class));
     }
 
     @Test
-    public void extractingConsulResponseAsyncShouldSucceedWhenRequestSucceed() throws IOException, InterruptedException {
+    void extractingConsulResponseAsyncShouldSucceedWhenRequestSucceed() throws IOException, InterruptedException {
         AtomicReference<ConsulResponse<String>> result = new AtomicReference<>();
         CountDownLatch latch = new CountDownLatch(1);
         final ConsulResponseCallback<String> callback = new ConsulResponseCallback<String>() {
@@ -255,7 +265,7 @@ public class HttpTest {
     }
 
     @Test
-    public void extractingConsulResponseAsyncShouldFailWhenRequestIsInvalid() throws IOException, InterruptedException {
+    void extractingConsulResponseAsyncShouldFailWhenRequestIsInvalid() throws IOException, InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         final ConsulResponseCallback<String> callback = new ConsulResponseCallback<String>() {
             @Override
@@ -279,7 +289,7 @@ public class HttpTest {
     }
 
     @Test
-    public void extractingConsulResponseAsyncShouldFailWhenRequestFailed() throws IOException, InterruptedException {
+    void extractingConsulResponseAsyncShouldFailWhenRequestFailed() throws IOException, InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         final ConsulResponseCallback<String> callback = new ConsulResponseCallback<String>() {
             @Override
@@ -291,6 +301,8 @@ public class HttpTest {
             }
         };
         Call<String> call = createMockCallWithType(String.class);
+        when(call.request()).thenReturn(mock(Request.class));
+
         Callback<String> callCallback = http.createCallback(call, callback);
 
         callCallback.onFailure(call, new RuntimeException("the request failed"));
@@ -305,7 +317,7 @@ public class HttpTest {
     }
 
     @Test
-    public void consulResponseShouldHaveResponseAndDefaultValuesIfNoHeader() {
+    void consulResponseShouldHaveResponseAndDefaultValuesIfNoHeader() {
         String responseMessage = "success";
         ConsulResponse<String> expectedConsulResponse = new ConsulResponse<>(responseMessage, 0, false, BigInteger.ZERO, null, null);
 
@@ -316,7 +328,7 @@ public class HttpTest {
     }
 
     @Test
-    public void consulResponseShouldHaveIndexIfPresentInHeader() {
+    void consulResponseShouldHaveIndexIfPresentInHeader() {
         Response<String> response = Response.success("", Headers.of("X-Consul-Index", "10"));
         ConsulResponse<String> consulResponse = Http.consulResponse(response);
 
@@ -324,7 +336,7 @@ public class HttpTest {
     }
 
     @Test
-    public void consulResponseShouldHaveLastContactIfPresentInHeader() {
+    void consulResponseShouldHaveLastContactIfPresentInHeader() {
         Response<String> response = Response.success("", Headers.of("X-Consul-Lastcontact", "2"));
         ConsulResponse<String> consulResponse = Http.consulResponse(response);
 
@@ -332,7 +344,7 @@ public class HttpTest {
     }
 
     @Test
-    public void consulResponseShouldHaveKnownLeaderIfPresentInHeader() {
+    void consulResponseShouldHaveKnownLeaderIfPresentInHeader() {
         Response<String> response = Response.success("", Headers.of("X-Consul-Knownleader", "true"));
         ConsulResponse<String> consulResponse = Http.consulResponse(response);
 

@@ -1,7 +1,7 @@
 package com.orbitz.consul;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,17 +16,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class StatusClientITest extends BaseIntegrationTest {
+class StatusClientITest extends BaseIntegrationTest {
 
     private static Logger LOG = LoggerFactory.getLogger(StatusClientITest.class);
 
     private static Set<InetAddress> ips = new HashSet<>();
 
-    @BeforeClass
-    public static void getIps() throws RuntimeException {
+    @BeforeAll
+    static void getIps() throws RuntimeException {
         try {
             InetAddress[] externalIps = InetAddress.getAllByName(InetAddress.getLocalHost().getCanonicalHostName());
             ips.addAll(Arrays.asList(externalIps));
@@ -72,13 +72,13 @@ public class StatusClientITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldGetLeader() throws UnknownHostException {
+    void shouldGetLeader() throws UnknownHostException {
         String ipAndPort = client.statusClient().getLeader();
         assertLocalIpAndCorrectPort(ipAndPort);
     }
 
     @Test
-    public void shouldGetPeers() throws UnknownHostException {
+    void shouldGetPeers() throws UnknownHostException {
         List<String> peers = client.statusClient().getPeers();
         for (String ipAndPort : peers) {
             assertLocalIpAndCorrectPort(ipAndPort);

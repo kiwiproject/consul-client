@@ -3,17 +3,17 @@ package com.orbitz.consul.util;
 import com.orbitz.consul.BaseIntegrationTest;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.model.agent.Agent;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.net.Proxy;
 import java.net.UnknownHostException;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class CustomBuilderITest extends BaseIntegrationTest{
+class CustomBuilderITest extends BaseIntegrationTest{
 
     @Test
-    public void shouldConnectWithCustomTimeouts() throws UnknownHostException {
+    void shouldConnectWithCustomTimeouts() throws UnknownHostException {
         Consul client = Consul.builder()
                 .withHostAndPort(defaultClientHostAndPort)
                 .withProxy(Proxy.NO_PROXY)

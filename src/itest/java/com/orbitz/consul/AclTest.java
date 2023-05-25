@@ -4,9 +4,9 @@ import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsNot.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.model.acl.ImmutablePolicy;
@@ -19,8 +19,8 @@ import com.orbitz.consul.model.acl.RoleResponse;
 import com.orbitz.consul.model.acl.Token;
 import com.orbitz.consul.model.acl.TokenResponse;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
 
 import java.time.Duration;
@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class AclTest {
+class AclTest {
 
     public static GenericContainer<?> consulContainerAcl;
     static {
@@ -53,8 +53,8 @@ public class AclTest {
 
     protected static HostAndPort aclClientHostAndPort = HostAndPort.fromParts("localhost", consulContainerAcl.getFirstMappedPort());
 
-    @BeforeClass
-    public static void beforeClass() {
+    @BeforeAll
+    static void beforeClass() {
         client = Consul.builder()
                 .withHostAndPort(aclClientHostAndPort)
                 .withAclToken("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")
@@ -63,13 +63,13 @@ public class AclTest {
     }
 
     @Test
-    public void listPolicies() {
+    void listPolicies() {
         AclClient aclClient = client.aclClient();
         assertTrue(aclClient.listPolicies().stream().anyMatch(p -> Objects.equals(p.name(), "global-management")));
     }
 
     @Test
-    public void testCreateAndReadPolicy() {
+    void testCreateAndReadPolicy() {
         AclClient aclClient = client.aclClient();
 
         String policyName = randomUUIDString();
@@ -83,7 +83,7 @@ public class AclTest {
     }
 
     @Test
-    public void testCreateAndReadPolicy_WithDatacenters() {
+    void testCreateAndReadPolicy_WithDatacenters() {
         AclClient aclClient = client.aclClient();
 
         String policyName = randomUUIDString();
@@ -98,7 +98,7 @@ public class AclTest {
     }
 
     @Test
-    public void testCreateAndReadPolicyByName() {
+    void testCreateAndReadPolicyByName() {
         AclClient aclClient = client.aclClient();
 
         String policyName = randomUUIDString();
@@ -110,7 +110,7 @@ public class AclTest {
     }
 
     @Test
-    public void testUpdatePolicy() {
+    void testUpdatePolicy() {
         AclClient aclClient = client.aclClient();
 
         String policyName = randomUUIDString();
@@ -124,7 +124,7 @@ public class AclTest {
     }
 
     @Test
-    public void testDeletePolicy() {
+    void testDeletePolicy() {
         AclClient aclClient = client.aclClient();
 
         String policyName = randomUUIDString();
@@ -138,7 +138,7 @@ public class AclTest {
     }
 
     @Test
-    public void testCreateAndReadToken() {
+    void testCreateAndReadToken() {
         AclClient aclClient = client.aclClient();
 
         String policyName = randomUUIDString();
@@ -154,7 +154,7 @@ public class AclTest {
     }
 
     @Test
-    public void testCreateAndCloneTokenWithNewDescription() {
+    void testCreateAndCloneTokenWithNewDescription() {
         AclClient aclClient = client.aclClient();
 
         String policyName = randomUUIDString();
@@ -185,7 +185,7 @@ public class AclTest {
     }
 
     @Test
-    public void testCreateAndReadTokenWithCustomIds() {
+    void testCreateAndReadTokenWithCustomIds() {
         AclClient aclClient = client.aclClient();
 
         String policyName = randomUUIDString();
@@ -211,7 +211,7 @@ public class AclTest {
     }
 
     @Test
-    public void testReadSelfToken() {
+    void testReadSelfToken() {
         AclClient aclClient = client.aclClient();
 
         TokenResponse selfToken = aclClient.readSelfToken();
@@ -219,7 +219,7 @@ public class AclTest {
     }
 
     @Test
-    public void testUpdateToken() {
+    void testUpdateToken() {
         AclClient aclClient = client.aclClient();
 
         String policyName = randomUUIDString();
@@ -246,7 +246,7 @@ public class AclTest {
     }
 
     @Test
-    public void testListTokens() {
+    void testListTokens() {
         AclClient aclClient = client.aclClient();
 
         assertTrue(aclClient.listTokens().stream().anyMatch(p -> Objects.equals(p.description(), "Anonymous Token")));
@@ -254,7 +254,7 @@ public class AclTest {
     }
 
     @Test
-    public void testDeleteToken() {
+    void testDeleteToken() {
         AclClient aclClient = client.aclClient();
 
         String policyName = randomUUIDString();
@@ -269,7 +269,7 @@ public class AclTest {
     }
 
     @Test
-    public void testListRoles() {
+    void testListRoles() {
         AclClient aclClient = client.aclClient();
 
         String roleName1 = randomUUIDString();
@@ -282,7 +282,7 @@ public class AclTest {
     }
 
     @Test
-    public void testCreateAndReadRole() {
+    void testCreateAndReadRole() {
         AclClient aclClient = client.aclClient();
 
         String roleName = randomUUIDString();
@@ -293,7 +293,7 @@ public class AclTest {
     }
 
     @Test
-    public void testCreateAndReadRoleByName() {
+    void testCreateAndReadRoleByName() {
         AclClient aclClient = client.aclClient();
 
         String roleName = randomUUIDString();
@@ -304,7 +304,7 @@ public class AclTest {
     }
 
     @Test
-    public void testCreateAndReadRoleWithPolicy() {
+    void testCreateAndReadRoleWithPolicy() {
         AclClient aclClient = client.aclClient();
 
         String policyName = randomUUIDString();
@@ -329,7 +329,7 @@ public class AclTest {
     }
 
     @Test
-    public void testUpdateRole() {
+    void testUpdateRole() {
         AclClient aclClient = client.aclClient();
 
         String roleName = randomUUIDString();
@@ -354,7 +354,7 @@ public class AclTest {
     }
 
     @Test
-    public void testDeleteRole() {
+    void testDeleteRole() {
         AclClient aclClient = client.aclClient();
 
         String roleName = randomUUIDString();

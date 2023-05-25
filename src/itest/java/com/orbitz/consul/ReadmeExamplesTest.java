@@ -1,7 +1,7 @@
 package com.orbitz.consul;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.orbitz.consul.cache.KVCache;
 import com.orbitz.consul.cache.ServiceHealthCache;
@@ -11,8 +11,8 @@ import com.orbitz.consul.model.agent.Registration;
 import com.orbitz.consul.model.health.ServiceHealth;
 import com.orbitz.consul.model.kv.Value;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
@@ -22,17 +22,17 @@ import java.util.Optional;
  * Examples for "README.md" file.
  * Update the "README.md" file after any change.
  */
-public class ReadmeExamplesTest extends BaseIntegrationTest {
+class ReadmeExamplesTest extends BaseIntegrationTest {
 
     @Test
-    @Ignore("This must be ignored because BaseIntegrationTest starts Consul on a random port")
+    @Disabled("This must be ignored because BaseIntegrationTest starts Consul on a random port")
     @SuppressWarnings("all")
-    public void example1() {
+    void example1() {
         Consul client = Consul.builder().build(); // connect to Consul on localhost on the default port 8500
     }
 
     @Test
-    public void example2() throws NotRegisteredException {
+    void example2() throws NotRegisteredException {
         AgentClient agentClient = client.agentClient();
 
         String serviceId = "1";
@@ -54,7 +54,7 @@ public class ReadmeExamplesTest extends BaseIntegrationTest {
     }
 
     @Test
-    public void example3() {
+    void example3() {
         HealthClient healthClient = client.healthClient();
 
         // Discover only "passing" nodes
@@ -64,7 +64,7 @@ public class ReadmeExamplesTest extends BaseIntegrationTest {
     }
 
     @Test
-    public void example4() {
+    void example4() {
         KeyValueClient kvClient = client.keyValueClient();
 
         kvClient.putValue("foo", "bar");
@@ -74,7 +74,7 @@ public class ReadmeExamplesTest extends BaseIntegrationTest {
     }
 
     @Test
-    public void example5() {
+    void example5() {
         final KeyValueClient kvClient = client.keyValueClient();
 
         kvClient.putValue("foo", "bar");
@@ -99,7 +99,7 @@ public class ReadmeExamplesTest extends BaseIntegrationTest {
     }
 
     @Test
-    public void example6() {
+    void example6() {
         HealthClient healthClient = client.healthClient();
         String serviceName = "my-service";
 
@@ -113,13 +113,13 @@ public class ReadmeExamplesTest extends BaseIntegrationTest {
     }
 
     @Test
-    public void example7() {
+    void example7() {
         StatusClient statusClient = client.statusClient();
         statusClient.getPeers().forEach(System.out::println);
     }
 
     @Test
-    public void example8() {
+    void example8() {
         StatusClient statusClient = client.statusClient();
         System.out.println(statusClient.getLeader()); // 127.0.0.1:8300
     }

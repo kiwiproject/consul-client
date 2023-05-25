@@ -1,10 +1,11 @@
 package com.orbitz.consul.config;
 
 import static com.orbitz.consul.Awaiting.awaitAtMost500ms;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
@@ -13,9 +14,12 @@ import com.orbitz.consul.cache.ConsulCache;
 import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.monitoring.ClientEventHandler;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.Logger;
 
 import java.math.BigInteger;
@@ -26,16 +30,12 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
-import junitparams.naming.TestCaseName;
-
-@RunWith(JUnitParamsRunner.class)
-public class CacheConfigTest {
+class CacheConfigTest {
 
     @Test
-    public void testDefaults() {
+    void testDefaults() {
         CacheConfig config = CacheConfig.builder().build();
         assertEquals(CacheConfig.DEFAULT_BACKOFF_DELAY, config.getMinimumBackOffDelay());
         assertEquals(CacheConfig.DEFAULT_BACKOFF_DELAY, config.getMaximumBackOffDelay());
@@ -51,55 +51,49 @@ public class CacheConfigTest {
             loggedAsWarn.set(true);
             return null;
         }).when(logger).error(anyString(), any(Throwable.class));
-        config.getRefreshErrorLoggingConsumer().accept(logger, null, null);
-        assertTrue("Should have logged as warning", loggedAsWarn.get());
+        config.getRefreshErrorLoggingConsumer().accept(logger, "some string", new Throwable("oop"));
+        assertTrue(loggedAsWarn.get(), "Should have logged as warning");
     }
 
-    @Test
-    @Parameters(method = "getDurationSamples")
-    @TestCaseName("Delay: {0}")
-    public void testOverrideBackOffDelay(Duration backOffDelay) {
+    @ParameterizedTest(name = "Delay: {0}")
+    @MethodSource("getDurationSamples")
+    void testOverrideBackOffDelay(Duration backOffDelay) {
         CacheConfig config = CacheConfig.builder().withBackOffDelay(backOffDelay).build();
         assertEquals(backOffDelay, config.getMinimumBackOffDelay());
         assertEquals(backOffDelay, config.getMaximumBackOffDelay());
     }
 
-    @Test
-    @Parameters(method = "getDurationSamples")
-    @TestCaseName("Delay: {0}")
-    public void testOverrideMinDelayBetweenRequests(Duration delayBetweenRequests) {
+    @ParameterizedTest(name = "Delay: {0}")
+    @MethodSource("getDurationSamples")
+    void testOverrideMinDelayBetweenRequests(Duration delayBetweenRequests) {
         CacheConfig config = CacheConfig.builder().withMinDelayBetweenRequests(delayBetweenRequests).build();
         assertEquals(delayBetweenRequests, config.getMinimumDurationBetweenRequests());
     }
 
-    @Test
-    @Parameters(method = "getDurationSamples")
-    @TestCaseName("Delay: {0}")
-    public void testOverrideMinDelayOnEmptyResult(Duration delayBetweenRequests) {
+    @ParameterizedTest(name = "Delay: {0}")
+    @MethodSource("getDurationSamples")
+    void testOverrideMinDelayOnEmptyResult(Duration delayBetweenRequests) {
         CacheConfig config = CacheConfig.builder().withMinDelayOnEmptyResult(delayBetweenRequests).build();
         assertEquals(delayBetweenRequests, config.getMinimumDurationDelayOnEmptyResult());
     }
 
-    @Test
-    @Parameters({"true", "false"})
-    @TestCaseName("Enabled: {0}")
-    public void testOverrideTimeoutAutoAdjustmentEnabled(boolean enabled) {
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void testOverrideTimeoutAutoAdjustmentEnabled(boolean enabled) {
         CacheConfig config = CacheConfig.builder().withTimeoutAutoAdjustmentEnabled(enabled).build();
         assertEquals(enabled, config.isTimeoutAutoAdjustmentEnabled());
     }
 
-    @Test
-    @Parameters(method = "getDurationSamples")
-    @TestCaseName("Margin: {0}")
-    public void testOverrideTimeoutAutoAdjustmentMargin(Duration margin) {
+    @ParameterizedTest(name = "Margin: {0}")
+    @MethodSource("getDurationSamples")
+    void testOverrideTimeoutAutoAdjustmentMargin(Duration margin) {
         CacheConfig config = CacheConfig.builder().withTimeoutAutoAdjustmentMargin(margin).build();
         assertEquals(margin, config.getTimeoutAutoAdjustmentMargin());
     }
 
-    @Test
-    @Parameters({"true", "false"})
-    @TestCaseName("LogLevel as Warning: {0}")
-    public void testOverrideRefreshErrorLogConsumer(boolean logLevelWarning) throws InterruptedException {
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void testOverrideRefreshErrorLogConsumer(boolean logLevelWarning) throws InterruptedException {
         CacheConfig config = logLevelWarning
                 ? CacheConfig.builder().withRefreshErrorLoggedAsWarning().build()
                 : CacheConfig.builder().withRefreshErrorLoggedAsError().build();
@@ -118,13 +112,13 @@ public class CacheConfigTest {
             return null;
         }).when(logger).error(anyString(), any(Throwable.class));
 
-        config.getRefreshErrorLoggingConsumer().accept(logger, null, null);
+        config.getRefreshErrorLoggingConsumer().accept(logger, "some string", new Exception("oop"));
         assertTrue(logged.get());
         assertEquals(logLevelWarning, loggedAsWarn.get());
     }
 
     @Test
-    public void testOverrideRefreshErrorLogCustom() {
+    void testOverrideRefreshErrorLogCustom() {
         AtomicBoolean loggedAsDebug = new AtomicBoolean(false);
         Logger logger = mock(Logger.class);
         doAnswer(vars -> {
@@ -133,26 +127,25 @@ public class CacheConfigTest {
         }).when(logger).debug(anyString(), any(Throwable.class));
 
         CacheConfig config = CacheConfig.builder().withRefreshErrorLoggedAs(Logger::debug).build();
-        config.getRefreshErrorLoggingConsumer().accept(logger, null, null);
+        config.getRefreshErrorLoggingConsumer().accept(logger, "some string", new Exception("oop"));
         assertTrue(loggedAsDebug.get());
     }
 
-    public Object getDurationSamples() {
-        return new Object[]{
-                Duration.ZERO,
-                Duration.ofSeconds(2),
-                Duration.ofMinutes(10)
-        };
+    static Stream<Arguments> getDurationSamples() {
+        return Stream.of(
+            arguments(Duration.ZERO),
+            arguments(Duration.ofSeconds(2)),
+            arguments(Duration.ofMinutes(10))
+        );
     }
 
-    @Test
-    @Parameters(method = "getMinMaxDurationSamples")
-    @TestCaseName("min Delay: {0}, max Delay: {1}")
-    public void testOverrideRandomBackOffDelay(Duration minDelay, Duration maxDelay, boolean isValid) {
+    @ParameterizedTest(name = "min Delay: {0}, max Delay: {1}")
+    @MethodSource("getMinMaxDurationSamples")
+    void testOverrideRandomBackOffDelay(Duration minDelay, Duration maxDelay, boolean isValid) {
         try {
             CacheConfig config = CacheConfig.builder().withBackOffDelay(minDelay, maxDelay).build();
             if (!isValid) {
-                Assert.fail(String.format("Should not be able to build cache with min retry delay %d ms and max retry delay %d ms",
+                Assertions.fail(String.format("Should not be able to build cache with min retry delay %d ms and max retry delay %d ms",
                         minDelay.toMillis(), maxDelay.toMillis()));
             }
             assertEquals(minDelay, config.getMinimumBackOffDelay());
@@ -165,22 +158,22 @@ public class CacheConfigTest {
         }
     }
 
-    public Object getMinMaxDurationSamples() {
-        return new Object[]{
-                new Object[] { Duration.ZERO, Duration.ZERO, true },
-                new Object[] { Duration.ofSeconds(2), Duration.ofSeconds(2), true },
-                new Object[] { Duration.ZERO, Duration.ofSeconds(2), true },
-                new Object[] { Duration.ofSeconds(2), Duration.ZERO, false },
-                new Object[] { Duration.ofSeconds(1), Duration.ofSeconds(2), true },
-                new Object[] { Duration.ofSeconds(2), Duration.ofSeconds(1), false },
-                new Object[] { Duration.ofSeconds(-1), Duration.ZERO, false },
-                new Object[] { Duration.ZERO, Duration.ofSeconds(-1), false },
-                new Object[] { Duration.ofSeconds(-1), Duration.ofSeconds(-1), false },
-        };
+    static Stream<Arguments> getMinMaxDurationSamples() {
+        return Stream.of(
+            arguments(Duration.ZERO, Duration.ZERO, true),
+            arguments(Duration.ofSeconds(2), Duration.ofSeconds(2), true),
+            arguments(Duration.ZERO, Duration.ofSeconds(2), true),
+            arguments(Duration.ofSeconds(2), Duration.ZERO, false),
+            arguments(Duration.ofSeconds(1), Duration.ofSeconds(2), true),
+            arguments(Duration.ofSeconds(2), Duration.ofSeconds(1), false),
+            arguments(Duration.ofSeconds(-1), Duration.ZERO, false),
+            arguments(Duration.ZERO, Duration.ofSeconds(-1), false),
+            arguments(Duration.ofSeconds(-1), Duration.ofSeconds(-1), false)
+        );
     }
 
     @Test
-    public void testMinDelayOnEmptyResultWithNoResults() throws InterruptedException {
+    void testMinDelayOnEmptyResultWithNoResults() throws InterruptedException {
         TestCacheSupplier res = new TestCacheSupplier(0, Duration.ofMillis(100));
 
         try (TestCache cache = TestCache.createCache(CacheConfig.builder()
@@ -193,7 +186,7 @@ public class CacheConfigTest {
     }
 
     @Test
-    public void testMinDelayOnEmptyResultWithResults() throws InterruptedException {
+    void testMinDelayOnEmptyResultWithResults() throws InterruptedException {
         TestCacheSupplier res = new TestCacheSupplier(1, Duration.ofMillis(50));
 
         try (TestCache cache = TestCache.createCache(CacheConfig.builder()
@@ -242,8 +235,8 @@ public class CacheConfigTest {
         public List<Integer> get() {
             if (lastCall != null) {
                 long between = Duration.between(lastCall, LocalTime.now()).toMillis();
-                assertTrue(String.format("expected duration between calls of %d, got %s", expectedInterval.toMillis(), between),
-                        Math.abs(between - expectedInterval.toMillis()) < 20);
+                assertTrue(Math.abs(between - expectedInterval.toMillis()) < 20,
+                        String.format("expected duration between calls of %d, got %s", expectedInterval.toMillis(), between));
             }
             lastCall = LocalTime.now();
             run++;

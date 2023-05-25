@@ -6,11 +6,12 @@ import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.AnyOf.anyOf;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.model.agent.FullService;
@@ -27,8 +28,8 @@ import com.orbitz.consul.option.ImmutableQueryOptions;
 import com.orbitz.consul.option.ImmutableQueryParameterOptions;
 import com.orbitz.consul.option.QueryOptions;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -41,20 +42,20 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-public class AgentITest extends BaseIntegrationTest {
+class AgentITest extends BaseIntegrationTest {
 
     private static final List<String> NO_TAGS = List.of();
     private static final Map<String, String> NO_META = Map.of();
 
     private AgentClient agentClient;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         agentClient = client.agentClient();
     }
 
     @Test
-    public void shouldRetrieveAgentInformation() {
+    void shouldRetrieveAgentInformation() {
         var agent = agentClient.getAgent();
 
         assumeTrue(agent.getDebugConfig() != null);
@@ -70,7 +71,7 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldRegisterTtlCheck() {
+    void shouldRegisterTtlCheck() {
         var serviceName = randomUUIDString();
         var serviceId = randomUUIDString();
 
@@ -84,7 +85,7 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldRegisterHttpCheck() throws MalformedURLException {
+    void shouldRegisterHttpCheck() throws MalformedURLException {
         var serviceName = randomUUIDString();
         var serviceId = randomUUIDString();
 
@@ -99,7 +100,7 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldRegisterGrpcCheck() {
+    void shouldRegisterGrpcCheck() {
         var serviceName = randomUUIDString();
         var serviceId = randomUUIDString();
 
@@ -122,7 +123,7 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldRegisterCheckWithId() {
+    void shouldRegisterCheckWithId() {
         var serviceName = randomUUIDString();
         var serviceId = randomUUIDString();
         var checkId = randomUUIDString();
@@ -148,7 +149,7 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldRegisterCheckWithName() {
+    void shouldRegisterCheckWithName() {
         var serviceName = randomUUIDString();
         var serviceId = randomUUIDString();
         var checkName = randomUUIDString();
@@ -174,7 +175,7 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldRegisterMultipleChecks() {
+    void shouldRegisterMultipleChecks() {
         var serviceName = randomUUIDString();
         var serviceId = randomUUIDString();
 
@@ -195,7 +196,7 @@ public class AgentITest extends BaseIntegrationTest {
     // to register a single "Check"
     // and multiple "Checks" in one call
     @Test
-    public void shouldRegisterMultipleChecks2() {
+    void shouldRegisterMultipleChecks2() {
         var serviceName = randomUUIDString();
         var serviceId = randomUUIDString();
 
@@ -221,7 +222,7 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldRegisterChecksFromCleanState() {
+    void shouldRegisterChecksFromCleanState() {
         var serviceName = randomUUIDString();
         var serviceId = randomUUIDString();
 
@@ -266,7 +267,7 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldDeregister() {
+    void shouldDeregister() {
         var serviceName = randomUUIDString();
         var serviceId = randomUUIDString();
 
@@ -277,7 +278,7 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldGetChecks() {
+    void shouldGetChecks() {
         var serviceId = randomUUIDString();
         var serviceName = randomUUIDString();
         agentClient.register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
@@ -286,7 +287,7 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldGetServices() {
+    void shouldGetServices() {
         var serviceId = randomUUIDString();
         var serviceName = randomUUIDString();
         var tags = List.of(randomUUIDString());
@@ -312,7 +313,7 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldGetServicesFiltered() {
+    void shouldGetServicesFiltered() {
         var serviceId = randomUUIDString();
         var serviceName = randomUUIDString();
         var tags = List.of(randomUUIDString());
@@ -345,7 +346,7 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldGetService() throws NotRegisteredException {
+    void shouldGetService() throws NotRegisteredException {
         var serviceId = randomUUIDString();
         var serviceName = randomUUIDString();
         var tags = List.of(randomUUIDString());
@@ -373,7 +374,7 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldGetServiceWithWait() throws NotRegisteredException {
+    void shouldGetServiceWithWait() throws NotRegisteredException {
         var serviceId = randomUUIDString();
         var serviceName = randomUUIDString();
         var tags = List.of(randomUUIDString());
@@ -393,17 +394,19 @@ public class AgentITest extends BaseIntegrationTest {
         var elapsed = System.nanoTime() - start;
 
         assertEquals(service.getResponse(), other.getResponse());
-        assertTrue("Elapsed time should be equal or more than blocking time",
-                TimeUnit.NANOSECONDS.toMillis(elapsed) >= TimeUnit.SECONDS.toMillis(ttl));
-    }
-
-    @Test(expected = NotRegisteredException.class)
-    public void shouldGetServiceThrowErrorWhenServiceIsUnknown() throws NotRegisteredException {
-        agentClient.getService(randomUUIDString(), QueryOptions.BLANK);
+        assertTrue(TimeUnit.NANOSECONDS.toMillis(elapsed) >= TimeUnit.SECONDS.toMillis(ttl),
+                "Elapsed time should be equal or more than blocking time");
     }
 
     @Test
-    public void shouldSetWarning() throws NotRegisteredException {
+    void shouldGetServiceThrowErrorWhenServiceIsUnknown() throws NotRegisteredException {
+        assertThrows(NotRegisteredException.class, () -> {
+            agentClient.getService(randomUUIDString(), QueryOptions.BLANK);
+        });
+    }
+
+    @Test
+    void shouldSetWarning() throws NotRegisteredException {
         var serviceName = randomUUIDString();
         var serviceId = randomUUIDString();
         var note = randomUUIDString();
@@ -418,7 +421,7 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldSetFailing() throws NotRegisteredException {
+    void shouldSetFailing() throws NotRegisteredException {
         var serviceName = randomUUIDString();
         var serviceId = randomUUIDString();
         var note = randomUUIDString();
@@ -433,7 +436,7 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldRegisterNodeScriptCheck() {
+    void shouldRegisterNodeScriptCheck() {
         var checkId = randomUUIDString();
 
         agentClient.registerCheck(checkId, "test-validate", "/usr/bin/echo \"sup\"", 30);
@@ -451,7 +454,7 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldRegisterNodeHttpCheck() throws MalformedURLException {
+    void shouldRegisterNodeHttpCheck() throws MalformedURLException {
         var checkId = randomUUIDString();
 
         var healthCheckUrl = URI.create("http://foo.local:1337/check").toURL();
@@ -470,7 +473,7 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldRegisterNodeTtlCheck() {
+    void shouldRegisterNodeTtlCheck() {
         var checkId = randomUUIDString();
 
         agentClient.registerCheck(checkId, "test-validate", 30);
@@ -488,7 +491,7 @@ public class AgentITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldEnableMaintenanceMode() {
+    void shouldEnableMaintenanceMode() {
         var serviceName = randomUUIDString();
         var serviceId = randomUUIDString();
         var reason = randomUUIDString();

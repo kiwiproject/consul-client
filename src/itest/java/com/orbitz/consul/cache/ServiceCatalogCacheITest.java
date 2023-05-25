@@ -3,27 +3,27 @@ package com.orbitz.consul.cache;
 import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.FIVE_SECONDS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.orbitz.consul.BaseIntegrationTest;
 import com.orbitz.consul.model.catalog.CatalogService;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
-public class ServiceCatalogCacheITest extends BaseIntegrationTest {
+class ServiceCatalogCacheITest extends BaseIntegrationTest {
 
     private static final List<String> NO_TAGS = List.of();
     private static final Map<String, String> NO_META = Map.of();
 
     @Test
-    public void testWatchService() throws InterruptedException {
+    void testWatchService() throws InterruptedException {
         String name = randomUUIDString();
         String serviceId1 = createAutoDeregisterServiceId();
         String serviceId2 = createAutoDeregisterServiceId();

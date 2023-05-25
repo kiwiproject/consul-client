@@ -5,18 +5,18 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import org.junit.Test;
-
 import java.io.IOException;
 
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
-public class ConsulExceptionTest {
+import org.junit.jupiter.api.Test;
+
+class ConsulExceptionTest {
 
     @Test
-    public void shouldCreateWithMessage() {
+    void shouldCreateWithMessage() {
         var ex = new ConsulException("oop");
 
         assertThat(ex.getMessage(), is("oop"));
@@ -26,7 +26,7 @@ public class ConsulExceptionTest {
     }
 
     @Test
-    public void shouldCreateWithMessageAndThrowable() {
+    void shouldCreateWithMessageAndThrowable() {
         var cause = new IOException("I/O error");
         var ex = new ConsulException("oop", cause);
 
@@ -37,7 +37,7 @@ public class ConsulExceptionTest {
     }
 
     @Test
-    public void shouldCreateWithCodeAndResponse() {
+    void shouldCreateWithCodeAndResponse() {
         var response = Response.error(404,
                 ResponseBody.create("Not Found", MediaType.get("application/json")));
         var ex = new ConsulException(404, response);
@@ -52,7 +52,7 @@ public class ConsulExceptionTest {
     // I'm not sure this can really happen, unless someone does what this test is doing and supplies
     // a response with a success status code (2xx).
     @Test
-    public void shouldCreateWithCodeAndResponse_ThatContainsNullResponseErrorBody() {
+    void shouldCreateWithCodeAndResponse_ThatContainsNullResponseErrorBody() {
         var response = Response.success(206, "Partial Content");
         var ex = new ConsulException(206, response);
 
@@ -63,7 +63,7 @@ public class ConsulExceptionTest {
     }
 
     @Test
-    public void shouldCreateWithThrowable() {
+    void shouldCreateWithThrowable() {
         var cause = new IOException("I/O error");
         var ex = new ConsulException(cause);
 

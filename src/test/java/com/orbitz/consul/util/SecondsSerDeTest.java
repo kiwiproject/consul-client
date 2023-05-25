@@ -1,18 +1,19 @@
 package com.orbitz.consul.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Random;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-public class SecondsSerDeTest {
+class SecondsSerDeTest {
 
     static class Item {
         @JsonSerialize(using = SecondsSerializer.class)
@@ -33,7 +34,7 @@ public class SecondsSerDeTest {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
-    public void shouldSerializeSeconds() throws JsonProcessingException {
+    void shouldSerializeSeconds() throws JsonProcessingException {
         Long seconds = new Random().nextLong();
         String expected = String.format("\"%ss\"", seconds);
         String json = objectMapper.writeValueAsString(new Item(seconds));
@@ -42,7 +43,7 @@ public class SecondsSerDeTest {
     }
 
     @Test
-    public void shouldDeserializeSeconds() throws IOException {
+    void shouldDeserializeSeconds() throws IOException {
         Long seconds = new Random().nextLong();
         Item item = objectMapper.readValue(String.format("{\"seconds\": \"%ds\"}", seconds), Item.class);
 
@@ -50,7 +51,7 @@ public class SecondsSerDeTest {
     }
 
     @Test
-    public void shouldDeserializeSeconds_noS() throws IOException {
+    void shouldDeserializeSeconds_noS() throws IOException {
         Long seconds = new Random().nextLong();
         Item item = objectMapper.readValue(String.format("{\"seconds\": \"%d\"}", seconds), Item.class);
 

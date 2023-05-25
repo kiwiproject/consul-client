@@ -1,18 +1,17 @@
 package com.orbitz.consul;
 
-import static org.junit.Assert.assertFalse;
-
 import com.orbitz.consul.model.operator.RaftConfiguration;
 import com.orbitz.consul.model.operator.RaftServer;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-public class OperatorITest extends BaseIntegrationTest {
+import static org.junit.jupiter.api.Assertions.assertFalse;
+
+class OperatorITest extends BaseIntegrationTest {
 
     @Test
-    public void shouldGetRaftConfiguration() {
+    void shouldGetRaftConfiguration() {
         OperatorClient operatorClient = client.operatorClient();
         RaftConfiguration raftConfiguration = operatorClient.getRaftConfiguration();
 
@@ -21,7 +20,7 @@ public class OperatorITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldGetRaftConfigurationForDatacenter() {
+    void shouldGetRaftConfigurationForDatacenter() {
         String datacenter = getFirstDatacenter();
 
         OperatorClient operatorClient = client.operatorClient();
@@ -39,7 +38,7 @@ public class OperatorITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldGetStaleRaftConfiguration() {
+    void shouldGetStaleRaftConfiguration() {
         OperatorClient operatorClient = client.operatorClient();
         RaftConfiguration raftConfiguration = operatorClient.getStaleRaftConfiguration();
 
@@ -48,7 +47,7 @@ public class OperatorITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldGetStaleRaftConfigurationForDatacenter() {
+    void shouldGetStaleRaftConfigurationForDatacenter() {
         String datacenter = getFirstDatacenter();
 
         OperatorClient operatorClient = client.operatorClient();

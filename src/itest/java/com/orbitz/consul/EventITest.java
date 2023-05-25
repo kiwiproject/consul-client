@@ -2,28 +2,28 @@ package com.orbitz.consul;
 
 import com.orbitz.consul.model.event.Event;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.orbitz.consul.Awaiting.awaitWith25MsPoll;
 import static java.util.Objects.nonNull;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class EventITest extends BaseIntegrationTest {
+class EventITest extends BaseIntegrationTest {
 
     private EventClient eventClient;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         eventClient = client.eventClient();
     }
 
     @Test
-    public void shouldFire() throws InterruptedException {
+    void shouldFire() throws InterruptedException {
         var name = RandomStringUtils.random(10, true, true);
         var firedEvent = eventClient.fireEvent(name);
 
@@ -33,7 +33,7 @@ public class EventITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldFireWithPayload() throws InterruptedException {
+    void shouldFireWithPayload() throws InterruptedException {
         var payload = RandomStringUtils.randomAlphabetic(20);
         var name = RandomStringUtils.randomAlphabetic(10);
         var firedEvent = eventClient.fireEvent(name, payload);

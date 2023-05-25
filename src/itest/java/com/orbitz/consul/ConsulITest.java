@@ -1,13 +1,13 @@
 package com.orbitz.consul;
 
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ConsulITest extends BaseIntegrationTest {
+class ConsulITest extends BaseIntegrationTest {
 
     @Test
-    public void shouldDestroy() {
+    void shouldDestroy() {
         client.destroy();
 
         assertTrue(client.isDestroyed());
