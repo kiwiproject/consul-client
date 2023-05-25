@@ -91,7 +91,7 @@ public class ConsulResponse<T> {
     }
 
     /**
-     * @see https://www.consul.io/api/features/caching.html#background-refresh-caching
+     * @see https://developer.hashicorp.com/consul/api-docs/features/caching#background-refresh-caching
      */
     public Optional<CacheResponseInfo> getCacheReponseInfo(){
         return cacheResponseInfo;

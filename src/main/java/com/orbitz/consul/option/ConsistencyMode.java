@@ -45,7 +45,7 @@ public class ConsistencyMode {
      * @param maxStaleInSeconds Optional duration for which data can be late
      *                          compared to Consul Server leader.
      * @return a not null ConsistencyMode
-     * @see https://www.consul.io/api/features/caching.html#simple-caching
+     * @see https://developer.hashicorp.com/consul/api-docs/features/caching#simple-caching
      */
     public static final ConsistencyMode createCachedConsistencyWithMaxAgeAndStale(final Optional<Long> maxAgeInSeconds,
             final Optional<Long> maxStaleInSeconds) {

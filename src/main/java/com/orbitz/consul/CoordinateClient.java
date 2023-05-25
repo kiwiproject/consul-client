@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * HTTP Client for /v1/coordinate/ endpoints.
  *
- * @see <a href="http://www.consul.io/docs/agent/http.html#agent">The Consul API Docs</a>
+ * @see <a href="https://developer.hashicorp.com/consul/api-docs/coordinate">The Consul API Docs</a>
  */
 public class CoordinateClient extends BaseClient {
 
