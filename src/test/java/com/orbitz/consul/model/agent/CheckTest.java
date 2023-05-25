@@ -1,53 +1,63 @@
 package com.orbitz.consul.model.agent;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.google.common.collect.Lists;
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+class CheckTest {
 
-public class CheckTest {
-
-    @Test(expected = IllegalStateException.class)
-    public void buildingCheckThrowsIfMissingMethod() {
-        ImmutableCheck.builder()
-                .id("id")
-                .interval("10s")
-                .name("name")
-                .build();
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void buildingCheckWithHttpThrowsIfMissingInterval() {
-        ImmutableCheck.builder()
-                .id("id")
-                .http("http://foo.local:1337/health")
-                .name("name")
-                .build();
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void buildingCheckWithGrpcThrowsIfMissingInterval() {
-        ImmutableCheck.builder()
-                .id("id")
-                .grpc("localhost:12345")
-                .name("name")
-                .build();
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void buildingCheckWithArgsThrowsIfMissingInterval() {
-        ImmutableCheck.builder()
-                .id("id")
-                .args(List.of("/bin/echo \"hi\""))
-                .name("name")
-                .build();
+    @Test
+    void buildingCheckThrowsIfMissingMethod() {
+        assertThrows(IllegalStateException.class, () -> {
+            ImmutableCheck.builder()
+                    .id("id")
+                    .interval("10s")
+                    .name("name")
+                    .build();
+        });
     }
 
     @Test
-    public void severalArgsCanBeAddedToCheck() {
+    void buildingCheckWithHttpThrowsIfMissingInterval() {
+        assertThrows(IllegalStateException.class, () -> {
+            ImmutableCheck.builder()
+                    .id("id")
+                    .http("http://foo.local:1337/health")
+                    .name("name")
+                    .build();
+        });
+    }
+
+    @Test
+    void buildingCheckWithGrpcThrowsIfMissingInterval() {
+        assertThrows(IllegalStateException.class, () -> {
+            ImmutableCheck.builder()
+                    .id("id")
+                    .grpc("localhost:12345")
+                    .name("name")
+                    .build();
+        });
+    }
+
+    @Test
+    void buildingCheckWithArgsThrowsIfMissingInterval() {
+        assertThrows(IllegalStateException.class, () -> {
+            ImmutableCheck.builder()
+                    .id("id")
+                    .args(List.of("/bin/echo \"hi\""))
+                    .name("name")
+                    .build();
+        });
+    }
+
+    @Test
+    void severalArgsCanBeAddedToCheck() {
         Check check = ImmutableCheck.builder()
                 .id("id")
                 .args(Lists.newArrayList("/bin/echo \"hi\"", "/bin/echo \"hello\""))
@@ -55,12 +65,12 @@ public class CheckTest {
                 .name("name")
                 .build();
 
-        assertTrue("Args should be present in check", check.getArgs().isPresent());
-        assertEquals("Check should contain 2 args", 2, check.getArgs().get().size());
+        assertTrue(check.getArgs().isPresent(), "Args should be present in check");
+        assertEquals(2, check.getArgs().get().size(), "Check should contain 2 args");
     }
 
     @Test
-    public void serviceTagsAreNotNullWhenNotSpecified() {
+    void serviceTagsAreNotNullWhenNotSpecified() {
         Check check = ImmutableCheck.builder()
                 .ttl("")
                 .name("name")
@@ -71,7 +81,7 @@ public class CheckTest {
     }
 
     @Test
-    public void serviceTagsCanBeAddedToCheck() {
+    void serviceTagsCanBeAddedToCheck() {
         Check check = ImmutableCheck.builder()
                 .ttl("")
                 .name("name")

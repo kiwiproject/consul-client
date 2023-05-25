@@ -2,6 +2,7 @@ package com.orbitz.consul.cache;
 
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.FIVE_SECONDS;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.orbitz.consul.Consul;
@@ -13,52 +14,51 @@ import com.orbitz.consul.config.ClientConfig;
 import com.orbitz.consul.model.kv.ImmutableValue;
 import com.orbitz.consul.model.kv.Value;
 import com.orbitz.consul.monitoring.ClientEventCallback;
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
-import junitparams.naming.TestCaseName;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import retrofit2.Retrofit;
-import retrofit2.mock.BehaviorDelegate;
-import retrofit2.mock.MockRetrofit;
-import retrofit2.mock.NetworkBehavior;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
-@RunWith(JUnitParamsRunner.class)
-public class KVCacheTest {
+import retrofit2.Retrofit;
+import retrofit2.mock.BehaviorDelegate;
+import retrofit2.mock.MockRetrofit;
+import retrofit2.mock.NetworkBehavior;
 
-    @Test
-    @Parameters(method = "getKeyValueTestValues")
-    @TestCaseName("wanted {0}, found {1}")
-    public void checkKeyExtractor(String rootPath, String input, String expected) {
+class KVCacheTest {
+
+    @ParameterizedTest(name = "wanted {0}, found {1}")
+    @MethodSource("getKeyValueTestValues")
+    void checkKeyExtractor(String rootPath, String input, String expected) {
         //Called in the constructor of the cache, must be use in the test as it may modify rootPath value.
         final String keyPath = KVCache.prepareRootPath(rootPath);
 
         Function<Value, String> keyExtractor = KVCache.getKeyExtractorFunction(keyPath);
-        Assert.assertEquals(expected, keyExtractor.apply(createValue(input)));
+        Assertions.assertEquals(expected, keyExtractor.apply(createValue(input)));
     }
 
-    public Object getKeyValueTestValues() {
-        return new Object[]{
-                new Object[]{"", "a/b", "a/b"},
-                new Object[]{"/", "a/b", "a/b"},
-                new Object[]{"a", "a/b", "a/b"},
-                new Object[]{"a/", "a/b", "b"},
-                new Object[]{"a/b", "a/b", ""},
-                new Object[]{"a/b", "a/b/", "b/"},
-                new Object[]{"a/b", "a/b/c", "b/c"},
-                new Object[]{"a/b", "a/bc", "bc"},
-                new Object[]{"a/b/", "a/b/", ""},
-                new Object[]{"a/b/", "a/b/c", "c"},
-                new Object[]{"/a/b", "a/b", ""}
-        };
+    static Stream<Arguments> getKeyValueTestValues() {
+        return Stream.of(
+                arguments("", "a/b", "a/b"),
+                arguments("/", "a/b", "a/b"),
+                arguments("a", "a/b", "a/b"),
+                arguments("a/", "a/b", "b"),
+                arguments("a/b", "a/b", ""),
+                arguments("a/b", "a/b/", "b/"),
+                arguments("a/b", "a/b/c", "b/c"),
+                arguments("a/b", "a/bc", "bc"),
+                arguments("a/b/", "a/b/", ""),
+                arguments("a/b/", "a/b/c", "c"),
+                arguments("/a/b", "a/b", "")
+        );
     }
 
     private Value createValue(final String key) {
@@ -73,7 +73,7 @@ public class KVCacheTest {
     }
 
     @Test
-    public void testListenerWithMockRetrofit() throws InterruptedException {
+    void testListenerWithMockRetrofit() throws InterruptedException {
         final Retrofit retrofit = new Retrofit.Builder()
                 // For safety, this is a black hole IP: see RFC 6666
                 .baseUrl("http://[100:0:0:0:0:0:0:0]/")
@@ -112,7 +112,7 @@ public class KVCacheTest {
 
             await().atMost(FIVE_SECONDS).until(() -> goodListener.getCallCount() > 0);
 
-            Assert.assertEquals(1, goodListener.getCallCount());
+            Assertions.assertEquals(1, goodListener.getCallCount());
         }
 
     }

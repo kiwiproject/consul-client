@@ -2,15 +2,16 @@ package com.orbitz.consul.model.catalog;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Optional;
 
-public class TaggedAddressesTest {
+import org.junit.jupiter.api.Test;
+
+class TaggedAddressesTest {
 
     @Test
-    public void buildingTaggedAddressWithAllAttributesShouldSucceed() {
+    void buildingTaggedAddressWithAllAttributesShouldSucceed() {
         ImmutableTaggedAddresses taggedAddresses = ImmutableTaggedAddresses.builder()
                 .lan("127.0.0.1")
                 .wan("172.217.17.110")
@@ -21,7 +22,7 @@ public class TaggedAddressesTest {
     }
 
     @Test
-    public void buildingTaggedAddressWithoutLanAddressShouldSucceed() {
+    void buildingTaggedAddressWithoutLanAddressShouldSucceed() {
         ImmutableTaggedAddresses taggedAddresses = ImmutableTaggedAddresses.builder()
                 .wan("172.217.17.110")
                 .build();
@@ -30,11 +31,13 @@ public class TaggedAddressesTest {
         assertThat(taggedAddresses.getWan(), is("172.217.17.110"));
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void buildingTaggedAddressWithoutWanAddressShouldThrow() {
-        ImmutableTaggedAddresses.builder()
-                .lan("127.0.0.1")
-                .build();
+    @Test
+    void buildingTaggedAddressWithoutWanAddressShouldThrow() {
+        assertThrows(IllegalStateException.class, () -> {
+            ImmutableTaggedAddresses.builder()
+                    .lan("127.0.0.1")
+                    .build();
+        });
     }
 
 }

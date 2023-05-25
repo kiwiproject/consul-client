@@ -1,19 +1,20 @@
 package com.orbitz.consul.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.google.common.io.BaseEncoding;
 import com.orbitz.consul.model.event.Event;
 import com.orbitz.consul.model.event.ImmutableEvent;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
 
-public class Base64EncodingDeserializerTest {
+class Base64EncodingDeserializerTest {
 
     @Test
-    public void shouldDeserialize() throws IOException {
+    void shouldDeserialize() throws IOException {
         String value = RandomStringUtils.randomAlphabetic(12);
         Event event = ImmutableEvent.builder()
                 .id("1")

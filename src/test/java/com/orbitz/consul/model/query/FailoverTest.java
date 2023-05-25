@@ -5,14 +5,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.google.common.collect.Lists;
 
-import org.junit.Test;
-
 import java.util.Optional;
 
-public class FailoverTest {
+import org.junit.jupiter.api.Test;
+
+class FailoverTest {
 
     @Test
-    public void creatingFailoverWithDatacentersIsValid() {
+    void creatingFailoverWithDatacentersIsValid() {
         ImmutableFailover failover = ImmutableFailover.builder()
                 .datacenters(Lists.newArrayList("dc1", "dc2"))
                 .build();
@@ -21,7 +21,7 @@ public class FailoverTest {
     }
 
     @Test
-    public void creatingFailoverWithNearestIsValid() {
+    void creatingFailoverWithNearestIsValid() {
         ImmutableFailover failover = ImmutableFailover.builder()
                 .nearestN(2)
                 .build();
@@ -30,7 +30,7 @@ public class FailoverTest {
     }
 
     @Test
-    public void creatingFailoverWithNearestAndDatacentersIsValid() {
+    void creatingFailoverWithNearestAndDatacentersIsValid() {
         ImmutableFailover failover = ImmutableFailover.builder()
                 .datacenters(Lists.newArrayList("dc1", "dc2"))
                 .nearestN(2)

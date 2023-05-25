@@ -1,14 +1,17 @@
 package com.orbitz.consul.model.agent;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orbitz.consul.util.Jackson;
-import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
 
-public class DebugConfigTest {
+class DebugConfigTest {
+
+    // TODO Write this to a resource file instead of hard coding it here! Or maybe get it dynamically?
     private final String JSON = "{\n" +
             "    \"ACLMasterToken\": \"hidden\",\n" +
             "    \"GRPCAddrs\": [\n" +
@@ -236,10 +239,11 @@ public class DebugConfigTest {
             "    \"Datacenter\": \"dc1\",\n" +
             "    \"RPCHoldTimeout\": \"7s\"\n" +
             "}";
+
     @Test
-    public void testDeserialization() throws IOException {
+    void testDeserialization() throws IOException {
        ObjectMapper mapper = Jackson.MAPPER;
        final DebugConfig dbgConfig = mapper.readerFor(DebugConfig.class).readValue(JSON);
-       assertEquals("DebugConfig contains 167 items", 167, dbgConfig.size());
+       assertEquals(167, dbgConfig.size(), "DebugConfig contains 167 items");
     }
 }

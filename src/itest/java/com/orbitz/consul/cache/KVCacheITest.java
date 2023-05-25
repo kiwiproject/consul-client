@@ -5,10 +5,11 @@ import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -20,9 +21,11 @@ import com.orbitz.consul.config.CacheConfig;
 import com.orbitz.consul.config.ClientConfig;
 import com.orbitz.consul.model.kv.Value;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -33,19 +36,15 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Stream;
 
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
-import junitparams.naming.TestCaseName;
-
-@RunWith(JUnitParamsRunner.class)
-public class KVCacheITest extends BaseIntegrationTest {
+class KVCacheITest extends BaseIntegrationTest {
 
     private Consul consulClient;
     private KeyValueClient kvClient;
 
-    @Before
-    public void before() {
+    @BeforeEach
+    void setUp() {
         consulClient = Consul.builder()
                 .withHostAndPort(defaultClientHostAndPort)
                 .withClientConfiguration(new ClientConfig(CacheConfig.builder().withWatchDuration(Duration.ofSeconds(1)).build()))
@@ -58,7 +57,7 @@ public class KVCacheITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void nodeCacheKvTest() throws Exception {
+    void nodeCacheKvTest() throws Exception {
         var root = randomUUIDString();
 
         for (int i = 0; i < 5; i++) {
@@ -99,7 +98,7 @@ public class KVCacheITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void testListeners() throws Exception {
+    void testListeners() throws Exception {
         var root = randomUUIDString();
         final List<Map<String, Value>> events = new ArrayList<>();
 
@@ -138,7 +137,7 @@ public class KVCacheITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void testLateListenersGetValues() throws Exception {
+    void testLateListenersGetValues() throws Exception {
         var root = randomUUIDString();
 
         try (var cache = KVCache.newCache(kvClient, root, 10)) {
@@ -171,7 +170,7 @@ public class KVCacheITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void testListenersNonExistingKeys() throws Exception {
+    void testListenersNonExistingKeys() throws Exception {
         var root = randomUUIDString();
 
         try (var cache = KVCache.newCache(kvClient, root, 10)) {
@@ -192,7 +191,7 @@ public class KVCacheITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void testLifeCycleDoubleStart() throws Exception {
+    void testLifeCycleDoubleStart() throws Exception {
         var root = randomUUIDString();
 
         try (var cache = KVCache.newCache(kvClient, root, 10)) {
@@ -210,7 +209,7 @@ public class KVCacheITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void testLifeCycle() throws Exception {
+    void testLifeCycle() throws Exception {
         var root = randomUUIDString();
         final List<Map<String, Value>> events = new ArrayList<>();
 
@@ -255,7 +254,7 @@ public class KVCacheITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void ensureCacheInitialization() throws InterruptedException {
+    void ensureCacheInitialization() throws InterruptedException {
         var key = randomUUIDString();
         var value = randomUUIDString();
         kvClient.putValue(key, value);
@@ -280,10 +279,9 @@ public class KVCacheITest extends BaseIntegrationTest {
         assertTrue(success.get());
     }
 
-    @Test
-    @Parameters(method = "getBlockingQueriesDuration")
-    @TestCaseName("queries of {0} seconds")
-    public void checkUpdateNotifications(int queryDurationSec) throws InterruptedException {
+    @ParameterizedTest(name = "queries of {0} seconds")
+    @MethodSource("getBlockingQueriesDuration")
+    void checkUpdateNotifications(int queryDurationSec) throws InterruptedException {
         var scheduledExecutor = Executors.newSingleThreadScheduledExecutor(
                 new ThreadFactoryBuilder().setDaemon(true).setNameFormat("kvcache-itest-%d").build()
         );
@@ -315,11 +313,11 @@ public class KVCacheITest extends BaseIntegrationTest {
         assertTrue(success.get());
     }
 
-    public Object getBlockingQueriesDuration() {
-        return new Object[] {
-                new Object[] { 1 },
-                new Object[] { 10 }
-        };
+    static Stream<Arguments> getBlockingQueriesDuration() {
+        return Stream.of(
+            arguments(new Object[] { 1 }),
+            arguments(new Object[] { 10 })
+        );
     }
 
     private boolean isValueEqualsTo(Map<String, Value> values, String expectedValue) {

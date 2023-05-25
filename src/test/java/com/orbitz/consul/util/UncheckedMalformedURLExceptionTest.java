@@ -2,21 +2,21 @@ package com.orbitz.consul.util;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.net.MalformedURLException;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * @implNote Copied from  <a href="https://github.com/kiwiproject/kiwi">kiwi</a> and modified
  * because as of now, this library uses JUnit 4 and Hamcrest matchers.
  */
-public class UncheckedMalformedURLExceptionTest {
+class UncheckedMalformedURLExceptionTest {
 
     @Test
-    public void testConstructWithMessage() {
+    void testConstructWithMessage() {
         var cause = newMalformedURLException();
         var exception = new UncheckedMalformedURLException("nope", cause);
 
@@ -25,7 +25,7 @@ public class UncheckedMalformedURLExceptionTest {
     }
 
     @Test
-    public void testConstructWithoutMessage() {
+    void testConstructWithoutMessage() {
         var cause = newMalformedURLException();
         var exception = new UncheckedMalformedURLException(cause);
 

@@ -4,8 +4,8 @@ import static com.orbitz.consul.Awaiting.awaitAtMost1s;
 import static com.orbitz.consul.Awaiting.awaitAtMost500ms;
 import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static java.util.Objects.isNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.google.common.collect.ImmutableMap;
 import com.orbitz.consul.AgentClient;
@@ -13,8 +13,8 @@ import com.orbitz.consul.BaseIntegrationTest;
 import com.orbitz.consul.model.State;
 import com.orbitz.consul.model.health.ServiceHealth;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,20 +23,20 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ServiceHealthCacheITest extends BaseIntegrationTest {
+class ServiceHealthCacheITest extends BaseIntegrationTest {
 
     private static final List<String> NO_TAGS = List.of();
     private static final Map<String, String> NO_META = Map.of();
 
     private AgentClient agentClient;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         agentClient = client.agentClient();
     }
 
     @Test
-    public void nodeCacheServicePassingTest() throws Exception {
+    void nodeCacheServicePassingTest() throws Exception {
         var healthClient = client.healthClient();
         var serviceName = randomUUIDString();
         var serviceId = randomUUIDString();
@@ -72,7 +72,7 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void testServicesAreUniqueByID() throws Exception {
+    void testServicesAreUniqueByID() throws Exception {
         var healthClient = client.healthClient();
         var serviceName = randomUUIDString();
         var serviceId = randomUUIDString();
@@ -112,7 +112,7 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldNotifyListener() throws Exception {
+    void shouldNotifyListener() throws Exception {
         var serviceName = randomUUIDString();
         var serviceId = randomUUIDString();
 
@@ -147,7 +147,7 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldNotifyLateListenersIfNoService() throws Exception {
+    void shouldNotifyLateListenersIfNoService() throws Exception {
         var serviceName = randomUUIDString();
 
         try (ServiceHealthCache cache = ServiceHealthCache.newCache(client.healthClient(), serviceName)) {
@@ -164,7 +164,7 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldNotifyLateListenersRaceCondition() throws Exception {
+    void shouldNotifyLateListenersRaceCondition() throws Exception {
         var serviceName = randomUUIDString();
 
         try (var cache = ServiceHealthCache.newCache(client.healthClient(), serviceName)) {

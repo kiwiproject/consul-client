@@ -1,14 +1,14 @@
 package com.orbitz.consul.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class UrlsTest {
+class UrlsTest {
 
     @Test
-    public void shouldCreateNewUrl_FromString() {
+    void shouldCreateNewUrl_FromString() {
         var urlString = "https://github.com/kiwiproject/consul-client";
         var url = Urls.newUrl(urlString);
 
@@ -16,19 +16,19 @@ public class UrlsTest {
     }
 
     @Test
-    public void shouldCreateNewUrl_FromString_AndThrow_WhenMalformed() {
+    void shouldCreateNewUrl_FromString_AndThrow_WhenMalformed() {
         assertThrows(UncheckedMalformedURLException.class, () -> Urls.newUrl("oops"));
     }
 
     @Test
-    public void shouldCreateNewUrl_FromComponents() {
+    void shouldCreateNewUrl_FromComponents() {
         var url = Urls.newUrl("https", "github.com", 443);
 
         assertEquals("https://github.com:443", url.toString());
     }
 
     @Test
-    public void shouldCreateNewUrl_FromComponents_AndThrow_WhenMalformed() {
+    void shouldCreateNewUrl_FromComponents_AndThrow_WhenMalformed() {
         assertThrows(UncheckedMalformedURLException.class,
                 () -> Urls.newUrl("bad_protocol", "github.com", 8080));
     }

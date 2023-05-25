@@ -1,15 +1,15 @@
 package com.orbitz.consul.model.health;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
 
-public class HealthCheckTest {
+class HealthCheckTest {
 
     @Test
-    public void serviceTagsAreNotNullWhenNotSpecified() {
+    void serviceTagsAreNotNullWhenNotSpecified() {
         HealthCheck check = ImmutableHealthCheck.builder()
                 .name("name")
                 .node("node")
@@ -21,7 +21,7 @@ public class HealthCheckTest {
     }
 
     @Test
-    public void serviceTagsCanBeAddedToHealthCheck() {
+    void serviceTagsCanBeAddedToHealthCheck() {
         HealthCheck check = ImmutableHealthCheck.builder()
                 .name("name")
                 .node("node")

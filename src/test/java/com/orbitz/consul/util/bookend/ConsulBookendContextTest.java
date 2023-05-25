@@ -1,21 +1,21 @@
 package com.orbitz.consul.util.bookend;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class ConsulBookendContextTest {
+class ConsulBookendContextTest {
 
     private ConsulBookendContext context;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         context = new ConsulBookendContext();
     }
 
     @Test
-    public void shouldPutAndGetTypedData() {
+    void shouldPutAndGetTypedData() {
         context.put("elapsedMillis", 42L);
         context.put("name", "TheContext");
 

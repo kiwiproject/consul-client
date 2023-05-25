@@ -1,11 +1,11 @@
 package com.orbitz.consul;
 
 import static com.orbitz.consul.TestUtils.randomUUIDString;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.orbitz.consul.async.ConsulResponseCallback;
 import com.orbitz.consul.model.ConsulResponse;
@@ -24,7 +24,7 @@ import com.orbitz.consul.option.QueryOptions;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
@@ -39,11 +39,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class KeyValueITest extends BaseIntegrationTest {
+class KeyValueITest extends BaseIntegrationTest {
+
     private static final Charset TEST_CHARSET = Charset.forName("IBM297");
 
     @Test
-    public void shouldPutAndReceiveString() throws UnknownHostException {
+    void shouldPutAndReceiveString() throws UnknownHostException {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
         String value = randomUUIDString();
@@ -53,7 +54,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldPutAndReceiveStringWithAnotherCharset() throws UnknownHostException {
+    void shouldPutAndReceiveStringWithAnotherCharset() throws UnknownHostException {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
         String value = randomUUIDString();
@@ -63,7 +64,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldPutAndReceiveValue() throws UnknownHostException {
+    void shouldPutAndReceiveValue() throws UnknownHostException {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
         String value = randomUUIDString();
@@ -75,7 +76,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldPutAndReceiveValueWithAnotherCharset() throws UnknownHostException {
+    void shouldPutAndReceiveValueWithAnotherCharset() throws UnknownHostException {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
         String value = randomUUIDString();
@@ -87,7 +88,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldPutAndReceiveWithFlags() throws UnknownHostException {
+    void shouldPutAndReceiveWithFlags() throws UnknownHostException {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
         String value = randomUUIDString();
@@ -100,7 +101,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldPutAndReceiveWithFlagsAndCharset() throws UnknownHostException {
+    void shouldPutAndReceiveWithFlagsAndCharset() throws UnknownHostException {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
         String value = randomUUIDString();
@@ -113,7 +114,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void putNullValue() {
+    void putNullValue() {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
 
@@ -124,7 +125,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void putNullValueWithAnotherCharset() {
+    void putNullValueWithAnotherCharset() {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
 
@@ -135,7 +136,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldPutAndReceiveBytes() {
+    void shouldPutAndReceiveBytes() {
         KeyValueClient keyValueClient = client.keyValueClient();
         byte[] value = new byte[256];
         ThreadLocalRandom.current().nextBytes(value);
@@ -154,7 +155,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldPutAndReceiveStrings() throws UnknownHostException {
+    void shouldPutAndReceiveStrings() throws UnknownHostException {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
         String key2 = key + "/" + randomUUIDString();
@@ -167,7 +168,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldPutAndReceiveStringsWithAnotherCharset() throws UnknownHostException {
+    void shouldPutAndReceiveStringsWithAnotherCharset() throws UnknownHostException {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
         String key2 = key + "/" + randomUUIDString();
@@ -180,7 +181,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldDelete() throws Exception {
+    void shouldDelete() throws Exception {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
         final String value = randomUUIDString();
@@ -194,7 +195,7 @@ public class KeyValueITest extends BaseIntegrationTest {
 
 
     @Test
-    public void shouldDeleteRecursively() throws Exception {
+    void shouldDeleteRecursively() throws Exception {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
         String childKEY = key + "/" + randomUUIDString();
@@ -213,7 +214,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldDeleteCas() throws Exception {
+    void shouldDeleteCas() throws Exception {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
         final String value = randomUUIDString();
@@ -257,7 +258,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void acquireAndReleaseLock() throws Exception {
+    void acquireAndReleaseLock() throws Exception {
         KeyValueClient keyValueClient = client.keyValueClient();
         SessionClient sessionClient = client.sessionClient();
         String key = randomUUIDString();
@@ -269,9 +270,9 @@ public class KeyValueITest extends BaseIntegrationTest {
             assertTrue(keyValueClient.acquireLock(key, value, sessionId));
             assertTrue(keyValueClient.acquireLock(key, value, sessionId)); // No ideas why there was an assertFalse
 
-            assertTrue("SessionId must be present.", keyValueClient.getValue(key).get().getSession().isPresent());
+            assertTrue(keyValueClient.getValue(key).get().getSession().isPresent(), "SessionId must be present.");
             assertTrue(keyValueClient.releaseLock(key, sessionId));
-            assertFalse("SessionId in the key value should be absent.", keyValueClient.getValue(key).get().getSession().isPresent());
+            assertFalse(keyValueClient.getValue(key).get().getSession().isPresent(), "SessionId in the key value should be absent.");
             keyValueClient.deleteKey(key);
         } finally {
             sessionClient.destroySession(sessionId);
@@ -279,7 +280,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void testGetSession() throws Exception {
+    void testGetSession() throws Exception {
         KeyValueClient keyValueClient = client.keyValueClient();
         SessionClient sessionClient = client.sessionClient();
 
@@ -303,7 +304,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void testGetKeys() throws Exception {
+    void testGetKeys() throws Exception {
         KeyValueClient kvClient = client.keyValueClient();
         String testString = "Hello World!";
         String key = "my_key";
@@ -315,7 +316,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void testAcquireLock() throws Exception {
+    void testAcquireLock() throws Exception {
         KeyValueClient keyValueClient = client.keyValueClient();
         SessionClient sessionClient = client.sessionClient();
 
@@ -353,7 +354,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void testGetValuesAsync() throws InterruptedException {
+    void testGetValuesAsync() throws InterruptedException {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
         String value = randomUUIDString();
@@ -381,7 +382,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void testGetConsulResponseWithValue() {
+    void testGetConsulResponseWithValue() {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
         String value = randomUUIDString();
@@ -397,7 +398,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void testGetConsulResponseWithValues() {
+    void testGetConsulResponseWithValues() {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
         String value = randomUUIDString();
@@ -412,7 +413,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void testGetValueNotFoundAsync() throws InterruptedException {
+    void testGetValueNotFoundAsync() throws InterruptedException {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
 
@@ -456,11 +457,11 @@ public class KeyValueITest extends BaseIntegrationTest {
 
         completed.await(3, TimeUnit.SECONDS);
         keyValueClient.deleteKey(key);
-        assertEquals("Should be all success", success.get(), numTests);
+        assertEquals(success.get(), numTests, "Should be all success");
     }
 
     @Test
-    public void testBasicTxn() throws Exception {
+    void testBasicTxn() throws Exception {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
         String value = Base64.encodeBase64String(RandomStringUtils.random(20).getBytes());
@@ -475,7 +476,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void testBasicTxn_Deprecated_Using_DEFAULT_ConsistencyMode() throws Exception {
+    void testBasicTxn_Deprecated_Using_DEFAULT_ConsistencyMode() throws Exception {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
         String value = Base64.encodeBase64String(RandomStringUtils.random(20).getBytes());
@@ -490,7 +491,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void testBasicTxn_Deprecated_Using_CONSISTENT_ConsistencyMode() throws Exception {
+    void testBasicTxn_Deprecated_Using_CONSISTENT_ConsistencyMode() throws Exception {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
         String value = Base64.encodeBase64String(RandomStringUtils.random(20).getBytes());
@@ -505,7 +506,7 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void testGetKeysWithSeparator() {
+    void testGetKeysWithSeparator() {
         KeyValueClient kvClient = client.keyValueClient();
         kvClient.putValue("nested/first", "first");
         kvClient.putValue("nested/second", "second");
@@ -516,13 +517,13 @@ public class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void testUnknownKeyGetValues() {
+    void testUnknownKeyGetValues() {
         List<String> shouldBeEmpty = client.keyValueClient().getValuesAsString("unknownKey");
         assertTrue(shouldBeEmpty.isEmpty());
     }
 
     @Test
-    public void testUnknownKeyGetKeys() {
+    void testUnknownKeyGetKeys() {
         List<String> shouldBeEmpty = client.keyValueClient().getKeys("unknownKey");
         assertTrue(shouldBeEmpty.isEmpty());
     }

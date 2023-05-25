@@ -5,7 +5,7 @@ import static java.util.stream.Collectors.toList;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.orbitz.consul.model.query.Failover;
 import com.orbitz.consul.model.query.ImmutableFailover;
@@ -14,33 +14,33 @@ import com.orbitz.consul.model.query.ImmutableServiceQuery;
 import com.orbitz.consul.model.query.PreparedQuery;
 import com.orbitz.consul.model.query.StoredQuery;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class PreparedQueryITest extends BaseIntegrationTest {
+class PreparedQueryITest extends BaseIntegrationTest {
 
     private PreparedQueryClient preparedQueryClient;
     private List<String> queryIdsToDelete;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         preparedQueryClient = client.preparedQueryClient();
         queryIdsToDelete = new ArrayList<>();
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         queryIdsToDelete.forEach(id -> preparedQueryClient.deletePreparedQuery(id));
     }
 
     @Test
-    public void shouldCreateAndFindPreparedQuery() {
+    void shouldCreateAndFindPreparedQuery() {
         var serviceName = randomUUIDString();
         var query = randomUUIDString();
         client.agentClient().register(8080, 10000L, serviceName, serviceName + "1", List.of(), Map.of());
@@ -68,7 +68,7 @@ public class PreparedQueryITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldCreatePreparedQueryWithFailoverProperties() {
+    void shouldCreatePreparedQueryWithFailoverProperties() {
         var serviceName = randomUUIDString();
         var query = randomUUIDString();
         client.agentClient().register(8080, 10000L, serviceName, serviceName + "1", List.of(), Map.of());
@@ -104,7 +104,7 @@ public class PreparedQueryITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldListPreparedQueries() {
+    void shouldListPreparedQueries() {
         var serviceName1 = randomUUIDString();
         var query1 = randomUUIDString();
         client.agentClient().register(8080, 10000L, serviceName1, serviceName1 + "_id", List.of(), Map.of());

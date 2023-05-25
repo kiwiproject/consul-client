@@ -2,8 +2,8 @@ package com.orbitz.consul;
 
 import static com.orbitz.consul.Consul.builder;
 import static com.orbitz.consul.TestUtils.randomUUIDString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.model.ConsulResponse;
@@ -14,21 +14,20 @@ import com.orbitz.consul.model.health.HealthCheck;
 import com.orbitz.consul.model.health.ServiceHealth;
 import com.orbitz.consul.option.ImmutableQueryOptions;
 import com.orbitz.consul.option.QueryOptions;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 
-public class HealthITest extends BaseIntegrationTest {
+class HealthITest extends BaseIntegrationTest {
 
     private static final List<String> NO_TAGS = List.of();
     private static final Map<String, String> NO_META = Map.of();
 
     @Test
-    public void shouldFetchPassingNode() throws NotRegisteredException {
+    void shouldFetchPassingNode() throws NotRegisteredException {
         String serviceName = randomUUIDString();
         String serviceId = randomUUIDString();
 
@@ -49,7 +48,7 @@ public class HealthITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldFetchNode() throws UnknownHostException, NotRegisteredException {
+    void shouldFetchNode() throws UnknownHostException, NotRegisteredException {
         String serviceName = randomUUIDString();
         String serviceId = randomUUIDString();
 
@@ -63,7 +62,7 @@ public class HealthITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldFetchNodeDatacenter() throws UnknownHostException, NotRegisteredException {
+    void shouldFetchNodeDatacenter() throws UnknownHostException, NotRegisteredException {
         String serviceName = randomUUIDString();
         String serviceId = randomUUIDString();
 
@@ -77,7 +76,7 @@ public class HealthITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldFetchNodeBlock() throws UnknownHostException, NotRegisteredException {
+    void shouldFetchNodeBlock() throws UnknownHostException, NotRegisteredException {
         String serviceName = randomUUIDString();
         String serviceId = randomUUIDString();
 
@@ -91,7 +90,7 @@ public class HealthITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldFetchChecksForServiceBlock() throws UnknownHostException, NotRegisteredException {
+    void shouldFetchChecksForServiceBlock() throws UnknownHostException, NotRegisteredException {
         String serviceName = randomUUIDString();
         String serviceId = randomUUIDString();
 
@@ -123,7 +122,7 @@ public class HealthITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldFetchByState() throws UnknownHostException, NotRegisteredException {
+    void shouldFetchByState() throws UnknownHostException, NotRegisteredException {
         String serviceName = randomUUIDString();
         String serviceId = randomUUIDString();
 

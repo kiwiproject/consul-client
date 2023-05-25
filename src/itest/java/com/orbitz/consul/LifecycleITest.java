@@ -1,27 +1,25 @@
 package com.orbitz.consul;
 
-import okhttp3.internal.Util;
-import okhttp3.ConnectionPool;
-import org.junit.Test;
-import org.mockito.stubbing.Answer;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import java.util.ArrayList;
+import org.junit.jupiter.api.Test;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import okhttp3.ConnectionPool;
+import okhttp3.internal.Util;
 
-public class LifecycleITest extends BaseIntegrationTest {
+class LifecycleITest extends BaseIntegrationTest {
 
     @Test
-    public void shouldBeDestroyable() {
+    void shouldBeDestroyable() {
         Consul client = Consul.builder().withHostAndPort(defaultClientHostAndPort).build();
         assertFalse(client.isDestroyed());
 
@@ -31,23 +29,24 @@ public class LifecycleITest extends BaseIntegrationTest {
     }
 
     @Test
-    public void shouldDestroyTheExecutorServiceWhenDestroyMethodIsInvoked() throws InterruptedException {
-        ConnectionPool connectionPool = new ConnectionPool();
-        ExecutorService executorService = mock(ExecutorService.class, (Answer<?>) invocationOnMock -> {
-            throw new UnsupportedOperationException("Mock Method should not be called");
-        });
+    void shouldDestroyTheExecutorServiceWhenDestroyMethodIsInvoked() throws InterruptedException {
+        var connectionPool = new ConnectionPool();
+        var executorService = mock(ExecutorService.class);
 
-        doReturn(new ArrayList<>()).when(executorService).shutdownNow();
+        Consul client = Consul.builder()
+                .withHostAndPort(defaultClientHostAndPort)
+                .withExecutorService(executorService)
+                .withConnectionPool(connectionPool)
+                .build();
 
-        Consul client = Consul.builder().withHostAndPort(defaultClientHostAndPort)
-            .withExecutorService(executorService).withConnectionPool(connectionPool).build();
         client.destroy();
 
-        verify(executorService, times(1)).shutdownNow();
+        verify(executorService).shutdownNow();
+        verifyNoMoreInteractions(executorService);
     }
 
     @Test
-    public void shouldBeDestroyableWithCustomExecutorService() throws InterruptedException {
+    void shouldBeDestroyableWithCustomExecutorService() throws InterruptedException {
         ConnectionPool connectionPool = new ConnectionPool();
         ExecutorService executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60, TimeUnit.SECONDS,
                 new SynchronousQueue<>(), Util.threadFactory("OkHttp Dispatcher", false));

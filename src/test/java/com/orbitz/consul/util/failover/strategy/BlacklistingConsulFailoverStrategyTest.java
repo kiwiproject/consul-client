@@ -1,22 +1,23 @@
 package com.orbitz.consul.util.failover.strategy;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.google.common.net.HostAndPort;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
+class BlacklistingConsulFailoverStrategyTest {
 
-public class BlacklistingConsulFailoverStrategyTest {
     private BlacklistingConsulFailoverStrategy blacklistingConsulFailoverStrategy;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         // Create a set of targets
         final Collection<HostAndPort> targets = new ArrayList<>();
         targets.add(HostAndPort.fromParts("1.2.3.4", 8501));
@@ -26,7 +27,7 @@ public class BlacklistingConsulFailoverStrategyTest {
     }
 
     @Test
-    public void getFirstUrlBack() {
+    void getFirstUrlBack() {
         Request previousRequest = new Request.Builder().url("https://1.2.3.4:8501/v1/agent/members").build();
         Response previousResponse = null;
 
@@ -37,7 +38,7 @@ public class BlacklistingConsulFailoverStrategyTest {
     }
 
     @Test
-    public void getSecondUrlBackAfterFirstOneIsBlacklisted() {
+    void getSecondUrlBackAfterFirstOneIsBlacklisted() {
         Request previousRequest = new Request.Builder().url("https://1.2.3.4:8501/v1/agent/members").build();
         Response previousResponse = null;
 
@@ -54,7 +55,7 @@ public class BlacklistingConsulFailoverStrategyTest {
     }
 
     @Test
-    public void getNoUrlBackAfterBothAreBlacklisted() {
+    void getNoUrlBackAfterBothAreBlacklisted() {
         Request previousRequest = new Request.Builder().url("https://1.2.3.4:8501/v1/agent/members").build();
         Response previousResponse = null;
 

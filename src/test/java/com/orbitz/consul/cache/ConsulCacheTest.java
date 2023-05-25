@@ -1,13 +1,12 @@
 package com.orbitz.consul.cache;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.FIVE_SECONDS;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.ImmutableMap;
@@ -20,10 +19,11 @@ import com.orbitz.consul.option.ConsistencyMode;
 import com.orbitz.consul.option.ImmutableQueryOptions;
 import com.orbitz.consul.option.QueryOptions;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.internal.matchers.GreaterOrEqual;
-import org.mockito.internal.matchers.LessOrEqual;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.math.BigInteger;
 import java.time.Duration;
@@ -31,13 +31,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
-import junitparams.naming.TestCaseName;
-
-@RunWith(JUnitParamsRunner.class)
-public class ConsulCacheTest {
+class ConsulCacheTest {
 
     /**
      * Test that if Consul for some reason returns a duplicate service or keyvalue entry
@@ -45,7 +41,7 @@ public class ConsulCacheTest {
      * user of the condition
      */
     @Test
-    public void testDuplicateServicesDontCauseFailure() {
+    void testDuplicateServicesDontCauseFailure() {
         final Function<Value, String> keyExtractor = input -> "SAME_KEY";
         final List<Value> response = Arrays.asList(mock(Value.class), mock(Value.class));
         CacheConfig cacheConfig = mock(CacheConfig.class);
@@ -63,7 +59,7 @@ public class ConsulCacheTest {
     }
 
     @Test
-    public void testWatchParamsWithNoAdditionalOptions() {
+    void testWatchParamsWithNoAdditionalOptions() {
         BigInteger index = new BigInteger("12");
         QueryOptions expectedOptions = ImmutableQueryOptions.builder()
                 .index(index)
@@ -74,7 +70,7 @@ public class ConsulCacheTest {
     }
 
     @Test
-    public void testWatchParamsWithAdditionalOptions() {
+    void testWatchParamsWithAdditionalOptions() {
         BigInteger index = new BigInteger("12");
         QueryOptions additionalOptions = ImmutableQueryOptions.builder()
                 .consistencyMode(ConsistencyMode.STALE)
@@ -96,43 +92,43 @@ public class ConsulCacheTest {
         assertEquals(expectedOptions, actualOptions);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testWatchParamsWithAdditionalIndexAndWaitingThrows() {
+    @Test
+    void testWatchParamsWithAdditionalIndexAndWaitingThrows() {
         BigInteger index = new BigInteger("12");
         QueryOptions additionalOptions = ImmutableQueryOptions.builder()
                 .index(index)
                 .wait("10s")
                 .build();
-        ConsulCache.watchParams(index, 10, additionalOptions);
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> ConsulCache.watchParams(index, 10, additionalOptions));
     }
 
-    @Test
-    @Parameters(method = "getRetryDurationSamples")
-    @TestCaseName("min Delay: {0}, max Delay: {1}")
-    public void testRetryDuration(Duration minDelay, Duration maxDelay) {
+    @ParameterizedTest(name = "min Delay: {0}, max Delay: {1}")
+    @MethodSource("getRetryDurationSamples")
+    void testRetryDuration(Duration minDelay, Duration maxDelay) {
         CacheConfig cacheConfig = CacheConfig.builder().withBackOffDelay(minDelay, maxDelay).build();
         for (int i=0; i < 1000; i++) {
             long retryDurationMs = ConsulCache.computeBackOffDelayMs(cacheConfig);
-            assertThat(
-                    String.format("Retry duration expected between %s and %s but got %d ms", minDelay, maxDelay, retryDurationMs),
-                    retryDurationMs,
-                    is(allOf(new GreaterOrEqual<>(minDelay.toMillis()), new LessOrEqual<>(maxDelay.toMillis()))));
+            Assertions.assertThat(retryDurationMs)
+                    .describedAs("Retry duration expected between %s and %s but got %d ms", minDelay, maxDelay, retryDurationMs)
+                    .isBetween(minDelay.toMillis(), maxDelay.toMillis());
         }
     }
 
-    public Object getRetryDurationSamples() {
-        return new Object[]{
-                // Same duration
-                new Object[]{Duration.ZERO, Duration.ZERO},
-                new Object[]{Duration.ofSeconds(10), Duration.ofSeconds(10)},
-                // Different durations
-                new Object[]{Duration.ofSeconds(10), Duration.ofSeconds(11)},
-                new Object[]{Duration.ofMillis(10), Duration.ofMinutes(1)},
-        };
+    static Stream<Arguments> getRetryDurationSamples() {
+        return Stream.of(
+            // Same duration
+            arguments(Duration.ZERO, Duration.ZERO),
+            arguments(Duration.ofSeconds(10), Duration.ofSeconds(10)),
+            // Different durations
+            arguments(Duration.ofSeconds(10), Duration.ofSeconds(11)),
+            arguments(Duration.ofMillis(10), Duration.ofMinutes(1))
+        );
     }
 
     @Test
-    public void testListenerIsCalled() {
+    void testListenerIsCalled() {
         final Function<Value, String> keyExtractor = Value::getKey;
 
         final CacheConfig cacheConfig = CacheConfig.builder().build();
@@ -168,7 +164,7 @@ public class ConsulCacheTest {
     }
 
     @Test
-    public void testListenerThrowingExceptionIsIsolated() throws InterruptedException {
+    void testListenerThrowingExceptionIsIsolated() throws InterruptedException {
         final Function<Value, String> keyExtractor = Value::getKey;
         final CacheConfig cacheConfig = CacheConfig.builder()
                 .withMinDelayBetweenRequests(Duration.ofSeconds(10))
@@ -210,7 +206,7 @@ public class ConsulCacheTest {
     }
 
     @Test
-    public void testExceptionReceivedFromListenerWhenAlreadyStarted() {
+    void testExceptionReceivedFromListenerWhenAlreadyStarted() {
         final Function<Value, String> keyExtractor = Value::getKey;
         final CacheConfig cacheConfig = CacheConfig.builder()
                 .withMinDelayBetweenRequests(Duration.ofSeconds(10))

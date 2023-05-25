@@ -6,8 +6,8 @@ import com.google.common.net.HostAndPort;
 import com.orbitz.consul.config.CacheConfig;
 import com.orbitz.consul.config.ClientConfig;
 
-import org.junit.After;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
@@ -52,8 +52,8 @@ public abstract class BaseIntegrationTest {
 
     protected static HostAndPort defaultClientHostAndPort;
 
-    @BeforeClass
-    public static void beforeClass() {
+    @BeforeAll
+    static void beforeClass() {
         defaultClientHostAndPort = HostAndPort.fromParts("localhost", consulContainer.getFirstMappedPort());
         client = Consul.builder()
                 .withHostAndPort(defaultClientHostAndPort)
@@ -63,8 +63,8 @@ public abstract class BaseIntegrationTest {
                 .build();
     }
 
-    @After
-    public void after() {
+    @AfterEach
+    void after() {
         try {
             deregisterServices.forEach(client.agentClient()::deregister);
         } catch (ConsulException e) {
