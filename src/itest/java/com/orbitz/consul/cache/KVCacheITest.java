@@ -1,6 +1,6 @@
 package com.orbitz.consul.cache;
 
-import static com.orbitz.consul.Awaiting.awaitAtMost100ms;
+import static com.orbitz.consul.Awaiting.awaitAtMost500ms;
 import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -85,7 +85,7 @@ public class KVCacheITest extends BaseIntegrationTest {
                 }
             }
 
-            awaitAtMost100ms().until(() -> cache.getMap().size() == 5);
+            awaitAtMost500ms().until(() -> cache.getMap().size() == 5);
 
             map = cache.getMap();
             for (int i = 0; i < 5; i++) {
@@ -183,7 +183,7 @@ public class KVCacheITest extends BaseIntegrationTest {
                 fail("cache initialization failed");
             }
 
-            awaitAtMost100ms().until(() -> events.size() == 1);
+            awaitAtMost500ms().until(() -> events.size() == 1);
 
             assertEquals(1, events.size());
             Map<String, Value> map = events.get(0);

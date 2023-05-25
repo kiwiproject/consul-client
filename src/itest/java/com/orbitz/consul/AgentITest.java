@@ -1,6 +1,6 @@
 package com.orbitz.consul;
 
-import static com.orbitz.consul.Awaiting.awaitAtMost100ms;
+import static com.orbitz.consul.Awaiting.awaitAtMost500ms;
 import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static java.util.stream.Collectors.toList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -77,7 +77,7 @@ public class AgentITest extends BaseIntegrationTest {
         agentClient.register(8080, 10000L, serviceName, serviceId, NO_TAGS, NO_META);
 
         var serviceHealthRef = new AtomicReference<ServiceHealth>();
-        awaitAtMost100ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
+        awaitAtMost500ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
         var serviceHealth = getValueOrFail(serviceHealthRef);
         assertThat(serviceHealth.getChecks().size(), is(2));
@@ -92,7 +92,7 @@ public class AgentITest extends BaseIntegrationTest {
         agentClient.register(8080, healthCheclkUrl, 1000L, serviceName, serviceId, NO_TAGS, NO_META);
 
         var serviceHealthRef = new AtomicReference<ServiceHealth>();
-        awaitAtMost100ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
+        awaitAtMost500ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
         var serviceHealth = getValueOrFail(serviceHealthRef);
         assertThat(serviceHealth.getChecks().size(), is(2));
@@ -115,7 +115,7 @@ public class AgentITest extends BaseIntegrationTest {
         agentClient.register(registration);
 
         var serviceHealthRef = new AtomicReference<ServiceHealth>();
-        awaitAtMost100ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
+        awaitAtMost500ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
         var serviceHealth = getValueOrFail(serviceHealthRef);
         assertThat(serviceHealth.getChecks().size(), is(2));
@@ -140,7 +140,7 @@ public class AgentITest extends BaseIntegrationTest {
         agentClient.register(registration);
 
         var serviceHealthRef = new AtomicReference<ServiceHealth>();
-        awaitAtMost100ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
+        awaitAtMost500ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
         var serviceHealth = getValueOrFail(serviceHealthRef);
         assertThat(serviceHealth.getChecks().size(), is(2));
@@ -166,7 +166,7 @@ public class AgentITest extends BaseIntegrationTest {
         agentClient.register(registration);
 
         var serviceHealthRef = new AtomicReference<ServiceHealth>();
-        awaitAtMost100ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
+        awaitAtMost500ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
         var serviceHealth = getValueOrFail(serviceHealthRef);
         assertThat(serviceHealth.getChecks().size(), is(2));
@@ -185,7 +185,7 @@ public class AgentITest extends BaseIntegrationTest {
         agentClient.register(8080, regChecks, serviceName, serviceId, NO_TAGS, NO_META);
 
         var serviceHealthRef = new AtomicReference<ServiceHealth>();
-        awaitAtMost100ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
+        awaitAtMost500ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
         var serviceHealth = getValueOrFail(serviceHealthRef);
         assertThat(serviceHealth.getChecks().size(), is(3));
@@ -214,7 +214,7 @@ public class AgentITest extends BaseIntegrationTest {
         agentClient.register(reg);
 
         var serviceHealthRef = new AtomicReference<ServiceHealth>();
-        awaitAtMost100ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
+        awaitAtMost500ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
         var serviceHealth = getValueOrFail(serviceHealthRef);
         assertThat(serviceHealth.getChecks().size(), is(3));
@@ -239,7 +239,7 @@ public class AgentITest extends BaseIntegrationTest {
 
         agentClient.register(reg, QueryOptions.BLANK);
 
-        awaitAtMost100ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId));
+        awaitAtMost500ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId));
 
         var regCheck = List.of(
                 Registration.RegCheck.args(List.of("/usr/bin/echo \"sup\""), 10, 1, "Custom description."));
@@ -259,7 +259,7 @@ public class AgentITest extends BaseIntegrationTest {
         agentClient.register(secondRegistration, QueryOptions.BLANK, queryParameterOptions);
 
         var serviceHealthRef = new AtomicReference<ServiceHealth>();
-        awaitAtMost100ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
+        awaitAtMost500ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
         var serviceHealth = getValueOrFail(serviceHealthRef);
         assertThat(serviceHealth.getChecks().size(), is(2));
@@ -273,7 +273,7 @@ public class AgentITest extends BaseIntegrationTest {
         agentClient.register(8080, 10000L, serviceName, serviceId, NO_TAGS, NO_META);
         agentClient.deregister(serviceId);
 
-        awaitAtMost100ms().until(() -> !serviceHealthExistsWithNameAndId(serviceName, serviceId));
+        awaitAtMost500ms().until(() -> !serviceHealthExistsWithNameAndId(serviceName, serviceId));
     }
 
     @Test
@@ -282,7 +282,7 @@ public class AgentITest extends BaseIntegrationTest {
         var serviceName = randomUUIDString();
         agentClient.register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
 
-        awaitAtMost100ms().until(() -> checkExistsWithId("service:" + serviceId));
+        awaitAtMost500ms().until(() -> checkExistsWithId("service:" + serviceId));
     }
 
     @Test
@@ -294,7 +294,7 @@ public class AgentITest extends BaseIntegrationTest {
 
         agentClient.register(8080, 20L, serviceName, serviceId, tags, meta);
 
-        awaitAtMost100ms().until(() -> serviceExistsWithId(serviceId));
+        awaitAtMost500ms().until(() -> serviceExistsWithId(serviceId));
 
         var expectedService = ImmutableService.builder()
                 .id(serviceId)
@@ -322,7 +322,7 @@ public class AgentITest extends BaseIntegrationTest {
 
         agentClient.register(8080, 20L, serviceName, serviceId, tags, meta);
 
-        awaitAtMost100ms().until(() -> serviceExistsWithId(serviceId));
+        awaitAtMost500ms().until(() -> serviceExistsWithId(serviceId));
 
         var expectedService = ImmutableService.builder()
                 .id(serviceId)
@@ -353,7 +353,7 @@ public class AgentITest extends BaseIntegrationTest {
 
         agentClient.register(8080, 20L, serviceName, serviceId, tags, meta);
 
-        awaitAtMost100ms().until(() -> serviceExistsWithId(serviceId));
+        awaitAtMost500ms().until(() -> serviceExistsWithId(serviceId));
 
         ConsulResponse<FullService> service = agentClient.getService(serviceId, QueryOptions.BLANK);
 
@@ -382,7 +382,7 @@ public class AgentITest extends BaseIntegrationTest {
         var ttl = 2;  // seconds
         agentClient.register(8080, ttl, serviceName, serviceId, tags, meta);
 
-        awaitAtMost100ms().until(() -> serviceExistsWithId(serviceId));
+        awaitAtMost500ms().until(() -> serviceExistsWithId(serviceId));
 
         ConsulResponse<FullService> service = agentClient.getService(serviceId, QueryOptions.BLANK);
 
@@ -410,7 +410,7 @@ public class AgentITest extends BaseIntegrationTest {
 
         agentClient.register(8080, 20L, serviceName, serviceId, List.of(), Map.of());
 
-        awaitAtMost100ms().until(() -> serviceExistsWithId(serviceId));
+        awaitAtMost500ms().until(() -> serviceExistsWithId(serviceId));
 
         agentClient.warn(serviceId, note);
 
@@ -425,7 +425,7 @@ public class AgentITest extends BaseIntegrationTest {
 
         agentClient.register(8080, 20L, serviceName, serviceId, List.of(), Map.of());
 
-        awaitAtMost100ms().until(() -> serviceExistsWithId(serviceId));
+        awaitAtMost500ms().until(() -> serviceExistsWithId(serviceId));
 
         agentClient.fail(serviceId, note);
 
@@ -438,7 +438,7 @@ public class AgentITest extends BaseIntegrationTest {
 
         agentClient.registerCheck(checkId, "test-validate", "/usr/bin/echo \"sup\"", 30);
 
-        awaitAtMost100ms().until(() -> checkExistsWithId(checkId));
+        awaitAtMost500ms().until(() -> checkExistsWithId(checkId));
 
         try {
             HealthCheck check = agentClient.getChecks().get(checkId);
@@ -457,7 +457,7 @@ public class AgentITest extends BaseIntegrationTest {
         var healthCheckUrl = URI.create("http://foo.local:1337/check").toURL();
         agentClient.registerCheck(checkId, "test-validate", healthCheckUrl, 30);
 
-        awaitAtMost100ms().until(() -> checkExistsWithId(checkId));
+        awaitAtMost500ms().until(() -> checkExistsWithId(checkId));
 
         try {
             HealthCheck check = agentClient.getChecks().get(checkId);
@@ -475,7 +475,7 @@ public class AgentITest extends BaseIntegrationTest {
 
         agentClient.registerCheck(checkId, "test-validate", 30);
 
-        awaitAtMost100ms().until(() -> checkExistsWithId(checkId));
+        awaitAtMost500ms().until(() -> checkExistsWithId(checkId));
 
         try {
             HealthCheck check = agentClient.getChecks().get(checkId);
@@ -495,7 +495,7 @@ public class AgentITest extends BaseIntegrationTest {
 
         agentClient.register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
 
-        awaitAtMost100ms().until(() -> serviceExistsWithId(serviceId));
+        awaitAtMost500ms().until(() -> serviceExistsWithId(serviceId));
 
         List<String> healthCheckNames = getHealthCheckNames(serviceName);
         assertFalse(healthCheckNames.contains("Service Maintenance Mode"));

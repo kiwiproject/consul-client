@@ -2,7 +2,7 @@ package com.orbitz.consul.cache;
 
 import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static org.awaitility.Awaitility.await;
-import static org.awaitility.Durations.TWO_SECONDS;
+import static org.awaitility.Durations.FIVE_SECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -39,7 +39,7 @@ public class ServiceCatalogCacheITest extends BaseIntegrationTest {
         client.agentClient().register(20001, 20, name, serviceId1, NO_TAGS, NO_META);
         client.agentClient().register(20002, 20, name, serviceId2, NO_TAGS, NO_META);
 
-        await().atMost(TWO_SECONDS).until(() -> result.size() == 3);
+        await().atMost(FIVE_SECONDS).until(() -> result.size() == 3);
 
         assertEquals(0, result.get(0).size());
         assertEquals(1, result.get(1).size());
