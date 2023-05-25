@@ -1,14 +1,18 @@
 package com.orbitz.consul.config;
 
+import static com.orbitz.consul.Awaiting.awaitAtMost500ms;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+
 import com.orbitz.consul.cache.CacheDescriptor;
 import com.orbitz.consul.cache.ConsulCache;
 import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.monitoring.ClientEventHandler;
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
-import junitparams.naming.TestCaseName;
 
-import org.awaitility.Durations;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,13 +27,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static org.awaitility.Awaitility.await;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
+import junitparams.naming.TestCaseName;
 
 @RunWith(JUnitParamsRunner.class)
 public class CacheConfigTest {
@@ -187,7 +187,8 @@ public class CacheConfigTest {
                 .withMinDelayOnEmptyResult(Duration.ofMillis(100))
                 .build(), res)) {
             cache.start();
-            await().atMost(Durations.FIVE_HUNDRED_MILLISECONDS).until(() -> res.run > 0);
+
+            awaitAtMost500ms().until(() -> res.run > 0);
         }
     }
 
@@ -200,7 +201,7 @@ public class CacheConfigTest {
                 .withMinDelayBetweenRequests(Duration.ofMillis(50)) // do not blow ourselves up
                 .build(), res)) {
             cache.start();
-            await().atMost(Durations.FIVE_HUNDRED_MILLISECONDS).until(() -> res.run > 0);
+            awaitAtMost500ms().until(() -> res.run > 0);
         }
     }
 

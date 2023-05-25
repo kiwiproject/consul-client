@@ -1,5 +1,15 @@
 package com.orbitz.consul.cache;
 
+import static org.awaitility.Awaitility.await;
+import static org.awaitility.Durations.FIVE_SECONDS;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+
 import com.google.common.collect.ImmutableMap;
 import com.orbitz.consul.config.CacheConfig;
 import com.orbitz.consul.model.ConsulResponse;
@@ -9,11 +19,7 @@ import com.orbitz.consul.monitoring.ClientEventHandler;
 import com.orbitz.consul.option.ConsistencyMode;
 import com.orbitz.consul.option.ImmutableQueryOptions;
 import com.orbitz.consul.option.QueryOptions;
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
-import junitparams.naming.TestCaseName;
 
-import org.awaitility.Durations;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.GreaterOrEqual;
@@ -26,14 +32,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import static org.awaitility.Awaitility.await;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
+import junitparams.naming.TestCaseName;
 
 @RunWith(JUnitParamsRunner.class)
 public class ConsulCacheTest {
@@ -194,7 +195,7 @@ public class ConsulCacheTest {
                 cache.addListener(goodListener);
                 cache.start();
 
-                await().atMost(Durations.FIVE_SECONDS).until(() -> goodListener.getCallCount() > 0);
+                await().atMost(FIVE_SECONDS).until(() -> goodListener.getCallCount() > 0);
 
                 assertEquals(1, goodListener.getCallCount());
                 assertEquals(1, callbackConsumer.getCallCount());

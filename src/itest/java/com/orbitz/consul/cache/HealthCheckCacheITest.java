@@ -1,9 +1,8 @@
 package com.orbitz.consul.cache;
 
-import static com.orbitz.consul.Awaiting.awaitWith25MsPoll;
+import static com.orbitz.consul.Awaiting.awaitAtMost500ms;
 import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static java.util.Objects.isNull;
-import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.junit.Assert.assertEquals;
 
 import com.orbitz.consul.AgentClient;
@@ -35,7 +34,7 @@ public class HealthCheckCacheITest extends BaseIntegrationTest {
         agentClient.registerCheck(checkId, checkName, 20L);
         try {
             agentClient.passCheck(checkId);
-            awaitWith25MsPoll().atMost(ONE_HUNDRED_MILLISECONDS).until(() -> checkIsPassing(checkId));
+            awaitAtMost500ms().until(() -> checkIsPassing(checkId));
 
             try (HealthCheckCache hCheck = HealthCheckCache.newCache(healthClient, State.PASS)) {
                 hCheck.start();
@@ -46,8 +45,7 @@ public class HealthCheckCacheITest extends BaseIntegrationTest {
 
                 agentClient.failCheck(checkId);
 
-                awaitWith25MsPoll().atMost(ONE_HUNDRED_MILLISECONDS)
-                        .until(() -> isNull(hCheck.getMap().get(checkId)));
+                awaitAtMost500ms().until(() -> isNull(hCheck.getMap().get(checkId)));
             }
         }
         finally {

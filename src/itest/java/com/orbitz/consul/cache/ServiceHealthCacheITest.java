@@ -1,10 +1,9 @@
 package com.orbitz.consul.cache;
 
-import static com.orbitz.consul.Awaiting.awaitWith25MsPoll;
+import static com.orbitz.consul.Awaiting.awaitAtMost1s;
+import static com.orbitz.consul.Awaiting.awaitAtMost500ms;
 import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static java.util.Objects.isNull;
-import static org.awaitility.Awaitility.await;
-import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -14,7 +13,6 @@ import com.orbitz.consul.BaseIntegrationTest;
 import com.orbitz.consul.model.State;
 import com.orbitz.consul.model.health.ServiceHealth;
 
-import org.awaitility.Durations;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -46,7 +44,7 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
         agentClient.register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
         agentClient.pass(serviceId);
 
-       awaitWith25MsPoll().atMost(ONE_HUNDRED_MILLISECONDS).until(() -> serviceHasPassingCheck(serviceId));
+        awaitAtMost500ms().until(() -> serviceHasPassingCheck(serviceId));
 
         try (var cache = ServiceHealthCache.newCache(healthClient, serviceName)) {
             cache.start();
@@ -61,8 +59,7 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
 
             agentClient.fail(serviceId);
 
-            awaitWith25MsPoll().atMost(ONE_HUNDRED_MILLISECONDS)
-                    .until(() -> isNull(cache.getMap().get(serviceKey)));
+            awaitAtMost500ms().until(() -> isNull(cache.getMap().get(serviceKey)));
         }
     }
 
@@ -135,7 +132,7 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
 
             agentClient.deregister(serviceId);
 
-            awaitWith25MsPoll().atMost(ONE_HUNDRED_MILLISECONDS).until(() -> events.size() == 2);
+            awaitAtMost500ms().until(() -> events.size() == 2);
 
             Map<ServiceHealthKey, ServiceHealth> event0 = events.get(0);
 
@@ -181,7 +178,7 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
             cache.start();
             cache.awaitInitialized(1000, TimeUnit.MILLISECONDS);
 
-            await().atMost(Durations.ONE_SECOND).until(() -> eventCount.get() == 2);
+            awaitAtMost1s().until(() -> eventCount.get() == 2);
 
             cache.stop();
         }

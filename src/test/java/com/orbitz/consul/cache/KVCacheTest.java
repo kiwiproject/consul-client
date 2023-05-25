@@ -1,6 +1,7 @@
 package com.orbitz.consul.cache;
 
 import static org.awaitility.Awaitility.await;
+import static org.awaitility.Durations.FIVE_SECONDS;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.orbitz.consul.Consul;
@@ -15,7 +16,7 @@ import com.orbitz.consul.monitoring.ClientEventCallback;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import junitparams.naming.TestCaseName;
-import org.awaitility.Durations;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -109,7 +110,7 @@ public class KVCacheTest {
 
             kvCache.start();
 
-            await().atMost(Durations.FIVE_SECONDS).until(() -> goodListener.getCallCount() > 0);
+            await().atMost(FIVE_SECONDS).until(() -> goodListener.getCallCount() > 0);
 
             Assert.assertEquals(1, goodListener.getCallCount());
         }

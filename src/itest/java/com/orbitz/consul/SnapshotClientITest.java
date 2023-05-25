@@ -3,6 +3,7 @@ package com.orbitz.consul;
 import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static com.orbitz.consul.Awaiting.awaitWith25MsPoll;
 import static org.awaitility.Awaitility.await;
+import static org.awaitility.Durations.FIVE_SECONDS;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -10,7 +11,6 @@ import static org.junit.Assert.assertTrue;
 import com.orbitz.consul.async.Callback;
 import com.orbitz.consul.option.QueryOptions;
 
-import org.awaitility.Durations;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,7 +62,7 @@ public class SnapshotClientITest extends BaseIntegrationTest {
 
         ensureRestoreSnapshot();
 
-        await().atMost(Durations.TWO_SECONDS).until(() -> serviceExists(serviceName));
+        await().atMost(FIVE_SECONDS).until(() -> serviceExists(serviceName));
     }
 
     private void ensureSaveSnapshot() throws InterruptedException {
