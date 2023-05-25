@@ -1,5 +1,11 @@
 package com.orbitz.consul.cache;
 
+import static com.orbitz.consul.Awaiting.awaitWith25MsPoll;
+import static com.orbitz.consul.TestUtils.randomUUIDString;
+import static java.util.Objects.isNull;
+import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
+import static org.junit.Assert.assertEquals;
+
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.BaseIntegrationTest;
 import com.orbitz.consul.HealthClient;
@@ -9,13 +15,7 @@ import com.orbitz.consul.model.health.HealthCheck;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-
-import static com.orbitz.consul.Awaiting.awaitWith25MsPoll;
-import static java.util.Objects.isNull;
-import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
-import static org.junit.Assert.assertEquals;
 
 public class HealthCheckCacheITest extends BaseIntegrationTest {
 
@@ -29,8 +29,8 @@ public class HealthCheckCacheITest extends BaseIntegrationTest {
     @Test
     public void cacheShouldContainPassingTestsOnly() throws Exception {
         HealthClient healthClient = client.healthClient();
-        String checkName = UUID.randomUUID().toString();
-        String checkId = UUID.randomUUID().toString();
+        String checkName = randomUUIDString();
+        String checkId = randomUUIDString();
 
         agentClient.registerCheck(checkId, checkName, 20L);
         try {

@@ -1,8 +1,11 @@
 package com.orbitz.consul;
 
+import static com.orbitz.consul.TestUtils.randomUUIDString;
+
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.config.CacheConfig;
 import com.orbitz.consul.config.ClientConfig;
+
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
@@ -11,7 +14,6 @@ import org.testcontainers.containers.GenericContainer;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public abstract class BaseIntegrationTest {
@@ -85,7 +87,7 @@ public abstract class BaseIntegrationTest {
     }
 
     protected String createAutoDeregisterServiceId() {
-        String serviceId = UUID.randomUUID().toString();
+        String serviceId = randomUUIDString();
         LOG.info("Created auto-deregister serviceId {}", serviceId);
         deregisterServices.add(serviceId);
 

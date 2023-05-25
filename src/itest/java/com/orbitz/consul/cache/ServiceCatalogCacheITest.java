@@ -1,5 +1,6 @@
 package com.orbitz.consul.cache;
 
+import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.TWO_SECONDS;
 import static org.junit.Assert.assertEquals;
@@ -13,7 +14,6 @@ import org.junit.Test;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -24,7 +24,7 @@ public class ServiceCatalogCacheITest extends BaseIntegrationTest {
 
     @Test
     public void testWatchService() throws InterruptedException {
-        String name = UUID.randomUUID().toString();
+        String name = randomUUIDString();
         String serviceId1 = createAutoDeregisterServiceId();
         String serviceId2 = createAutoDeregisterServiceId();
 

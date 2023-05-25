@@ -1,6 +1,7 @@
 package com.orbitz.consul.cache;
 
 import static com.orbitz.consul.Awaiting.awaitWith25MsPoll;
+import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static java.util.Objects.isNull;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
@@ -21,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -40,8 +40,8 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
     @Test
     public void nodeCacheServicePassingTest() throws Exception {
         var healthClient = client.healthClient();
-        var serviceName = UUID.randomUUID().toString();
-        var serviceId = UUID.randomUUID().toString();
+        var serviceName = randomUUIDString();
+        var serviceId = randomUUIDString();
 
         agentClient.register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
         agentClient.pass(serviceId);
@@ -77,9 +77,9 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
     @Test
     public void testServicesAreUniqueByID() throws Exception {
         var healthClient = client.healthClient();
-        var serviceName = UUID.randomUUID().toString();
-        var serviceId = UUID.randomUUID().toString();
-        var serviceId2 = UUID.randomUUID().toString();
+        var serviceName = randomUUIDString();
+        var serviceId = randomUUIDString();
+        var serviceId2 = randomUUIDString();
 
         agentClient.register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
         agentClient.pass(serviceId);
@@ -116,8 +116,8 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
 
     @Test
     public void shouldNotifyListener() throws Exception {
-        var serviceName = UUID.randomUUID().toString();
-        var serviceId = UUID.randomUUID().toString();
+        var serviceName = randomUUIDString();
+        var serviceId = randomUUIDString();
 
         agentClient.register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
         agentClient.pass(serviceId);
@@ -151,7 +151,7 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
 
     @Test
     public void shouldNotifyLateListenersIfNoService() throws Exception {
-        var serviceName = UUID.randomUUID().toString();
+        var serviceName = randomUUIDString();
 
         try (ServiceHealthCache cache = ServiceHealthCache.newCache(client.healthClient(), serviceName)) {
             final List<Map<ServiceHealthKey, ServiceHealth>> events = new ArrayList<>();
@@ -168,7 +168,7 @@ public class ServiceHealthCacheITest extends BaseIntegrationTest {
 
     @Test
     public void shouldNotifyLateListenersRaceCondition() throws Exception {
-        var serviceName = UUID.randomUUID().toString();
+        var serviceName = randomUUIDString();
 
         try (var cache = ServiceHealthCache.newCache(client.healthClient(), serviceName)) {
             final var eventCount = new AtomicInteger(0);

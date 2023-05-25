@@ -1,5 +1,12 @@
 package com.orbitz.consul;
 
+import static com.orbitz.consul.TestUtils.randomUUIDString;
+import static com.orbitz.consul.Awaiting.awaitWith25MsPoll;
+import static org.awaitility.Awaitility.await;
+import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import com.orbitz.consul.async.Callback;
 import com.orbitz.consul.option.QueryOptions;
 
@@ -14,16 +21,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static com.orbitz.consul.Awaiting.awaitWith25MsPoll;
-import static org.awaitility.Awaitility.await;
-import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 public class SnapshotClientITest extends BaseIntegrationTest {
 
@@ -48,8 +48,8 @@ public class SnapshotClientITest extends BaseIntegrationTest {
 
     @Test
     public void shouldBeAbleToSaveAndRestoreSnapshot() throws MalformedURLException, InterruptedException {
-        String serviceName = UUID.randomUUID().toString();
-        String serviceId = UUID.randomUUID().toString();
+        String serviceName = randomUUIDString();
+        String serviceId = randomUUIDString();
 
         client.agentClient().register(8080, new URL("http://localhost:123/health"), 1000L, serviceName, serviceId,
                 List.of(), Map.of());
