@@ -1,9 +1,6 @@
 package com.orbitz.consul;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 
@@ -19,10 +16,10 @@ class ConsulExceptionTest {
     void shouldCreateWithMessage() {
         var ex = new ConsulException("oop");
 
-        assertThat(ex.getMessage(), is("oop"));
-        assertThat(ex.getCause(), is(nullValue()));
-        assertThat(ex.getCode(), is(0));
-        assertThat(ex.hasCode(), is(false));
+        assertThat(ex.getMessage()).isEqualTo("oop");
+        assertThat(ex.getCause()).isNull();
+        assertThat(ex.getCode()).isZero();
+        assertThat(ex.hasCode()).isFalse();
     }
 
     @Test
@@ -30,10 +27,10 @@ class ConsulExceptionTest {
         var cause = new IOException("I/O error");
         var ex = new ConsulException("oop", cause);
 
-        assertThat(ex.getMessage(), is("oop"));
-        assertThat(ex.getCause(), is(cause));
-        assertThat(ex.getCode(), is(0));
-        assertThat(ex.hasCode(), is(false));
+        assertThat(ex.getMessage()).isEqualTo("oop");
+        assertThat(ex.getCause()).isSameAs(cause);
+        assertThat(ex.getCode()).isZero();
+        assertThat(ex.hasCode()).isFalse();
     }
 
     @Test
@@ -42,10 +39,10 @@ class ConsulExceptionTest {
                 ResponseBody.create("Not Found", MediaType.get("application/json")));
         var ex = new ConsulException(404, response);
 
-        assertThat(ex.getMessage(), is("Consul request failed with status [404]: Not Found"));
-        assertThat(ex.getCause(), is(nullValue()));
-        assertThat(ex.getCode(), is(404));
-        assertThat(ex.hasCode(), is(true));
+        assertThat(ex.getMessage()).isEqualTo("Consul request failed with status [404]: Not Found");
+        assertThat(ex.getCause()).isNull();
+        assertThat(ex.getCode()).isEqualTo(404);
+        assertThat(ex.hasCode()).isTrue();
     }
 
     // This is testing the code "as-is" when we imported into kiwiproject. Looking at the OkHttp code,
@@ -56,10 +53,10 @@ class ConsulExceptionTest {
         var response = Response.success(206, "Partial Content");
         var ex = new ConsulException(206, response);
 
-        assertThat(ex.getMessage(), startsWith("Consul request failed with status [206]:"));
-        assertThat(ex.getCause(), is(nullValue()));
-        assertThat(ex.getCode(), is(206));
-        assertThat(ex.hasCode(), is(true));
+        assertThat(ex.getMessage()).startsWith("Consul request failed with status [206]:");
+        assertThat(ex.getCause()).isNull();
+        assertThat(ex.getCode()).isEqualTo(206);
+        assertThat(ex.hasCode()).isTrue();
     }
 
     @Test
@@ -67,9 +64,9 @@ class ConsulExceptionTest {
         var cause = new IOException("I/O error");
         var ex = new ConsulException(cause);
 
-        assertThat(ex.getMessage(), is("Consul request failed"));
-        assertThat(ex.getCause(), is(cause));
-        assertThat(ex.getCode(), is(0));
-        assertThat(ex.hasCode(), is(false));
+        assertThat(ex.getMessage()).isEqualTo("Consul request failed");
+        assertThat(ex.getCause()).isSameAs(cause);
+        assertThat(ex.getCode()).isZero();
+        assertThat(ex.hasCode()).isFalse();
     }
 }

@@ -5,9 +5,6 @@ import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.AnyOf.anyOf;
-import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
@@ -25,6 +22,7 @@ import com.orbitz.consul.model.health.ServiceHealth;
 import com.orbitz.consul.option.ImmutableQueryOptions;
 import com.orbitz.consul.option.ImmutableQueryParameterOptions;
 import com.orbitz.consul.option.QueryOptions;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -64,7 +62,7 @@ class AgentITest extends BaseIntegrationTest {
 
         // maybe we should not make any assertion on the actual value of the client address
         // as like when we run consul in a docker container we would have "0.0.0.0"
-        assertThat(clientAddrs.get(0), anyOf(is("127.0.0.1"), is("0.0.0.0")));
+        assertThat(clientAddrs.get(0)).isIn("127.0.0.1", "0.0.0.0");
     }
 
     @Test
@@ -78,7 +76,7 @@ class AgentITest extends BaseIntegrationTest {
         awaitAtMost500ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
         var serviceHealth = getValueOrFail(serviceHealthRef);
-        assertThat(serviceHealth.getChecks().size(), is(2));
+        assertThat(serviceHealth.getChecks()).hasSize(2);
     }
 
     @Test
@@ -93,7 +91,7 @@ class AgentITest extends BaseIntegrationTest {
         awaitAtMost500ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
         var serviceHealth = getValueOrFail(serviceHealthRef);
-        assertThat(serviceHealth.getChecks().size(), is(2));
+        assertThat(serviceHealth.getChecks()).hasSize(2);
     }
 
     @Test
@@ -116,7 +114,7 @@ class AgentITest extends BaseIntegrationTest {
         awaitAtMost500ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
         var serviceHealth = getValueOrFail(serviceHealthRef);
-        assertThat(serviceHealth.getChecks().size(), is(2));
+        assertThat(serviceHealth.getChecks()).hasSize(2);
     }
 
     @Test
@@ -141,7 +139,7 @@ class AgentITest extends BaseIntegrationTest {
         awaitAtMost500ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
         var serviceHealth = getValueOrFail(serviceHealthRef);
-        assertThat(serviceHealth.getChecks().size(), is(2));
+        assertThat(serviceHealth.getChecks()).hasSize(2);
         assertThat(serviceHealth.getChecks().stream().anyMatch(check -> check.getCheckId().equals(checkId))).isTrue();
     }
 
@@ -167,7 +165,7 @@ class AgentITest extends BaseIntegrationTest {
         awaitAtMost500ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
         var serviceHealth = getValueOrFail(serviceHealthRef);
-        assertThat(serviceHealth.getChecks().size(), is(2));
+        assertThat(serviceHealth.getChecks()).hasSize(2);
         assertThat(serviceHealth.getChecks().stream().anyMatch(check -> check.getName().equals(checkName))).isTrue();
     }
 
@@ -186,7 +184,7 @@ class AgentITest extends BaseIntegrationTest {
         awaitAtMost500ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
         var serviceHealth = getValueOrFail(serviceHealthRef);
-        assertThat(serviceHealth.getChecks().size(), is(3));
+        assertThat(serviceHealth.getChecks()).hasSize(3);
     }
 
     // This is apparently valid
@@ -215,7 +213,7 @@ class AgentITest extends BaseIntegrationTest {
         awaitAtMost500ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
         var serviceHealth = getValueOrFail(serviceHealthRef);
-        assertThat(serviceHealth.getChecks().size(), is(3));
+        assertThat(serviceHealth.getChecks()).hasSize(3);
     }
 
     @Test
@@ -260,7 +258,7 @@ class AgentITest extends BaseIntegrationTest {
         awaitAtMost500ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
 
         var serviceHealth = getValueOrFail(serviceHealthRef);
-        assertThat(serviceHealth.getChecks().size(), is(2));
+        assertThat(serviceHealth.getChecks()).hasSize(2);
     }
 
     @Test
