@@ -1,11 +1,10 @@
 package com.orbitz.consul.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.MatcherAssert.assertThat;
-import java.security.GeneralSecurityException;
 
 import org.junit.jupiter.api.Test;
+
+import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 
 class UncheckedGeneralSecurityExceptionTest {
@@ -24,7 +23,7 @@ class UncheckedGeneralSecurityExceptionTest {
         var cause = newGeneralSecurityException();
         var exception = new UncheckedGeneralSecurityException(cause);
 
-        assertThat(exception.getMessage(), containsString(cause.getMessage()));
+        assertThat(exception.getMessage()).contains(cause.getMessage());
         assertThat(exception.getCause()).isSameAs(cause);
     }
 

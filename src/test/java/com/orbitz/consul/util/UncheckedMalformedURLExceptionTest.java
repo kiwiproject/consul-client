@@ -1,11 +1,10 @@
 package com.orbitz.consul.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.MatcherAssert.assertThat;
-import java.net.MalformedURLException;
 
 import org.junit.jupiter.api.Test;
+
+import java.net.MalformedURLException;
 
 /**
  * @implNote Copied from  <a href="https://github.com/kiwiproject/kiwi">kiwi</a>.
@@ -26,7 +25,7 @@ class UncheckedMalformedURLExceptionTest {
         var cause = newMalformedURLException();
         var exception = new UncheckedMalformedURLException(cause);
 
-        assertThat(exception.getMessage(), containsString(cause.getMessage()));
+        assertThat(exception.getMessage()).contains(cause.getMessage());
         assertThat(exception.getCause()).isSameAs(cause);
     }
 

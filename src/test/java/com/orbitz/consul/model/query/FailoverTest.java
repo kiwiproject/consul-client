@@ -1,13 +1,11 @@
 package com.orbitz.consul.model.query;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.Lists;
-
-import java.util.Optional;
-
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 class FailoverTest {
 
@@ -17,7 +15,7 @@ class FailoverTest {
                 .datacenters(Lists.newArrayList("dc1", "dc2"))
                 .build();
 
-        assertThat(failover.datacenters(), is(Optional.of(Lists.newArrayList("dc1", "dc2"))));
+        assertThat(failover.datacenters()).contains(List.of("dc1", "dc2"));
     }
 
     @Test
@@ -26,7 +24,7 @@ class FailoverTest {
                 .nearestN(2)
                 .build();
 
-        assertThat(failover.getNearestN(), is(Optional.of(2)));
+        assertThat(failover.getNearestN()).contains(2);
     }
 
     @Test
@@ -36,7 +34,7 @@ class FailoverTest {
                 .nearestN(2)
                 .build();
 
-        assertThat(failover.datacenters(), is(Optional.of(Lists.newArrayList("dc1", "dc2"))));
-        assertThat(failover.getNearestN(), is(Optional.of(2)));
+        assertThat(failover.datacenters()).contains(List.of("dc1", "dc2"));
+        assertThat(failover.getNearestN()).contains(2);
     }
 }
