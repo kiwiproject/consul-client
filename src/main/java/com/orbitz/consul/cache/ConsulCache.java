@@ -3,6 +3,7 @@ package com.orbitz.consul.cache;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.nonNull;
+import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
@@ -110,82 +111,120 @@ public class ConsulCache<K, V> implements AutoCloseable {
         this.cacheDescriptor = cacheDescriptor;
         this.scheduler = callbackScheduler;
 
-        this.responseCallback = new ConsulResponseCallback<List<V>>() {
-            @Override
-            public void onComplete(ConsulResponse<List<V>> consulResponse) {
-                if (!isRunning()) {
-                    return;
-                }
-                long elapsedTime = stopWatch.elapsed(TimeUnit.MILLISECONDS);
-                updateIndex(consulResponse);
-                LOGGER.debug("Consul cache updated for {} (index={}), request duration: {} ms",
-                        cacheDescriptor, latestIndex, elapsedTime);
+        this.responseCallback = new DefaultConsulResponseCallback(cacheConfig);
+    }
 
-                ImmutableMap<K, V> full = convertToMap(consulResponse);
+    /**
+     * @implNote This was extracted from an anonymous class declaration into a separate class mainly
+     * for organization and (somewhat) better readability. Several small methods were also extracted
+     * such as notifyListeners, and the updateIndex method was moved into this class since it is
+     * only used here.
+     *
+     * It cannot be static because it uses instance fields from ConsulCache directly. It might be
+     * possible to make it static if we pass in the required fields to the constructor, since they
+     * are accessed only via their methods and are not reassigned.
+     */
+    class DefaultConsulResponseCallback implements ConsulResponseCallback<List<V>> {
 
-                boolean changed = !full.equals(lastResponse.get());
-                eventHandler.cachePollingSuccess(cacheDescriptor, changed, elapsedTime);
+        private final CacheConfig cacheConfig;
 
-                if (changed) {
-                    // changes
-                    lastResponse.set(full);
-                    // metadata changes
-                    lastContact.set(consulResponse.getLastContact());
-                    isKnownLeader.set(consulResponse.isKnownLeader());
-                }
+        public DefaultConsulResponseCallback(CacheConfig cacheConfig) {
+            this.cacheConfig = requireNonNull(cacheConfig);
+        }
 
-                if (changed) {
-                    boolean locked = false;
-                    if (state.get() == State.STARTING) {
-                        listenersStartingLock.lock();
-                        locked = true;
-                    }
-                    try {
-                        for (Listener<K, V> l : listeners) {
-                            try {
-                                l.notify(full);
-                            } catch (RuntimeException e) {
-                                LOGGER.warn("ConsulCache Listener's notify method threw an exception.", e);
-                            }
-                        }
-                    }
-                    finally {
-                        if (locked) {
-                            listenersStartingLock.unlock();
-                        }
-                    }
-                }
-
-                if (state.compareAndSet(State.STARTING, State.STARTED)) {
-                    initLatch.countDown();
-                }
-
-                Duration timeToWait = cacheConfig.getMinimumDurationBetweenRequests();
-                if ((consulResponse.getResponse() == null || consulResponse.getResponse().isEmpty()) &&
-                        cacheConfig.getMinimumDurationDelayOnEmptyResult().compareTo(timeToWait) > 0) {
-                    timeToWait = cacheConfig.getMinimumDurationDelayOnEmptyResult();
-                }
-                timeToWait = timeToWait.minusMillis(elapsedTime);
-
-                scheduler.schedule(ConsulCache.this::runCallback,
-                        timeToWait.toMillis(), TimeUnit.MILLISECONDS);
+        @Override
+        public void onComplete(ConsulResponse<List<V>> consulResponse) {
+            if (!isRunning()) {
+                return;
             }
 
-            @Override
-            public void onFailure(Throwable throwable) {
-                if (!isRunning()) {
-                    return;
-                }
-                eventHandler.cachePollingError(cacheDescriptor, throwable);
-                long delayMs = computeBackOffDelayMs(cacheConfig);
-                String message = String.format("Error getting response from consul for %s, will retry in %d %s",
-                        cacheDescriptor, delayMs, TimeUnit.MILLISECONDS);
+            long elapsedTime = stopWatch.elapsed(TimeUnit.MILLISECONDS);
+            updateIndex(consulResponse);
+            LOGGER.debug("Consul cache updated for {} (index={}), request duration: {} ms",
+                    cacheDescriptor, latestIndex, elapsedTime);
 
-                cacheConfig.getRefreshErrorLoggingConsumer().accept(LOGGER, message, throwable);
+            ImmutableMap<K, V> full = convertToMap(consulResponse);
 
-                scheduler.schedule(ConsulCache.this::runCallback, delayMs, TimeUnit.MILLISECONDS);
+            boolean changed = !full.equals(lastResponse.get());
+            eventHandler.cachePollingSuccess(cacheDescriptor, changed, elapsedTime);
+
+            if (changed) {
+                // changes
+                lastResponse.set(full);
+                // metadata changes
+                lastContact.set(consulResponse.getLastContact());
+                isKnownLeader.set(consulResponse.isKnownLeader());
             }
-        };
+
+            if (changed) {
+                boolean locked = false;
+                if (state.get() == State.STARTING) {
+                    listenersStartingLock.lock();
+                    locked = true;
+                }
+                try {
+                    notifyListeners(full);
+                }
+                finally {
+                    if (locked) {
+                        listenersStartingLock.unlock();
+                    }
+                }
+            }
+
+            if (state.compareAndSet(State.STARTING, State.STARTED)) {
+                initLatch.countDown();
+            }
+
+            Duration timeToWait = cacheConfig.getMinimumDurationBetweenRequests();
+            Duration minimumDelayOnEmptyResult = cacheConfig.getMinimumDurationDelayOnEmptyResult();
+            if (hasNullOrEmptyResponse(consulResponse) && isLongerThan(minimumDelayOnEmptyResult, timeToWait)) {
+                timeToWait = minimumDelayOnEmptyResult;
+            }
+            timeToWait = timeToWait.minusMillis(elapsedTime);
+
+            scheduler.schedule(ConsulCache.this::runCallback, timeToWait.toMillis(), TimeUnit.MILLISECONDS);
+        }
+
+        private void updateIndex(ConsulResponse<List<V>> consulResponse) {
+            if (consulResponse != null && consulResponse.getIndex() != null) {
+                latestIndex.set(consulResponse.getIndex());
+            }
+        }
+
+        private void notifyListeners(ImmutableMap<K, V> newValues) {
+            for (Listener<K, V> l : listeners) {
+                try {
+                    l.notify(newValues);
+                } catch (RuntimeException e) {
+                    LOGGER.warn("ConsulCache Listener's notify method threw an exception.", e);
+                }
+            }
+        }
+
+        private boolean hasNullOrEmptyResponse(ConsulResponse<List<V>> consulResponse) {
+            return consulResponse.getResponse() == null || consulResponse.getResponse().isEmpty();
+        }
+
+        private boolean isLongerThan(Duration duration1, Duration duration2) {
+            return duration1.compareTo(duration2) > 0;
+        }
+
+        @Override
+        public void onFailure(Throwable throwable) {
+            if (!isRunning()) {
+                return;
+            }
+
+            eventHandler.cachePollingError(cacheDescriptor, throwable);
+            long delayMs = computeBackOffDelayMs(cacheConfig);
+            String message = String.format("Error getting response from consul for %s, will retry in %d %s",
+                    cacheDescriptor, delayMs, TimeUnit.MILLISECONDS);
+
+            cacheConfig.getRefreshErrorLoggingConsumer().accept(LOGGER, message, throwable);
+
+            scheduler.schedule(ConsulCache.this::runCallback, delayMs, TimeUnit.MILLISECONDS);
+        }
     }
 
     static long computeBackOffDelayMs(CacheConfig cacheConfig) {
@@ -262,12 +301,6 @@ public class ConsulCache<K, V> implements AutoCloseable {
             keySet.add(key);
         }
         return builder.build();
-    }
-
-    private void updateIndex(ConsulResponse<List<V>> consulResponse) {
-        if (consulResponse != null && consulResponse.getIndex() != null) {
-            this.latestIndex.set(consulResponse.getIndex());
-        }
     }
 
     protected static QueryOptions watchParams(final BigInteger index, final int blockSeconds,
