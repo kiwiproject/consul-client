@@ -31,7 +31,10 @@ class ServiceCatalogCacheITest extends BaseIntegrationTest {
         List<Map<String, CatalogService>> result = new CopyOnWriteArrayList<>();
 
         ServiceCatalogCache cache = ServiceCatalogCache.newCache(client.catalogClient(), name);
-        cache.addListener(result::add);
+        cache.addListener(serviceMap -> {
+            System.out.println("ServiceCatalogCacheITest: listener received: " + serviceMap);
+            result.add(serviceMap);
+        });
 
         cache.start();
         cache.awaitInitialized(3, TimeUnit.SECONDS);
