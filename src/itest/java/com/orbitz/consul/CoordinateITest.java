@@ -2,6 +2,7 @@ package com.orbitz.consul;
 
 import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
+
 import com.orbitz.consul.model.coordinate.Coordinate;
 import com.orbitz.consul.model.coordinate.Datacenter;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,7 @@ class CoordinateITest extends BaseIntegrationTest {
     @Test
     void shouldGetDatacenters() {
         List<Datacenter> datacenters = client.coordinateClient().getDatacenters();
-        assertThat(datacenters.isEmpty()).isFalse();
+        assertThat(datacenters).isNotEmpty();
     }
 
     @Test

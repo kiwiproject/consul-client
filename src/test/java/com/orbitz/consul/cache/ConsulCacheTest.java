@@ -33,7 +33,7 @@ import java.util.stream.Stream;
 class ConsulCacheTest {
 
     /**
-     * Test that if Consul for some reason returns a duplicate service or keyvalue entry
+     * Test that if Consul for some reason returns a duplicate service or key/value entry
      * that we recover gracefully by taking the first value, ignoring duplicates, and warning
      * user of the condition
      */
@@ -46,12 +46,12 @@ class ConsulCacheTest {
 
         final StubCallbackConsumer callbackConsumer = new StubCallbackConsumer(List.of());
 
-        try (var consulCache = new ConsulCache<String, Value>(keyExtractor, callbackConsumer, cacheConfig, eventHandler, new CacheDescriptor(""))) {
+        try (var consulCache = new ConsulCache<>(keyExtractor, callbackConsumer, cacheConfig, eventHandler, new CacheDescriptor(""))) {
             final ConsulResponse<List<Value>> consulResponse = new ConsulResponse<>(response, 0, false, BigInteger.ONE, null, null);
             final ImmutableMap<String, Value> map = consulCache.convertToMap(consulResponse);
             assertThat(map).isNotNull();
             // Second copy has been weeded out
-            assertThat(map.size()).isEqualTo(1);
+            assertThat(map).hasSize(1);
         }
     }
 
@@ -142,8 +142,7 @@ class ConsulCacheTest {
         final List<Value> result = List.of(value);
         final StubCallbackConsumer callbackConsumer = new StubCallbackConsumer(result);
 
-        try (var cache = new ConsulCache<String, Value>(keyExtractor, callbackConsumer, cacheConfig,
-                                                        eventHandler, new CacheDescriptor(""))) {
+        try (var cache = new ConsulCache<>(keyExtractor, callbackConsumer, cacheConfig, eventHandler, new CacheDescriptor(""))) {
 
             final StubListener listener = new StubListener();
 
@@ -161,18 +160,18 @@ class ConsulCacheTest {
             // based on elapsed time - and other factors - in ConsulCache when it sets the responseCallback
             // instance field.
             // TODO: Add a new issue to investigate this, then change this comment to reference the issue
-            assertThat(callbackConsumer.getCallCount()).isGreaterThanOrEqualTo(1);
+            assertThat(callbackConsumer.getCallCount()).isPositive();
 
             final Map<String, Value> lastValues = listener.getLastValues();
             assertThat(lastValues).isNotNull();
-            assertThat(lastValues.size()).isEqualTo(result.size());
-            assertThat(lastValues.containsKey(key)).isTrue();
-            assertThat(lastValues.get(key)).isEqualTo(value);
+            assertThat(lastValues).hasSameSizeAs(result);
+            assertThat(lastValues).containsKey(key);
+            assertThat(lastValues).containsEntry(key, value);
         }
     }
 
     @Test
-    void testListenerThrowingExceptionIsIsolated() throws InterruptedException {
+    void testListenerThrowingExceptionIsIsolated() {
         final Function<Value, String> keyExtractor = Value::getKey;
         final CacheConfig cacheConfig = CacheConfig.builder()
                 .withMinDelayBetweenRequests(Duration.ofSeconds(10))
@@ -206,9 +205,9 @@ class ConsulCacheTest {
 
                 final Map<String, Value> lastValues = goodListener.getLastValues();
                 assertThat(lastValues).isNotNull();
-                assertThat(lastValues.size()).isEqualTo(result.size());
-                assertThat(lastValues.containsKey(key)).isTrue();
-                assertThat(lastValues.get(key)).isEqualTo(value);
+                assertThat(lastValues).hasSameSizeAs(result);
+                assertThat(lastValues).containsKey(key);
+                assertThat(lastValues).containsEntry(key, value);
             }
         }
     }

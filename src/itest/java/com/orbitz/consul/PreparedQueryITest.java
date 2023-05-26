@@ -6,13 +6,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+
 import com.orbitz.consul.model.query.Failover;
 import com.orbitz.consul.model.query.ImmutableFailover;
 import com.orbitz.consul.model.query.ImmutablePreparedQuery;
 import com.orbitz.consul.model.query.ImmutableServiceQuery;
 import com.orbitz.consul.model.query.PreparedQuery;
 import com.orbitz.consul.model.query.StoredQuery;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,14 +56,14 @@ class PreparedQueryITest extends BaseIntegrationTest {
         var id = createPreparedQuery(preparedQuery);
 
         Optional<StoredQuery> maybeStoredQuery = preparedQueryClient.getPreparedQuery(id);
-        assertThat(maybeStoredQuery.isPresent()).isTrue();
+        assertThat(maybeStoredQuery).isPresent();
 
         var storedQuery = maybeStoredQuery.get();
         assertThat(storedQuery.getId(), is(id));
         assertThat(storedQuery.getName(), is(query));
         assertThat(storedQuery.getService().getService(), is(serviceName));
-        assertThat(storedQuery.getService().getFailover().isPresent()).isTrue();
-        assertThat(storedQuery.getService().getFailover().get().datacenters().isEmpty()).isTrue();
+        assertThat(storedQuery.getService().getFailover()).isPresent();
+        assertThat(storedQuery.getService().getFailover().get().datacenters()).isEmpty();
     }
 
     @Test
@@ -88,14 +88,14 @@ class PreparedQueryITest extends BaseIntegrationTest {
         var id = createPreparedQuery(preparedQuery);
 
         Optional<StoredQuery> maybeStoredQuery = preparedQueryClient.getPreparedQuery(id);
-        assertThat(maybeStoredQuery.isPresent()).isTrue();
+        assertThat(maybeStoredQuery).isPresent();
 
         var storedQuery = maybeStoredQuery.get();
         assertThat(storedQuery.getId(), is(id));
         assertThat(storedQuery.getName(), is(query));
 
         Optional<Failover> maybeFailover = storedQuery.getService().getFailover();
-        assertThat(maybeFailover.isPresent()).isTrue();
+        assertThat(maybeFailover).isPresent();
 
         var failover = maybeFailover.get();
         assertThat(failover.getNearestN(), is(Optional.of(3)));

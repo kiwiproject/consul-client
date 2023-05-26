@@ -25,7 +25,6 @@ import com.orbitz.consul.model.health.ServiceHealth;
 import com.orbitz.consul.option.ImmutableQueryOptions;
 import com.orbitz.consul.option.ImmutableQueryParameterOptions;
 import com.orbitz.consul.option.QueryOptions;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -392,11 +391,13 @@ class AgentITest extends BaseIntegrationTest {
         var elapsed = System.nanoTime() - start;
 
         assertThat(other.getResponse()).isEqualTo(service.getResponse());
-        assertThat(TimeUnit.NANOSECONDS.toMillis(elapsed) >= TimeUnit.SECONDS.toMillis(ttl)).as("Elapsed time should be equal or more than blocking time").isTrue();
+        assertThat(TimeUnit.NANOSECONDS.toMillis(elapsed))
+                .describedAs("Elapsed time should be equal or more than blocking time")
+                .isGreaterThanOrEqualTo(TimeUnit.SECONDS.toMillis(ttl));
     }
 
     @Test
-    void shouldGetServiceThrowErrorWhenServiceIsUnknown() throws NotRegisteredException {
+    void shouldGetServiceThrowErrorWhenServiceIsUnknown() {
         assertThatExceptionOfType(NotRegisteredException.class).isThrownBy(() -> {
             agentClient.getService(randomUUIDString(), QueryOptions.BLANK);
         });
@@ -498,12 +499,14 @@ class AgentITest extends BaseIntegrationTest {
         awaitAtMost500ms().until(() -> serviceExistsWithId(serviceId));
 
         List<String> healthCheckNames = getHealthCheckNames(serviceName);
-        assertThat(healthCheckNames.contains("Service Maintenance Mode")).isFalse();
+        assertThat(healthCheckNames)
+                .isNotEmpty()
+                .doesNotContain("Service Maintenance Mode");
 
         agentClient.toggleMaintenanceMode(serviceId, true, reason);
 
         List<String> updatedHealthCheckNames = getHealthCheckNames(serviceName);
-        assertThat(updatedHealthCheckNames.contains("Service Maintenance Mode")).isTrue();
+        assertThat(updatedHealthCheckNames).contains("Service Maintenance Mode");
     }
 
     private boolean serviceExistsWithId(String serviceId) {

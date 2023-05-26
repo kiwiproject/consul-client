@@ -13,7 +13,6 @@ import com.orbitz.consul.cache.CacheDescriptor;
 import com.orbitz.consul.cache.ConsulCache;
 import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.monitoring.ClientEventHandler;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -91,8 +90,8 @@ class CacheConfigTest {
     }
 
     @ParameterizedTest
-    @ValueSource(booleans = {true, false})
-    void testOverrideRefreshErrorLogConsumer(boolean logLevelWarning) throws InterruptedException {
+    @ValueSource(booleans = { true, false })
+    void testOverrideRefreshErrorLogConsumer(boolean logLevelWarning) {
         CacheConfig config = logLevelWarning
                 ? CacheConfig.builder().withRefreshErrorLoggedAsWarning().build()
                 : CacheConfig.builder().withRefreshErrorLoggedAsError().build();
@@ -172,7 +171,7 @@ class CacheConfigTest {
     }
 
     @Test
-    void testMinDelayOnEmptyResultWithNoResults() throws InterruptedException {
+    void testMinDelayOnEmptyResultWithNoResults() {
         TestCacheSupplier res = new TestCacheSupplier(0, Duration.ofMillis(100));
 
         try (TestCache cache = TestCache.createCache(CacheConfig.builder()
@@ -185,7 +184,7 @@ class CacheConfigTest {
     }
 
     @Test
-    void testMinDelayOnEmptyResultWithResults() throws InterruptedException {
+    void testMinDelayOnEmptyResultWithResults() {
         TestCacheSupplier res = new TestCacheSupplier(1, Duration.ofMillis(50));
 
         try (TestCache cache = TestCache.createCache(CacheConfig.builder()
@@ -207,9 +206,8 @@ class CacheConfigTest {
             ClientEventHandler ev = mock(ClientEventHandler.class);
             CacheDescriptor cacheDescriptor = new CacheDescriptor("test", "test");
 
-            final CallbackConsumer<Integer> callbackConsumer = (index, callback) -> {
-                callback.onComplete(new ConsulResponse<>(res.get(), 0, true, BigInteger.ZERO, null, null));
-            };
+            final CallbackConsumer<Integer> callbackConsumer = (index, callback) ->
+                    callback.onComplete(new ConsulResponse<>(res.get(), 0, true, BigInteger.ZERO, null, null));
 
             return new TestCache((i) -> i,
                     callbackConsumer,
@@ -222,7 +220,7 @@ class CacheConfigTest {
     static class TestCacheSupplier implements Supplier<List<Integer>> {
         int run = 0;
         int resultCount;
-        private Duration expectedInterval;
+        private final Duration expectedInterval;
         private LocalTime lastCall;
 
         TestCacheSupplier(int resultCount, Duration expectedInterval) {
@@ -234,7 +232,9 @@ class CacheConfigTest {
         public List<Integer> get() {
             if (lastCall != null) {
                 long between = Duration.between(lastCall, LocalTime.now()).toMillis();
-                assertThat(Math.abs(between - expectedInterval.toMillis()) < 20).as(String.format("expected duration between calls of %d, got %s", expectedInterval.toMillis(), between)).isTrue();
+                assertThat(Math.abs(between - expectedInterval.toMillis()))
+                        .describedAs(String.format("expected duration between calls of %d, got %s", expectedInterval.toMillis(), between))
+                        .isLessThan(20);
             }
             lastCall = LocalTime.now();
             run++;

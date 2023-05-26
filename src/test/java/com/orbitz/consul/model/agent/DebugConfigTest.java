@@ -1,12 +1,12 @@
 package com.orbitz.consul.model.agent;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orbitz.consul.util.Jackson;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-
-import org.junit.jupiter.api.Test;
 
 class DebugConfigTest {
 
@@ -243,6 +243,6 @@ class DebugConfigTest {
     void testDeserialization() throws IOException {
        ObjectMapper mapper = Jackson.MAPPER;
        final DebugConfig dbgConfig = mapper.readerFor(DebugConfig.class).readValue(JSON);
-        assertThat(dbgConfig.size()).as("DebugConfig contains 167 items").isEqualTo(167);
+        assertThat(dbgConfig).as("DebugConfig contains 167 items").hasSize(167);
     }
 }

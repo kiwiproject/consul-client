@@ -6,6 +6,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOf
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsNot.not;
+
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.model.acl.ImmutablePolicy;
 import com.orbitz.consul.model.acl.ImmutablePolicyLink;
@@ -16,7 +17,6 @@ import com.orbitz.consul.model.acl.PolicyResponse;
 import com.orbitz.consul.model.acl.RoleResponse;
 import com.orbitz.consul.model.acl.Token;
 import com.orbitz.consul.model.acl.TokenResponse;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
@@ -314,16 +314,16 @@ class AclTest {
                         .name(roleName)
                         .addPolicies(
                                 ImmutableRolePolicyLink.builder()
-                                .id(createdPolicy.id())
-                                .build()
+                                        .id(createdPolicy.id())
+                                        .build()
                         )
                         .build());
 
         RoleResponse roleResponse = aclClient.readRole(role.id());
         assertThat(roleResponse.id()).isEqualTo(role.id());
-        assertThat(roleResponse.policies().size()).isEqualTo(1);
-        assertThat(roleResponse.policies().get(0).id().isPresent()).isTrue();
-        assertThat(roleResponse.policies().get(0).id().get()).isEqualTo(createdPolicy.id());
+        assertThat(roleResponse.policies()).hasSize(1);
+        assertThat(roleResponse.policies().get(0).id()).isPresent();
+        assertThat(roleResponse.policies().get(0).id()).contains(createdPolicy.id());
     }
 
     @Test

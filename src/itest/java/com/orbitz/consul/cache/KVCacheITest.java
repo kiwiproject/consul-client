@@ -19,7 +19,6 @@ import com.orbitz.consul.Synchroniser;
 import com.orbitz.consul.config.CacheConfig;
 import com.orbitz.consul.config.ClientConfig;
 import com.orbitz.consul.model.kv.Value;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -39,12 +38,11 @@ import java.util.stream.Stream;
 
 class KVCacheITest extends BaseIntegrationTest {
 
-    private Consul consulClient;
     private KeyValueClient kvClient;
 
     @BeforeEach
     void setUp() {
-        consulClient = Consul.builder()
+        Consul consulClient = Consul.builder()
                 .withHostAndPort(defaultClientHostAndPort)
                 .withClientConfiguration(new ClientConfig(CacheConfig.builder().withWatchDuration(Duration.ofSeconds(1)).build()))
                 .withReadTimeoutMillis(Duration.ofSeconds(11).toMillis())
@@ -74,7 +72,10 @@ class KVCacheITest extends BaseIntegrationTest {
             for (int i = 0; i < 5; i++) {
                 var keyStr = String.format("%s/%s", root, i);
                 var valStr = String.valueOf(i);
-                assertThat(map.get(keyStr).getValueAsString().get()).isEqualTo(valStr);
+
+                var value = map.get(keyStr);
+                assertThat(value).isNotNull();
+                assertThat(value.getValueAsString()).contains(valStr);
             }
 
             for (int i = 0; i < 5; i++) {
@@ -87,9 +88,12 @@ class KVCacheITest extends BaseIntegrationTest {
 
             map = cache.getMap();
             for (int i = 0; i < 5; i++) {
-                String keyStr = String.format("%s/%s", root, i);
-                String valStr = i % 2 == 0 ? "" + (i * 10) : String.valueOf(i);
-                assertThat(map.get(keyStr).getValueAsString().get()).isEqualTo(valStr);
+                var keyStr = String.format("%s/%s", root, i);
+                var valStr = i % 2 == 0 ? String.valueOf(i * 10) : String.valueOf(i);
+
+                var value = map.get(keyStr);
+                assertThat(value).isNotNull();
+                assertThat(value.getValueAsString()).contains(valStr);
             }
         }
 
@@ -115,20 +119,21 @@ class KVCacheITest extends BaseIntegrationTest {
             }
         }
 
-        assertThat(events.size()).isEqualTo(6);
+        assertThat(events).hasSize(6);
+
         for (int eventIdx = 1; eventIdx < 6; eventIdx++) {
             Map<String, Value> map = events.get(eventIdx);
-            assertThat(map.size()).isEqualTo(eventIdx);
+            assertThat(map).hasSize(eventIdx);
 
             for (int keyIdx = 0; keyIdx < eventIdx; keyIdx++) {
                 Optional<String> value = map
                         .get(String.format("%s/%s", root, keyIdx))
                         .getValueAsString();
 
-                if (!value.isPresent()) {
+                if (value.isEmpty()) {
                     fail("", String.format("Missing value for event %s and key %s", eventIdx, keyIdx));
                 }
-                assertThat(value.get()).isEqualTo(String.valueOf(keyIdx));
+                assertThat(value).contains(String.valueOf(keyIdx));
             }
         }
 
@@ -154,14 +159,14 @@ class KVCacheITest extends BaseIntegrationTest {
             }
 
             cache.addListener(events::add);
-            assertThat(events.size()).isEqualTo(1);
+            assertThat(events).hasSize(1);
 
             Map<String, Value> map = events.get(0);
-            assertThat(map.size()).isEqualTo(5);
+            assertThat(map).hasSize(5);
             for (int j = 0; j < 5; j++) {
                 var keyStr = String.format("%s/%s", root, j);
                 var valStr = String.valueOf(j);
-                assertThat(map.get(keyStr).getValueAsString().get()).isEqualTo(valStr);
+                assertThat(map.get(keyStr).getValueAsString()).contains(valStr);
             }
         }
 
@@ -183,9 +188,9 @@ class KVCacheITest extends BaseIntegrationTest {
 
             awaitAtMost500ms().until(() -> events.size() == 1);
 
-            assertThat(events.size()).isEqualTo(1);
+            assertThat(events).hasSize(1);
             Map<String, Value> map = events.get(0);
-            assertThat(map.size()).isEqualTo(0);
+            assertThat(map).isEmpty();
         }
     }
 
@@ -203,7 +208,7 @@ class KVCacheITest extends BaseIntegrationTest {
             }
             assertThat(cache.getState()).isEqualTo(ConsulCache.State.STARTED);
 
-            assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> cache.start());
+            assertThatExceptionOfType(IllegalStateException.class).isThrownBy(cache::start);
         }
     }
 
@@ -213,6 +218,7 @@ class KVCacheITest extends BaseIntegrationTest {
         final List<Map<String, Value>> events = new ArrayList<>();
 
         // intentionally not using try-with-resources to test the cache lifecycle methods
+        // noinspection resource
         var cache = KVCache.newCache(kvClient, root, 10);
 
         try {
@@ -231,7 +237,7 @@ class KVCacheITest extends BaseIntegrationTest {
                 kvClient.putValue(root + "/" + i, String.valueOf(i));
                 Synchroniser.pause(Duration.ofMillis(100));
             }
-            assertThat(events.size()).isEqualTo(6);
+            assertThat(events).hasSize(6);
 
             cache.stop();
             assertThat(cache.getState()).isEqualTo(ConsulCache.State.STOPPED);
@@ -242,7 +248,7 @@ class KVCacheITest extends BaseIntegrationTest {
                 Synchroniser.pause(Duration.ofMillis(100));
             }
 
-            assertThat(events.size()).isEqualTo(6);
+            assertThat(events).hasSize(6);
         } finally {
             // verify stop is idempotent
             cache.stop();
@@ -253,7 +259,7 @@ class KVCacheITest extends BaseIntegrationTest {
     }
 
     @Test
-    void ensureCacheInitialization() throws InterruptedException {
+    void ensureCacheInitialization() {
         var key = randomUUIDString();
         var value = randomUUIDString();
         kvClient.putValue(key, value);
@@ -261,7 +267,7 @@ class KVCacheITest extends BaseIntegrationTest {
         final CountDownLatch completed = new CountDownLatch(1);
         final AtomicBoolean success = new AtomicBoolean(false);
 
-        try (var cache = KVCache.newCache(kvClient, key, (int)Duration.ofSeconds(1).getSeconds())) {
+        try (var cache = KVCache.newCache(kvClient, key, (int) Duration.ofSeconds(1).getSeconds())) {
             cache.addListener(values -> {
                 success.set(isValueEqualsTo(values, value));
                 completed.countDown();
@@ -280,7 +286,7 @@ class KVCacheITest extends BaseIntegrationTest {
 
     @ParameterizedTest(name = "queries of {0} seconds")
     @MethodSource("getBlockingQueriesDuration")
-    void checkUpdateNotifications(int queryDurationSec) throws InterruptedException {
+    void checkUpdateNotifications(int queryDurationSec) {
         var scheduledExecutor = Executors.newSingleThreadScheduledExecutor(
                 new ThreadFactoryBuilder().setDaemon(true).setNameFormat("kvcache-itest-%d").build()
         );
@@ -303,7 +309,7 @@ class KVCacheITest extends BaseIntegrationTest {
             scheduledExecutor.schedule(() -> kvClient.putValue(key, newValue), 3, TimeUnit.SECONDS);
             completed.await(4, TimeUnit.SECONDS);
         } catch (Exception e) {
-            fail("", e.getMessage());
+            fail(e.getMessage(), e);
         } finally {
             kvClient.deleteKey(key);
             scheduledExecutor.shutdownNow();
@@ -314,8 +320,8 @@ class KVCacheITest extends BaseIntegrationTest {
 
     static Stream<Arguments> getBlockingQueriesDuration() {
         return Stream.of(
-            arguments(new Object[] { 1 }),
-            arguments(new Object[] { 10 })
+                arguments(1),
+                arguments(10)
         );
     }
 

@@ -1,6 +1,7 @@
 package com.orbitz.consul.model.health;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
 class ServiceTest {
@@ -15,7 +16,7 @@ class ServiceTest {
     @Test
     void testNullTags(){
         Service sv = tagged();
-        assertThat(sv.getTags().isEmpty()).isTrue();
+        assertThat(sv.getTags()).isEmpty();
     }
 
     private Service tagged(String ... tags) {

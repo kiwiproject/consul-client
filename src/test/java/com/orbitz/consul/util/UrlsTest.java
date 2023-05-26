@@ -2,6 +2,7 @@ package com.orbitz.consul.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+
 import org.junit.jupiter.api.Test;
 
 class UrlsTest {
@@ -11,7 +12,7 @@ class UrlsTest {
         var urlString = "https://github.com/kiwiproject/consul-client";
         var url = Urls.newUrl(urlString);
 
-        assertThat(url.toString()).isEqualTo(urlString);
+        assertThat(url).hasToString(urlString);
     }
 
     @Test
@@ -23,7 +24,7 @@ class UrlsTest {
     void shouldCreateNewUrl_FromComponents() {
         var url = Urls.newUrl("https", "github.com", 443);
 
-        assertThat(url.toString()).isEqualTo("https://github.com:443");
+        assertThat(url).hasToString("https://github.com:443");
     }
 
     @Test

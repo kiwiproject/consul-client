@@ -1,12 +1,12 @@
 package com.orbitz.consul;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.orbitz.consul.model.operator.RaftConfiguration;
 import com.orbitz.consul.model.operator.RaftServer;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class OperatorITest extends BaseIntegrationTest {
 
@@ -16,7 +16,7 @@ class OperatorITest extends BaseIntegrationTest {
         RaftConfiguration raftConfiguration = operatorClient.getRaftConfiguration();
 
         List<RaftServer> servers = raftConfiguration.servers();
-        assertThat(servers.isEmpty()).isFalse();
+        assertThat(servers).isNotEmpty();
     }
 
     @Test
@@ -27,14 +27,13 @@ class OperatorITest extends BaseIntegrationTest {
         RaftConfiguration raftConfiguration = operatorClient.getRaftConfiguration(datacenter);
 
         List<RaftServer> servers = raftConfiguration.servers();
-        assertThat(servers.isEmpty()).isFalse();
+        assertThat(servers).isNotEmpty();
     }
 
     private String getFirstDatacenter() {
         List<String> datacenters = client.catalogClient().getDatacenters();
-        assertThat(datacenters.isEmpty()).isFalse();
-        String datacenter = datacenters.get(0);
-        return datacenter;
+        assertThat(datacenters).isNotEmpty();
+        return datacenters.get(0);
     }
 
     @Test
@@ -43,7 +42,7 @@ class OperatorITest extends BaseIntegrationTest {
         RaftConfiguration raftConfiguration = operatorClient.getStaleRaftConfiguration();
 
         List<RaftServer> servers = raftConfiguration.servers();
-        assertThat(servers.isEmpty()).isFalse();
+        assertThat(servers).isNotEmpty();
     }
 
     @Test
@@ -54,6 +53,6 @@ class OperatorITest extends BaseIntegrationTest {
         RaftConfiguration raftConfiguration = operatorClient.getStaleRaftConfiguration(datacenter);
 
         List<RaftServer> servers = raftConfiguration.servers();
-        assertThat(servers.isEmpty()).isFalse();
+        assertThat(servers).isNotEmpty();
     }
 }

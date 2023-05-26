@@ -3,6 +3,7 @@ package com.orbitz.consul;
 import static com.orbitz.consul.Consul.builder;
 import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.model.State;
@@ -15,7 +16,6 @@ import com.orbitz.consul.option.QueryOptions;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
-import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +46,7 @@ class HealthITest extends BaseIntegrationTest {
     }
 
     @Test
-    void shouldFetchNode() throws UnknownHostException, NotRegisteredException {
+    void shouldFetchNode() throws NotRegisteredException {
         String serviceName = randomUUIDString();
         String serviceId = randomUUIDString();
 
@@ -60,7 +60,7 @@ class HealthITest extends BaseIntegrationTest {
     }
 
     @Test
-    void shouldFetchNodeDatacenter() throws UnknownHostException, NotRegisteredException {
+    void shouldFetchNodeDatacenter() throws NotRegisteredException {
         String serviceName = randomUUIDString();
         String serviceId = randomUUIDString();
 
@@ -74,7 +74,7 @@ class HealthITest extends BaseIntegrationTest {
     }
 
     @Test
-    void shouldFetchNodeBlock() throws UnknownHostException, NotRegisteredException {
+    void shouldFetchNodeBlock() throws NotRegisteredException {
         String serviceName = randomUUIDString();
         String serviceId = randomUUIDString();
 
@@ -88,7 +88,7 @@ class HealthITest extends BaseIntegrationTest {
     }
 
     @Test
-    void shouldFetchChecksForServiceBlock() throws UnknownHostException, NotRegisteredException {
+    void shouldFetchChecksForServiceBlock() throws NotRegisteredException {
         String serviceName = randomUUIDString();
         String serviceId = randomUUIDString();
 
@@ -109,7 +109,7 @@ class HealthITest extends BaseIntegrationTest {
                 QueryOptions.blockSeconds(20, new BigInteger("0")).datacenter("dc1").build());
 
         List<HealthCheck> checks = response.getResponse();
-        assertThat(checks.size()).isEqualTo(1);
+        assertThat(checks).hasSize(1);
         for(HealthCheck ch : checks) {
             if(ch.getServiceId().isPresent() && ch.getServiceId().get().equals(serviceId)) {
                 found = true;
@@ -120,7 +120,7 @@ class HealthITest extends BaseIntegrationTest {
     }
 
     @Test
-    void shouldFetchByState() throws UnknownHostException, NotRegisteredException {
+    void shouldFetchByState() throws NotRegisteredException {
         String serviceName = randomUUIDString();
         String serviceId = randomUUIDString();
 
@@ -130,8 +130,8 @@ class HealthITest extends BaseIntegrationTest {
         boolean found = false;
         ConsulResponse<List<HealthCheck>> response = client.healthClient().getChecksByState(State.WARN);
 
-        for(HealthCheck healthCheck : response.getResponse()) {
-            if(healthCheck.getServiceId().isPresent() && healthCheck.getServiceId().get().equals(serviceId)) {
+        for (HealthCheck healthCheck : response.getResponse()) {
+            if (healthCheck.getServiceId().isPresent() && healthCheck.getServiceId().get().equals(serviceId)) {
                 found = true;
             }
         }
@@ -144,7 +144,7 @@ class HealthITest extends BaseIntegrationTest {
         boolean found = false;
         List<ServiceHealth> nodes = response.getResponse();
 
-        assertThat(nodes.size()).isEqualTo(1);
+        assertThat(nodes).hasSize(1);
 
         for(ServiceHealth health : nodes) {
             if(health.getService().getId().equals(serviceId)) {
