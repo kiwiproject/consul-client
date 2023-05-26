@@ -1,5 +1,9 @@
 package com.orbitz.consul.cache;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.nonNull;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
@@ -10,7 +14,7 @@ import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.monitoring.ClientEventHandler;
 import com.orbitz.consul.option.ImmutableQueryOptions;
 import com.orbitz.consul.option.QueryOptions;
-import org.apache.commons.lang3.Validate;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,10 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -32,9 +36,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 
 /**
  * A cache structure that can provide an up-to-date read-only
@@ -95,18 +96,13 @@ public class ConsulCache<K, V> implements AutoCloseable {
             ClientEventHandler eventHandler,
             CacheDescriptor cacheDescriptor,
             Scheduler callbackScheduler) {
-        if (keyConversion == null) {
-            Validate.notNull(keyConversion, "keyConversion must not be null");
-        }
-        if (callbackConsumer == null) {
-            Validate.notNull(callbackConsumer, "callbackConsumer must not be null");
-        }
-        if (cacheConfig == null) {
-            Validate.notNull(cacheConfig, "cacheConfig must not be null");
-        }
-        if (eventHandler == null) {
-            Validate.notNull(eventHandler, "eventHandler must not be null");
-        }
+
+        checkArgument(nonNull(keyConversion), "keyConversion must not be null");
+        checkArgument(nonNull(callbackConsumer), "callbackConsumer must not be null");
+        checkArgument(nonNull(cacheConfig), "cacheConfig must not be null");
+        checkArgument(nonNull(eventHandler), "eventHandler must not be null");
+        checkArgument(nonNull(cacheDescriptor), "cacheDescriptor must not be null");
+        checkArgument(nonNull(callbackScheduler), "callbackScheduler must not be null");
 
         this.keyConversion = keyConversion;
         this.callBackConsumer = callbackConsumer;

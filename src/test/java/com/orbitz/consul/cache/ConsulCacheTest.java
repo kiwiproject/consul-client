@@ -8,6 +8,9 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
 
 import com.google.common.collect.ImmutableMap;
+import com.orbitz.consul.TestUtils;
+import com.orbitz.consul.cache.ConsulCache.CallbackConsumer;
+import com.orbitz.consul.cache.ConsulCache.Scheduler;
 import com.orbitz.consul.config.CacheConfig;
 import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.model.kv.ImmutableValue;
@@ -17,6 +20,8 @@ import com.orbitz.consul.option.ConsistencyMode;
 import com.orbitz.consul.option.ImmutableQueryOptions;
 import com.orbitz.consul.option.QueryOptions;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -31,6 +36,61 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 class ConsulCacheTest {
+
+    @Nested
+    class Constructors {
+
+        private Function<Value, String> keyConversion;
+        private CallbackConsumer<Value> callbackConsumer;
+        private CacheConfig cacheConfig;
+        private ClientEventHandler clientEventHandler;
+        private CacheDescriptor cacheDescriptor;
+
+        @BeforeEach
+        void setUp() {
+            keyConversion = value -> TestUtils.randomUUIDString();
+            callbackConsumer = new StubCallbackConsumer(List.of());
+            cacheConfig = CacheConfig.builder().build();
+            clientEventHandler = new ClientEventHandler("testClient", null);
+            cacheDescriptor = new CacheDescriptor("test.endpoint");
+        }
+
+        @Test
+        void shouldRequireKeyConversionArg() {
+            assertThatIllegalArgumentException().isThrownBy(() ->
+                    new ConsulCache<>(null, callbackConsumer, cacheConfig, clientEventHandler, cacheDescriptor));
+        }
+
+        @Test
+        void shouldRequireCallbackConsumerArg() {
+            assertThatIllegalArgumentException().isThrownBy(() ->
+                    new ConsulCache<>(keyConversion, null, cacheConfig, clientEventHandler, cacheDescriptor));
+        }
+
+        @Test
+        void shouldRequireCacheConfigArg() {
+            assertThatIllegalArgumentException().isThrownBy(() ->
+                    new ConsulCache<>(keyConversion, callbackConsumer, null, clientEventHandler, cacheDescriptor));
+        }
+
+        @Test
+        void shouldRequireEventHandlerArg() {
+            assertThatIllegalArgumentException().isThrownBy(() ->
+                    new ConsulCache<>(keyConversion, callbackConsumer, cacheConfig, null, cacheDescriptor));
+        }
+
+        @Test
+        void shouldRequireCacheDescriptorArg() {
+            assertThatIllegalArgumentException().isThrownBy(() ->
+                    new ConsulCache<>(keyConversion, callbackConsumer, cacheConfig, clientEventHandler, null));
+        }
+
+        @Test
+        void shouldRequireSchedulerArg() {
+            assertThatIllegalArgumentException().isThrownBy(() ->
+                    new ConsulCache<>(keyConversion, callbackConsumer, cacheConfig, clientEventHandler, cacheDescriptor, (Scheduler) null));
+        }
+    }
 
     /**
      * Test that if Consul for some reason returns a duplicate service or key/value entry
