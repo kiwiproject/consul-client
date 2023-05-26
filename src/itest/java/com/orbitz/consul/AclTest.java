@@ -3,9 +3,6 @@ package com.orbitz.consul;
 import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsNot.not;
 
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.model.acl.ImmutablePolicy;
@@ -24,7 +21,6 @@ import org.testcontainers.containers.GenericContainer;
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 class AclTest {
 
@@ -72,12 +68,12 @@ class AclTest {
 
         String policyName = randomUUIDString();
         PolicyResponse policy = aclClient.createPolicy(ImmutablePolicy.builder().name(policyName).build());
-        assertThat(policy.name(), is(policyName));
-        assertThat(policy.datacenters(), is(Optional.empty()));
+        assertThat(policy.name()).isEqualTo(policyName);
+        assertThat(policy.datacenters()).isEmpty();
 
         policy = aclClient.readPolicy(policy.id());
-        assertThat(policy.name(), is(policyName));
-        assertThat(policy.datacenters(), is(Optional.empty()));
+        assertThat(policy.name()).isEqualTo(policyName);
+        assertThat(policy.datacenters()).isEmpty();
     }
 
     @Test
@@ -87,12 +83,12 @@ class AclTest {
         String policyName = randomUUIDString();
         ImmutablePolicy newPolicy = ImmutablePolicy.builder().name(policyName).datacenters(List.of("dc1")).build();
         PolicyResponse policy = aclClient.createPolicy(newPolicy);
-        assertThat(policy.name(), is(policyName));
-        assertThat(policy.datacenters(), is(Optional.of(List.of("dc1"))));
+        assertThat(policy.name()).isEqualTo(policyName);
+        assertThat(policy.datacenters()).contains(List.of("dc1"));
 
         policy = aclClient.readPolicy(policy.id());
-        assertThat(policy.name(), is(policyName));
-        assertThat(policy.datacenters(), is(Optional.of(List.of("dc1"))));
+        assertThat(policy.name()).isEqualTo(policyName);
+        assertThat(policy.datacenters()).contains(List.of("dc1"));
     }
 
     @Test
@@ -101,10 +97,10 @@ class AclTest {
 
         String policyName = randomUUIDString();
         PolicyResponse policy = aclClient.createPolicy(ImmutablePolicy.builder().name(policyName).build());
-        assertThat(policy.name(), is(policyName));
+        assertThat(policy.name()).isEqualTo(policyName);
 
         policy = aclClient.readPolicyByName(policy.name());
-        assertThat(policy.name(), is(policyName));
+        assertThat(policy.name()).isEqualTo(policyName);
     }
 
     @Test
@@ -118,7 +114,7 @@ class AclTest {
         aclClient.updatePolicy(createdPolicy.id(), ImmutablePolicy.builder().name(newPolicyName).build());
 
         PolicyResponse updatedPolicy = aclClient.readPolicy(createdPolicy.id());
-        assertThat(updatedPolicy.name(), is(newPolicyName));
+        assertThat(updatedPolicy.name()).isEqualTo(newPolicyName);
     }
 
     @Test
@@ -132,7 +128,7 @@ class AclTest {
         aclClient.deletePolicy(createdPolicy.id());
         int newPolicyCount = aclClient.listPolicies().size();
 
-        assertThat(newPolicyCount, is(oldPolicyCount - 1));
+        assertThat(newPolicyCount).isEqualTo(oldPolicyCount - 1);
     }
 
     @Test
@@ -147,8 +143,9 @@ class AclTest {
 
         TokenResponse readToken = aclClient.readToken(createdToken.accessorId());
 
-        assertThat(readToken.description(), is(tokenDescription));
-        assertThat(readToken.policies().get(0).name().get(), is(policyName));
+        assertThat(readToken.description()).isEqualTo(tokenDescription);
+
+        assertThat(readToken.policies().get(0).name()).contains(policyName);
     }
 
     @Test
@@ -178,8 +175,8 @@ class AclTest {
 
         TokenResponse readToken = aclClient.cloneToken(createdToken.accessorId(), updateToken);
 
-        assertThat(readToken.accessorId(), not(createdToken.accessorId()));
-        assertThat(readToken.description(), is(updatedTokenDescription));
+        assertThat(readToken.accessorId()).isNotEqualTo(createdToken.accessorId());
+        assertThat(readToken.description()).isEqualTo(updatedTokenDescription);
     }
 
     @Test
@@ -204,8 +201,8 @@ class AclTest {
 
         TokenResponse readToken = aclClient.readToken(createdToken.accessorId());
 
-        assertThat(readToken.accessorId(), is(tokenId));
-        assertThat(readToken.secretId(), is(tokenSecretId));
+        assertThat(readToken.accessorId()).isEqualTo(tokenId);
+        assertThat(readToken.secretId()).isEqualTo(tokenSecretId);
     }
 
     @Test
@@ -213,7 +210,7 @@ class AclTest {
         AclClient aclClient = client.aclClient();
 
         TokenResponse selfToken = aclClient.readSelfToken();
-        assertThat(selfToken.description(), is("Initial Management Token"));
+        assertThat(selfToken.description()).isEqualTo("Initial Management Token");
     }
 
     @Test
@@ -237,10 +234,10 @@ class AclTest {
                 .description(newDescription)
                 .build();
         TokenResponse updatedToken = aclClient.updateToken(createdToken.accessorId(), tokenUpdates);
-        assertThat(updatedToken.description(), is(newDescription));
+        assertThat(updatedToken.description()).isEqualTo(newDescription);
 
         TokenResponse readToken = aclClient.readToken(createdToken.accessorId());
-        assertThat(readToken.description(), is(newDescription));
+        assertThat(readToken.description()).isEqualTo(newDescription);
     }
 
     @Test
@@ -263,7 +260,7 @@ class AclTest {
         aclClient.deleteToken(createdToken.accessorId());
 
         int newTokenCount = aclClient.listTokens().size();
-        assertThat(newTokenCount, is(oldTokenCount - 1));
+        assertThat(newTokenCount).isEqualTo(oldTokenCount - 1);
     }
 
     @Test
