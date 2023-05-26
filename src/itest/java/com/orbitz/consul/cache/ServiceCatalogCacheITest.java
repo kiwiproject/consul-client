@@ -1,6 +1,7 @@
 package com.orbitz.consul.cache;
 
 import static com.orbitz.consul.Awaiting.awaitAtMost1s;
+import static com.orbitz.consul.Awaiting.awaitAtMost500ms;
 import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,14 +41,19 @@ class ServiceCatalogCacheITest extends BaseIntegrationTest {
         cache.awaitInitialized(3, TimeUnit.SECONDS);
 
         client.agentClient().register(20001, 20, name, serviceId1, NO_TAGS, NO_META);
+        awaitAtMost500ms().until(() -> serviceIsRegistered(name, serviceId1));
+
         client.agentClient().register(20002, 20, name, serviceId2, NO_TAGS, NO_META);
+        awaitAtMost500ms().until(() -> serviceIsRegistered(name, serviceId2));
 
-        awaitAtMost1s().until(() -> servicesAreRegistered(name, serviceId1, serviceId2));
+        // awaitAtMost1s().until(() -> servicesAreRegistered(name, serviceId1, serviceId2));
 
-        await().atMost(FIVE_SECONDS).until(() -> {
-            System.out.println("ServiceCatalogCacheITest: result.size() at " + System.currentTimeMillis() + " = " + result.size());
-            return result.size() == 3;
-        });
+        // await().atMost(FIVE_SECONDS).until(() -> {
+        //     System.out.println("ServiceCatalogCacheITest: result.size() at " + System.currentTimeMillis() + " = " + result.size());
+        //     return result.size() == 3;
+        // });
+
+        assertThat(result).hasSize(3);
 
         assertThat(result.get(0)).isEmpty();
         assertThat(result.get(1)).hasSize(1);
@@ -75,5 +81,12 @@ class ServiceCatalogCacheITest extends BaseIntegrationTest {
 
         return registeredServiceIds.size() == serviceIds.length &&
                 registeredServiceIds.containsAll(List.of(serviceIds));
+    }
+
+    private boolean serviceIsRegistered(String serviceName, String serviceIds) {
+       return client.catalogClient().getService(serviceName)
+                .getResponse()
+                .stream()
+                .anyMatch(catalogService -> catalogService.getServiceId().equals(serviceIds));
     }
 }
