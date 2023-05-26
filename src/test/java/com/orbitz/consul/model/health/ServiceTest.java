@@ -1,7 +1,6 @@
 package com.orbitz.consul.model.health;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -11,13 +10,13 @@ class ServiceTest {
     void testEquals(){
         Service one = tagged("a", "b");
         Service two = tagged("a", "b");
-        assertEquals(one, two);
+        assertThat(two).isEqualTo(one);
     }
 
     @Test
     void testNullTags(){
         Service sv = tagged();
-        assertTrue(sv.getTags().isEmpty());
+        assertThat(sv.getTags()).isEmpty();
     }
 
     private Service tagged(String ... tags) {

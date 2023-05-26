@@ -1,7 +1,6 @@
 package com.orbitz.consul.model.health;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -17,7 +16,7 @@ class HealthCheckTest {
                 .status("passing")
                 .build();
 
-        assertEquals(List.of(), check.getServiceTags());
+        assertThat(check.getServiceTags()).isEqualTo(List.of());
     }
 
     @Test
@@ -30,6 +29,6 @@ class HealthCheckTest {
                 .addServiceTags("myTag")
                 .build();
 
-        assertEquals(List.of("myTag"), check.getServiceTags());
+        assertThat(check.getServiceTags()).isEqualTo(List.of("myTag"));
     }
 }

@@ -1,10 +1,8 @@
 package com.orbitz.consul.util;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-
 import java.security.GeneralSecurityException;
 
 import org.junit.jupiter.api.Test;
@@ -17,8 +15,8 @@ class UncheckedGeneralSecurityExceptionTest {
         var cause = newGeneralSecurityException();
         var exception = new UncheckedGeneralSecurityException("nope", cause);
 
-        assertEquals("nope", exception.getMessage());
-        assertSame(cause, exception.getCause());
+        assertThat(exception.getMessage()).isEqualTo("nope");
+        assertThat(exception.getCause()).isSameAs(cause);
     }
 
     @Test
@@ -27,7 +25,7 @@ class UncheckedGeneralSecurityExceptionTest {
         var exception = new UncheckedGeneralSecurityException(cause);
 
         assertThat(exception.getMessage(), containsString(cause.getMessage()));
-        assertSame(cause, exception.getCause());
+        assertThat(exception.getCause()).isSameAs(cause);
     }
 
     private static GeneralSecurityException newGeneralSecurityException() {

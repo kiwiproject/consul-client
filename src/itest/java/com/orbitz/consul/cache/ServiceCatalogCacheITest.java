@@ -1,15 +1,12 @@
 package com.orbitz.consul.cache;
 
 import static com.orbitz.consul.TestUtils.randomUUIDString;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.FIVE_SECONDS;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.orbitz.consul.BaseIntegrationTest;
 import com.orbitz.consul.model.catalog.CatalogService;
-
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -41,17 +38,17 @@ class ServiceCatalogCacheITest extends BaseIntegrationTest {
 
         await().atMost(FIVE_SECONDS).until(() -> result.size() == 3);
 
-        assertEquals(0, result.get(0).size());
-        assertEquals(1, result.get(1).size());
-        assertEquals(2, result.get(2).size());
+        assertThat(result.get(0)).isEmpty();
+        assertThat(result.get(1)).hasSize(1);
+        assertThat(result.get(2)).hasSize(2);
 
-        assertTrue(result.get(1).containsKey(serviceId1));
-        assertFalse(result.get(1).containsKey(serviceId2));
+        assertThat(result.get(1)).containsKey(serviceId1);
+        assertThat(result.get(1)).doesNotContainKey(serviceId2);
 
-        assertTrue(result.get(2).containsKey(serviceId1));
-        assertTrue(result.get(2).containsKey(serviceId2));
+        assertThat(result.get(2)).containsKey(serviceId1);
+        assertThat(result.get(2)).containsKey(serviceId2);
 
-        assertEquals(serviceId1, result.get(1).get(serviceId1).getServiceId());
-        assertEquals(serviceId2, result.get(2).get(serviceId2).getServiceId());
+        assertThat(result.get(1).get(serviceId1).getServiceId()).isEqualTo(serviceId1);
+        assertThat(result.get(2).get(serviceId2).getServiceId()).isEqualTo(serviceId2);
     }
 }

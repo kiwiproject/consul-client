@@ -1,13 +1,11 @@
 package com.orbitz.consul;
 
 import static com.orbitz.consul.TestUtils.randomUUIDString;
+import static org.assertj.core.api.Assertions.assertThat;
 import static com.orbitz.consul.Awaiting.awaitWith25MsPoll;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.FIVE_SECONDS;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.orbitz.consul.async.Callback;
 import com.orbitz.consul.option.QueryOptions;
 
@@ -43,7 +41,7 @@ class SnapshotClientITest extends BaseIntegrationTest {
 
     @Test
     void snapshotClientShouldBeAvailableInConsul() {
-        assertNotNull(snapshotClient);
+        assertThat(snapshotClient).isNotNull();
     }
 
     @Test
@@ -69,16 +67,16 @@ class SnapshotClientITest extends BaseIntegrationTest {
         CountDownLatch latch = new CountDownLatch(1);
         AtomicBoolean success = new AtomicBoolean(false);
         snapshotClient.save(snapshotFile, QueryOptions.BLANK, createCallback(latch, success));
-        assertTrue(latch.await(1, TimeUnit.MINUTES));
-        assertTrue(success.get());
+        assertThat(latch.await(1, TimeUnit.MINUTES)).isTrue();
+        assertThat(success.get()).isTrue();
     }
 
     private void ensureRestoreSnapshot() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         AtomicBoolean success = new AtomicBoolean(false);
         snapshotClient.restore(snapshotFile, QueryOptions.BLANK, createCallback(latch, success));
-        assertTrue(latch.await(1, TimeUnit.MINUTES));
-        assertTrue(success.get());
+        assertThat(latch.await(1, TimeUnit.MINUTES)).isTrue();
+        assertThat(success.get()).isTrue();
     }
 
     private boolean serviceExists(String serviceName) {

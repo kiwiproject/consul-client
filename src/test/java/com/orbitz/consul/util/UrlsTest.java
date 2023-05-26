@@ -1,7 +1,7 @@
 package com.orbitz.consul.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 
 import org.junit.jupiter.api.Test;
 
@@ -12,24 +12,23 @@ class UrlsTest {
         var urlString = "https://github.com/kiwiproject/consul-client";
         var url = Urls.newUrl(urlString);
 
-        assertEquals(urlString, url.toString());
+        assertThat(url).hasToString(urlString);
     }
 
     @Test
     void shouldCreateNewUrl_FromString_AndThrow_WhenMalformed() {
-        assertThrows(UncheckedMalformedURLException.class, () -> Urls.newUrl("oops"));
+        assertThatExceptionOfType(UncheckedMalformedURLException.class).isThrownBy(() -> Urls.newUrl("oops"));
     }
 
     @Test
     void shouldCreateNewUrl_FromComponents() {
         var url = Urls.newUrl("https", "github.com", 443);
 
-        assertEquals("https://github.com:443", url.toString());
+        assertThat(url).hasToString("https://github.com:443");
     }
 
     @Test
     void shouldCreateNewUrl_FromComponents_AndThrow_WhenMalformed() {
-        assertThrows(UncheckedMalformedURLException.class,
-                () -> Urls.newUrl("bad_protocol", "github.com", 8080));
+        assertThatExceptionOfType(UncheckedMalformedURLException.class).isThrownBy(() -> Urls.newUrl("bad_protocol", "github.com", 8080));
     }
 }

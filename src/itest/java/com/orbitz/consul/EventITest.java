@@ -1,17 +1,16 @@
 package com.orbitz.consul;
 
+import static com.orbitz.consul.Awaiting.awaitWith25MsPoll;
+import static java.util.Objects.nonNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
+
 import com.orbitz.consul.model.event.Event;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
-
-import static com.orbitz.consul.Awaiting.awaitWith25MsPoll;
-import static java.util.Objects.nonNull;
-import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class EventITest extends BaseIntegrationTest {
 
@@ -23,7 +22,7 @@ class EventITest extends BaseIntegrationTest {
     }
 
     @Test
-    void shouldFire() throws InterruptedException {
+    void shouldFire() {
         var name = RandomStringUtils.random(10, true, true);
         var firedEvent = eventClient.fireEvent(name);
 
@@ -33,7 +32,7 @@ class EventITest extends BaseIntegrationTest {
     }
 
     @Test
-    void shouldFireWithPayload() throws InterruptedException {
+    void shouldFireWithPayload() {
         var payload = RandomStringUtils.randomAlphabetic(20);
         var name = RandomStringUtils.randomAlphabetic(10);
         var firedEvent = eventClient.fireEvent(name, payload);
@@ -43,8 +42,8 @@ class EventITest extends BaseIntegrationTest {
                 .atMost(TWO_HUNDRED_MILLISECONDS)
                 .until(() -> eventIsFound(firedEvent.getId(), name, foundEventRef));
 
-        assertNotNull(foundEventRef.get());
-        assertEquals(payload, foundEventRef.get().getPayload().get());
+        assertThat(foundEventRef.get()).isNotNull();
+        assertThat(foundEventRef.get().getPayload()).contains(payload);
     }
 
     private boolean eventIsFound(String eventId, String name) {
@@ -61,6 +60,6 @@ class EventITest extends BaseIntegrationTest {
 
         foundEvent.set(foundEventOrNull);
 
-        return nonNull(foundEvent);
+        return nonNull(foundEventOrNull);
     }
 }

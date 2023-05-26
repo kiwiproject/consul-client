@@ -1,7 +1,6 @@
 package com.orbitz.consul.util.bookend;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,9 +19,9 @@ class ConsulBookendContextTest {
         context.put("name", "TheContext");
 
         var elapsedMillis = context.get("elapsedMillis", Long.class).orElseThrow();
-        assertEquals(42L, elapsedMillis.longValue());
+        assertThat(elapsedMillis.longValue()).isEqualTo(42L);
 
         var name = context.get("name", String.class).orElseThrow();
-        assertEquals("TheContext", name);
+        assertThat(name).isEqualTo("TheContext");
     }
 }

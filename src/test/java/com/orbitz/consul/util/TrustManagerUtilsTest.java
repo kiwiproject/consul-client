@@ -1,12 +1,12 @@
 package com.orbitz.consul.util;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
 class TrustManagerUtilsTest {
     @Test
     void shouldTrustManagerReturnCorrectResult() {
-        assertNotNull(TrustManagerUtils.getDefaultTrustManager());
+        assertThat(TrustManagerUtils.getDefaultTrustManager()).isNotNull();
     }
 }

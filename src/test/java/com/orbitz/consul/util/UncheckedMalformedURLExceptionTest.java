@@ -1,17 +1,14 @@
 package com.orbitz.consul.util;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-
 import java.net.MalformedURLException;
 
 import org.junit.jupiter.api.Test;
 
 /**
- * @implNote Copied from  <a href="https://github.com/kiwiproject/kiwi">kiwi</a> and modified
- * because as of now, this library uses JUnit 4 and Hamcrest matchers.
+ * @implNote Copied from  <a href="https://github.com/kiwiproject/kiwi">kiwi</a>.
  */
 class UncheckedMalformedURLExceptionTest {
 
@@ -20,8 +17,8 @@ class UncheckedMalformedURLExceptionTest {
         var cause = newMalformedURLException();
         var exception = new UncheckedMalformedURLException("nope", cause);
 
-        assertEquals("nope", exception.getMessage());
-        assertSame(cause, exception.getCause());
+        assertThat(exception.getMessage()).isEqualTo("nope");
+        assertThat(exception.getCause()).isSameAs(cause);
     }
 
     @Test
@@ -30,7 +27,7 @@ class UncheckedMalformedURLExceptionTest {
         var exception = new UncheckedMalformedURLException(cause);
 
         assertThat(exception.getMessage(), containsString(cause.getMessage()));
-        assertSame(cause, exception.getCause());
+        assertThat(exception.getCause()).isSameAs(cause);
     }
 
     private static MalformedURLException newMalformedURLException() {

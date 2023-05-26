@@ -1,16 +1,12 @@
 package com.orbitz.consul;
 
 import static com.orbitz.consul.TestUtils.randomUUIDString;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orbitz.consul.model.session.ImmutableSession;
 import com.orbitz.consul.model.session.Session;
 import com.orbitz.consul.model.session.SessionCreatedResponse;
 import com.orbitz.consul.model.session.SessionInfo;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,18 +24,18 @@ class SessionClientITest extends BaseIntegrationTest {
     }
 
     @Test
-    void testCreateAndDestroySession() throws Exception {
+    void testCreateAndDestroySession() {
         final Session value = ImmutableSession.builder().name("session_" + randomUUIDString()).build();
         SessionCreatedResponse session = sessionClient.createSession(value);
-        assertNotNull(session);
+        assertThat(session).isNotNull();
 
         sessionClient.destroySession(session.getId());
     }
 
     @Test
-    void testCreateEmptySession() throws Exception {
+    void testCreateEmptySession() {
         SessionCreatedResponse session = sessionClient.createSession(ImmutableSession.builder().build());
-        assertNotNull(session);
+        assertThat(session).isNotNull();
         sessionClient.destroySession(session.getId());
     }
 
@@ -49,20 +45,20 @@ class SessionClientITest extends BaseIntegrationTest {
 
         ImmutableSession newSession = ImmutableSession.builder().build();
         SessionCreatedResponse sessionResponse = sessionClient.createSession(newSession, datacenter);
-        assertNotNull(sessionResponse);
+        assertThat(sessionResponse).isNotNull();
         sessionClient.destroySession(sessionResponse.getId());
     }
 
     @Test
-    void testRenewSession() throws Exception {
+    void testRenewSession() {
         final Session value = ImmutableSession.builder().name("session_" + randomUUIDString()).build();
 
         SessionCreatedResponse session = sessionClient.createSession(value);
-        assertNotNull(session);
+        assertThat(session).isNotNull();
 
         try {
-            SessionInfo info = sessionClient.renewSession(session.getId()).get();
-            assertEquals(session.getId(), info.getId());
+            SessionInfo info = sessionClient.renewSession(session.getId()).orElseThrow();
+            assertThat(info.getId()).isEqualTo(session.getId());
         } finally {
             sessionClient.destroySession(session.getId());
         }
@@ -74,12 +70,11 @@ class SessionClientITest extends BaseIntegrationTest {
 
         Session value = ImmutableSession.builder().name("session_" + randomUUIDString()).build();
         String sessionId = sessionClient.createSession(value).getId();
-        String valueName = value.getName().get();
+        String valueName = value.getName().orElseThrow();
 
         try {
-            assertTrue(keyValueClient.acquireLock(key, valueName, sessionId),
-                    "Should succeed to acquire a lock");
-            assertEquals(sessionId, keyValueClient.getSession(key).get());
+            assertThat(keyValueClient.acquireLock(key, valueName, sessionId)).as("Should succeed to acquire a lock").isTrue();
+            assertThat(keyValueClient.getSession(key)).contains(sessionId);
         } finally {
             keyValueClient.releaseLock(key, sessionId);
             keyValueClient.deleteKey(key);
@@ -93,14 +88,12 @@ class SessionClientITest extends BaseIntegrationTest {
 
         Session value = ImmutableSession.builder().name("session_" + randomUUIDString()).build();
         String sessionId = sessionClient.createSession(value).getId();
-        String valueName = value.getName().get();
+        String valueName = value.getName().orElseThrow();
 
         try {
-            assertTrue(keyValueClient.acquireLock(key, valueName, sessionId),
-                    "Should succeed to acquire a lock - first time");
-            assertTrue(keyValueClient.acquireLock(key, valueName, sessionId),
-                    "Should succeed to acquire a lock - second time");
-            assertEquals(sessionId, keyValueClient.getSession(key).get());
+            assertThat(keyValueClient.acquireLock(key, valueName, sessionId)).as("Should succeed to acquire a lock - first time").isTrue();
+            assertThat(keyValueClient.acquireLock(key, valueName, sessionId)).as("Should succeed to acquire a lock - second time").isTrue();
+            assertThat(keyValueClient.getSession(key)).contains(sessionId);
         } finally {
             keyValueClient.releaseLock(key, sessionId);
             keyValueClient.deleteKey(key);
@@ -114,19 +107,17 @@ class SessionClientITest extends BaseIntegrationTest {
 
         Session firstSessionValue = ImmutableSession.builder().name("session_" + randomUUIDString()).build();
         String firstSessionId = sessionClient.createSession(firstSessionValue).getId();
-        String firstSessionValueContent = firstSessionValue.getName().get();
+        String firstSessionValueContent = firstSessionValue.getName().orElseThrow();
 
         Session secondSessionValue = ImmutableSession.builder().name("session_" + randomUUIDString()).build();
         String secondSessionId = sessionClient.createSession(secondSessionValue).getId();
-        String secondSessionValueNameContent = secondSessionValue.getName().get();
+        String secondSessionValueNameContent = secondSessionValue.getName().orElseThrow();
 
         try {
-            assertTrue(keyValueClient.acquireLock(key, firstSessionValueContent, firstSessionId),
-                    "Should succeed to acquire a lock - first session");
-            assertFalse(keyValueClient.acquireLock(key, secondSessionValueNameContent, secondSessionId),
-                    "Should fail to acquire a lock - second session");
+            assertThat(keyValueClient.acquireLock(key, firstSessionValueContent, firstSessionId)).as("Should succeed to acquire a lock - first session").isTrue();
+            assertThat(keyValueClient.acquireLock(key, secondSessionValueNameContent, secondSessionId)).as("Should fail to acquire a lock - second session").isFalse();
 
-            assertEquals(firstSessionId, keyValueClient.getSession(key).get());
+            assertThat(keyValueClient.getSession(key)).contains(firstSessionId);
         } finally {
             keyValueClient.releaseLock(key, firstSessionId);
             keyValueClient.deleteKey(key);
@@ -136,20 +127,19 @@ class SessionClientITest extends BaseIntegrationTest {
     }
 
     @Test
-    void testGetSessionInfo() throws Exception {
+    void testGetSessionInfo() {
         String key = randomUUIDString();
 
         Session value = ImmutableSession.builder().name("session_" + randomUUIDString()).build();
         String sessionId = sessionClient.createSession(value).getId();
-        String valueName = value.getName().get();
+        String valueName = value.getName().orElseThrow();
 
         try {
-            assertTrue(keyValueClient.acquireLock(key, valueName, sessionId),
-                    "Should succeed to acquire a lock");
+            assertThat(keyValueClient.acquireLock(key, valueName, sessionId)).as("Should succeed to acquire a lock").isTrue();
 
             SessionInfo sessionInfo = sessionClient.getSessionInfo(sessionId).orElse(null);
-            assertNotNull(sessionInfo);
-            assertEquals(sessionId, sessionInfo.getId());
+            assertThat(sessionInfo).isNotNull();
+            assertThat(sessionInfo.getId()).isEqualTo(sessionId);
         } finally {
             keyValueClient.releaseLock(key, sessionId);
             keyValueClient.deleteKey(key);
@@ -158,17 +148,18 @@ class SessionClientITest extends BaseIntegrationTest {
     }
 
     @Test
-    void testListSessions() throws Exception {
+    void testListSessions() {
         String key = randomUUIDString();
 
-        Session value = ImmutableSession.builder().name("session_" + randomUUIDString()).build();
-        String sessionId = sessionClient.createSession(value).getId();
+        Session session = ImmutableSession.builder().name("session_" + randomUUIDString()).build();
+        String sessionId = sessionClient.createSession(session).getId();
 
         try {
-            assertTrue(keyValueClient.acquireLock(key, value.getName().get(), sessionId));
+            var name = session.getName().orElseThrow();
+            assertThat(keyValueClient.acquireLock(key, name, sessionId)).isTrue();
             List<SessionInfo> result = sessionClient.listSessions();
 
-            assertTrue(result.stream().anyMatch(sessionInfo -> sessionId.equals(sessionInfo.getId())));
+            assertThat(result.stream().anyMatch(sessionInfo -> sessionId.equals(sessionInfo.getId()))).isTrue();
         } finally {
             keyValueClient.releaseLock(key, sessionId);
             keyValueClient.deleteKey(key);

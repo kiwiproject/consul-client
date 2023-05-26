@@ -1,7 +1,7 @@
 package com.orbitz.consul.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -13,10 +13,16 @@ import com.orbitz.consul.ConsulException;
 import com.orbitz.consul.async.ConsulResponseCallback;
 import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.monitoring.ClientEventHandler;
-
+import okhttp3.Headers;
+import okhttp3.MediaType;
+import okhttp3.Request;
+import okhttp3.ResponseBody;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -24,14 +30,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
-
-import okhttp3.Headers;
-import okhttp3.MediaType;
-import okhttp3.Request;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 class HttpTest {
 
@@ -68,7 +66,7 @@ class HttpTest {
 
         String body = http.extract(call);
 
-        assertEquals(expectedBody, body);
+        assertThat(body).isEqualTo(expectedBody);
     }
 
     @Test
@@ -91,28 +89,25 @@ class HttpTest {
 
         ConsulResponse<String> consulResponse = http.extractConsulResponse(call);
 
-        assertEquals(expectedBody, consulResponse.getResponse());
+        assertThat(consulResponse.getResponse()).isEqualTo(expectedBody);
     }
 
     @Test
-    void extractingBodyShouldThrowWhenRequestFailed() throws IOException {
-        assertThrows(ConsulException.class, () -> {
-            checkForFailedRequest(createExtractWrapper());
-        });
+    void extractingBodyShouldThrowWhenRequestFailed() {
+        assertThatExceptionOfType(ConsulException.class).isThrownBy(() ->
+                checkForFailedRequest(createExtractWrapper()));
     }
 
     @Test
-    void handlingRequestShouldThrowWhenRequestFailed() throws IOException {
-        assertThrows(ConsulException.class, () -> {
-            checkForFailedRequest(createHandleWrapper());
-        });
+    void handlingRequestShouldThrowWhenRequestFailed() {
+        assertThatExceptionOfType(ConsulException.class).isThrownBy(() ->
+                checkForFailedRequest(createHandleWrapper()));
     }
 
     @Test
-    void extractingConsulResponseShouldThrowWhenRequestFailed() throws IOException {
-        assertThrows(ConsulException.class, () -> {
-            checkForFailedRequest(createExtractConsulResponseWrapper());
-        });
+    void extractingConsulResponseShouldThrowWhenRequestFailed() {
+        assertThatExceptionOfType(ConsulException.class).isThrownBy(() ->
+                checkForFailedRequest(createExtractConsulResponseWrapper()));
     }
 
     @SuppressWarnings("unchecked")
@@ -124,24 +119,21 @@ class HttpTest {
     }
 
     @Test
-    void extractingBodyShouldThrowWhenRequestIsInvalid() throws IOException {
-        assertThrows(ConsulException.class, () -> {
-            checkForInvalidRequest(createExtractWrapper());
-        });
+    void extractingBodyShouldThrowWhenRequestIsInvalid() {
+        assertThatExceptionOfType(ConsulException.class).isThrownBy(() ->
+                checkForInvalidRequest(createExtractWrapper()));
     }
 
     @Test
-    void handlingRequestShouldThrowWhenRequestIsInvalid() throws IOException {
-        assertThrows(ConsulException.class, () -> {
-            checkForInvalidRequest(createHandleWrapper());
-        });
+    void handlingRequestShouldThrowWhenRequestIsInvalid() {
+        assertThatExceptionOfType(ConsulException.class).isThrownBy(() ->
+                checkForInvalidRequest(createHandleWrapper()));
     }
 
     @Test
-    void extractingConsulResponseShouldThrowWhenRequestIsInvalid() throws IOException {
-        assertThrows(ConsulException.class, () -> {
-            checkForInvalidRequest(createExtractConsulResponseWrapper());
-        });
+    void extractingConsulResponseShouldThrowWhenRequestIsInvalid() {
+        assertThatExceptionOfType(ConsulException.class).isThrownBy(() ->
+                checkForInvalidRequest(createExtractConsulResponseWrapper()));
     }
 
     @SuppressWarnings("unchecked")
@@ -237,10 +229,10 @@ class HttpTest {
     }
 
     @Test
-    void extractingConsulResponseAsyncShouldSucceedWhenRequestSucceed() throws IOException, InterruptedException {
+    void extractingConsulResponseAsyncShouldSucceedWhenRequestSucceed() throws InterruptedException {
         AtomicReference<ConsulResponse<String>> result = new AtomicReference<>();
         CountDownLatch latch = new CountDownLatch(1);
-        final ConsulResponseCallback<String> callback = new ConsulResponseCallback<String>() {
+        final ConsulResponseCallback<String> callback = new ConsulResponseCallback<>() {
             @Override
             public void onComplete(ConsulResponse<String> consulResponse) {
                 result.set(consulResponse);
@@ -248,7 +240,8 @@ class HttpTest {
             }
 
             @Override
-            public void onFailure(Throwable throwable) { }
+            public void onFailure(Throwable throwable) {
+            }
         };
         Call<String> call = createMockCallWithType(String.class);
         Request request = new Request.Builder().url("http://localhost:8500/this/endpoint").build();
@@ -260,16 +253,17 @@ class HttpTest {
         callCallback.onResponse(call, response);
         latch.await(1, TimeUnit.SECONDS);
 
-        assertEquals(expectedBody, result.get().getResponse());
+        assertThat(result.get().getResponse()).isEqualTo(expectedBody);
         verify(clientEventHandler, only()).httpRequestSuccess(any(Request.class));
     }
 
     @Test
-    void extractingConsulResponseAsyncShouldFailWhenRequestIsInvalid() throws IOException, InterruptedException {
+    void extractingConsulResponseAsyncShouldFailWhenRequestIsInvalid() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
-        final ConsulResponseCallback<String> callback = new ConsulResponseCallback<String>() {
+        final ConsulResponseCallback<String> callback = new ConsulResponseCallback<>() {
             @Override
-            public void onComplete(ConsulResponse<String> consulResponse) {}
+            public void onComplete(ConsulResponse<String> consulResponse) {
+            }
 
             @Override
             public void onFailure(Throwable throwable) {
@@ -289,11 +283,12 @@ class HttpTest {
     }
 
     @Test
-    void extractingConsulResponseAsyncShouldFailWhenRequestFailed() throws IOException, InterruptedException {
+    void extractingConsulResponseAsyncShouldFailWhenRequestFailed() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
-        final ConsulResponseCallback<String> callback = new ConsulResponseCallback<String>() {
+        final ConsulResponseCallback<String> callback = new ConsulResponseCallback<>() {
             @Override
-            public void onComplete(ConsulResponse<String> consulResponse) {}
+            public void onComplete(ConsulResponse<String> consulResponse) {
+            }
 
             @Override
             public void onFailure(Throwable throwable) {
@@ -311,7 +306,7 @@ class HttpTest {
         verify(clientEventHandler, only()).httpRequestFailure(any(Request.class), any(Throwable.class));
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "unused" })
     private static <T> Call<T> createMockCallWithType(Class<T> resultType) {
         return mock(Call.class);
     }
@@ -324,7 +319,7 @@ class HttpTest {
         Response<String> response = Response.success(responseMessage);
         ConsulResponse<String> consulResponse = Http.consulResponse(response);
 
-        assertEquals(expectedConsulResponse, consulResponse);
+        assertThat(consulResponse).isEqualTo(expectedConsulResponse);
     }
 
     @Test
@@ -332,7 +327,7 @@ class HttpTest {
         Response<String> response = Response.success("", Headers.of("X-Consul-Index", "10"));
         ConsulResponse<String> consulResponse = Http.consulResponse(response);
 
-        assertEquals(BigInteger.TEN, consulResponse.getIndex());
+        assertThat(consulResponse.getIndex()).isEqualTo(BigInteger.TEN);
     }
 
     @Test
@@ -340,7 +335,7 @@ class HttpTest {
         Response<String> response = Response.success("", Headers.of("X-Consul-Lastcontact", "2"));
         ConsulResponse<String> consulResponse = Http.consulResponse(response);
 
-        assertEquals(2L, consulResponse.getLastContact());
+        assertThat(consulResponse.getLastContact()).isEqualTo(2L);
     }
 
     @Test
@@ -348,6 +343,6 @@ class HttpTest {
         Response<String> response = Response.success("", Headers.of("X-Consul-Knownleader", "true"));
         ConsulResponse<String> consulResponse = Http.consulResponse(response);
 
-        assertEquals(true, consulResponse.isKnownLeader());
+        assertThat(consulResponse.isKnownLeader()).isTrue();
     }
 }

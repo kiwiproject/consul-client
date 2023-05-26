@@ -1,12 +1,11 @@
 package com.orbitz.consul;
 
 import static com.orbitz.consul.TestUtils.randomUUIDString;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsNot.not;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.model.acl.ImmutablePolicy;
@@ -18,7 +17,6 @@ import com.orbitz.consul.model.acl.PolicyResponse;
 import com.orbitz.consul.model.acl.RoleResponse;
 import com.orbitz.consul.model.acl.Token;
 import com.orbitz.consul.model.acl.TokenResponse;
-
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
@@ -65,7 +63,7 @@ class AclTest {
     @Test
     void listPolicies() {
         AclClient aclClient = client.aclClient();
-        assertTrue(aclClient.listPolicies().stream().anyMatch(p -> Objects.equals(p.name(), "global-management")));
+        assertThat(aclClient.listPolicies().stream().anyMatch(p -> Objects.equals(p.name(), "global-management"))).isTrue();
     }
 
     @Test
@@ -249,8 +247,8 @@ class AclTest {
     void testListTokens() {
         AclClient aclClient = client.aclClient();
 
-        assertTrue(aclClient.listTokens().stream().anyMatch(p -> Objects.equals(p.description(), "Anonymous Token")));
-        assertTrue(aclClient.listTokens().stream().anyMatch(p -> Objects.equals(p.description(), "Initial Management Token")));
+        assertThat(aclClient.listTokens().stream().anyMatch(p -> Objects.equals(p.description(), "Anonymous Token"))).isTrue();
+        assertThat(aclClient.listTokens().stream().anyMatch(p -> Objects.equals(p.description(), "Initial Management Token"))).isTrue();
     }
 
     @Test
@@ -277,8 +275,8 @@ class AclTest {
         aclClient.createRole(ImmutableRole.builder().name(roleName1).build());
         aclClient.createRole(ImmutableRole.builder().name(roleName2).build());
 
-        assertTrue(aclClient.listRoles().stream().anyMatch(p -> Objects.equals(p.name(), roleName1)));
-        assertTrue(aclClient.listRoles().stream().anyMatch(p -> Objects.equals(p.name(), roleName2)));
+        assertThat(aclClient.listRoles().stream().anyMatch(p -> Objects.equals(p.name(), roleName1))).isTrue();
+        assertThat(aclClient.listRoles().stream().anyMatch(p -> Objects.equals(p.name(), roleName2))).isTrue();
     }
 
     @Test
@@ -289,7 +287,7 @@ class AclTest {
         RoleResponse role = aclClient.createRole(ImmutableRole.builder().name(roleName).build());
 
         RoleResponse roleResponse = aclClient.readRole(role.id());
-        assertEquals(role.id(), roleResponse.id());
+        assertThat(roleResponse.id()).isEqualTo(role.id());
     }
 
     @Test
@@ -300,7 +298,7 @@ class AclTest {
         RoleResponse role = aclClient.createRole(ImmutableRole.builder().name(roleName).build());
 
         RoleResponse roleResponse = aclClient.readRoleByName(role.name());
-        assertEquals(role.name(), roleResponse.name());
+        assertThat(roleResponse.name()).isEqualTo(role.name());
     }
 
     @Test
@@ -316,16 +314,16 @@ class AclTest {
                         .name(roleName)
                         .addPolicies(
                                 ImmutableRolePolicyLink.builder()
-                                .id(createdPolicy.id())
-                                .build()
+                                        .id(createdPolicy.id())
+                                        .build()
                         )
                         .build());
 
         RoleResponse roleResponse = aclClient.readRole(role.id());
-        assertEquals(role.id(), roleResponse.id());
-        assertEquals(1, roleResponse.policies().size());
-        assertTrue(roleResponse.policies().get(0).id().isPresent());
-        assertEquals(createdPolicy.id(), roleResponse.policies().get(0).id().get());
+        assertThat(roleResponse.id()).isEqualTo(role.id());
+        assertThat(roleResponse.policies()).hasSize(1);
+        assertThat(roleResponse.policies().get(0).id()).isPresent();
+        assertThat(roleResponse.policies().get(0).id()).contains(createdPolicy.id());
     }
 
     @Test
@@ -341,7 +339,7 @@ class AclTest {
                         .build());
 
         RoleResponse roleResponse = aclClient.readRole(role.id());
-        assertEquals(roleDescription, roleResponse.description());
+        assertThat(roleResponse.description()).isEqualTo(roleDescription);
 
         String roleNewDescription = randomUUIDString();
         RoleResponse updatedRoleResponse = aclClient.updateRole(roleResponse.id(),
@@ -350,7 +348,7 @@ class AclTest {
                         .description(roleNewDescription)
                         .build());
 
-        assertEquals(roleNewDescription, updatedRoleResponse.description());
+        assertThat(updatedRoleResponse.description()).isEqualTo(roleNewDescription);
     }
 
     @Test
@@ -364,12 +362,12 @@ class AclTest {
                         .build());
 
         RoleResponse roleResponse = aclClient.readRole(role.id());
-        assertEquals(roleName, roleResponse.name());
+        assertThat(roleResponse.name()).isEqualTo(roleName);
 
         String id = roleResponse.id();
         aclClient.deleteRole(id);
 
-        assertThrows(ConsulException.class, () -> aclClient.readRole(id));
+        assertThatExceptionOfType(ConsulException.class).isThrownBy(() -> aclClient.readRole(id));
     }
 
 }

@@ -1,5 +1,6 @@
 package com.orbitz.consul.cache;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.FIVE_SECONDS;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -15,7 +16,6 @@ import com.orbitz.consul.model.kv.ImmutableValue;
 import com.orbitz.consul.model.kv.Value;
 import com.orbitz.consul.monitoring.ClientEventCallback;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -42,7 +42,7 @@ class KVCacheTest {
         final String keyPath = KVCache.prepareRootPath(rootPath);
 
         Function<Value, String> keyExtractor = KVCache.getKeyExtractorFunction(keyPath);
-        Assertions.assertEquals(expected, keyExtractor.apply(createValue(input)));
+        assertThat(keyExtractor.apply(createValue(input))).isEqualTo(expected);
     }
 
     static Stream<Arguments> getKeyValueTestValues() {
@@ -112,7 +112,7 @@ class KVCacheTest {
 
             await().atMost(FIVE_SECONDS).until(() -> goodListener.getCallCount() > 0);
 
-            Assertions.assertEquals(1, goodListener.getCallCount());
+            assertThat(goodListener.getCallCount()).isEqualTo(1);
         }
 
     }

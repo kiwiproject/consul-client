@@ -1,6 +1,6 @@
 package com.orbitz.consul.util.failover;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -39,7 +39,7 @@ class ConsulFailoverInterceptorTest {
 
         var chain = mock(Chain.class, RETURNS_DEEP_STUBS);
 
-        assertThrows(ConsulException.class, () -> interceptor.intercept(chain));
+        assertThatExceptionOfType(ConsulException.class).isThrownBy(() -> interceptor.intercept(chain));
 
         verify(strategy, only()).isRequestViable(any(Request.class));
     }
@@ -52,7 +52,7 @@ class ConsulFailoverInterceptorTest {
 
         var chain = mock(Chain.class, RETURNS_DEEP_STUBS);
 
-        assertThrows(ConsulException.class, () -> interceptor.intercept(chain));
+        assertThatExceptionOfType(ConsulException.class).isThrownBy(() -> interceptor.intercept(chain));
 
         verify(strategy).isRequestViable(any(Request.class));
         verify(strategy).computeNextStage(any(Request.class), isNull(Response.class));

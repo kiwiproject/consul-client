@@ -1,7 +1,6 @@
 package com.orbitz.consul;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -21,11 +20,11 @@ class LifecycleITest extends BaseIntegrationTest {
     @Test
     void shouldBeDestroyable() {
         Consul client = Consul.builder().withHostAndPort(defaultClientHostAndPort).build();
-        assertFalse(client.isDestroyed());
+        assertThat(client.isDestroyed()).isFalse();
 
         client.destroy();
 
-        assertTrue(client.isDestroyed());
+        assertThat(client.isDestroyed()).isTrue();
     }
 
     @Test
@@ -58,7 +57,7 @@ class LifecycleITest extends BaseIntegrationTest {
         Consul client = Consul.builder().withHostAndPort(defaultClientHostAndPort)
             .withExecutorService(executorService).withConnectionPool(connectionPool).build();
         client.destroy();
-        assertTrue(client.isDestroyed());
+        assertThat(client.isDestroyed()).isTrue();
     }
 
     public static void main(String[] args) {
