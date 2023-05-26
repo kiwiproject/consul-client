@@ -2,8 +2,6 @@ package com.orbitz.consul.option;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -62,6 +60,6 @@ class ConsistencyModeTest {
         var maxStaleSeconds = Optional.of(60L);
         var consistency = ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(maxAgeSeconds, maxStaleSeconds);
 
-        assertThat(consistency.toString(), containsString("CACHED[Cache-Control=max-age=30,stale-if-error=60]"));
+        assertThat(consistency.toString()).contains("CACHED[Cache-Control=max-age=30,stale-if-error=60]");
     }
 }
