@@ -3,9 +3,6 @@ package com.orbitz.consul;
 import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.orbitz.consul.model.query.Failover;
 import com.orbitz.consul.model.query.ImmutableFailover;
@@ -13,6 +10,7 @@ import com.orbitz.consul.model.query.ImmutablePreparedQuery;
 import com.orbitz.consul.model.query.ImmutableServiceQuery;
 import com.orbitz.consul.model.query.PreparedQuery;
 import com.orbitz.consul.model.query.StoredQuery;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,9 +57,9 @@ class PreparedQueryITest extends BaseIntegrationTest {
         assertThat(maybeStoredQuery).isPresent();
 
         var storedQuery = maybeStoredQuery.get();
-        assertThat(storedQuery.getId(), is(id));
-        assertThat(storedQuery.getName(), is(query));
-        assertThat(storedQuery.getService().getService(), is(serviceName));
+        assertThat(storedQuery.getId()).isEqualTo(id);
+        assertThat(storedQuery.getName()).isEqualTo(query);
+        assertThat(storedQuery.getService().getService()).isEqualTo(serviceName);
         assertThat(storedQuery.getService().getFailover()).isPresent();
         assertThat(storedQuery.getService().getFailover().get().datacenters()).isEmpty();
     }
@@ -91,15 +89,15 @@ class PreparedQueryITest extends BaseIntegrationTest {
         assertThat(maybeStoredQuery).isPresent();
 
         var storedQuery = maybeStoredQuery.get();
-        assertThat(storedQuery.getId(), is(id));
-        assertThat(storedQuery.getName(), is(query));
+        assertThat(storedQuery.getId()).isEqualTo(id);
+        assertThat(storedQuery.getName()).isEqualTo(query);
 
         Optional<Failover> maybeFailover = storedQuery.getService().getFailover();
         assertThat(maybeFailover).isPresent();
 
         var failover = maybeFailover.get();
-        assertThat(failover.getNearestN(), is(Optional.of(3)));
-        assertThat(failover.datacenters(), is(Optional.of(List.of("dc1", "dc2"))));
+        assertThat(failover.getNearestN()).contains(3);
+        assertThat(failover.datacenters()).contains(List.of("dc1", "dc2"));
     }
 
     @Test
@@ -136,13 +134,13 @@ class PreparedQueryITest extends BaseIntegrationTest {
 
         List<StoredQuery> storedQueries = preparedQueryClient.getPreparedQueries();
 
-        assertThat(storedQueries.size(), is(2));
+        assertThat(storedQueries).hasSize(2);
 
         List<String> queryIds = storedQueries.stream().map(StoredQuery::getId).collect(toList());
-        assertThat(queryIds, hasItems(id1, id2));
+        assertThat(queryIds).contains(id1, id2);
 
         List<String> queryNames = storedQueries.stream().map(StoredQuery::getName).collect(toList());
-        assertThat(queryNames, hasItems(query1, query2));
+        assertThat(queryNames).contains(query1, query2);
     }
 
     /**

@@ -5,9 +5,6 @@ import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.hamcrest.CoreMatchers.anyOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import com.google.common.collect.ImmutableMap;
@@ -201,7 +198,7 @@ class KVCacheITest extends BaseIntegrationTest {
         try (var cache = KVCache.newCache(kvClient, root, 10)) {
             assertThat(cache.getState()).isEqualTo(ConsulCache.State.LATENT);
             cache.start();
-            assertThat(cache.getState(), anyOf(is(ConsulCache.State.STARTING), is(ConsulCache.State.STARTED)));
+            assertThat(cache.getState()).isIn(ConsulCache.State.STARTING, ConsulCache.State.STARTED);
 
             if (!cache.awaitInitialized(10, TimeUnit.SECONDS)) {
                 fail("cache initialization failed");
@@ -226,7 +223,7 @@ class KVCacheITest extends BaseIntegrationTest {
             assertThat(cache.getState()).isEqualTo(ConsulCache.State.LATENT);
 
             cache.start();
-            assertThat(cache.getState(), anyOf(is(ConsulCache.State.STARTING), is(ConsulCache.State.STARTED)));
+            assertThat(cache.getState()).isIn(ConsulCache.State.STARTING, ConsulCache.State.STARTED);
 
             if (!cache.awaitInitialized(1, TimeUnit.SECONDS)) {
                 fail("cache initialization failed");
