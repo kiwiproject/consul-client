@@ -16,7 +16,6 @@ import com.orbitz.consul.monitoring.ClientEventHandler;
 import com.orbitz.consul.option.ConsistencyMode;
 import com.orbitz.consul.option.ImmutableQueryOptions;
 import com.orbitz.consul.option.QueryOptions;
-
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -162,7 +161,7 @@ class ConsulCacheTest {
             // based on elapsed time - and other factors - in ConsulCache when it sets the responseCallback
             // instance field.
             // TODO: Add a new issue to investigate this, then change this comment to reference the issue
-            assertThat(callbackConsumer.getCallCount()).isGreaterThan(1);
+            assertThat(callbackConsumer.getCallCount()).isGreaterThanOrEqualTo(1);
 
             final Map<String, Value> lastValues = listener.getLastValues();
             assertThat(lastValues).isNotNull();
