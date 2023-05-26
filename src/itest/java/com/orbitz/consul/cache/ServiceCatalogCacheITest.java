@@ -36,7 +36,10 @@ class ServiceCatalogCacheITest extends BaseIntegrationTest {
         client.agentClient().register(20001, 20, name, serviceId1, NO_TAGS, NO_META);
         client.agentClient().register(20002, 20, name, serviceId2, NO_TAGS, NO_META);
 
-        await().atMost(FIVE_SECONDS).until(() -> result.size() == 3);
+        await().atMost(FIVE_SECONDS).until(() -> {
+            System.out.println("result.size() = " + result.size());
+            return result.size() == 3;
+        });
 
         assertThat(result.get(0)).isEmpty();
         assertThat(result.get(1)).hasSize(1);
