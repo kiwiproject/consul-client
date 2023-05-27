@@ -5,8 +5,7 @@ import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.assertj.core.api.Assumptions.assumeThat;
 
 import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.model.agent.FullService;
@@ -22,7 +21,6 @@ import com.orbitz.consul.model.health.ServiceHealth;
 import com.orbitz.consul.option.ImmutableQueryOptions;
 import com.orbitz.consul.option.ImmutableQueryParameterOptions;
 import com.orbitz.consul.option.QueryOptions;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -53,12 +51,13 @@ class AgentITest extends BaseIntegrationTest {
     void shouldRetrieveAgentInformation() {
         var agent = agentClient.getAgent();
 
-        assumeTrue(agent.getDebugConfig() != null);
+        assumeThat(agent.getDebugConfig()).isNotNull();
 
-        assertNotNull(agent);
-        assertNotNull(agent.getConfig());
+        assertThat(agent).isNotNull();
+        assertThat(agent.getConfig()).isNotNull();
+        assertThat(agent.getDebugConfig()).isNotNull();
         final List<?> clientAddrs = (List<?>) agent.getDebugConfig().get("ClientAddrs");
-        assertNotNull(clientAddrs.get(0));
+        assertThat(clientAddrs.get(0)).isNotNull();
 
         // maybe we should not make any assertion on the actual value of the client address
         // as like when we run consul in a docker container we would have "0.0.0.0"
@@ -396,9 +395,8 @@ class AgentITest extends BaseIntegrationTest {
 
     @Test
     void shouldGetServiceThrowErrorWhenServiceIsUnknown() {
-        assertThatExceptionOfType(NotRegisteredException.class).isThrownBy(() -> {
-            agentClient.getService(randomUUIDString(), QueryOptions.BLANK);
-        });
+        assertThatExceptionOfType(NotRegisteredException.class).isThrownBy(() ->
+                agentClient.getService(randomUUIDString(), QueryOptions.BLANK));
     }
 
     @Test
@@ -559,7 +557,7 @@ class AgentITest extends BaseIntegrationTest {
     }
 
     private static <T> T getValueOrFail(AtomicReference<T> ref) {
-        assertNotNull(ref.get());
+        assertThat(ref.get()).isNotNull();
         return ref.get();
     }
 
@@ -577,7 +575,7 @@ class AgentITest extends BaseIntegrationTest {
         Map<String, HealthCheck> checks = client.agentClient().getChecks();
         HealthCheck check = checks.get("service:" + serviceId);
 
-        assertNotNull(check);
+        assertThat(check).isNotNull();
         assertThat(check.getServiceId().orElseThrow()).isEqualTo(serviceId);
         assertThat(check.getServiceName().orElseThrow()).isEqualTo(serviceName);
         assertThat(check.getStatus()).isEqualTo(state);
