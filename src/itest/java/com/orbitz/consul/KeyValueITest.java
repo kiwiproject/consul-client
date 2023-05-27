@@ -2,8 +2,6 @@ package com.orbitz.consul;
 
 import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.orbitz.consul.async.ConsulResponseCallback;
 import com.orbitz.consul.model.ConsulResponse;
@@ -414,20 +412,20 @@ class KeyValueITest extends BaseIntegrationTest {
 
     @Test
     void testGetValueNotFoundAsync() throws InterruptedException {
-        KeyValueClient keyValueClient = client.keyValueClient();
-        String key = randomUUIDString();
+        var keyValueClient = client.keyValueClient();
+        var key = randomUUIDString();
 
-        final int numTests = 2;
-        final CountDownLatch completed = new CountDownLatch(numTests);
-        final AtomicInteger success = new AtomicInteger(0);
+        final var numTests = 2;
+        final var completed = new CountDownLatch(numTests);
+        final var success = new AtomicInteger(0);
 
         keyValueClient.getValue(key, QueryOptions.BLANK, new ConsulResponseCallback<>() {
 
             @Override
             public void onComplete(ConsulResponse<Optional<Value>> consulResponse) {
-                assertNotNull(consulResponse);
+                assertThat(consulResponse).isNotNull();
                 // No cache, no Cache info
-                assertFalse(consulResponse.getCacheReponseInfo().isPresent());
+                assertThat(consulResponse.getCacheReponseInfo()).isEmpty();
                 completed.countDown();
                 success.incrementAndGet();
             }
@@ -437,14 +435,25 @@ class KeyValueITest extends BaseIntegrationTest {
                 throw new AssertionError("KV should work without cache, 404 is not an error", throwable);
             }
         });
-        completed.await(3, TimeUnit.SECONDS);
-        QueryOptions queryOptions = ImmutableQueryOptions.builder()
-                                      .consistencyMode(ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(Optional.of(60L), Optional.of(180L))).build();
+
+        var countIsZeroAfterFirstGetValue = completed.await(2, TimeUnit.SECONDS);
+        assertThat(countIsZeroAfterFirstGetValue)
+                .describedAs("Count should not have reached zero after first call to getValue")
+                .isFalse();
+        assertThat(completed.getCount()).isOne();
+
+        var maxAgeInSeconds = Optional.of(60L);
+        var maxStaleInSeconds = Optional.of(180L);
+        var consistencyMode = ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(maxAgeInSeconds, maxStaleInSeconds);
+        var queryOptions = ImmutableQueryOptions.builder()
+                .consistencyMode(consistencyMode)
+                .build();
+
         keyValueClient.getValue(key, queryOptions, new ConsulResponseCallback<>() {
 
             @Override
             public void onComplete(ConsulResponse<Optional<Value>> consulResponse) {
-                assertNotNull(consulResponse);
+                assertThat(consulResponse).isNotNull();
                 completed.countDown();
                 success.incrementAndGet();
             }
@@ -455,8 +464,11 @@ class KeyValueITest extends BaseIntegrationTest {
             }
         });
 
-        completed.await(3, TimeUnit.SECONDS);
+        var countIsZeroAfterSecondGetValue = completed.await(2, TimeUnit.SECONDS);
         keyValueClient.deleteKey(key);
+        assertThat(countIsZeroAfterSecondGetValue)
+                .describedAs("Count should have reached zero after second call to getValue")
+                .isTrue();
         assertThat(numTests).as("Should be all success").isEqualTo(success.get());
     }
 
@@ -475,6 +487,7 @@ class KeyValueITest extends BaseIntegrationTest {
         assertThat(response.getResponse().results().get(0).get("KV").getKey()).isEqualTo(key);
     }
 
+    @SuppressWarnings("removal")
     @Test
     void testBasicTxn_Deprecated_Using_DEFAULT_ConsistencyMode() {
         KeyValueClient keyValueClient = client.keyValueClient();
@@ -490,6 +503,7 @@ class KeyValueITest extends BaseIntegrationTest {
         assertThat(response.getResponse().results().get(0).get("KV").getKey()).isEqualTo(key);
     }
 
+    @SuppressWarnings("removal")
     @Test
     void testBasicTxn_Deprecated_Using_CONSISTENT_ConsistencyMode() {
         KeyValueClient keyValueClient = client.keyValueClient();
