@@ -40,7 +40,7 @@ public class SessionClient extends BaseClient {
 
     /**
      * Create Session.
-     *
+     * <p>
      * PUT /v1/session/create
      *
      * @param value The session to create.
@@ -52,7 +52,7 @@ public class SessionClient extends BaseClient {
 
     /**
      * Create Session.
-     *
+     * <p>
      * PUT /v1/session/create
      *
      * @param value The session to create.
@@ -88,7 +88,7 @@ public class SessionClient extends BaseClient {
 
     /**
      * Destroys a session.
-     *
+     * <p>
      * PUT /v1/session/destroy/{sessionId}
      *
      * @param sessionId The session ID to destroy.
@@ -99,7 +99,7 @@ public class SessionClient extends BaseClient {
 
     /**
      * Destroys a session.
-     *
+     * <p>
      * PUT /v1/session/destroy/{sessionId}
      *
      * @param sessionId The session ID to destroy.
@@ -111,10 +111,10 @@ public class SessionClient extends BaseClient {
 
     /**
      * Retrieves session info.
-     *
+     * <p>
      * GET /v1/session/info/{sessionId}
      *
-     * @param sessionId
+     * @param sessionId the session ID
      * @return {@link SessionInfo}.
      */
     public Optional<SessionInfo> getSessionInfo(final String sessionId) {
@@ -123,10 +123,10 @@ public class SessionClient extends BaseClient {
 
     /**
      * Retrieves session info.
-     *
+     * <p>
      * GET /v1/session/info/{sessionId}
      *
-     * @param sessionId
+     * @param sessionId the session ID
      * @param dc        Data center
      * @return {@link SessionInfo}.
      */
@@ -139,7 +139,7 @@ public class SessionClient extends BaseClient {
 
     /**
      * Lists all sessions.
-     *
+     * <p>
      * GET /v1/session/list
      *
      * @param dc The data center.
@@ -151,7 +151,7 @@ public class SessionClient extends BaseClient {
 
     /**
      * Lists all sessions.
-     *
+     * <p>
      * GET /v1/session/list
      *
      * @return A list of available sessions.

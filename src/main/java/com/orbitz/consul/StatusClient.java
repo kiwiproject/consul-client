@@ -29,7 +29,7 @@ public class StatusClient extends BaseClient {
 
     /**
      * Retrieves the host/port of the Consul leader.
-     *
+     * <p>
      * GET /v1/status/leader
      *
      * @return The host/port of the leader.
@@ -40,7 +40,7 @@ public class StatusClient extends BaseClient {
 
     /**
      * Retrieves the host/port of the Consul leader.
-     *
+     * <p>
      * GET /v1/status/leader
      *
      * @param queryOptions The Query Options to use.
@@ -52,7 +52,7 @@ public class StatusClient extends BaseClient {
 
     /**
      * Retrieves a list of host/ports for raft peers.
-     *
+     * <p>
      * GET /v1/status/peers
      *
      * @return List of host/ports for raft peers.
@@ -63,7 +63,7 @@ public class StatusClient extends BaseClient {
 
     /**
      * Retrieves a list of host/ports for raft peers.
-     *
+     * <p>
      * GET /v1/status/peers
      *
      * @param queryOptions The Query Options to use.

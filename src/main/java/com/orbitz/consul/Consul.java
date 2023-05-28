@@ -1,20 +1,5 @@
 package com.orbitz.consul;
 
-import java.net.Proxy;
-import java.net.URL;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.function.IntSupplier;
-
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.X509TrustManager;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -29,7 +14,6 @@ import com.orbitz.consul.util.bookend.ConsulBookend;
 import com.orbitz.consul.util.bookend.ConsulBookendInterceptor;
 import com.orbitz.consul.util.failover.ConsulFailoverInterceptor;
 import com.orbitz.consul.util.failover.strategy.ConsulFailoverStrategy;
-
 import okhttp3.ConnectionPool;
 import okhttp3.Dispatcher;
 import okhttp3.HttpUrl;
@@ -39,6 +23,20 @@ import okhttp3.Request;
 import okhttp3.internal.Util;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.X509TrustManager;
+import java.net.Proxy;
+import java.net.URL;
+import java.util.Base64;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.function.IntSupplier;
 
 /**
 * Client for interacting with the Consul HTTP API.
@@ -477,14 +475,14 @@ public class Consul {
         }
 
         /**
-        * Sets the list of hosts to contact if the current request target is
-        * unavailable. When the call to a particular URL fails for any reason, the next {@link HostAndPort} specified
-        * is used to retry the request. This will continue until all urls are exhuasted.
-        *
-        * @param hostAndPort A collection of {@link HostAndPort} that define the list of Consul agent addresses to use.
-        * @param blacklistTimeInMillis The timeout (in milliseconds) to blacklist a particular {@link HostAndPort} before trying to use it again.
-        * @return The builder.
-        */
+         * Sets the list of hosts to contact if the current request target is
+         * unavailable. When the call to a particular URL fails for any reason, the next {@link HostAndPort} specified
+         * is used to retry the request. This will continue until all urls are exhausted.
+         *
+         * @param hostAndPort           A collection of {@link HostAndPort} that define the list of Consul agent addresses to use.
+         * @param blacklistTimeInMillis The timeout (in milliseconds) to blacklist a particular {@link HostAndPort} before trying to use it again.
+         * @return The builder.
+         */
         public Builder withMultipleHostAndPort(Collection<HostAndPort> hostAndPort, long blacklistTimeInMillis) {
             Preconditions.checkArgument(blacklistTimeInMillis >= 0, "Negative Value");
             Preconditions.checkArgument(hostAndPort.size() >= 2, "Minimum of 2 addresses are required");
@@ -603,17 +601,17 @@ public class Consul {
         }
 
         /**
-        * Sets the ExecutorService to be used by the internal tasks dispatcher.
-        *
-        * By default, an ExecutorService is created internally.
-        * In this case, it will not be customizable nor manageable by the user application.
-        * It can only be shutdown by the {@link Consul#destroy()} method.
-        *
-        * When an application needs to be able to customize the ExecutorService parameters, and/or manage its lifecycle,
-        * it can provide an instance of ExecutorService to the Builder. In that case, this ExecutorService will be used instead of creating one internally.
-        *
-        * @param executorService The ExecutorService to be injected in the internal tasks dispatcher.
-        * @return
+         * Sets the ExecutorService to be used by the internal tasks dispatcher.
+         * <p>
+         * By default, an ExecutorService is created internally.
+         * In this case, it will not be customizable nor manageable by the user application.
+         * It can only be shutdown by the {@link Consul#destroy()} method.
+         * <p>
+         * When an application needs to be able to customize the ExecutorService parameters, and/or manage its lifecycle,
+         * it can provide an instance of ExecutorService to the Builder. In that case, this ExecutorService will be used instead of creating one internally.
+         *
+         * @param executorService The ExecutorService to be injected in the internal tasks dispatcher.
+         * @return The builder
         */
         public Builder withExecutorService(ExecutorService executorService) {
             this.executorService = executorService;
@@ -623,17 +621,17 @@ public class Consul {
 
 
         /**
-        * Sets the ConnectionPool to be used by OkHttp Client
-        *
-        * By default, an ConnectionPool is created internally.
-        * In this case, it will not be customizable nor manageable by the user application.
-        * It can only be shutdown by the {@link Consul#destroy()} method.
-        *
-        * When an application needs to be able to customize the ConnectionPool parameters, and/or manage its lifecycle,
-        * it can provide an instance of ConnectionPool to the Builder. In that case, this ConnectionPool will be used instead of creating one internally.
-        *
-        * @param connectionPool The ConnetcionPool to be injected in the internal  OkHttpClient
-        * @return
+         * Sets the ConnectionPool to be used by OkHttp Client
+         * <p>
+         * By default, an ConnectionPool is created internally.
+         * In this case, it will not be customizable nor manageable by the user application.
+         * It can only be shutdown by the {@link Consul#destroy()} method.
+         * <p>
+         * When an application needs to be able to customize the ConnectionPool parameters, and/or manage its lifecycle,
+         * it can provide an instance of ConnectionPool to the Builder. In that case, this ConnectionPool will be used instead of creating one internally.
+         *
+         * @param connectionPool The ConnetcionPool to be injected in the internal  OkHttpClient
+         * @return The builder
         */
         public Builder withConnectionPool(ConnectionPool connectionPool) {
             this.connectionPool = connectionPool;
@@ -642,11 +640,11 @@ public class Consul {
         }
 
         /**
-        * Sets the configuration for the clients.
-        * The configuration will fallback on the library default configuration if elements are not set.
-        *
-        * @param clientConfig the configuration to use.
-        * @return The Builder
+         * Sets the configuration for the clients.
+         * The configuration will fall back on the library default configuration if elements are not set.
+         *
+         * @param clientConfig the configuration to use.
+         * @return The Builder
         */
         public Builder withClientConfiguration(ClientConfig clientConfig) {
             this.clientConfig = clientConfig;
@@ -678,10 +676,8 @@ public class Consul {
             // if an ExecutorService is provided to the Builder, we use it, otherwise, we create one
             ExecutorService localExecutorService = this.executorService;
             if (localExecutorService == null) {
-                /**
-                * mimics okhttp3.Dispatcher#executorService implementation, except
-                * using daemon thread so shutdown is not blocked (issue #133)
-                */
+                // mimics okhttp3.Dispatcher#executorService implementation, except
+                // using daemon thread so shutdown is not blocked (issue #133)
                 localExecutorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60, TimeUnit.SECONDS,
                         new SynchronousQueue<>(), Util.threadFactory("OkHttp Dispatcher", true));
             }
