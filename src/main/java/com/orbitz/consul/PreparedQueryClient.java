@@ -39,7 +39,7 @@ public class PreparedQueryClient extends BaseClient {
 
     /**
      * Creates a prepared query.
-     *
+     * <p>
      * POST /v1/query
      *
      * @param preparedQuery The prepared query to create.
@@ -51,11 +51,11 @@ public class PreparedQueryClient extends BaseClient {
 
     /**
      * Creates a prepared query.
-     *
+     * <p>
      * POST /v1/query
      *
      * @param preparedQuery The prepared query to create.
-     * @param dc The data center.
+     * @param dc            The data center.
      * @return The ID of the created query.
      */
     public String createPreparedQuery(PreparedQuery preparedQuery, final String dc) {
@@ -68,7 +68,7 @@ public class PreparedQueryClient extends BaseClient {
 
     /**
      * Retrieves the list of prepared queries.
-     *
+     * <p>
      * GET /v1/query
      *
      * @return The list of prepared queries.
@@ -79,7 +79,7 @@ public class PreparedQueryClient extends BaseClient {
 
     /**
      * Retrieves the list of prepared queries.
-     *
+     * <p>
      * GET /v1/query
      *
      * @param dc The data center.
@@ -91,7 +91,7 @@ public class PreparedQueryClient extends BaseClient {
 
     /**
      * Retrieves a prepared query by its ID.
-     *
+     * <p>
      * GET /v1/query/{id}
      *
      * @param id The query ID.
@@ -103,7 +103,7 @@ public class PreparedQueryClient extends BaseClient {
 
     /**
      * Retrieves a prepared query by its ID.
-     *
+     * <p>
      * GET /v1/query/{id}
      *
      * @param id The query ID.

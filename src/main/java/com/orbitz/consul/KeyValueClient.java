@@ -1,10 +1,9 @@
 package com.orbitz.consul;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.orbitz.consul.util.Strings.trimLeadingSlash;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
-
-import java.nio.charset.Charset;
-import java.util.Optional;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.primitives.UnsignedLongs;
 import com.orbitz.consul.async.ConsulResponseCallback;
@@ -36,12 +35,11 @@ import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.QueryMap;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.orbitz.consul.util.Strings.trimLeadingSlash;
+import java.util.Optional;
 
 /**
  * HTTP Client for /v1/kv/ endpoints.
@@ -74,7 +72,7 @@ public class KeyValueClient extends BaseCacheableClient {
     /**
      * Retrieves a {@link Value} for a specific key
      * from the key/value store.
-     *
+     * <p>
      * GET /v1/kv/{key}
      *
      * @param key The key to retrieve.
@@ -86,8 +84,9 @@ public class KeyValueClient extends BaseCacheableClient {
 
     /**
      * Retrieves a {@link ConsulResponse} with the
-     * {@link Value} for a spefici key from the
+     * {@link Value} for a specific key from the
      * key/value store
+     *
      * @param key The key to retrieve
      * @return An {@link Optional} containing the {@link ConsulResponse} or {@link Optional#empty()()}
      */
@@ -98,7 +97,7 @@ public class KeyValueClient extends BaseCacheableClient {
     /**
      * Retrieves a {@link Value} for a specific key
      * from the key/value store.
-     *
+     * <p>
      * GET /v1/kv/{key}
      *
      * @param key The key to retrieve.
@@ -122,7 +121,7 @@ public class KeyValueClient extends BaseCacheableClient {
     /**
      * Returns a {@link ConsulResponse<Value>} for a specific key from the kv store.
      * Contains the consul response headers along with the configuration value.
-     *
+     * <p>
      * GET /v1/kv/{key}
      *
      * @param key The key to retrieve.
@@ -153,7 +152,7 @@ public class KeyValueClient extends BaseCacheableClient {
     /**
      * Asynchronously retrieves a {@link Value} for a specific key
      * from the key/value store.
-     *
+     * <p>
      * GET /v1/kv/{key}
      *
      * @param key The key to retrieve.
@@ -161,7 +160,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * @param callback Callback implemented by callee to handle results.
      */
     public void getValue(String key, QueryOptions queryOptions, final ConsulResponseCallback<Optional<Value>> callback) {
-        ConsulResponseCallback<List<Value>> wrapper = new ConsulResponseCallback<List<Value>>() {
+        ConsulResponseCallback<List<Value>> wrapper = new ConsulResponseCallback<>() {
             @Override
             public void onComplete(ConsulResponse<List<Value>> consulResponse) {
                 callback.onComplete(
@@ -187,7 +186,7 @@ public class KeyValueClient extends BaseCacheableClient {
     /**
      * Retrieves a list of {@link Value} objects for a specific key
      * from the key/value store.
-     *
+     * <p>
      * GET /v1/kv/{key}?recurse
      *
      * @param key The key to retrieve.
@@ -200,7 +199,7 @@ public class KeyValueClient extends BaseCacheableClient {
     /**
      * Retrieves a {@link ConsulResponse} with a list of {@link Value} objects along with
      * consul response headers for a specific key from the key/value store.
-     *
+     * <p>
      * GET /v1/kv/{key}?recurse
      *
      * @param key The key to retrieve.
@@ -214,7 +213,7 @@ public class KeyValueClient extends BaseCacheableClient {
     /**
      * Retrieves a list of {@link Value} objects for a specific key
      * from the key/value store.
-     *
+     * <p>
      * GET /v1/kv/{key}?recurse
      *
      * @param key The key to retrieve.
@@ -234,7 +233,7 @@ public class KeyValueClient extends BaseCacheableClient {
     /**
      * Retrieves a {@link ConsulResponse} with a list of {@link Value} objects along with
      * consul response headers for a specific key from the key/value store.
-     *
+     * <p>
      * GET /v1/kv/{key}?recurse
      *
      * @param key The key to retrieve.
@@ -253,7 +252,7 @@ public class KeyValueClient extends BaseCacheableClient {
     /**
      * Asynchronously retrieves a list of {@link Value} objects for a specific key
      * from the key/value store.
-     *
+     * <p>
      * GET /v1/kv/{key}?recurse
      *
      * @param key The key to retrieve.
@@ -270,7 +269,7 @@ public class KeyValueClient extends BaseCacheableClient {
 
     /**
      * Retrieves a string value for a specific key from the key/value store.
-     *
+     * <p>
      * GET /v1/kv/{key}
      *
      * @param key The key to retrieve.
@@ -283,7 +282,7 @@ public class KeyValueClient extends BaseCacheableClient {
 
     /**
      * Retrieves a string value for a specific key from the key/value store.
-     *
+     * <p>
      * GET /v1/kv/{key}
      *
      * @param key The key to retrieve.
@@ -298,7 +297,7 @@ public class KeyValueClient extends BaseCacheableClient {
     /**
      * Retrieves a list of string values for a specific key from the key/value
      * store.
-     *
+     * <p>
      * GET /v1/kv/{key}?recurse
      *
      * @param key The key to retrieve.
@@ -311,7 +310,7 @@ public class KeyValueClient extends BaseCacheableClient {
     /**
      * Retrieves a list of string values for a specific key from the key/value
      * store.
-     *
+     * <p>
      * GET /v1/kv/{key}?recurse
      *
      * @param key The key to retrieve.
@@ -450,7 +449,7 @@ public class KeyValueClient extends BaseCacheableClient {
 
     /**
      * Retrieves a list of matching keys for the given key.
-     *
+     * <p>
      * GET /v1/kv/{key}?keys
      *
      * @param key The key to retrieve.
@@ -462,7 +461,7 @@ public class KeyValueClient extends BaseCacheableClient {
 
     /**
      * Retrieves a list of matching keys for the given key.
-     *
+     * <p>
      * GET /v1/kv/{key}?keys
      *
      * @param key The key to retrieve.
@@ -476,7 +475,7 @@ public class KeyValueClient extends BaseCacheableClient {
     /**
      * Retrieves a list of matching keys for the given key, limiting the prefix of keys
      * returned, only up to the given separator.
-     *
+     * <p>
      * GET /v1/kv/{key}?keys&separator={separator}
      *
      * @param key The key to retrieve.
@@ -489,7 +488,7 @@ public class KeyValueClient extends BaseCacheableClient {
 
     /**
      * Retrieves a list of matching keys for the given key.
-     *
+     * <p>
      * GET /v1/kv/{key}?keys&separator={separator}
      *
      * @param key The key to retrieve.
@@ -510,7 +509,7 @@ public class KeyValueClient extends BaseCacheableClient {
 
     /**
      * Deletes a specified key.
-     *
+     * <p>
      * DELETE /v1/kv/{key}
      *
      * @param key The key to delete.
@@ -521,7 +520,7 @@ public class KeyValueClient extends BaseCacheableClient {
 
     /**
      * Deletes a specified key and any below it.
-     *
+     * <p>
      * DELETE /v1/kv/{key}?recurse
      *
      * @param key The key to delete.
@@ -532,7 +531,7 @@ public class KeyValueClient extends BaseCacheableClient {
 
     /**
      * Deletes a specified key.
-     *
+     * <p>
      * DELETE /v1/kv/{key}
      *
      * @param key The key to delete.
@@ -546,8 +545,8 @@ public class KeyValueClient extends BaseCacheableClient {
     }
 
     /**
-     * Aquire a lock for a given key.
-     *
+     * Acquire a lock for a given key.
+     * <p>
      * PUT /v1/kv/{key}?acquire={session}
      *
      * @param key The key to acquire the lock.
@@ -559,8 +558,8 @@ public class KeyValueClient extends BaseCacheableClient {
     }
 
     /**
-     * Aquire a lock for a given key.
-     *
+     * Acquire a lock for a given key.
+     * <p>
      * PUT /v1/kv/{key}?acquire={session}
      *
      * @param key The key to acquire the lock.
@@ -574,7 +573,7 @@ public class KeyValueClient extends BaseCacheableClient {
 
     /**
      * Retrieves a session string for a specific key from the key/value store.
-     *
+     * <p>
      * GET /v1/kv/{key}
      *
      * @param key The key to retrieve.
@@ -587,11 +586,11 @@ public class KeyValueClient extends BaseCacheableClient {
 
     /**
      * Releases the lock for a given service and session.
-     *
+     * <p>
      * GET /v1/kv/{key}?release={sessionId}
      *
      * @param key identifying the service.
-     * @param sessionId
+     * @param sessionId the session ID
      *
      * @return {@link SessionInfo}.
      */
@@ -601,7 +600,7 @@ public class KeyValueClient extends BaseCacheableClient {
 
     /**
      * Performs a Consul transaction.
-     *
+     * <p>
      * PUT /v1/tx
      *
      * @param operations A list of KV operations.
@@ -615,7 +614,7 @@ public class KeyValueClient extends BaseCacheableClient {
 
     /**
      * Performs a Consul transaction.
-     *
+     * <p>
      * PUT /v1/tx
      *
      * @deprecated Replaced by {@link #performTransaction(TransactionOptions, Operation...)}
@@ -646,7 +645,7 @@ public class KeyValueClient extends BaseCacheableClient {
 
     /**
      * Performs a Consul transaction.
-     *
+     * <p>
      * PUT /v1/tx
      *
      * @param transactionOptions transaction options (e.g. dc, consistency).
@@ -716,7 +715,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * Wrapper for Transaction KV entry.
      */
     static class KvOperation {
-        private Operation kv;
+        private final Operation kv;
 
         private KvOperation(Operation operation) {
             kv = operation;

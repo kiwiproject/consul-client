@@ -47,12 +47,12 @@ public class EventClient extends BaseClient {
 
     /**
      * Fires a Consul event.
-     *
+     * <p>
      * PUT /v1/event/fire/{name}
      *
-     * @param name The name of the event.
+     * @param name         The name of the event.
      * @param eventOptions The event specific options to use.
-     * @param payload Optional string payload.
+     * @param payload      Optional string payload.
      * @return The newly created {@link Event}.
      */
     public Event fireEvent(String name, EventOptions eventOptions, String payload) {
@@ -63,7 +63,7 @@ public class EventClient extends BaseClient {
 
     /**
      * Fires a Consul event.
-     *
+     * <p>
      * PUT /v1/event/fire/{name}
      *
      * @param name The name of the event.
@@ -75,7 +75,7 @@ public class EventClient extends BaseClient {
 
     /**
      * Fires a Consul event.
-     *
+     * <p>
      * PUT /v1/event/fire/{name}
      *
      * @param name The name of the event.
@@ -88,7 +88,7 @@ public class EventClient extends BaseClient {
 
     /**
      * Fires a Consul event.
-     *
+     * <p>
      * PUT /v1/event/fire/{name}
      *
      * @param name The name of the event.
@@ -101,7 +101,7 @@ public class EventClient extends BaseClient {
 
     /**
      * Lists events for the Consul agent.
-     *
+     * <p>
      * GET /v1/event/list?name={name}
      *
      * @param name Event name to filter.
@@ -121,7 +121,7 @@ public class EventClient extends BaseClient {
 
     /**
      * Lists events for the Consul agent.
-     *
+     * <p>
      * GET /v1/event/list?name={name}
      *
      * @param name Event name to filter.
@@ -134,7 +134,7 @@ public class EventClient extends BaseClient {
 
     /**
      * Lists events for the Consul agent.
-     *
+     * <p>
      * GET /v1/event/list
      *
      * @param queryOptions The query options to use.
@@ -147,7 +147,7 @@ public class EventClient extends BaseClient {
 
     /**
      * Lists events for the Consul agent.
-     *
+     * <p>
      * GET /v1/event/list
      *
      * @return A {@link ConsulResponse} object containing
@@ -159,7 +159,7 @@ public class EventClient extends BaseClient {
 
     /**
      * Asynchronously lists events for the Consul agent.
-     *
+     * <p>
      * GET /v1/event/list?name={name}
      *
      * @param name Event name to filter.
@@ -191,7 +191,7 @@ public class EventClient extends BaseClient {
 
     /**
      * Asynchronously lists events for the Consul agent.
-     *
+     * <p>
      * GET /v1/event/list
      *
      * @param queryOptions The query options to use.
@@ -203,7 +203,7 @@ public class EventClient extends BaseClient {
 
     /**
      * Asynchronously lists events for the Consul agent.
-     *
+     * <p>
      * GET /v1/event/list
      *
      * @param callback The callback to asynchronously process the result.

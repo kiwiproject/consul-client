@@ -668,7 +668,7 @@ public class AgentClient extends BaseClient {
 
     /**
      * GET /v1/agent/join/{address}
-     *
+     * <p>
      * Instructs the agent to join a node.
      *
      * @param address The address to join.
