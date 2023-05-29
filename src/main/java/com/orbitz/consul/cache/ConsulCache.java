@@ -15,7 +15,6 @@ import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.monitoring.ClientEventHandler;
 import com.orbitz.consul.option.ImmutableQueryOptions;
 import com.orbitz.consul.option.QueryOptions;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,11 +117,9 @@ public class ConsulCache<K, V> implements AutoCloseable {
      * @implNote This was extracted from an anonymous class declaration into a separate class mainly
      * for organization and (somewhat) better readability. Several small methods were also extracted
      * such as notifyListeners, and the updateIndex method was moved into this class since it is
-     * only used here.
-     *
-     * It cannot be static because it uses instance fields from ConsulCache directly. It might be
-     * possible to make it static if we pass in the required fields to the constructor, since they
-     * are accessed only via their methods and are not reassigned.
+     * only used here. It cannot be static because it uses instance fields from ConsulCache directly.
+     * It might be possible to make it static if we pass in the required fields to the constructor, since
+     * they are accessed only via their methods and are not reassigned.
      */
     class DefaultConsulResponseCallback implements ConsulResponseCallback<List<V>> {
 
