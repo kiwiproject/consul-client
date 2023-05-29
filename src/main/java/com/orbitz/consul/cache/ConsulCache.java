@@ -151,9 +151,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
                 // metadata changes
                 lastContact.set(consulResponse.getLastContact());
                 isKnownLeader.set(consulResponse.isKnownLeader());
-            }
 
-            if (changed) {
                 boolean locked = false;
                 if (state.get() == State.STARTING) {
                     listenersStartingLock.lock();
