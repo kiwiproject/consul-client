@@ -426,8 +426,8 @@ class KeyValueITest extends BaseIntegrationTest {
                 assertThat(consulResponse).isNotNull();
                 // No cache, no Cache info
                 assertThat(consulResponse.getCacheReponseInfo()).isEmpty();
-                completed.countDown();
                 success.incrementAndGet();
+                completed.countDown();
             }
 
             @Override
@@ -454,8 +454,8 @@ class KeyValueITest extends BaseIntegrationTest {
             @Override
             public void onComplete(ConsulResponse<Optional<Value>> consulResponse) {
                 assertThat(consulResponse).isNotNull();
-                completed.countDown();
                 success.incrementAndGet();
+                completed.countDown();
             }
 
             @Override
