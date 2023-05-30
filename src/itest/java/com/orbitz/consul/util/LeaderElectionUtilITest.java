@@ -9,13 +9,13 @@ class LeaderElectionUtilITest extends BaseIntegrationTest {
 
     @Test
     void testGetLeaderInfoForService() {
-        LeaderElectionUtil leutil = new LeaderElectionUtil(client);
-        final String serviceName = "myservice100";
-        final String serviceInfo = "serviceinfo";
+        var leaderElection = new LeaderElectionUtil(client);
+        var serviceName = "myservice100";
+        var serviceInfo = "serviceinfo";
 
-        leutil.releaseLockForService(serviceName);
-        assertThat(leutil.getLeaderInfoForService(serviceName)).isEmpty();
-        assertThat(leutil.electNewLeaderForService(serviceName, serviceInfo)).contains(serviceInfo);
-        assertThat(leutil.releaseLockForService(serviceName)).isTrue();
+        leaderElection.releaseLockForService(serviceName);
+        assertThat(leaderElection.getLeaderInfoForService(serviceName)).isEmpty();
+        assertThat(leaderElection.electNewLeaderForService(serviceName, serviceInfo)).contains(serviceInfo);
+        assertThat(leaderElection.releaseLockForService(serviceName)).isTrue();
     }
 }

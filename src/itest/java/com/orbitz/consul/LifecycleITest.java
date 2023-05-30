@@ -46,8 +46,8 @@ class LifecycleITest extends BaseIntegrationTest {
 
     @Test
     void shouldBeDestroyableWithCustomExecutorService() throws InterruptedException {
-        ConnectionPool connectionPool = new ConnectionPool();
-        ExecutorService executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60, TimeUnit.SECONDS,
+        var connectionPool = new ConnectionPool();
+        var executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60, TimeUnit.SECONDS,
                 new SynchronousQueue<>(), Util.threadFactory("OkHttp Dispatcher", false));
 
         executorService.execute(() -> {
@@ -61,8 +61,8 @@ class LifecycleITest extends BaseIntegrationTest {
     }
 
     public static void main(String[] args) {
-        ConnectionPool connectionPool = new ConnectionPool();
-        ExecutorService executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 10, TimeUnit.SECONDS,
+        var connectionPool = new ConnectionPool();
+        var executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 10, TimeUnit.SECONDS,
                 new SynchronousQueue<>(), Util.threadFactory("OkHttp Dispatcher", false));
 
         // execute a task in order to force the creation of a Thread in the ThreadPool

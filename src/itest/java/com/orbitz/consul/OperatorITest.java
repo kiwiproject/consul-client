@@ -2,18 +2,25 @@ package com.orbitz.consul;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orbitz.consul.model.operator.RaftConfiguration;
 import com.orbitz.consul.model.operator.RaftServer;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 class OperatorITest extends BaseIntegrationTest {
 
+    private OperatorClient operatorClient;
+
+    @BeforeEach
+    void setUp() {
+        operatorClient = client.operatorClient();
+    }
+
     @Test
     void shouldGetRaftConfiguration() {
-        OperatorClient operatorClient = client.operatorClient();
-        RaftConfiguration raftConfiguration = operatorClient.getRaftConfiguration();
+        var raftConfiguration = operatorClient.getRaftConfiguration();
 
         List<RaftServer> servers = raftConfiguration.servers();
         assertThat(servers).isNotEmpty();
@@ -23,8 +30,7 @@ class OperatorITest extends BaseIntegrationTest {
     void shouldGetRaftConfigurationForDatacenter() {
         String datacenter = getFirstDatacenter();
 
-        OperatorClient operatorClient = client.operatorClient();
-        RaftConfiguration raftConfiguration = operatorClient.getRaftConfiguration(datacenter);
+        var raftConfiguration = operatorClient.getRaftConfiguration(datacenter);
 
         List<RaftServer> servers = raftConfiguration.servers();
         assertThat(servers).isNotEmpty();
@@ -38,8 +44,7 @@ class OperatorITest extends BaseIntegrationTest {
 
     @Test
     void shouldGetStaleRaftConfiguration() {
-        OperatorClient operatorClient = client.operatorClient();
-        RaftConfiguration raftConfiguration = operatorClient.getStaleRaftConfiguration();
+        var raftConfiguration = operatorClient.getStaleRaftConfiguration();
 
         List<RaftServer> servers = raftConfiguration.servers();
         assertThat(servers).isNotEmpty();
@@ -49,8 +54,7 @@ class OperatorITest extends BaseIntegrationTest {
     void shouldGetStaleRaftConfigurationForDatacenter() {
         String datacenter = getFirstDatacenter();
 
-        OperatorClient operatorClient = client.operatorClient();
-        RaftConfiguration raftConfiguration = operatorClient.getStaleRaftConfiguration(datacenter);
+        var raftConfiguration = operatorClient.getStaleRaftConfiguration(datacenter);
 
         List<RaftServer> servers = raftConfiguration.servers();
         assertThat(servers).isNotEmpty();

@@ -6,7 +6,6 @@ import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.BaseIntegrationTest;
-import com.orbitz.consul.HealthClient;
 import com.orbitz.consul.model.State;
 import com.orbitz.consul.model.health.HealthCheck;
 
@@ -26,9 +25,9 @@ class HealthCheckCacheITest extends BaseIntegrationTest {
 
     @Test
     void cacheShouldContainPassingTestsOnly() throws Exception {
-        HealthClient healthClient = client.healthClient();
-        String checkName = randomUUIDString();
-        String checkId = randomUUIDString();
+        var healthClient = client.healthClient();
+        var checkName = randomUUIDString();
+        var checkId = randomUUIDString();
 
         agentClient.registerCheck(checkId, checkName, 20L);
         try {

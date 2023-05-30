@@ -46,8 +46,8 @@ class SnapshotClientITest extends BaseIntegrationTest {
 
     @Test
     void shouldBeAbleToSaveAndRestoreSnapshot() throws MalformedURLException, InterruptedException {
-        String serviceName = randomUUIDString();
-        String serviceId = randomUUIDString();
+        var serviceName = randomUUIDString();
+        var serviceId = randomUUIDString();
 
         client.agentClient().register(8080, new URL("http://localhost:123/health"), 1000L, serviceName, serviceId,
                 List.of(), Map.of());
@@ -64,16 +64,16 @@ class SnapshotClientITest extends BaseIntegrationTest {
     }
 
     private void ensureSaveSnapshot() throws InterruptedException {
-        CountDownLatch latch = new CountDownLatch(1);
-        AtomicBoolean success = new AtomicBoolean(false);
+        var latch = new CountDownLatch(1);
+        var success = new AtomicBoolean(false);
         snapshotClient.save(snapshotFile, QueryOptions.BLANK, createCallback(latch, success));
         assertThat(latch.await(1, TimeUnit.MINUTES)).isTrue();
         assertThat(success.get()).isTrue();
     }
 
     private void ensureRestoreSnapshot() throws InterruptedException {
-        CountDownLatch latch = new CountDownLatch(1);
-        AtomicBoolean success = new AtomicBoolean(false);
+        var latch = new CountDownLatch(1);
+        var success = new AtomicBoolean(false);
         snapshotClient.restore(snapshotFile, QueryOptions.BLANK, createCallback(latch, success));
         assertThat(latch.await(1, TimeUnit.MINUTES)).isTrue();
         assertThat(success.get()).isTrue();
