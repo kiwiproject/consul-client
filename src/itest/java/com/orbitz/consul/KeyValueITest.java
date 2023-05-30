@@ -396,6 +396,16 @@ class KeyValueITest extends BaseIntegrationTest {
     }
 
     @Test
+    void testGetConsulResponseWithValue_WhenNotFound() {
+        var keyValueClient = client.keyValueClient();
+        var key = randomUUIDString();
+
+        Optional<ConsulResponse<Value>> responseOptional = keyValueClient.getConsulResponseWithValue(key);
+
+        assertThat(responseOptional).isEmpty();
+    }
+
+    @Test
     void testGetConsulResponseWithValues() {
         KeyValueClient keyValueClient = client.keyValueClient();
         String key = randomUUIDString();
