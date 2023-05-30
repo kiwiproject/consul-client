@@ -1,7 +1,8 @@
 package com.orbitz.consul.cache;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 import com.orbitz.consul.KeyValueClient;
 import com.orbitz.consul.config.CacheConfig;
@@ -34,8 +35,8 @@ public class KVCache extends ConsulCache<String, Value> {
     @VisibleForTesting
     static Function<Value, String> getKeyExtractorFunction(final String rootPath) {
         return input -> {
-            Preconditions.checkNotNull(input, "Input to key extractor is null");
-            Preconditions.checkNotNull(input.getKey(), "Input to key extractor has no key");
+            checkNotNull(input, "Input to key extractor is null");
+            checkNotNull(input.getKey(), "Input to key extractor has no key");
 
             if (rootPath.equals(input.getKey())) {
                 return "";

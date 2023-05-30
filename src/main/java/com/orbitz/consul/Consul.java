@@ -1,11 +1,11 @@
 package com.orbitz.consul;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.cache.TimeoutInterceptor;
 import com.orbitz.consul.config.ClientConfig;
@@ -487,8 +487,8 @@ public class Consul {
          * @return The builder.
          */
         public Builder withMultipleHostAndPort(Collection<HostAndPort> hostAndPort, long blacklistTimeInMillis) {
-            Preconditions.checkArgument(blacklistTimeInMillis >= 0, "Negative Value");
-            Preconditions.checkArgument(hostAndPort.size() >= 2, "Minimum of 2 addresses are required");
+            checkArgument(blacklistTimeInMillis >= 0, "Blacklist time must be positive");
+            checkArgument(hostAndPort.size() >= 2, "Minimum of 2 addresses are required");
 
             consulFailoverInterceptor = new ConsulFailoverInterceptor(hostAndPort, blacklistTimeInMillis);
             withHostAndPort(hostAndPort.stream().findFirst().orElseThrow());
@@ -502,7 +502,7 @@ public class Consul {
          * @return The builder.
          */
         public Builder withFailoverInterceptor(ConsulFailoverStrategy strategy) {
-        	Preconditions.checkArgument(nonNull(strategy), "Must not provide a null strategy");
+        	checkArgument(nonNull(strategy), "Must not provide a null strategy");
 
         	consulFailoverInterceptor = new ConsulFailoverInterceptor(strategy);
         	return this;
@@ -574,7 +574,7 @@ public class Consul {
         * @return The builder
         */
         public Builder withConnectTimeoutMillis(long timeoutMillis) {
-            Preconditions.checkArgument(timeoutMillis >= 0, NEGATIVE_VALUE);
+            checkArgument(timeoutMillis >= 0, NEGATIVE_VALUE);
             this.networkTimeoutConfigBuilder.withConnectTimeout((int) timeoutMillis);
             return this;
         }
@@ -585,7 +585,7 @@ public class Consul {
         * @return The builder
         */
         public Builder withReadTimeoutMillis(long timeoutMillis) {
-            Preconditions.checkArgument(timeoutMillis >= 0, NEGATIVE_VALUE);
+            checkArgument(timeoutMillis >= 0, NEGATIVE_VALUE);
             this.networkTimeoutConfigBuilder.withReadTimeout((int) timeoutMillis);
 
             return this;
@@ -597,7 +597,7 @@ public class Consul {
         * @return The builder
         */
         public Builder withWriteTimeoutMillis(long timeoutMillis) {
-            Preconditions.checkArgument(timeoutMillis >= 0, NEGATIVE_VALUE);
+            checkArgument(timeoutMillis >= 0, NEGATIVE_VALUE);
             this.networkTimeoutConfigBuilder.withWriteTimeout((int) timeoutMillis);
 
             return this;

@@ -3,6 +3,7 @@ package com.orbitz.consul.config;
 import static com.orbitz.consul.Awaiting.awaitAtMost500ms;
 import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.fail;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
@@ -54,12 +55,26 @@ class CacheConfigTest {
         assertThat(loggedAsWarn.get()).as("Should have logged as warning").isTrue();
     }
 
+    @Test
+    void shouldNotPermitNegativeWatchDuration() {
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> CacheConfig.builder().withWatchDuration(Duration.ofSeconds(-1)).build())
+                .withMessage("Delay must be positive");
+    }
+
     @ParameterizedTest(name = "Delay: {0}")
     @MethodSource("getDurationSamples")
     void testOverrideBackOffDelay(Duration backOffDelay) {
         CacheConfig config = CacheConfig.builder().withBackOffDelay(backOffDelay).build();
         assertThat(config.getMinimumBackOffDelay()).isEqualTo(backOffDelay);
         assertThat(config.getMaximumBackOffDelay()).isEqualTo(backOffDelay);
+    }
+
+    @Test
+    void shouldNotPermitNegativeBackOffDelay() {
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> CacheConfig.builder().withBackOffDelay(Duration.ofSeconds(-1)).build())
+                .withMessage("Delay must be positive");
     }
 
     @ParameterizedTest(name = "Delay: {0}")
