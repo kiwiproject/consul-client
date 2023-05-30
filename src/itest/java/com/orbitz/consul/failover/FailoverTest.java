@@ -34,7 +34,7 @@ class FailoverTest extends BaseIntegrationTest {
 
 		// Create our consul instance
 		var consulBuilder = Consul.builder();
-		int blacklistTimeInMillis = 200;
+		var blacklistTimeInMillis = 200;
 		consulBuilder.withMultipleHostAndPort(targets, blacklistTimeInMillis);
 		consulBuilder.withConnectTimeoutMillis(50);
 

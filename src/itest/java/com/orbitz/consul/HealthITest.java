@@ -13,6 +13,8 @@ import com.orbitz.consul.model.health.HealthCheck;
 import com.orbitz.consul.model.health.ServiceHealth;
 import com.orbitz.consul.option.ImmutableQueryOptions;
 import com.orbitz.consul.option.QueryOptions;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
@@ -24,16 +26,23 @@ class HealthITest extends BaseIntegrationTest {
     private static final List<String> NO_TAGS = List.of();
     private static final Map<String, String> NO_META = Map.of();
 
+    private AgentClient agentClient;
+
+    @BeforeEach
+    void setUp() {
+        agentClient = client.agentClient();
+    }
+
     @Test
     void shouldFetchPassingNode() throws NotRegisteredException {
-        String serviceName = randomUUIDString();
-        String serviceId = randomUUIDString();
+        var serviceName = randomUUIDString();
+        var serviceId = randomUUIDString();
 
-        client.agentClient().register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
-        client.agentClient().pass(serviceId);
+        agentClient.register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
+        agentClient.pass(serviceId);
 
         Consul client2 = builder().withHostAndPort(HostAndPort.fromParts("localhost", consulContainer.getFirstMappedPort())).build();
-        String serviceId2 = randomUUIDString();
+        var serviceId2 = randomUUIDString();
 
         client2.agentClient().register(8080, 20L, serviceName, serviceId2, NO_TAGS, NO_META);
         client2.agentClient().fail(serviceId2);
@@ -41,56 +50,56 @@ class HealthITest extends BaseIntegrationTest {
         ConsulResponse<List<ServiceHealth>> response = client2.healthClient().getHealthyServiceInstances(serviceName);
         assertHealth(serviceId, response);
 
-        client.agentClient().deregister(serviceId);
-        client.agentClient().deregister(serviceId2);
+        agentClient.deregister(serviceId);
+        agentClient.deregister(serviceId2);
     }
 
     @Test
     void shouldFetchNode() throws NotRegisteredException {
-        String serviceName = randomUUIDString();
-        String serviceId = randomUUIDString();
+        var serviceName = randomUUIDString();
+        var serviceId = randomUUIDString();
 
-        client.agentClient().register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
-        client.agentClient().pass(serviceId);
+        agentClient.register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
+        agentClient.pass(serviceId);
 
         ConsulResponse<List<ServiceHealth>> response = client.healthClient().getAllServiceInstances(serviceName);
         assertHealth(serviceId, response);
 
-        client.agentClient().deregister(serviceId);
+        agentClient.deregister(serviceId);
     }
 
     @Test
     void shouldFetchNodeDatacenter() throws NotRegisteredException {
-        String serviceName = randomUUIDString();
-        String serviceId = randomUUIDString();
+        var serviceName = randomUUIDString();
+        var serviceId = randomUUIDString();
 
-        client.agentClient().register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
-        client.agentClient().pass(serviceId);
+        agentClient.register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
+        agentClient.pass(serviceId);
 
         ConsulResponse<List<ServiceHealth>> response = client.healthClient().getAllServiceInstances(serviceName,
                 ImmutableQueryOptions.builder().datacenter("dc1").build());
         assertHealth(serviceId, response);
-        client.agentClient().deregister(serviceId);
+        agentClient.deregister(serviceId);
     }
 
     @Test
     void shouldFetchNodeBlock() throws NotRegisteredException {
-        String serviceName = randomUUIDString();
-        String serviceId = randomUUIDString();
+        var serviceName = randomUUIDString();
+        var serviceId = randomUUIDString();
 
-        client.agentClient().register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
-        client.agentClient().pass(serviceId);
+        agentClient.register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
+        agentClient.pass(serviceId);
 
         ConsulResponse<List<ServiceHealth>> response = client.healthClient().getAllServiceInstances(serviceName,
                 QueryOptions.blockSeconds(2, new BigInteger("0")).datacenter("dc1").build());
         assertHealth(serviceId, response);
-        client.agentClient().deregister(serviceId);
+        agentClient.deregister(serviceId);
     }
 
     @Test
     void shouldFetchChecksForServiceBlock() throws NotRegisteredException {
-        String serviceName = randomUUIDString();
-        String serviceId = randomUUIDString();
+        var serviceName = randomUUIDString();
+        var serviceId = randomUUIDString();
 
         Registration.RegCheck check = Registration.RegCheck.ttl(5);
         Registration registration = ImmutableRegistration
@@ -101,10 +110,10 @@ class HealthITest extends BaseIntegrationTest {
                 .id(serviceId)
                 .build();
 
-        client.agentClient().register(registration);
-        client.agentClient().pass(serviceId);
+        agentClient.register(registration);
+        agentClient.pass(serviceId);
 
-        boolean found = false;
+        var found = false;
         ConsulResponse<List<HealthCheck>> response = client.healthClient().getServiceChecks(serviceName,
                 QueryOptions.blockSeconds(20, new BigInteger("0")).datacenter("dc1").build());
 
@@ -116,18 +125,18 @@ class HealthITest extends BaseIntegrationTest {
             }
         }
         assertThat(found).isTrue();
-        client.agentClient().deregister(serviceId);
+        agentClient.deregister(serviceId);
     }
 
     @Test
     void shouldFetchByState() throws NotRegisteredException {
-        String serviceName = randomUUIDString();
-        String serviceId = randomUUIDString();
+        var serviceName = randomUUIDString();
+        var serviceId = randomUUIDString();
 
-        client.agentClient().register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
-        client.agentClient().warn(serviceId);
+        agentClient.register(8080, 20L, serviceName, serviceId, NO_TAGS, NO_META);
+        agentClient.warn(serviceId);
 
-        boolean found = false;
+        var found = false;
         ConsulResponse<List<HealthCheck>> response = client.healthClient().getChecksByState(State.WARN);
 
         for (HealthCheck healthCheck : response.getResponse()) {
@@ -137,16 +146,16 @@ class HealthITest extends BaseIntegrationTest {
         }
 
         assertThat(found).isTrue();
-        client.agentClient().deregister(serviceId);
+        agentClient.deregister(serviceId);
     }
 
     private void assertHealth(String serviceId, ConsulResponse<List<ServiceHealth>> response) {
-        boolean found = false;
+        var found = false;
         List<ServiceHealth> nodes = response.getResponse();
 
         assertThat(nodes).hasSize(1);
 
-        for(ServiceHealth health : nodes) {
+        for (ServiceHealth health : nodes) {
             if(health.getService().getId().equals(serviceId)) {
                 found = true;
             }

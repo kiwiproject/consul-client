@@ -66,7 +66,7 @@ class SessionClientITest extends BaseIntegrationTest {
 
     @Test
     void testAcquireLock() {
-        String key = randomUUIDString();
+        var key = randomUUIDString();
 
         Session value = ImmutableSession.builder().name("session_" + randomUUIDString()).build();
         String sessionId = sessionClient.createSession(value).getId();
@@ -84,7 +84,7 @@ class SessionClientITest extends BaseIntegrationTest {
 
     @Test
     void testAcquireLockTwiceFromSameSession() {
-        String key = randomUUIDString();
+        var key = randomUUIDString();
 
         Session value = ImmutableSession.builder().name("session_" + randomUUIDString()).build();
         String sessionId = sessionClient.createSession(value).getId();
@@ -103,7 +103,7 @@ class SessionClientITest extends BaseIntegrationTest {
 
     @Test
     void testAcquireLockTwiceFromDifferentSessions() {
-        String key = randomUUIDString();
+        var key = randomUUIDString();
 
         Session firstSessionValue = ImmutableSession.builder().name("session_" + randomUUIDString()).build();
         String firstSessionId = sessionClient.createSession(firstSessionValue).getId();
@@ -128,7 +128,7 @@ class SessionClientITest extends BaseIntegrationTest {
 
     @Test
     void testGetSessionInfo() {
-        String key = randomUUIDString();
+        var key = randomUUIDString();
 
         Session value = ImmutableSession.builder().name("session_" + randomUUIDString()).build();
         String sessionId = sessionClient.createSession(value).getId();
@@ -149,7 +149,7 @@ class SessionClientITest extends BaseIntegrationTest {
 
     @Test
     void testListSessions() {
-        String key = randomUUIDString();
+        var key = randomUUIDString();
 
         Session session = ImmutableSession.builder().name("session_" + randomUUIDString()).build();
         String sessionId = sessionClient.createSession(session).getId();
