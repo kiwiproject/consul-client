@@ -132,7 +132,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
 
         @Override
         public void onComplete(ConsulResponse<List<V>> consulResponse) {
-            if (!isRunning()) {
+            if (isNotRunning()) {
                 return;
             }
 
@@ -208,7 +208,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
 
         @Override
         public void onFailure(Throwable throwable) {
-            if (!isRunning()) {
+            if (isNotRunning()) {
                 return;
             }
 
@@ -220,6 +220,10 @@ public class ConsulCache<K, V> implements AutoCloseable {
             cacheConfig.getRefreshErrorLoggingConsumer().accept(LOG, message, throwable);
 
             scheduler.schedule(ConsulCache.this::runCallback, delayMs, TimeUnit.MILLISECONDS);
+        }
+
+        private boolean isNotRunning() {
+            return !isRunning();
         }
     }
 
@@ -288,10 +292,10 @@ public class ConsulCache<K, V> implements AutoCloseable {
         for (final V v : response.getResponse()) {
             final K key = keyConversion.apply(v);
             if (nonNull(key)) {
-                if (!keySet.contains(key)) {
-                    builder.put(key, v);
-                } else {
+                if (keySet.contains(key)) {
                     LOG.warn("Duplicate service encountered. May differ by tags. Try using more specific tags? {}", key);
+                } else {
+                    builder.put(key, v);
                 }
             }
             keySet.add(key);
