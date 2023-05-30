@@ -1,6 +1,7 @@
 package com.orbitz.consul.config;
 
 import static com.orbitz.consul.Awaiting.awaitAtMost500ms;
+import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -230,7 +231,7 @@ class CacheConfigTest {
 
         @Override
         public List<Integer> get() {
-            if (lastCall != null) {
+            if (nonNull(lastCall)) {
                 long between = Duration.between(lastCall, LocalTime.now()).toMillis();
                 assertThat(Math.abs(between - expectedInterval.toMillis()))
                         .describedAs(String.format("expected duration between calls of %d, got %s", expectedInterval.toMillis(), between))

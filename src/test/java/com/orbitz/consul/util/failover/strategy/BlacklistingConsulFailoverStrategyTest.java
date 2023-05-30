@@ -1,6 +1,8 @@
 package com.orbitz.consul.util.failover.strategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.google.common.net.HostAndPort;
 import okhttp3.Request;
@@ -23,7 +25,7 @@ class BlacklistingConsulFailoverStrategyTest {
         targets.add(HostAndPort.fromParts("1.2.3.4", 8501));
         targets.add(HostAndPort.fromParts("localhost", 8501));
 
-        blacklistingConsulFailoverStrategy = new BlacklistingConsulFailoverStrategy(targets, 100000);
+        blacklistingConsulFailoverStrategy = new BlacklistingConsulFailoverStrategy(targets, 100_000);
     }
 
     @Test
@@ -75,5 +77,52 @@ class BlacklistingConsulFailoverStrategyTest {
         Optional<Request> result3 = blacklistingConsulFailoverStrategy.computeNextStage(result2.get(), previousResponse);
 
         assertThat(result3).isEmpty();
+    }
+
+    @Test
+    void shouldGetPreviousRequestUrl_WhenPreviousResponseSucceeded() {
+        var previousRequest = new Request.Builder().url("https://1.2.3.4:8501/v1/agent/members").build();
+
+        var previousResponse = mock(Response.class);
+        when(previousResponse.isSuccessful()).thenReturn(true);
+
+        Optional<Request> nextRequestOptional = blacklistingConsulFailoverStrategy.computeNextStage(previousRequest, previousResponse);
+
+        assertThat(nextRequestOptional).isPresent();
+
+        var nextRequest = nextRequestOptional.orElseThrow();
+        assertThat(nextRequest.url()).hasToString("https://1.2.3.4:8501/v1/agent/members");
+    }
+
+    @Test
+    void shouldGetPreviousRequestUrl_WhenPreviousResponse_Was_404_NotFound() {
+        var previousRequest = new Request.Builder().url("https://1.2.3.4:8501/v1/agent/members").build();
+
+        var previousResponse = mock(Response.class);
+        when(previousResponse.isSuccessful()).thenReturn(false);
+        when(previousResponse.code()).thenReturn(404);
+
+        Optional<Request> nextRequestOptional = blacklistingConsulFailoverStrategy.computeNextStage(previousRequest, previousResponse);
+
+        assertThat(nextRequestOptional).isPresent();
+
+        var nextRequest = nextRequestOptional.orElseThrow();
+        assertThat(nextRequest.url()).hasToString("https://1.2.3.4:8501/v1/agent/members");
+    }
+
+    @Test
+    void shouldGetNextRequestUrl_WhenPreviousResponseFailed() {
+        var previousRequest = new Request.Builder().url("https://1.2.3.4:8501/v1/agent/members").build();
+
+        var previousResponse = mock(Response.class);
+        when(previousResponse.isSuccessful()).thenReturn(false);
+        when(previousResponse.code()).thenReturn(500);
+
+        Optional<Request> nextRequestOptional = blacklistingConsulFailoverStrategy.computeNextStage(previousRequest, previousResponse);
+
+        assertThat(nextRequestOptional).isPresent();
+
+        var nextRequest = nextRequestOptional.orElseThrow();
+        assertThat(nextRequest.url()).hasToString("https://localhost:8501/v1/agent/members");
     }
 }

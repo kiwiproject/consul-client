@@ -1,5 +1,7 @@
 package com.orbitz.consul;
 
+import static java.util.Objects.nonNull;
+
 import com.orbitz.consul.config.ClientConfig;
 import com.orbitz.consul.model.coordinate.Coordinate;
 import com.orbitz.consul.model.coordinate.Datacenter;
@@ -46,7 +48,7 @@ public class CoordinateClient extends BaseClient {
     }
 
     private Map<String, String> dcQuery(String dc) {
-        return dc != null ? Map.of("dc", dc) : Map.of();
+        return nonNull(dc) ? Map.of("dc", dc) : Map.of();
     }
 
     /**

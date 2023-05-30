@@ -2,6 +2,7 @@ package com.orbitz.consul;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.orbitz.consul.util.Strings.trimLeadingSlash;
+import static java.util.Objects.nonNull;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.annotations.VisibleForTesting;
@@ -180,7 +181,7 @@ public class KeyValueClient extends BaseCacheableClient {
     }
 
     private Optional<Value> getSingleValue(List<Value> values) {
-        return values != null && !values.isEmpty() ? Optional.of(values.get(0)) : Optional.empty();
+        return nonNull(values) && !values.isEmpty() ? Optional.of(values.get(0)) : Optional.empty();
     }
 
     /**
@@ -499,7 +500,7 @@ public class KeyValueClient extends BaseCacheableClient {
     public List<String> getKeys(String key, String separator, QueryOptions queryOptions) {
         Map<String, Object> query = queryOptions.toQuery();
         query.put("keys", "true");
-        if (separator != null) {
+        if (nonNull(separator)) {
             query.put("separator", separator);
         }
 

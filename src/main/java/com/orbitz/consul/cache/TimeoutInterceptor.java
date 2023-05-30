@@ -1,5 +1,7 @@
 package com.orbitz.consul.cache;
 
+import static java.util.Objects.nonNull;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.orbitz.consul.config.CacheConfig;
@@ -37,7 +39,7 @@ public class TimeoutInterceptor implements Interceptor {
         else if (config.isTimeoutAutoAdjustmentEnabled()) {
             String waitQuery = request.url().queryParameter("wait");
             Duration waitDuration = parseWaitQuery(waitQuery);
-            if (waitDuration != null) {
+            if (nonNull(waitDuration)) {
                 int waitDurationMs = (int) waitDuration.toMillis();
                 int readTimeoutConfigMargin = (int) config.getTimeoutAutoAdjustmentMargin().toMillis();
 

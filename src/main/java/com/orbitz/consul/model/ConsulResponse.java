@@ -1,5 +1,7 @@
 package com.orbitz.consul.model;
 
+import static java.util.Objects.nonNull;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 
@@ -23,7 +25,7 @@ public class ConsulResponse<T> {
         public CacheResponseInfoImpl(String headerHitMiss, String headerAge) throws NumberFormatException {
             this.cacheHit = headerHitMiss.equals("HIT");
             Long val = null;
-            if (headerAge != null) {
+            if (nonNull(headerAge)) {
                 val = Long.parseLong(headerAge);
             }
             this.ageInSeconds = val;
@@ -56,7 +58,7 @@ public class ConsulResponse<T> {
     @VisibleForTesting
     static CacheResponseInfo buildCacheReponseInfo(String headerHitMiss, String headerAge) throws NumberFormatException {
         ConsulResponse.CacheResponseInfo cacheInfo = null;
-        if (headerHitMiss != null) {
+        if (nonNull(headerHitMiss)) {
             cacheInfo = new CacheResponseInfoImpl(headerHitMiss, headerAge);
         }
         return cacheInfo;

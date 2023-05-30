@@ -182,7 +182,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
         }
 
         private void updateIndex(ConsulResponse<List<V>> consulResponse) {
-            if (consulResponse != null && consulResponse.getIndex() != null) {
+            if (nonNull(consulResponse) && nonNull(consulResponse.getIndex())) {
                 latestIndex.set(consulResponse.getIndex());
             }
         }
@@ -286,7 +286,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
         final Set<K> keySet = new HashSet<>();
         for (final V v : response.getResponse()) {
             final K key = keyConversion.apply(v);
-            if (key != null) {
+            if (nonNull(key)) {
                 if (!keySet.contains(key)) {
                     builder.put(key, v);
                 } else {

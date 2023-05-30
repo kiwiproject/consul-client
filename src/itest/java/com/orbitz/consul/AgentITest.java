@@ -2,6 +2,7 @@ package com.orbitz.consul;
 
 import static com.orbitz.consul.Awaiting.awaitAtMost500ms;
 import static com.orbitz.consul.TestUtils.randomUUIDString;
+import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
@@ -580,7 +581,7 @@ class AgentITest extends BaseIntegrationTest {
         assertThat(check.getServiceName().orElseThrow()).isEqualTo(serviceName);
         assertThat(check.getStatus()).isEqualTo(state);
 
-        if (output != null) {
+        if (nonNull(output)) {
             assertThat(check.getOutput().orElseThrow()).isEqualTo(output);
         }
     }

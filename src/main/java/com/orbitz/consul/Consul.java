@@ -1,5 +1,7 @@
 package com.orbitz.consul;
 
+import static java.util.Objects.nonNull;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -499,7 +501,7 @@ public class Consul {
          * @return The builder.
          */
         public Builder withFailoverInterceptor(ConsulFailoverStrategy strategy) {
-        	Preconditions.checkArgument(strategy != null, "Must not provide a null strategy");
+        	Preconditions.checkArgument(nonNull(strategy), "Must not provide a null strategy");
 
         	consulFailoverInterceptor = new ConsulFailoverInterceptor(strategy);
         	return this;
@@ -686,7 +688,7 @@ public class Consul {
                 connectionPool = new ConnectionPool();
             }
 
-            ClientConfig config = (clientConfig != null) ? clientConfig : new ClientConfig();
+            ClientConfig config = nonNull(clientConfig) ? clientConfig : new ClientConfig();
 
             OkHttpClient okHttpClient = createOkHttpClient(
                     this.sslContext,
@@ -704,7 +706,7 @@ public class Consul {
 
             retrofit = createRetrofit(buildUrl(this.url), Jackson.MAPPER, okHttpClient);
 
-            ClientEventCallback eventCallback = clientEventCallback != null ?
+            ClientEventCallback eventCallback = nonNull(clientEventCallback) ?
                     clientEventCallback :
                     new ClientEventCallback(){};
 
@@ -750,37 +752,37 @@ public class Consul {
 
             final OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
-            if (authInterceptor != null) {
+            if (nonNull(authInterceptor)) {
                 builder.addInterceptor(authInterceptor);
             }
 
-            if (aclTokenInterceptor != null) {
+            if (nonNull(aclTokenInterceptor)) {
                 builder.addInterceptor(aclTokenInterceptor);
             }
 
-            if (headerInterceptor != null) {
+            if (nonNull(headerInterceptor)) {
                 builder.addInterceptor(headerInterceptor);
             }
 
-            if (consulBookendInterceptor != null) {
+            if (nonNull(consulBookendInterceptor)) {
                 builder.addInterceptor(consulBookendInterceptor);
             }
 
-            if (consulFailoverInterceptor != null) {
+            if (nonNull(consulFailoverInterceptor)) {
                 builder.addInterceptor(consulFailoverInterceptor);
             }
 
-            if (sslContext != null && trustManager != null) {
+            if (nonNull(sslContext) && nonNull(trustManager)) {
                 builder.sslSocketFactory(sslContext.getSocketFactory(), trustManager);
-            } else if (sslContext != null) {
+            } else if (nonNull(sslContext)) {
                 builder.sslSocketFactory(sslContext.getSocketFactory(), TrustManagerUtils.getDefaultTrustManager());
             }
 
-            if (hostnameVerifier != null) {
+            if (nonNull(hostnameVerifier)) {
                 builder.hostnameVerifier(hostnameVerifier);
             }
 
-            if(proxy != null) {
+            if (nonNull(proxy)) {
                 builder.proxy(proxy);
             }
             NetworkTimeoutConfig networkTimeoutConfig = networkTimeoutConfigBuilder.build();
@@ -803,7 +805,7 @@ public class Consul {
             dispatcher.setMaxRequestsPerHost(Integer.MAX_VALUE);
             builder.dispatcher(dispatcher);
 
-            if (connectionPool != null) {
+            if (nonNull(connectionPool)) {
                 builder.connectionPool(connectionPool);
             }
             return builder.build();
