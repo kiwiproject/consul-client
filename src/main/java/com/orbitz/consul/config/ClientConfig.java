@@ -1,6 +1,6 @@
 package com.orbitz.consul.config;
 
-import com.google.common.base.Preconditions;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ClientConfig {
 
@@ -11,7 +11,7 @@ public class ClientConfig {
     }
 
     public ClientConfig(CacheConfig cacheConfig) {
-        this.cacheConfig = Preconditions.checkNotNull(cacheConfig, "Cache configuration is mandatory");
+        this.cacheConfig = checkNotNull(cacheConfig, "Cache configuration is mandatory");
     }
 
     public CacheConfig getCacheConfig() {

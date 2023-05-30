@@ -1,7 +1,10 @@
 package com.orbitz.consul.config;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
+
 import org.slf4j.Logger;
 
 import java.time.Duration;
@@ -138,8 +141,8 @@ public class CacheConfig {
          * @throws IllegalArgumentException if {@code delay} is negative.
          */
         public Builder withWatchDuration(Duration delay) {
-            this.watchDuration = Preconditions.checkNotNull(delay, DELAY_CANNOT_BE_NULL);
-            Preconditions.checkArgument(!delay.isNegative(), "Delay must be positive");
+            this.watchDuration = checkNotNull(delay, DELAY_CANNOT_BE_NULL);
+            checkArgument(!delay.isNegative(), "Delay must be positive");
             return this;
         }
 
@@ -148,9 +151,9 @@ public class CacheConfig {
          * @throws IllegalArgumentException if {@code delay} is negative.
          */
         public Builder withBackOffDelay(Duration delay) {
-            this.minBackOffDelay = Preconditions.checkNotNull(delay, DELAY_CANNOT_BE_NULL);
+            this.minBackOffDelay = checkNotNull(delay, DELAY_CANNOT_BE_NULL);
             this.maxBackOffDelay = delay;
-            Preconditions.checkArgument(!delay.isNegative(), "Delay must be positive");
+            checkArgument(!delay.isNegative(), "Delay must be positive");
             return this;
         }
 
@@ -159,10 +162,10 @@ public class CacheConfig {
          * @throws IllegalArgumentException if {@code minDelay} or {@code maxDelay} is negative, or if {@code minDelay} is superior to {@code maxDelay}.
          */
         public Builder withBackOffDelay(Duration minDelay, Duration maxDelay) {
-            this.minBackOffDelay = Preconditions.checkNotNull(minDelay, "Minimum delay cannot be null");
-            this.maxBackOffDelay = Preconditions.checkNotNull(maxDelay, "Maximum delay cannot be null");
-            Preconditions.checkArgument(!minDelay.isNegative(), "Minimum delay must be positive");
-            Preconditions.checkArgument(!maxDelay.minus(minDelay).isNegative(), "Minimum delay must be less than maximum delay");
+            this.minBackOffDelay = checkNotNull(minDelay, "Minimum delay cannot be null");
+            this.maxBackOffDelay = checkNotNull(maxDelay, "Maximum delay cannot be null");
+            checkArgument(!minDelay.isNegative(), "Minimum delay must be positive");
+            checkArgument(!maxDelay.minus(minDelay).isNegative(), "Minimum delay must be less than maximum delay");
             return this;
         }
 
@@ -170,7 +173,7 @@ public class CacheConfig {
          * Sets the minimum time between two requests for caches.
          */
         public Builder withMinDelayBetweenRequests(Duration delay) {
-            this.minDelayBetweenRequests = Preconditions.checkNotNull(delay, DELAY_CANNOT_BE_NULL);
+            this.minDelayBetweenRequests = checkNotNull(delay, DELAY_CANNOT_BE_NULL);
             return this;
         }
 
@@ -178,7 +181,7 @@ public class CacheConfig {
          * Sets the minimum time between two requests for caches when an empty result is returned.
          */
         public Builder withMinDelayOnEmptyResult(Duration delay) {
-            this.minDelayOnEmptyResult = Preconditions.checkNotNull(delay, DELAY_CANNOT_BE_NULL);
+            this.minDelayOnEmptyResult = checkNotNull(delay, DELAY_CANNOT_BE_NULL);
             return this;
         }
 
@@ -195,7 +198,7 @@ public class CacheConfig {
          * The margin represents the additional amount of time given to the read timeout, in addition to the wait duration.
          */
         public Builder withTimeoutAutoAdjustmentMargin(Duration margin) {
-            this.timeoutAutoAdjustmentMargin = Preconditions.checkNotNull(margin, "Margin cannot be null");
+            this.timeoutAutoAdjustmentMargin = checkNotNull(margin, "Margin cannot be null");
             return this;
         }
 
