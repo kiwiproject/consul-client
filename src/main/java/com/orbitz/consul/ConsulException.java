@@ -3,6 +3,8 @@ package com.orbitz.consul;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
+import static java.util.Objects.isNull;
+
 import java.io.IOException;
 
 /**
@@ -52,7 +54,7 @@ public class ConsulException extends RuntimeException {
     static String message(Response<?> response) {
         try {
             ResponseBody responseBody = response.errorBody();
-            return responseBody == null ? response.message() : responseBody.string();
+            return isNull(responseBody) ? response.message() : responseBody.string();
         } catch (IOException e) {
             return response.message();
         }

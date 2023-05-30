@@ -1,5 +1,6 @@
 package com.orbitz.consul;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import com.orbitz.consul.config.ClientConfig;
@@ -84,7 +85,7 @@ public class SessionClient extends BaseClient {
         List<SessionInfo> sessionInfo = http.extract(api.renewSession(sessionId,
                 Map.of(), dcQuery(dc)));
 
-        return sessionInfo == null || sessionInfo.isEmpty() ? Optional.empty() :
+        return isNull(sessionInfo) || sessionInfo.isEmpty() ? Optional.empty() :
                 Optional.of(sessionInfo.get(0));
     }
 
@@ -135,7 +136,7 @@ public class SessionClient extends BaseClient {
     public Optional<SessionInfo> getSessionInfo(final String sessionId, final String dc) {
         List<SessionInfo> sessionInfo = http.extract(api.getSessionInfo(sessionId, dcQuery(dc)));
 
-        return sessionInfo == null || sessionInfo.isEmpty() ? Optional.empty() :
+        return isNull(sessionInfo) || sessionInfo.isEmpty() ? Optional.empty() :
                 Optional.of(sessionInfo.get(0));
     }
 

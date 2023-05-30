@@ -2,6 +2,7 @@ package com.orbitz.consul.cache;
 
 import static com.orbitz.consul.Awaiting.awaitAtMost500ms;
 import static com.orbitz.consul.TestUtils.randomUUIDString;
+import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
@@ -324,7 +325,7 @@ class KVCacheITest extends BaseIntegrationTest {
 
     private boolean isValueEqualsTo(Map<String, Value> values, String expectedValue) {
         var value = values.get("");
-        if (value == null) {
+        if (isNull(value)) {
             return false;
         }
         Optional<String> valueAsString = value.getValueAsString();

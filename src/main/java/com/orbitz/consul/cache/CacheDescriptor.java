@@ -1,5 +1,7 @@
 package com.orbitz.consul.cache;
 
+import static java.util.Objects.isNull;
+
 /**
  * A {@link CacheDescriptor} describes an instance of a cache.
  * The cache is represented by an {@link CacheDescriptor#endpoint} and a {@link CacheDescriptor#key}.
@@ -29,7 +31,7 @@ public class CacheDescriptor {
 
     @Override
     public String toString() {
-        if (key == null) {
+        if (isNull(key)) {
             return endpoint;
         }
         return String.format("%s \"%s\"", endpoint, key);

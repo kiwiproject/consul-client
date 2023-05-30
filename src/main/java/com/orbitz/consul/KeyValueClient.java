@@ -2,6 +2,7 @@ package com.orbitz.consul;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.orbitz.consul.util.Strings.trimLeadingSlash;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -228,7 +229,7 @@ public class KeyValueClient extends BaseCacheableClient {
 
         List<Value> result = http.extract(api.getValue(trimLeadingSlash(key), query), NOT_FOUND_404);
 
-        return result == null ? List.of() : result;
+        return isNull(result) ? List.of() : result;
     }
 
     /**
@@ -413,7 +414,7 @@ public class KeyValueClient extends BaseCacheableClient {
             query.put("flags", UnsignedLongs.toString(flags));
         }
 
-        if (value == null) {
+        if (isNull(value)) {
             return http.extract(api.putValue(trimLeadingSlash(key),
                     query));
         } else {
@@ -439,7 +440,7 @@ public class KeyValueClient extends BaseCacheableClient {
             query.put("flags", UnsignedLongs.toString(flags));
         }
 
-        if (value == null) {
+        if (isNull(value)) {
             return http.extract(api.putValue(trimLeadingSlash(key),
                     query));
         } else {
@@ -505,7 +506,7 @@ public class KeyValueClient extends BaseCacheableClient {
         }
 
         List<String> result = http.extract(api.getKeys(trimLeadingSlash(key), query), NOT_FOUND_404);
-        return result == null ? List.of() : result;
+        return isNull(result) ? List.of() : result;
     }
 
     /**

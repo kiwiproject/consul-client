@@ -2,6 +2,8 @@ package com.orbitz.consul.util.bookend;
 
 import java.util.Optional;
 
+import static java.util.Objects.isNull;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +16,7 @@ public class ConsulBookendContext {
     }
 
     public void put(String key, Object value) {
-        if (data == null) {
+        if (isNull(data)) {
             data = new HashMap<>();
         }
 
