@@ -3,7 +3,6 @@ package com.orbitz.consul;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.ssl.TrustStrategy;
 import com.google.common.net.HostAndPort;
 
 import org.junit.jupiter.api.DisplayName;
