@@ -31,8 +31,8 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
 
 	/**
 	 * Constructs a blacklisting strategy with a collection of hosts and ports
-	 * @param targets
-	 *        A set of viable hosts
+	 * @param targets A set of viable hosts
+	 * @param timeout The timeout in milliseconds
 	 */
 	public BlacklistingConsulFailoverStrategy(Collection<HostAndPort> targets, long timeout) {
 		this.targets = targets;
