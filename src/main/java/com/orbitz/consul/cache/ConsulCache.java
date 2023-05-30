@@ -48,7 +48,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
         LATENT, STARTING, STARTED, STOPPED
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConsulCache.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConsulCache.class);
 
     private final AtomicReference<BigInteger> latestIndex = new AtomicReference<>(null);
     private final AtomicLong lastContact = new AtomicLong();
@@ -137,7 +137,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
 
             long elapsedTime = stopWatch.elapsed(TimeUnit.MILLISECONDS);
             updateIndex(consulResponse);
-            LOGGER.debug("Consul cache updated for {} (index={}), request duration: {} ms",
+            LOG.debug("Consul cache updated for {} (index={}), request duration: {} ms",
                     cacheDescriptor, latestIndex, elapsedTime);
 
             ImmutableMap<K, V> full = convertToMap(consulResponse);
@@ -192,7 +192,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
                 try {
                     l.notify(newValues);
                 } catch (RuntimeException e) {
-                    LOGGER.warn("ConsulCache Listener's notify method threw an exception.", e);
+                    LOG.warn("ConsulCache Listener's notify method threw an exception.", e);
                 }
             }
         }
@@ -216,7 +216,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
             String message = String.format("Error getting response from consul for %s, will retry in %d %s",
                     cacheDescriptor, delayMs, TimeUnit.MILLISECONDS);
 
-            cacheConfig.getRefreshErrorLoggingConsumer().accept(LOGGER, message, throwable);
+            cacheConfig.getRefreshErrorLoggingConsumer().accept(LOG, message, throwable);
 
             scheduler.schedule(ConsulCache.this::runCallback, delayMs, TimeUnit.MILLISECONDS);
         }
@@ -237,7 +237,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
         try {
             eventHandler.cacheStop(cacheDescriptor);
         } catch (RejectedExecutionException ree) {
-            LOGGER.error("Unable to propagate cache stop event. ", ree);
+            LOG.error("Unable to propagate cache stop event. ", ree);
         }
 
         State previous = state.getAndSet(State.STOPPED);
@@ -290,7 +290,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
                 if (!keySet.contains(key)) {
                     builder.put(key, v);
                 } else {
-                    LOGGER.warn("Duplicate service encountered. May differ by tags. Try using more specific tags? {}", key);
+                    LOG.warn("Duplicate service encountered. May differ by tags. Try using more specific tags? {}", key);
                 }
             }
             keySet.add(key);
@@ -363,7 +363,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
                 try {
                     listener.notify(lastResponse.get());
                 } catch (RuntimeException e) {
-                    LOGGER.warn("ConsulCache Listener's notify method threw an exception.", e);
+                    LOG.warn("ConsulCache Listener's notify method threw an exception.", e);
                 }
             }
         }

@@ -1,10 +1,13 @@
 package com.orbitz.consul.cache;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.orbitz.consul.config.CacheConfig;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
+
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 public class TimeoutInterceptor implements Interceptor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TimeoutInterceptor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TimeoutInterceptor.class);
 
     private CacheConfig config;
 
@@ -53,7 +56,9 @@ public class TimeoutInterceptor implements Interceptor {
                 .proceed(request);
     }
 
-    private Duration parseWaitQuery(String query) {
+    @VisibleForTesting
+    @Nullable
+    static Duration parseWaitQuery(String query) {
         if (Strings.isNullOrEmpty(query)) {
             return null;
         }
@@ -61,12 +66,12 @@ public class TimeoutInterceptor implements Interceptor {
         Duration wait = null;
         try {
             if (query.contains("m")) {
-                wait = Duration.ofMinutes(Integer.valueOf(query.replace("m","")));
+                wait = Duration.ofMinutes(Long.parseLong(query.replace("m","")));
             } else if (query.contains("s")) {
-                wait = Duration.ofSeconds(Integer.valueOf(query.replace("s","")));
+                wait = Duration.ofSeconds(Long.parseLong(query.replace("s","")));
             }
         } catch (Exception e) {
-            LOGGER.warn(String.format("Error while extracting wait duration from query parameters: %s", query));
+            LOG.warn(String.format("Error while extracting wait duration from query parameters: %s", query));
         }
         return wait;
     }
