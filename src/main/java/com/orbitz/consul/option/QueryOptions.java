@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.orbitz.consul.option.Options.optionallyAdd;
+import static java.util.Objects.isNull;
 
 /**
  * Container for common query options used by the Consul API.
@@ -52,14 +53,14 @@ public abstract class QueryOptions implements ParamAdder {
 
     @Value.Derived
     public List<String> getNodeMetaQuery() {
-        return getNodeMeta() == null
+        return isNull(getNodeMeta())
                 ? List.of()
                 : List.copyOf(getNodeMeta());
     }
 
     @Value.Derived
     public List<String> getTagsQuery() {
-        return getTag() == null
+        return isNull(getTag())
                 ? List.of()
                 : List.copyOf(getTag());
     }
