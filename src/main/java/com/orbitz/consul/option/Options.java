@@ -3,6 +3,8 @@ package com.orbitz.consul.option;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Objects.nonNull;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +19,7 @@ public class Options {
         Map<String, Object> result = new HashMap<>();
 
         for (ParamAdder adder : options) {
-            if (adder != null) {
+            if (nonNull(adder)) {
                 result.putAll(adder.toQuery());
             }
         }

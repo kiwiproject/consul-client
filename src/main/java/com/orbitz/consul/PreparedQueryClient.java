@@ -1,5 +1,7 @@
 package com.orbitz.consul;
 
+import static java.util.Objects.nonNull;
+
 import com.orbitz.consul.async.Callback;
 import com.orbitz.consul.config.ClientConfig;
 import com.orbitz.consul.model.query.PreparedQuery;
@@ -63,7 +65,7 @@ public class PreparedQueryClient extends BaseClient {
     }
 
     private Map<String, String> dcQuery(String dc) {
-        return dc != null ? Map.of("dc", dc): Map.of();
+        return nonNull(dc) ? Map.of("dc", dc): Map.of();
     }
 
     /**

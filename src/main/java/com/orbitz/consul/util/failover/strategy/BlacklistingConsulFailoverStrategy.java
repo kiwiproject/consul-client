@@ -11,6 +11,8 @@ import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
 
+import static java.util.Objects.nonNull;
+
 import com.google.common.net.HostAndPort;
 
 /**
@@ -45,7 +47,7 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
 
 		// If the previous response failed, disallow this request from going through.
 		// A 404 does NOT indicate a failure in this case, so it should never blacklist the previous target.
-		if (previousResponse != null && !previousResponse.isSuccessful() && previousResponse.code() != 404)
+		if (nonNull(previousResponse) && !previousResponse.isSuccessful() && previousResponse.code() != 404)
 			this.blacklist.put(initialTarget, Instant.now());
 
 		// If our blacklist contains the target we care about
