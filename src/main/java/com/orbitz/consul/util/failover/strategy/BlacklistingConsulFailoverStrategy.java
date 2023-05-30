@@ -74,7 +74,7 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
 					return true;
 			}).findAny();
 
-			if (!optionalNext.isPresent()) {
+			if (optionalNext.isEmpty()) {
 				return Optional.empty();
 			}
 			HostAndPort next = optionalNext.get();

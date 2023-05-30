@@ -62,7 +62,7 @@ class KVCacheITest extends BaseIntegrationTest {
         try (var cache = KVCache.newCache(kvClient, root, 10)) {
             cache.start();
 
-            if (!cache.awaitInitialized(1, TimeUnit.SECONDS)) {
+            if (cacheNotInitializedWithinOneSecond(cache)) {
                 fail("cache initialization failed");
             }
 
@@ -107,7 +107,7 @@ class KVCacheITest extends BaseIntegrationTest {
             cache.addListener(events::add);
             cache.start();
 
-            if (!cache.awaitInitialized(1, TimeUnit.SECONDS)) {
+            if (cacheNotInitializedWithinOneSecond(cache)) {
                 fail("cache initialization failed");
             }
 
@@ -145,7 +145,7 @@ class KVCacheITest extends BaseIntegrationTest {
         try (var cache = KVCache.newCache(kvClient, root, 10)) {
             cache.start();
 
-            if (!cache.awaitInitialized(1, TimeUnit.SECONDS)) {
+            if (cacheNotInitializedWithinOneSecond(cache)) {
                 fail("cache initialization failed");
             }
 
@@ -180,7 +180,7 @@ class KVCacheITest extends BaseIntegrationTest {
             cache.addListener(events::add);
             cache.start();
 
-            if (!cache.awaitInitialized(1, TimeUnit.SECONDS)) {
+            if (cacheNotInitializedWithinOneSecond(cache)) {
                 fail("cache initialization failed");
             }
 
@@ -201,7 +201,7 @@ class KVCacheITest extends BaseIntegrationTest {
             cache.start();
             assertThat(cache.getState()).isIn(ConsulCache.State.STARTING, ConsulCache.State.STARTED);
 
-            if (!cache.awaitInitialized(10, TimeUnit.SECONDS)) {
+            if (cacheNotInitializedWithinSeconds(cache, 10)) {
                 fail("cache initialization failed");
             }
             assertThat(cache.getState()).isEqualTo(ConsulCache.State.STARTED);
@@ -226,7 +226,7 @@ class KVCacheITest extends BaseIntegrationTest {
             cache.start();
             assertThat(cache.getState()).isIn(ConsulCache.State.STARTING, ConsulCache.State.STARTED);
 
-            if (!cache.awaitInitialized(1, TimeUnit.SECONDS)) {
+            if (cacheNotInitializedWithinOneSecond(cache)) {
                 fail("cache initialization failed");
             }
             assertThat(cache.getState()).isEqualTo(ConsulCache.State.STARTED);
@@ -254,6 +254,18 @@ class KVCacheITest extends BaseIntegrationTest {
         }
 
         kvClient.deleteKeys(root);
+    }
+
+    private boolean cacheNotInitializedWithinOneSecond(KVCache cache) {
+        return cacheNotInitializedWithinSeconds(cache, 1);
+    }
+
+    private boolean cacheNotInitializedWithinSeconds(KVCache cache, long timeout) {
+        try {
+            return !cache.awaitInitialized(timeout, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
