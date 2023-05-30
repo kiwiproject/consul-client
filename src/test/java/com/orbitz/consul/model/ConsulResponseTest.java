@@ -2,13 +2,15 @@ package com.orbitz.consul.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+@DisplayName("ConsulResponse")
 class ConsulResponseTest {
 
     @Nested
-    class Constrcutors {
+    class Constructors {
 
         @Test
         void shouldAllowCreatingFromCacheMiss() {
