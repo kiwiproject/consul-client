@@ -1,5 +1,6 @@
 package com.orbitz.consul.cache;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -9,9 +10,13 @@ import static org.mockito.Mockito.when;
 
 import com.orbitz.consul.config.CacheConfig;
 
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -73,5 +78,40 @@ class TimeoutInterceptorTest {
         when(chain.proceed(any(Request.class))).thenReturn(null);
 
         return chain;
+    }
+
+    @Nested
+    class ParseWaitQuery {
+
+        @ParameterizedTest
+        @NullAndEmptySource
+        void shouldReturnNull_WhenGivenNullOrEmptyQuery(String query) {
+            assertThat(TimeoutInterceptor.parseWaitQuery(query)).isNull();
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"5", "10", "25"})
+        void shouldReturnNull_WhenQueryDoesNotContainTimeUnitIndicator(String query) {
+            assertThat(TimeoutInterceptor.parseWaitQuery(query)).isNull();
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {"5 seconds", "10ms", "25000ns"})
+        void shouldReturnNull_WhenQueryContainsInvalidTimeUnitIndicator(String query) {
+            assertThat(TimeoutInterceptor.parseWaitQuery(query)).isNull();
+        }
+
+        @ParameterizedTest
+        @CsvSource({
+            "10s, 10, SECONDS",
+            "5m, 5, MINUTES",
+            "180s, 180, SECONDS",
+            "2m, 2, MINUTES",
+        })
+        void shouldReturnDuration(String query, int expectedDuration, TimeUnit expectedDurationUnit) {
+            var duration = TimeoutInterceptor.parseWaitQuery(query);
+
+            assertThat(duration).isEqualTo(Duration.of(expectedDuration, expectedDurationUnit.toChronoUnit()));
+        }
     }
 }
