@@ -2,6 +2,7 @@ package com.orbitz.consul.cache;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 
@@ -198,7 +199,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
         }
 
         private boolean hasNullOrEmptyResponse(ConsulResponse<List<V>> consulResponse) {
-            return consulResponse.getResponse() == null || consulResponse.getResponse().isEmpty();
+            return isNull(consulResponse.getResponse()) || consulResponse.getResponse().isEmpty();
         }
 
         private boolean isLongerThan(Duration duration1, Duration duration2) {
@@ -279,7 +280,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
 
     @VisibleForTesting
     ImmutableMap<K, V> convertToMap(final ConsulResponse<List<V>> response) {
-        if (response == null || response.getResponse() == null || response.getResponse().isEmpty()) {
+        if (isNull(response) || isNull(response.getResponse()) || response.getResponse().isEmpty()) {
             return ImmutableMap.of();
         }
         final ImmutableMap.Builder<K, V> builder = ImmutableMap.builder();
@@ -316,7 +317,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
     }
 
     private static QueryOptions watchDefaultParams(final BigInteger index, final int blockSeconds) {
-        if (index == null) {
+        if (isNull(index)) {
             return QueryOptions.BLANK;
         } else {
             return QueryOptions.blockSeconds(blockSeconds, index).build();

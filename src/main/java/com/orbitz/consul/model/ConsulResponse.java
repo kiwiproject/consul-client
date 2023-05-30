@@ -1,5 +1,6 @@
 package com.orbitz.consul.model;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -113,7 +114,7 @@ public class ConsulResponse<T> {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (isNull(o) || getClass() != o.getClass()) return false;
 
         ConsulResponse<?> that = (ConsulResponse<?>) o;
 

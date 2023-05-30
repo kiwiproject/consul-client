@@ -1,5 +1,6 @@
 package com.orbitz.consul;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -677,14 +678,14 @@ public class Consul {
 
             // if an ExecutorService is provided to the Builder, we use it, otherwise, we create one
             ExecutorService localExecutorService = this.executorService;
-            if (localExecutorService == null) {
+            if (isNull(localExecutorService)) {
                 // mimics okhttp3.Dispatcher#executorService implementation, except
                 // using daemon thread so shutdown is not blocked (issue #133)
                 localExecutorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60, TimeUnit.SECONDS,
                         new SynchronousQueue<>(), Util.threadFactory("OkHttp Dispatcher", true));
             }
 
-            if (connectionPool == null) {
+            if (isNull(connectionPool)) {
                 connectionPool = new ConnectionPool();
             }
 

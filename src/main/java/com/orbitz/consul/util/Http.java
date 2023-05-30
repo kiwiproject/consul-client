@@ -1,5 +1,6 @@
 package com.orbitz.consul.util;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -120,8 +121,8 @@ public class Http {
         String lastContactHeaderValue = headers.get("X-Consul-Lastcontact");
         String knownLeaderHeaderValue = headers.get("X-Consul-Knownleader");
 
-        BigInteger index = indexHeaderValue == null ? BigInteger.ZERO : new BigInteger(indexHeaderValue);
-        long lastContact = lastContactHeaderValue == null ? 0 : NumberUtils.toLong(lastContactHeaderValue);
+        BigInteger index = isNull(indexHeaderValue) ? BigInteger.ZERO : new BigInteger(indexHeaderValue);
+        long lastContact = isNull(lastContactHeaderValue) ? 0 : NumberUtils.toLong(lastContactHeaderValue);
         boolean knownLeader = nonNull(knownLeaderHeaderValue) && Boolean.valueOf(knownLeaderHeaderValue);
         return new ConsulResponse<>(response.body(), lastContact, knownLeader, index,
                                     headers.get("X-Cache"), headers.get("Age"));
