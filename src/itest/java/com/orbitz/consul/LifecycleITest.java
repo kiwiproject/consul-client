@@ -60,7 +60,6 @@ class LifecycleITest extends BaseIntegrationTest {
         assertThat(client.isDestroyed()).isTrue();
     }
 
-    // TODO What to do with this? Delete it, move to documentation. convert it to a test (of something)?
     public static void main(String[] args) {
         var connectionPool = new ConnectionPool();
         var executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 10, TimeUnit.SECONDS,
