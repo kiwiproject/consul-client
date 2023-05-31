@@ -25,7 +25,7 @@ class ConsistencyModeTest {
 
     @Test
     void checkHeadersForCached() {
-        ConsistencyMode consistency = ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(Optional.of(30L), Optional.of(60L));
+        var consistency = ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(Optional.of(30L), Optional.of(60L));
         assertThat(consistency.toParam()).contains("cached");
         assertThat(consistency.getAdditionalHeaders()).hasSize(1);
         assertThat(consistency.getAdditionalHeaders()).containsEntry("Cache-Control", "max-age=30,stale-if-error=60");

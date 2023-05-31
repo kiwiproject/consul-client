@@ -39,7 +39,7 @@ class KVCacheTest {
     @MethodSource("getKeyValueTestValues")
     void checkKeyExtractor(String rootPath, String input, String expected) {
         //Called in the constructor of the cache, must be use in the test as it may modify rootPath value.
-        final String keyPath = KVCache.prepareRootPath(rootPath);
+        String keyPath = KVCache.prepareRootPath(rootPath);
 
         Function<Value, String> keyExtractor = KVCache.getKeyExtractorFunction(keyPath);
         assertThat(keyExtractor.apply(createValue(input))).isEqualTo(expected);
@@ -74,15 +74,17 @@ class KVCacheTest {
 
     @Test
     void testListenerWithMockRetrofit() throws InterruptedException {
-        final Retrofit retrofit = new Retrofit.Builder()
+        var retrofit = new Retrofit.Builder()
                 // For safety, this is a black hole IP: see RFC 6666
                 .baseUrl("http://[100:0:0:0:0:0:0:0]/")
                 .build();
-        final NetworkBehavior networkBehavior = NetworkBehavior.create();
+
+        var networkBehavior = NetworkBehavior.create();
         networkBehavior.setDelay(0, TimeUnit.MILLISECONDS);
         networkBehavior.setErrorPercent(0);
         networkBehavior.setFailurePercent(0);
-        final MockRetrofit mockRetrofit = new MockRetrofit.Builder(retrofit)
+
+        var mockRetrofit = new MockRetrofit.Builder(retrofit)
                 .networkBehavior(networkBehavior)
                 .backgroundExecutor(Executors.newFixedThreadPool(1,
                         new ThreadFactoryBuilder()
@@ -90,22 +92,26 @@ class KVCacheTest {
                                 .build()))
                 .build();
 
-        final BehaviorDelegate<KeyValueClient.Api> delegate = mockRetrofit.create(KeyValueClient.Api.class);
-        final MockApiService mockApiService = new MockApiService(delegate);
+        BehaviorDelegate<KeyValueClient.Api> delegate = mockRetrofit.create(KeyValueClient.Api.class);
+        var mockApiService = new MockApiService(delegate);
 
 
-        final CacheConfig cacheConfig = CacheConfig.builder()
+        var cacheConfig = CacheConfig.builder()
                 .withMinDelayBetweenRequests(Duration.ofSeconds(10))
                 .build();
 
-        final KeyValueClient kvClient = KeyValueClientFactory.create(mockApiService, new ClientConfig(cacheConfig),
-                new ClientEventCallback() {
-        }, new Consul.NetworkTimeoutConfig.Builder().withReadTimeout(10500).build());
+        var keyValueClient = KeyValueClientFactory.create(
+                mockApiService,
+                new ClientConfig(cacheConfig),
+                new ClientEventCallback() {},
+                new Consul.NetworkTimeoutConfig.Builder().withReadTimeout(10500).build()
+        );
 
 
-        try (final KVCache kvCache = KVCache.newCache(kvClient, "")) {
+        try (var kvCache = KVCache.newCache(keyValueClient, "")) {
             kvCache.addListener(new AlwaysThrowsListener());
-            final StubListener goodListener = new StubListener();
+
+            var goodListener = new StubListener();
             kvCache.addListener(goodListener);
 
             kvCache.start();

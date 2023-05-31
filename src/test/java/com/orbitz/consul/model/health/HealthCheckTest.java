@@ -9,19 +9,19 @@ class HealthCheckTest {
 
     @Test
     void serviceTagsAreNotNullWhenNotSpecified() {
-        HealthCheck check = ImmutableHealthCheck.builder()
+        var healthCheck = ImmutableHealthCheck.builder()
                 .name("name")
                 .node("node")
                 .checkId("id")
                 .status("passing")
                 .build();
 
-        assertThat(check.getServiceTags()).isEqualTo(List.of());
+        assertThat(healthCheck.getServiceTags()).isEqualTo(List.of());
     }
 
     @Test
     void serviceTagsCanBeAddedToHealthCheck() {
-        HealthCheck check = ImmutableHealthCheck.builder()
+        var healthCheck = ImmutableHealthCheck.builder()
                 .name("name")
                 .node("node")
                 .checkId("id")
@@ -29,6 +29,6 @@ class HealthCheckTest {
                 .addServiceTags("myTag")
                 .build();
 
-        assertThat(check.getServiceTags()).isEqualTo(List.of("myTag"));
+        assertThat(healthCheck.getServiceTags()).isEqualTo(List.of("myTag"));
     }
 }

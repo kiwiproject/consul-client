@@ -241,8 +241,7 @@ class DebugConfigTest {
 
     @Test
     void testDeserialization() throws IOException {
-       ObjectMapper mapper = Jackson.MAPPER;
-       final DebugConfig dbgConfig = mapper.readerFor(DebugConfig.class).readValue(JSON);
-        assertThat(dbgConfig).as("DebugConfig contains 167 items").hasSize(167);
+        var debugConfig = Jackson.MAPPER.readValue(JSON, DebugConfig.class);
+        assertThat(debugConfig).as("DebugConfig contains 167 items").hasSize(167);
     }
 }

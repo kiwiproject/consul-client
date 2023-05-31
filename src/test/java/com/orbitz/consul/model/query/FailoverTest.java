@@ -11,7 +11,7 @@ class FailoverTest {
 
     @Test
     void creatingFailoverWithDatacentersIsValid() {
-        ImmutableFailover failover = ImmutableFailover.builder()
+        var failover = ImmutableFailover.builder()
                 .datacenters(Lists.newArrayList("dc1", "dc2"))
                 .build();
 
@@ -20,7 +20,7 @@ class FailoverTest {
 
     @Test
     void creatingFailoverWithNearestIsValid() {
-        ImmutableFailover failover = ImmutableFailover.builder()
+        var failover = ImmutableFailover.builder()
                 .nearestN(2)
                 .build();
 
@@ -29,7 +29,7 @@ class FailoverTest {
 
     @Test
     void creatingFailoverWithNearestAndDatacentersIsValid() {
-        ImmutableFailover failover = ImmutableFailover.builder()
+        var failover = ImmutableFailover.builder()
                 .datacenters(Lists.newArrayList("dc1", "dc2"))
                 .nearestN(2)
                 .build();

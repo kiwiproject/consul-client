@@ -33,25 +33,25 @@ class SecondsSerDeTest {
 
     @Test
     void shouldSerializeSeconds() throws JsonProcessingException {
-        Long seconds = new Random().nextLong();
-        String expected = String.format("\"%ss\"", seconds);
-        String json = OBJECT_MAPPER.writeValueAsString(new Item(seconds));
+        var seconds = new Random().nextLong();
+        var expected = String.format("\"%ss\"", seconds);
+        var json = OBJECT_MAPPER.writeValueAsString(new Item(seconds));
 
         assertThat(json).contains(expected);
     }
 
     @Test
     void shouldDeserializeSeconds() throws IOException {
-        Long seconds = new Random().nextLong();
-        Item item = OBJECT_MAPPER.readValue(String.format("{\"seconds\": \"%ds\"}", seconds), Item.class);
+        var seconds = new Random().nextLong();
+        var item = OBJECT_MAPPER.readValue(String.format("{\"seconds\": \"%ds\"}", seconds), Item.class);
 
         assertThat(item.getSeconds()).isEqualTo(seconds);
     }
 
     @Test
     void shouldDeserializeSeconds_noS() throws IOException {
-        Long seconds = new Random().nextLong();
-        Item item = OBJECT_MAPPER.readValue(String.format("{\"seconds\": \"%d\"}", seconds), Item.class);
+        var seconds = new Random().nextLong();
+        var item = OBJECT_MAPPER.readValue(String.format("{\"seconds\": \"%d\"}", seconds), Item.class);
 
         assertThat(item.getSeconds()).isEqualTo(seconds);
     }

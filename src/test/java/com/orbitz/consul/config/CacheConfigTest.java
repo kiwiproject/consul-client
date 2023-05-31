@@ -36,7 +36,7 @@ class CacheConfigTest {
 
     @Test
     void testDefaults() {
-        CacheConfig config = CacheConfig.builder().build();
+        var config = CacheConfig.builder().build();
         assertThat(config.getMinimumBackOffDelay()).isEqualTo(CacheConfig.DEFAULT_BACKOFF_DELAY);
         assertThat(config.getMaximumBackOffDelay()).isEqualTo(CacheConfig.DEFAULT_BACKOFF_DELAY);
         assertThat(config.getWatchDuration()).isEqualTo(CacheConfig.DEFAULT_WATCH_DURATION);
@@ -45,8 +45,8 @@ class CacheConfigTest {
         assertThat(config.isTimeoutAutoAdjustmentEnabled()).isEqualTo(CacheConfig.DEFAULT_TIMEOUT_AUTO_ADJUSTMENT_ENABLED);
         assertThat(config.getTimeoutAutoAdjustmentMargin()).isEqualTo(CacheConfig.DEFAULT_TIMEOUT_AUTO_ADJUSTMENT_MARGIN);
 
-        AtomicBoolean loggedAsWarn = new AtomicBoolean(false);
-        Logger logger = mock(Logger.class);
+        var loggedAsWarn = new AtomicBoolean(false);
+        var logger = mock(Logger.class);
         doAnswer(vars -> {
             loggedAsWarn.set(true);
             return null;
@@ -65,7 +65,7 @@ class CacheConfigTest {
     @ParameterizedTest(name = "Delay: {0}")
     @MethodSource("getDurationSamples")
     void testOverrideBackOffDelay(Duration backOffDelay) {
-        CacheConfig config = CacheConfig.builder().withBackOffDelay(backOffDelay).build();
+        var config = CacheConfig.builder().withBackOffDelay(backOffDelay).build();
         assertThat(config.getMinimumBackOffDelay()).isEqualTo(backOffDelay);
         assertThat(config.getMaximumBackOffDelay()).isEqualTo(backOffDelay);
     }
@@ -80,41 +80,41 @@ class CacheConfigTest {
     @ParameterizedTest(name = "Delay: {0}")
     @MethodSource("getDurationSamples")
     void testOverrideMinDelayBetweenRequests(Duration delayBetweenRequests) {
-        CacheConfig config = CacheConfig.builder().withMinDelayBetweenRequests(delayBetweenRequests).build();
+        var config = CacheConfig.builder().withMinDelayBetweenRequests(delayBetweenRequests).build();
         assertThat(config.getMinimumDurationBetweenRequests()).isEqualTo(delayBetweenRequests);
     }
 
     @ParameterizedTest(name = "Delay: {0}")
     @MethodSource("getDurationSamples")
     void testOverrideMinDelayOnEmptyResult(Duration delayBetweenRequests) {
-        CacheConfig config = CacheConfig.builder().withMinDelayOnEmptyResult(delayBetweenRequests).build();
+        var config = CacheConfig.builder().withMinDelayOnEmptyResult(delayBetweenRequests).build();
         assertThat(config.getMinimumDurationDelayOnEmptyResult()).isEqualTo(delayBetweenRequests);
     }
 
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
     void testOverrideTimeoutAutoAdjustmentEnabled(boolean enabled) {
-        CacheConfig config = CacheConfig.builder().withTimeoutAutoAdjustmentEnabled(enabled).build();
+        var config = CacheConfig.builder().withTimeoutAutoAdjustmentEnabled(enabled).build();
         assertThat(config.isTimeoutAutoAdjustmentEnabled()).isEqualTo(enabled);
     }
 
     @ParameterizedTest(name = "Margin: {0}")
     @MethodSource("getDurationSamples")
     void testOverrideTimeoutAutoAdjustmentMargin(Duration margin) {
-        CacheConfig config = CacheConfig.builder().withTimeoutAutoAdjustmentMargin(margin).build();
+        var config = CacheConfig.builder().withTimeoutAutoAdjustmentMargin(margin).build();
         assertThat(config.getTimeoutAutoAdjustmentMargin()).isEqualTo(margin);
     }
 
     @ParameterizedTest
     @ValueSource(booleans = { true, false })
     void testOverrideRefreshErrorLogConsumer(boolean logLevelWarning) {
-        CacheConfig config = logLevelWarning
+        var config = logLevelWarning
                 ? CacheConfig.builder().withRefreshErrorLoggedAsWarning().build()
                 : CacheConfig.builder().withRefreshErrorLoggedAsError().build();
 
-        AtomicBoolean logged = new AtomicBoolean(false);
-        AtomicBoolean loggedAsWarn = new AtomicBoolean(false);
-        Logger logger = mock(Logger.class);
+        var logged = new AtomicBoolean(false);
+        var loggedAsWarn = new AtomicBoolean(false);
+        var logger = mock(Logger.class);
         doAnswer(vars -> {
             loggedAsWarn.set(true);
             logged.set(true);
@@ -133,14 +133,14 @@ class CacheConfigTest {
 
     @Test
     void testOverrideRefreshErrorLogCustom() {
-        AtomicBoolean loggedAsDebug = new AtomicBoolean(false);
-        Logger logger = mock(Logger.class);
+        var loggedAsDebug = new AtomicBoolean(false);
+        var logger = mock(Logger.class);
         doAnswer(vars -> {
             loggedAsDebug.set(true);
             return null;
         }).when(logger).debug(anyString(), any(Throwable.class));
 
-        CacheConfig config = CacheConfig.builder().withRefreshErrorLoggedAs(Logger::debug).build();
+        var config = CacheConfig.builder().withRefreshErrorLoggedAs(Logger::debug).build();
         config.getRefreshErrorLoggingConsumer().accept(logger, "some string", new Exception("oop"));
         assertThat(loggedAsDebug.get()).isTrue();
     }
@@ -157,7 +157,7 @@ class CacheConfigTest {
     @MethodSource("getMinMaxDurationSamples")
     void testOverrideRandomBackOffDelay(Duration minDelay, Duration maxDelay, boolean isValid) {
         try {
-            CacheConfig config = CacheConfig.builder().withBackOffDelay(minDelay, maxDelay).build();
+            var config = CacheConfig.builder().withBackOffDelay(minDelay, maxDelay).build();
             if (!isValid) {
                 fail("", String.format("Should not be able to build cache with min retry delay %d ms and max retry delay %d ms",
                         minDelay.toMillis(), maxDelay.toMillis()));
@@ -188,55 +188,68 @@ class CacheConfigTest {
 
     @Test
     void testMinDelayOnEmptyResultWithNoResults() {
-        TestCacheSupplier res = new TestCacheSupplier(0, Duration.ofMillis(100));
+        var responseSupplier = new TestCacheSupplier(0, Duration.ofMillis(100));
 
-        try (TestCache cache = TestCache.createCache(CacheConfig.builder()
+        var cacheConfig = CacheConfig.builder()
                 .withMinDelayOnEmptyResult(Duration.ofMillis(100))
-                .build(), res)) {
+                .build();
+
+        try (var cache = TestCache.createCache(cacheConfig, responseSupplier)) {
             cache.start();
 
-            awaitAtMost500ms().until(() -> res.run > 0);
+            awaitAtMost500ms().until(() -> responseSupplier.run > 0);
         }
     }
 
     @Test
     void testMinDelayOnEmptyResultWithResults() {
-        TestCacheSupplier res = new TestCacheSupplier(1, Duration.ofMillis(50));
+        var responseSupplier = new TestCacheSupplier(1, Duration.ofMillis(50));
 
-        try (TestCache cache = TestCache.createCache(CacheConfig.builder()
+        var cacheConfig = CacheConfig.builder()
                 .withMinDelayOnEmptyResult(Duration.ofMillis(100))
                 .withMinDelayBetweenRequests(Duration.ofMillis(50)) // do not blow ourselves up
-                .build(), res)) {
+                .build();
+
+        try (var cache = TestCache.createCache(cacheConfig, responseSupplier)) {
             cache.start();
-            awaitAtMost500ms().until(() -> res.run > 0);
+            awaitAtMost500ms().until(() -> responseSupplier.run > 0);
         }
     }
 
 
     static class TestCache extends ConsulCache<Integer, Integer> {
-        private TestCache(Function<Integer, Integer> keyConversion, CallbackConsumer<Integer> callbackConsumer, CacheConfig cacheConfig, ClientEventHandler eventHandler, CacheDescriptor cacheDescriptor) {
+
+        private TestCache(Function<Integer, Integer> keyConversion,
+                CallbackConsumer<Integer> callbackConsumer,
+                CacheConfig cacheConfig,
+                ClientEventHandler eventHandler,
+                CacheDescriptor cacheDescriptor) {
+
             super(keyConversion, callbackConsumer, cacheConfig, eventHandler, cacheDescriptor);
         }
 
-        static TestCache createCache(CacheConfig config, Supplier<List<Integer>> res) {
-            ClientEventHandler ev = mock(ClientEventHandler.class);
-            CacheDescriptor cacheDescriptor = new CacheDescriptor("test", "test");
+        static TestCache createCache(CacheConfig config, Supplier<List<Integer>> responseSupplier) {
+            var clientEventHandler = mock(ClientEventHandler.class);
+            var cacheDescriptor = new CacheDescriptor("test", "test");
 
             final CallbackConsumer<Integer> callbackConsumer = (index, callback) ->
-                    callback.onComplete(new ConsulResponse<>(res.get(), 0, true, BigInteger.ZERO, null, null));
+                    callback.onComplete(new ConsulResponse<>(responseSupplier.get(), 0, true, BigInteger.ZERO, null, null));
 
             return new TestCache((i) -> i,
                     callbackConsumer,
                     config,
-                    ev,
+                    clientEventHandler,
                     cacheDescriptor);
         }
     }
 
     static class TestCacheSupplier implements Supplier<List<Integer>> {
-        int run = 0;
-        int resultCount;
+
+        private final int resultCount;
         private final Duration expectedInterval;
+
+        // mutable fields
+        private int run;
         private LocalTime lastCall;
 
         TestCacheSupplier(int resultCount, Duration expectedInterval) {
@@ -247,9 +260,9 @@ class CacheConfigTest {
         @Override
         public List<Integer> get() {
             if (nonNull(lastCall)) {
-                long between = Duration.between(lastCall, LocalTime.now()).toMillis();
-                assertThat(Math.abs(between - expectedInterval.toMillis()))
-                        .describedAs(String.format("expected duration between calls of %d, got %s", expectedInterval.toMillis(), between))
+                long millisBetween = Duration.between(lastCall, LocalTime.now()).toMillis();
+                assertThat(Math.abs(millisBetween - expectedInterval.toMillis()))
+                        .describedAs("expected duration between calls of %d, got %s", expectedInterval.toMillis(), millisBetween)
                         .isLessThan(20);
             }
             lastCall = LocalTime.now();

@@ -52,7 +52,7 @@ class CheckTest {
 
     @Test
     void severalArgsCanBeAddedToCheck() {
-        Check check = ImmutableCheck.builder()
+        var check = ImmutableCheck.builder()
                 .id("id")
                 .args(Lists.newArrayList("/bin/echo \"hi\"", "/bin/echo \"hello\""))
                 .interval("1s")
@@ -65,7 +65,7 @@ class CheckTest {
 
     @Test
     void serviceTagsAreNotNullWhenNotSpecified() {
-        Check check = ImmutableCheck.builder()
+        var check = ImmutableCheck.builder()
                 .ttl("")
                 .name("name")
                 .id("id")
@@ -76,7 +76,7 @@ class CheckTest {
 
     @Test
     void serviceTagsCanBeAddedToCheck() {
-        Check check = ImmutableCheck.builder()
+        var check = ImmutableCheck.builder()
                 .ttl("")
                 .name("name")
                 .id("id")

@@ -35,7 +35,7 @@ class TimeoutInterceptorTest {
         CacheConfig config = createConfigMock(enabled, margin);
         Interceptor.Chain chain = createChainMock(defaultTimeout, url);
 
-        TimeoutInterceptor interceptor = new TimeoutInterceptor(config);
+        var interceptor = new TimeoutInterceptor(config);
         interceptor.intercept(chain);
         verify(chain).withReadTimeout(expectedTimeoutMs, TimeUnit.MILLISECONDS);
     }
@@ -62,16 +62,16 @@ class TimeoutInterceptorTest {
     }
 
     private CacheConfig createConfigMock(boolean autoAdjustEnabled, int autoAdjustMargin) {
-        CacheConfig config = mock(CacheConfig.class);
+        var config = mock(CacheConfig.class);
         when(config.isTimeoutAutoAdjustmentEnabled()).thenReturn(autoAdjustEnabled);
         when(config.getTimeoutAutoAdjustmentMargin()).thenReturn(Duration.ofMillis(autoAdjustMargin));
         return config;
     }
 
     private Interceptor.Chain createChainMock(int defaultTimeout, String url) throws IOException {
-        Request request = new Request.Builder().url(url).build();
+        var request = new Request.Builder().url(url).build();
 
-        Interceptor.Chain chain = mock(Interceptor.Chain.class);
+        var chain = mock(Interceptor.Chain.class);
         when(chain.request()).thenReturn(request);
         when(chain.readTimeoutMillis()).thenReturn(defaultTimeout);
         when(chain.withReadTimeout(anyInt(), any(TimeUnit.class))).thenReturn(chain);
