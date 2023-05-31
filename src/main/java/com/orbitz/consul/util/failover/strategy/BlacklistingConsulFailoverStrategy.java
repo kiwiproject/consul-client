@@ -68,10 +68,12 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
 					if (!Duration.between(blacklistWhen, Instant.now()).minusMillis(timeout).isNegative()) {
 						blacklist.remove(target);
 						return true;
-					} else
+					} else {
 						return false;
-				} else
+					}
+				} else {
 					return true;
+				}
 			}).findAny();
 
 			if (optionalNext.isEmpty()) {
