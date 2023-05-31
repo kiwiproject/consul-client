@@ -17,6 +17,8 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.net.HostAndPort;
+
 class StatusClientITest extends BaseIntegrationTest {
 
     private static Logger LOG = LoggerFactory.getLogger(StatusClientITest.class);
@@ -52,19 +54,10 @@ class StatusClientITest extends BaseIntegrationTest {
         return ips.contains(ip);
     }
 
-    private static final String IP_PORT_DELIM = ":";
-
-    private String getIp(String ipAndPort) {
-        return ipAndPort.substring(0, ipAndPort.indexOf(IP_PORT_DELIM));
-    }
-
-    private int getPort(String ipAndPort) {
-        return Integer.valueOf(ipAndPort.substring(ipAndPort.indexOf(IP_PORT_DELIM) + 1));
-    }
-
     private void assertLocalIpAndCorrectPort(String ipAndPort) throws UnknownHostException {
-        String ip = getIp(ipAndPort);
-        int port = getPort(ipAndPort);
+        var hostAndPort = HostAndPort.fromString(ipAndPort);
+        String ip = hostAndPort.getHost();
+        int port = hostAndPort.getPort();
         assertThat(isLocalIp(ip)).isTrue();
         assertThat(port).isEqualTo(8300);
     }
