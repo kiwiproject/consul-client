@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.time.LocalTime;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
@@ -268,11 +268,7 @@ class CacheConfigTest {
             lastCall = LocalTime.now();
             run++;
 
-            List<Integer> response = new ArrayList<>();
-            for (int i = 0; i < resultCount; i++) {
-                response.add(1);
-            }
-            return response;
+            return Collections.nCopies(resultCount, 1);
         }
     }
 }

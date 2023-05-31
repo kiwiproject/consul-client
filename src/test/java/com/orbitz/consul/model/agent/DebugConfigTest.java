@@ -2,7 +2,6 @@ package com.orbitz.consul.model.agent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orbitz.consul.util.Jackson;
 import org.junit.jupiter.api.Test;
 

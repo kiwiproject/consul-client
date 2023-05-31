@@ -8,7 +8,6 @@ import static org.awaitility.Durations.FIVE_HUNDRED_MILLISECONDS;
 
 import com.orbitz.consul.async.ConsulResponseCallback;
 import com.orbitz.consul.model.ConsulResponse;
-import com.orbitz.consul.model.catalog.CatalogDeregistration;
 import com.orbitz.consul.model.catalog.CatalogNode;
 import com.orbitz.consul.model.catalog.CatalogRegistration;
 import com.orbitz.consul.model.catalog.CatalogService;
@@ -104,9 +103,9 @@ class CatalogITest extends BaseIntegrationTest {
 
     @Test
     void shouldGetTaggedAddressesForNodesLists() {
-        final List<Node> nodesResp = catalogClient.getNodes().getResponse();
+        List<Node> nodesResp = catalogClient.getNodes().getResponse();
         assertThat(nodesResp).isNotEmpty();
-        for (Node node : nodesResp) {
+        for (var node : nodesResp) {
             assertThat(node.getTaggedAddresses()).isNotNull();
             if (node.getTaggedAddresses().isPresent()) {
                 assertThat(node.getTaggedAddresses().get().getWan()).isNotNull();
@@ -117,10 +116,10 @@ class CatalogITest extends BaseIntegrationTest {
 
     @Test
     void shouldGetTaggedAddressesForNode() {
-        final List<Node> nodesResp = catalogClient.getNodes().getResponse();
+        List<Node> nodesResp = catalogClient.getNodes().getResponse();
         assertThat(nodesResp).isNotEmpty();
-        for (Node tmp : nodesResp) {
-            final Node node = catalogClient.getNode(tmp.getNode()).getResponse().getNode();
+        for (var tmpNode : nodesResp) {
+            var node = catalogClient.getNode(tmpNode.getNode()).getResponse().getNode();
             assertThat(node.getTaggedAddresses()).isNotNull();
             if (node.getTaggedAddresses().isPresent()) {
                 assertThat(node.getTaggedAddresses().get().getWan()).isNotNull();
@@ -131,9 +130,9 @@ class CatalogITest extends BaseIntegrationTest {
 
     @Test
     void shouldRegisterService() {
-        String service = randomUUIDString();
-        String serviceId = randomUUIDString();
-        String catalogId = randomUUIDString();
+        var service = randomUUIDString();
+        var serviceId = randomUUIDString();
+        var catalogId = randomUUIDString();
 
         createAndCheckService(
                 ImmutableCatalogService.builder()
@@ -172,9 +171,9 @@ class CatalogITest extends BaseIntegrationTest {
 
     @Test
     void shouldRegisterServiceNoWeights() {
-        String service = randomUUIDString();
-        String serviceId = randomUUIDString();
-        String catalogId = randomUUIDString();
+        var service = randomUUIDString();
+        var serviceId = randomUUIDString();
+        var catalogId = randomUUIDString();
 
         createAndCheckService(
                 ImmutableCatalogService.builder()
@@ -213,11 +212,11 @@ class CatalogITest extends BaseIntegrationTest {
 
     @Test
     void shouldDeregisterWithDefaultDC() {
-        String service = randomUUIDString();
-        String serviceId = randomUUIDString();
-        String catalogId = randomUUIDString();
+        var service = randomUUIDString();
+        var serviceId = randomUUIDString();
+        var catalogId = randomUUIDString();
 
-        CatalogRegistration registration = ImmutableCatalogRegistration.builder()
+        var registration = ImmutableCatalogRegistration.builder()
                 .id(catalogId)
                 .putNodeMeta("a", "b")
                 .address("localhost")
@@ -239,7 +238,7 @@ class CatalogITest extends BaseIntegrationTest {
                 .atMost(FIVE_HUNDRED_MILLISECONDS)
                 .until(() -> serviceExists(service, serviceId));
 
-        CatalogDeregistration deregistration = ImmutableCatalogDeregistration.builder()
+        var deregistration = ImmutableCatalogDeregistration.builder()
                 .node("node")
                 .serviceId(serviceId)
                 .build();
@@ -260,8 +259,8 @@ class CatalogITest extends BaseIntegrationTest {
 
     @Test
     void shouldGetServicesInCallback() throws ExecutionException, InterruptedException, TimeoutException {
-        String serviceName = randomUUIDString();
-        String serviceId = createAutoDeregisterServiceId();
+        var serviceName = randomUUIDString();
+        var serviceId = createAutoDeregisterServiceId();
         client.agentClient().register(20001, 20, serviceName, serviceId, List.of(), Map.of());
 
         CompletableFuture<Map<String, List<String>>> cf = new CompletableFuture<>();
@@ -274,8 +273,8 @@ class CatalogITest extends BaseIntegrationTest {
 
     @Test
     void shouldGetServiceInCallback() throws ExecutionException, InterruptedException, TimeoutException {
-        String serviceName = randomUUIDString();
-        String serviceId = createAutoDeregisterServiceId();
+        var serviceName = randomUUIDString();
+        var serviceId = createAutoDeregisterServiceId();
         client.agentClient().register(20001, 20, serviceName, serviceId, List.of(), Map.of());
 
         CompletableFuture<List<CatalogService>> cf = new CompletableFuture<>();
@@ -291,12 +290,12 @@ class CatalogITest extends BaseIntegrationTest {
 
     @Test
     void shouldGetNodeInCallback() throws ExecutionException, InterruptedException, TimeoutException {
-        String nodeName = "node";
-        String serviceName = randomUUIDString();
-        String serviceId = randomUUIDString();
-        String catalogId = randomUUIDString();
+        var nodeName = "node";
+        var serviceName = randomUUIDString();
+        var serviceId = randomUUIDString();
+        var catalogId = randomUUIDString();
 
-        CatalogRegistration registration = ImmutableCatalogRegistration.builder()
+        var registration = ImmutableCatalogRegistration.builder()
                 .id(catalogId)
                 .putNodeMeta("a", "b")
                 .address("localhost")
