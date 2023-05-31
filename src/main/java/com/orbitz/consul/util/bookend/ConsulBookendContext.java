@@ -2,7 +2,9 @@ package com.orbitz.consul.util.bookend;
 
 import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,8 +25,20 @@ public class ConsulBookendContext {
         data.put(key, value);
     }
 
-    @SuppressWarnings("unchecked")
     public <T> Optional<T> get(String key, Class<T> klazz) {
-        return Optional.ofNullable((T) data.get(key));
+        if (isNull(data) || !data.containsKey(key)) {
+            return Optional.empty();
+        }
+
+        var object = data.get(key);
+        if (isNull(object)) {
+            return Optional.empty();
+        }
+
+        checkState(klazz.isAssignableFrom(object.getClass()),
+                "Data for key '%s' is not of type: %s", key, klazz.getName());
+
+        T castObject = klazz.cast(object);
+        return Optional.ofNullable(castObject);
     }
 }
