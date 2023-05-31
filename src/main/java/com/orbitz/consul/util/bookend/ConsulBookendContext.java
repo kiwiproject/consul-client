@@ -12,7 +12,7 @@ public class ConsulBookendContext {
     private Map<String, Object> data;
 
     ConsulBookendContext() {
-
+        // package-private constructor
     }
 
     public void put(String key, Object value) {
