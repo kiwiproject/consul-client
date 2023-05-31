@@ -4,7 +4,6 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 import java.util.HashMap;
 import java.util.Map;
