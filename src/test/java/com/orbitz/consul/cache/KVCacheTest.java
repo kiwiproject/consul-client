@@ -14,7 +14,7 @@ import com.orbitz.consul.config.CacheConfig;
 import com.orbitz.consul.config.ClientConfig;
 import com.orbitz.consul.model.kv.ImmutableValue;
 import com.orbitz.consul.model.kv.Value;
-import com.orbitz.consul.monitoring.ClientEventCallback;
+import com.orbitz.consul.monitoring.NoOpClientEventCallback;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -103,7 +103,7 @@ class KVCacheTest {
         var keyValueClient = KeyValueClientFactory.create(
                 mockApiService,
                 new ClientConfig(cacheConfig),
-                new ClientEventCallback() {},
+                new NoOpClientEventCallback(),
                 new Consul.NetworkTimeoutConfig.Builder().withReadTimeout(10500).build()
         );
 

@@ -10,6 +10,7 @@ import com.google.common.net.HostAndPort;
 import com.orbitz.consul.cache.TimeoutInterceptor;
 import com.orbitz.consul.config.ClientConfig;
 import com.orbitz.consul.monitoring.ClientEventCallback;
+import com.orbitz.consul.monitoring.NoOpClientEventCallback;
 import com.orbitz.consul.util.Jackson;
 import com.orbitz.consul.util.TrustManagerUtils;
 import com.orbitz.consul.util.Urls;
@@ -709,7 +710,7 @@ public class Consul {
 
             ClientEventCallback eventCallback = nonNull(clientEventCallback) ?
                     clientEventCallback :
-                    new ClientEventCallback(){};
+                    new NoOpClientEventCallback();
 
             AgentClient agentClient = new AgentClient(retrofit, config, eventCallback);
             HealthClient healthClient = new HealthClient(retrofit, config, eventCallback, networkTimeoutConfig);
