@@ -21,7 +21,7 @@ class BlacklistingConsulFailoverStrategyTest {
     @BeforeEach
     void setup() {
         // Create a set of targets
-        final Collection<HostAndPort> targets = new ArrayList<>();
+        Collection<HostAndPort> targets = new ArrayList<>();
         targets.add(HostAndPort.fromParts("1.2.3.4", 8501));
         targets.add(HostAndPort.fromParts("localhost", 8501));
 
@@ -30,7 +30,7 @@ class BlacklistingConsulFailoverStrategyTest {
 
     @Test
     void getFirstUrlBack() {
-        Request previousRequest = new Request.Builder().url("https://1.2.3.4:8501/v1/agent/members").build();
+        var previousRequest = new Request.Builder().url("https://1.2.3.4:8501/v1/agent/members").build();
         Response previousResponse = null;
 
         Optional<Request> result = blacklistingConsulFailoverStrategy.computeNextStage(previousRequest, previousResponse);
@@ -41,7 +41,7 @@ class BlacklistingConsulFailoverStrategyTest {
 
     @Test
     void getSecondUrlBackAfterFirstOneIsBlacklisted() {
-        Request previousRequest = new Request.Builder().url("https://1.2.3.4:8501/v1/agent/members").build();
+        var previousRequest = new Request.Builder().url("https://1.2.3.4:8501/v1/agent/members").build();
         Response previousResponse = null;
 
         Optional<Request> result1 = blacklistingConsulFailoverStrategy.computeNextStage(previousRequest, previousResponse);
@@ -58,7 +58,7 @@ class BlacklistingConsulFailoverStrategyTest {
 
     @Test
     void getNoUrlBackAfterBothAreBlacklisted() {
-        Request previousRequest = new Request.Builder().url("https://1.2.3.4:8501/v1/agent/members").build();
+        var previousRequest = new Request.Builder().url("https://1.2.3.4:8501/v1/agent/members").build();
         Response previousResponse = null;
 
         Optional<Request> result1 = blacklistingConsulFailoverStrategy.computeNextStage(previousRequest, previousResponse);

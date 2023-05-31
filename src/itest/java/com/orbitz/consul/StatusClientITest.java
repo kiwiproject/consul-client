@@ -9,7 +9,6 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -28,7 +27,7 @@ class StatusClientITest extends BaseIntegrationTest {
     static void getIps() throws RuntimeException {
         try {
             InetAddress[] externalIps = InetAddress.getAllByName(InetAddress.getLocalHost().getCanonicalHostName());
-            ips.addAll(Arrays.asList(externalIps));
+            ips.addAll(List.of(externalIps));
         } catch (UnknownHostException ex) {
            LOG.warn("Could not determine fully qualified host name. Continuing.", ex);
         }

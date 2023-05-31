@@ -59,7 +59,7 @@ class HttpTest {
 
     @Test
     void extractingBodyShouldSucceedWhenRequestSucceed() throws IOException {
-        String expectedBody = "success";
+        var expectedBody = "success";
         Response<String> response = Response.success(expectedBody);
         Call<String> call = createMockCallWithType(String.class);
         when(call.execute()).thenReturn(response);
@@ -82,7 +82,7 @@ class HttpTest {
 
     @Test
     void extractingConsulResponseShouldSucceedWhenRequestSucceed() throws IOException {
-        String expectedBody = "success";
+        var expectedBody = "success";
         Response<String> response = Response.success(expectedBody);
         Call<String> call = createMockCallWithType(String.class);
         when(call.execute()).thenReturn(response);
@@ -243,11 +243,11 @@ class HttpTest {
             public void onFailure(Throwable throwable) {
             }
         };
-        Call<String> call = createMockCallWithType(String.class);
-        Request request = new Request.Builder().url("http://localhost:8500/this/endpoint").build();
+        var call = createMockCallWithType(String.class);
+        var request = new Request.Builder().url("http://localhost:8500/this/endpoint").build();
         when(call.request()).thenReturn(request);
         Callback<String> callCallback = http.createCallback(call, callback);
-        String expectedBody = "success";
+        var expectedBody = "success";
 
         Response<String> response = Response.success(expectedBody);
         callCallback.onResponse(call, response);
@@ -259,8 +259,8 @@ class HttpTest {
 
     @Test
     void extractingConsulResponseAsyncShouldFailWhenRequestIsInvalid() throws InterruptedException {
-        CountDownLatch latch = new CountDownLatch(1);
-        final ConsulResponseCallback<String> callback = new ConsulResponseCallback<>() {
+        var latch = new CountDownLatch(1);
+        var callback = new ConsulResponseCallback<String>() {
             @Override
             public void onComplete(ConsulResponse<String> consulResponse) {
             }
@@ -270,8 +270,8 @@ class HttpTest {
                 latch.countDown();
             }
         };
-        Call<String> call = createMockCallWithType(String.class);
-        Request request = new Request.Builder().url("http://localhost:8500/this/endpoint").build();
+        var call = createMockCallWithType(String.class);
+        var request = new Request.Builder().url("http://localhost:8500/this/endpoint").build();
         when(call.request()).thenReturn(request);
         Callback<String> callCallback = http.createCallback(call, callback);
 
@@ -284,8 +284,8 @@ class HttpTest {
 
     @Test
     void extractingConsulResponseAsyncShouldFailWhenRequestFailed() throws InterruptedException {
-        CountDownLatch latch = new CountDownLatch(1);
-        final ConsulResponseCallback<String> callback = new ConsulResponseCallback<>() {
+        var latch = new CountDownLatch(1);
+        var callback = new ConsulResponseCallback<String>() {
             @Override
             public void onComplete(ConsulResponse<String> consulResponse) {
             }
@@ -295,7 +295,7 @@ class HttpTest {
                 latch.countDown();
             }
         };
-        Call<String> call = createMockCallWithType(String.class);
+        var call = createMockCallWithType(String.class);
         when(call.request()).thenReturn(mock(Request.class));
 
         Callback<String> callCallback = http.createCallback(call, callback);
@@ -313,7 +313,7 @@ class HttpTest {
 
     @Test
     void consulResponseShouldHaveResponseAndDefaultValuesIfNoHeader() {
-        String responseMessage = "success";
+        var responseMessage = "success";
         ConsulResponse<String> expectedConsulResponse = new ConsulResponse<>(responseMessage, 0, false, BigInteger.ZERO, null, null);
 
         Response<String> response = Response.success(responseMessage);

@@ -22,8 +22,8 @@ public class MockApiService implements KeyValueClient.Api {
 
     @Override
     public Call<List<Value>> getValue(String key, Map<String, Object> query) {
-        final Headers headers = Headers.of("X-Consul-Knownleader", "true");
-        final Call<List<Object>> call = Calls.response(Response.success(List.of(), headers));
+        var headers = Headers.of("X-Consul-Knownleader", "true");
+        Call<List<Object>> call = Calls.response(Response.success(List.of(), headers));
         return delegate.returning(call).getValue(key, query);
     }
 

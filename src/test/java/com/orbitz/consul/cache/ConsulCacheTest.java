@@ -19,7 +19,6 @@ import com.orbitz.consul.monitoring.ClientEventHandler;
 import com.orbitz.consul.option.ConsistencyMode;
 import com.orbitz.consul.option.ImmutableQueryOptions;
 import com.orbitz.consul.option.QueryOptions;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -29,7 +28,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.math.BigInteger;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -99,16 +97,16 @@ class ConsulCacheTest {
      */
     @Test
     void testDuplicateServicesDontCauseFailure() {
-        final Function<Value, String> keyExtractor = input -> "SAME_KEY";
-        final List<Value> response = Arrays.asList(mock(Value.class), mock(Value.class));
-        CacheConfig cacheConfig = mock(CacheConfig.class);
-        ClientEventHandler eventHandler = mock(ClientEventHandler.class);
+        Function<Value, String> keyExtractor = input -> "SAME_KEY";
+        List<Value> response = List.of(mock(Value.class), mock(Value.class));
 
-        final StubCallbackConsumer callbackConsumer = new StubCallbackConsumer(List.of());
+        var cacheConfig = mock(CacheConfig.class);
+        var eventHandler = mock(ClientEventHandler.class);
+        var callbackConsumer = new StubCallbackConsumer(List.of());
 
         try (var consulCache = new ConsulCache<>(keyExtractor, callbackConsumer, cacheConfig, eventHandler, new CacheDescriptor(""))) {
-            final ConsulResponse<List<Value>> consulResponse = new ConsulResponse<>(response, 0, false, BigInteger.ONE, null, null);
-            final ImmutableMap<String, Value> map = consulCache.convertToMap(consulResponse);
+            ConsulResponse<List<Value>> consulResponse = new ConsulResponse<>(response, 0, false, BigInteger.ONE, null, null);
+            ImmutableMap<String, Value> map = consulCache.convertToMap(consulResponse);
             assertThat(map).isNotNull();
             // Second copy has been weeded out
             assertThat(map).hasSize(1);
@@ -117,26 +115,26 @@ class ConsulCacheTest {
 
     @Test
     void testWatchParamsWithNoAdditionalOptions() {
-        BigInteger index = new BigInteger("12");
-        QueryOptions expectedOptions = ImmutableQueryOptions.builder()
+        var index = new BigInteger("12");
+        var expectedQueryOptions = ImmutableQueryOptions.builder()
                 .index(index)
                 .wait("10s")
                 .build();
-        QueryOptions actualOptions = ConsulCache.watchParams(index, 10, QueryOptions.BLANK);
-        assertThat(actualOptions).isEqualTo(expectedOptions);
+        var actualQueryOptions = ConsulCache.watchParams(index, 10, QueryOptions.BLANK);
+        assertThat(actualQueryOptions).isEqualTo(expectedQueryOptions);
     }
 
     @Test
     void testWatchParamsWithAdditionalOptions() {
-        BigInteger index = new BigInteger("12");
-        QueryOptions additionalOptions = ImmutableQueryOptions.builder()
+        var index = new BigInteger("12");
+        var additionalQueryOptions = ImmutableQueryOptions.builder()
                 .consistencyMode(ConsistencyMode.STALE)
                 .addTag("someTag")
                 .token("186596")
                 .near("156892")
                 .build();
 
-        QueryOptions expectedOptions = ImmutableQueryOptions.builder()
+        var expectedQueryOptions = ImmutableQueryOptions.builder()
                 .index(index)
                 .wait("10s")
                 .consistencyMode(ConsistencyMode.STALE)
@@ -145,29 +143,29 @@ class ConsulCacheTest {
                 .near("156892")
                 .build();
 
-        QueryOptions actualOptions = ConsulCache.watchParams(index, 10, additionalOptions);
-        assertThat(actualOptions).isEqualTo(expectedOptions);
+        var actualQueryOptions = ConsulCache.watchParams(index, 10, additionalQueryOptions);
+        assertThat(actualQueryOptions).isEqualTo(expectedQueryOptions);
     }
 
     @Test
     void testWatchParamsWithAdditionalIndexAndWaitingThrows() {
-        BigInteger index = new BigInteger("12");
-        QueryOptions additionalOptions = ImmutableQueryOptions.builder()
+        var index = new BigInteger("12");
+        var additionalQueryOptions = ImmutableQueryOptions.builder()
                 .index(index)
                 .wait("10s")
                 .build();
 
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> ConsulCache.watchParams(index, 10, additionalOptions));
+                .isThrownBy(() -> ConsulCache.watchParams(index, 10, additionalQueryOptions));
     }
 
     @ParameterizedTest(name = "min Delay: {0}, max Delay: {1}")
     @MethodSource("getRetryDurationSamples")
     void testRetryDuration(Duration minDelay, Duration maxDelay) {
-        CacheConfig cacheConfig = CacheConfig.builder().withBackOffDelay(minDelay, maxDelay).build();
+        var cacheConfig = CacheConfig.builder().withBackOffDelay(minDelay, maxDelay).build();
         for (int i=0; i < 1000; i++) {
             long retryDurationMs = ConsulCache.computeBackOffDelayMs(cacheConfig);
-            Assertions.assertThat(retryDurationMs)
+            assertThat(retryDurationMs)
                     .describedAs("Retry duration expected between %s and %s but got %d ms", minDelay, maxDelay, retryDurationMs)
                     .isBetween(minDelay.toMillis(), maxDelay.toMillis());
         }
@@ -186,25 +184,25 @@ class ConsulCacheTest {
 
     @Test
     void testListenerIsCalled() {
-        final Function<Value, String> keyExtractor = Value::getKey;
+        Function<Value, String> keyExtractor = Value::getKey;
 
-        final CacheConfig cacheConfig = CacheConfig.builder().build();
-        ClientEventHandler eventHandler = mock(ClientEventHandler.class);
+        var cacheConfig = CacheConfig.builder().build();
+        var eventHandler = mock(ClientEventHandler.class);
 
-        final String key = "foo";
-        final ImmutableValue value = ImmutableValue.builder()
+        var key = "foo";
+        var value = ImmutableValue.builder()
                 .createIndex(1)
                 .modifyIndex(2)
                 .lockIndex(2)
                 .key(key)
                 .flags(0)
                 .build();
-        final List<Value> result = List.of(value);
-        final StubCallbackConsumer callbackConsumer = new StubCallbackConsumer(result);
+        List<Value> result = List.of(value);
+        var callbackConsumer = new StubCallbackConsumer(result);
 
         try (var cache = new ConsulCache<>(keyExtractor, callbackConsumer, cacheConfig, eventHandler, new CacheDescriptor(""))) {
 
-            final StubListener listener = new StubListener();
+            var listener = new StubListener();
 
             cache.addListener(listener);
             cache.start();
@@ -232,27 +230,28 @@ class ConsulCacheTest {
 
     @Test
     void testListenerThrowingExceptionIsIsolated() {
-        final Function<Value, String> keyExtractor = Value::getKey;
-        final CacheConfig cacheConfig = CacheConfig.builder()
+        Function<Value, String> keyExtractor = Value::getKey;
+        var cacheConfig = CacheConfig.builder()
                 .withMinDelayBetweenRequests(Duration.ofSeconds(10))
                 .build();
-        ClientEventHandler eventHandler = mock(ClientEventHandler.class);
+        var eventHandler = mock(ClientEventHandler.class);
 
-        final String key = "foo";
-        final ImmutableValue value = ImmutableValue.builder()
+        var key = "foo";
+        var value = ImmutableValue.builder()
                 .createIndex(1)
                 .modifyIndex(2)
                 .lockIndex(2)
                 .key(key)
                 .flags(0)
                 .build();
-        final List<Value> result = List.of(value);
-        try (final AsyncCallbackConsumer callbackConsumer = new AsyncCallbackConsumer(result)) {
-            try (final ConsulCache<String, Value> cache = new ConsulCache<>(keyExtractor, callbackConsumer, cacheConfig,
-                        eventHandler, new CacheDescriptor(""))) {
+        List<Value> result = List.of(value);
 
-                final StubListener goodListener = new StubListener();
-                final AlwaysThrowsListener badListener1 = new AlwaysThrowsListener();
+        try (var callbackConsumer = new AsyncCallbackConsumer(result)) {
+            try (var cache = new ConsulCache<String, Value>(
+                    keyExtractor, callbackConsumer, cacheConfig, eventHandler, new CacheDescriptor(""))) {
+
+                var goodListener = new StubListener();
+                var badListener1 = new AlwaysThrowsListener();
 
                 cache.addListener(badListener1);
                 cache.addListener(goodListener);
@@ -263,7 +262,7 @@ class ConsulCacheTest {
                 assertThat(goodListener.getCallCount()).isEqualTo(1);
                 assertThat(callbackConsumer.getCallCount()).isEqualTo(1);
 
-                final Map<String, Value> lastValues = goodListener.getLastValues();
+                Map<String, Value> lastValues = goodListener.getLastValues();
                 assertThat(lastValues).isNotNull();
                 assertThat(lastValues).hasSameSizeAs(result);
                 assertThat(lastValues).containsKey(key);
@@ -274,36 +273,35 @@ class ConsulCacheTest {
 
     @Test
     void testExceptionReceivedFromListenerWhenAlreadyStarted() {
-        final Function<Value, String> keyExtractor = Value::getKey;
-        final CacheConfig cacheConfig = CacheConfig.builder()
+        Function<Value, String> keyExtractor = Value::getKey;
+        var cacheConfig = CacheConfig.builder()
                 .withMinDelayBetweenRequests(Duration.ofSeconds(10))
                 .build();
-        final ClientEventHandler eventHandler = mock(ClientEventHandler.class);
+        var eventHandler = mock(ClientEventHandler.class);
 
-        final String key = "foo";
-        final ImmutableValue value = ImmutableValue.builder()
+        var key = "foo";
+        var value = ImmutableValue.builder()
                 .createIndex(1)
                 .modifyIndex(2)
                 .lockIndex(2)
                 .key(key)
                 .flags(0)
                 .build();
-        final List<Value> result = List.of(value);
-        final StubCallbackConsumer callbackConsumer = new StubCallbackConsumer(
-                result);
+        List<Value> result = List.of(value);
+        var callbackConsumer = new StubCallbackConsumer(result);
 
-        try (final ConsulCache<String, Value> cache = new ConsulCache<>(keyExtractor, callbackConsumer, cacheConfig,
-                eventHandler, new CacheDescriptor(""))) {
+        try (var cache = new ConsulCache<String, Value>(
+                keyExtractor, callbackConsumer, cacheConfig, eventHandler, new CacheDescriptor(""))) {
 
-            final AlwaysThrowsListener badListener = new AlwaysThrowsListener();
+            var badListener = new AlwaysThrowsListener();
 
             cache.start();
 
             // Adding listener after cache is already started
-            final boolean isAdded = cache.addListener(badListener);
-            assertThat(isAdded).isTrue();
+            var wasAdded = cache.addListener(badListener);
+            assertThat(wasAdded).isTrue();
 
-            final StubListener goodListener = new StubListener();
+            var goodListener = new StubListener();
             cache.addListener(goodListener);
 
             assertThat(goodListener.getCallCount()).isEqualTo(1);

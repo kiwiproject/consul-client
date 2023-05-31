@@ -9,7 +9,7 @@ class TaggedAddressesTest {
 
     @Test
     void buildingTaggedAddressWithAllAttributesShouldSucceed() {
-        ImmutableTaggedAddresses taggedAddresses = ImmutableTaggedAddresses.builder()
+        var taggedAddresses = ImmutableTaggedAddresses.builder()
                 .lan("127.0.0.1")
                 .wan("172.217.17.110")
                 .build();
@@ -20,7 +20,7 @@ class TaggedAddressesTest {
 
     @Test
     void buildingTaggedAddressWithoutLanAddressShouldSucceed() {
-        ImmutableTaggedAddresses taggedAddresses = ImmutableTaggedAddresses.builder()
+        var taggedAddresses = ImmutableTaggedAddresses.builder()
                 .wan("172.217.17.110")
                 .build();
 

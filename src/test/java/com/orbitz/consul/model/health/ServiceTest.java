@@ -8,18 +8,18 @@ class ServiceTest {
 
     @Test
     void testEquals(){
-        Service one = tagged("a", "b");
-        Service two = tagged("a", "b");
-        assertThat(two).isEqualTo(one);
+        var service1 = newTaggedService("a", "b");
+        var service2 = newTaggedService("a", "b");
+        assertThat(service2).isEqualTo(service1);
     }
 
     @Test
     void testNullTags(){
-        Service sv = tagged();
-        assertThat(sv.getTags()).isEmpty();
+        var service = newTaggedService();
+        assertThat(service.getTags()).isEmpty();
     }
 
-    private Service tagged(String ... tags) {
+    private Service newTaggedService(String ... tags) {
         return ImmutableService
                 .builder()
                 .address("localhost")
