@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 class SecondsSerDeTest {
 
@@ -33,7 +33,7 @@ class SecondsSerDeTest {
 
     @Test
     void shouldSerializeSeconds() throws JsonProcessingException {
-        var seconds = new Random().nextLong();
+        var seconds = ThreadLocalRandom.current().nextLong();
         var expected = String.format("\"%ss\"", seconds);
         var json = OBJECT_MAPPER.writeValueAsString(new Item(seconds));
 
@@ -42,7 +42,7 @@ class SecondsSerDeTest {
 
     @Test
     void shouldDeserializeSeconds() throws IOException {
-        var seconds = new Random().nextLong();
+        var seconds = ThreadLocalRandom.current().nextLong();
         var item = OBJECT_MAPPER.readValue(String.format("{\"seconds\": \"%ds\"}", seconds), Item.class);
 
         assertThat(item.getSeconds()).isEqualTo(seconds);
@@ -50,7 +50,7 @@ class SecondsSerDeTest {
 
     @Test
     void shouldDeserializeSeconds_noS() throws IOException {
-        var seconds = new Random().nextLong();
+        var seconds = ThreadLocalRandom.current().nextLong();
         var item = OBJECT_MAPPER.readValue(String.format("{\"seconds\": \"%d\"}", seconds), Item.class);
 
         assertThat(item.getSeconds()).isEqualTo(seconds);
