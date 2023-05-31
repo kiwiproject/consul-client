@@ -35,6 +35,7 @@ public abstract class TransactionOptions implements ParamAdder {
         return result;
     }
 
+    @Override
     public Map<String, String> toHeaders() {
         Map<String, String> result = new HashMap<>();
 
