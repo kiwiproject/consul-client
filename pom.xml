@@ -58,7 +58,7 @@
         <retrofit.version>2.9.0</retrofit.version>
 
         <!-- Versions for test dependencies -->
-        <test-containers.version>1.18.2</test-containers.version>
+        <test-containers.version>1.18.3</test-containers.version>
 
         <!-- Versions for plugins -->
         <build-helper-maven-plugin.version>3.4.0</build-helper-maven-plugin.version>
