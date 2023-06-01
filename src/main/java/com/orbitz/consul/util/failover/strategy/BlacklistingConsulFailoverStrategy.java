@@ -1,19 +1,18 @@
 package com.orbitz.consul.util.failover.strategy;
 
+import static java.util.Objects.nonNull;
+
+import com.google.common.net.HostAndPort;
+import okhttp3.HttpUrl;
+import okhttp3.Request;
+import okhttp3.Response;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-
-import okhttp3.HttpUrl;
-import okhttp3.Request;
-import okhttp3.Response;
-
-import static java.util.Objects.nonNull;
-
-import com.google.common.net.HostAndPort;
 
 /**
  * @author Troy Heanssgen
@@ -61,16 +60,15 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
 				if (blacklist.containsKey(target)) {
 
 					// Get when we blacklisted this key
-					final Instant blacklistWhen = blacklist.get(target);
+					final Instant blacklistedAt = blacklist.get(target);
 
-					// If !(Duration(then, now) - timeout >=0) means that we remove this blacklist
-					// entry when the duration between
-					// the blacklist marker and now is greater than the timeout duration
-					if (!Duration.between(blacklistWhen, Instant.now()).minusMillis(timeout).isNegative()) {
+					// If the duration between the blacklist time ("then") and "now" is greater than the
+					// timeout duration (Duration(then, now) - timeout < 0), then remove the blacklist entry
+					if (Duration.between(blacklistedAt, Instant.now()).minusMillis(timeout).isNegative()) {
+						return false;
+					} else {
 						blacklist.remove(target);
 						return true;
-					} else {
-						return false;
 					}
 				} else {
 					return true;
