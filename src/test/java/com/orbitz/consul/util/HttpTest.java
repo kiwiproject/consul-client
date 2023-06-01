@@ -246,11 +246,11 @@ class HttpTest {
         var call = createMockCallWithType(String.class);
         var request = new Request.Builder().url("http://localhost:8500/this/endpoint").build();
         when(call.request()).thenReturn(request);
-        Callback<String> callCallback = http.createCallback(call, callback);
+        Callback<String> retrofitCallback = http.createRetrofitCallback(callback);
         var expectedBody = "success";
 
         Response<String> response = Response.success(expectedBody);
-        callCallback.onResponse(call, response);
+        retrofitCallback.onResponse(call, response);
         latch.await(1, TimeUnit.SECONDS);
 
         assertThat(result.get().getResponse()).isEqualTo(expectedBody);
@@ -273,10 +273,10 @@ class HttpTest {
         var call = createMockCallWithType(String.class);
         var request = new Request.Builder().url("http://localhost:8500/this/endpoint").build();
         when(call.request()).thenReturn(request);
-        Callback<String> callCallback = http.createCallback(call, callback);
+        Callback<String> retrofitCallback = http.createRetrofitCallback(callback);
 
         Response<String> response = Response.error(400, ResponseBody.create("failure", MediaType.parse("")));
-        callCallback.onResponse(call, response);
+        retrofitCallback.onResponse(call, response);
         latch.await(1, TimeUnit.SECONDS);
 
         verify(clientEventHandler, only()).httpRequestInvalid(any(Request.class), any(Throwable.class));
@@ -298,9 +298,9 @@ class HttpTest {
         var call = createMockCallWithType(String.class);
         when(call.request()).thenReturn(mock(Request.class));
 
-        Callback<String> callCallback = http.createCallback(call, callback);
+        Callback<String> retrofitCallback = http.createRetrofitCallback(callback);
 
-        callCallback.onFailure(call, new RuntimeException("the request failed"));
+        retrofitCallback.onFailure(call, new RuntimeException("the request failed"));
 
         latch.await(1, TimeUnit.SECONDS);
         verify(clientEventHandler, only()).httpRequestFailure(any(Request.class), any(Throwable.class));

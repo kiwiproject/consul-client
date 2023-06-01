@@ -66,14 +66,13 @@ public class Http {
         }
     }
 
-    public <T> void extractConsulResponse(Call<T> call, final ConsulResponseCallback<T> callback,
-                                                 final Integer... okCodes) {
-        call.enqueue(createCallback(call, callback, okCodes));
+    public <T> void extractConsulResponse(Call<T> call, ConsulResponseCallback<T> callback, Integer... okCodes) {
+        var retrofitCallback = createRetrofitCallback(callback, okCodes);
+        call.enqueue(retrofitCallback);
     }
 
     @VisibleForTesting
-    <T> retrofit2.Callback<T> createCallback(Call<T> call, final ConsulResponseCallback<T> callback,
-                                             final Integer... okCodes) {
+    <T> retrofit2.Callback<T> createRetrofitCallback(ConsulResponseCallback<T> callback, Integer... okCodes) {
         return new retrofit2.Callback<T>() {
             @Override
             public void onResponse(Call<T> call, Response<T> response) {
