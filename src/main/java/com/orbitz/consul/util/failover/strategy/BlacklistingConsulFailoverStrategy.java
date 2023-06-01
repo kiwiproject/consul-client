@@ -46,7 +46,7 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
 
 		// If the previous response failed, disallow this request from going through.
 		// A 404 does NOT indicate a failure in this case, so it should never blacklist the previous target.
-		if (nonNull(previousResponse) && !previousResponse.isSuccessful() && previousResponse.code() != 404) {
+		if (previousResponseFailedAndWasNot404(previousResponse)) {
 			this.blacklist.put(initialTarget, Instant.now());
 		}
 
@@ -96,6 +96,10 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
 			return Optional.ofNullable(previousRequest.newBuilder().url(nextURL).build());
 		}
 
+	}
+
+	private static boolean previousResponseFailedAndWasNot404(Response previousResponse) {
+		return nonNull(previousResponse) && !previousResponse.isSuccessful() && previousResponse.code() != 404;
 	}
 
 	@Override
