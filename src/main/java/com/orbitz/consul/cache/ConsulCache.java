@@ -287,24 +287,25 @@ public class ConsulCache<K, V> implements AutoCloseable {
         if (isNull(response) || isNull(response.getResponse()) || response.getResponse().isEmpty()) {
             return ImmutableMap.of();
         }
-        final ImmutableMap.Builder<K, V> builder = ImmutableMap.builder();
-        final Set<K> keySet = new HashSet<>();
-        for (final V v : response.getResponse()) {
-            final K key = keyConversion.apply(v);
+
+        ImmutableMap.Builder<K, V> builder = ImmutableMap.builder();
+        Set<K> keySet = new HashSet<>();
+        for (V v : response.getResponse()) {
+            K key = keyConversion.apply(v);
             if (nonNull(key)) {
                 if (keySet.contains(key)) {
                     LOG.warn("Duplicate service encountered. May differ by tags. Try using more specific tags? {}", key);
                 } else {
                     builder.put(key, v);
+                    keySet.add(key);
                 }
             }
-            keySet.add(key);
         }
+
         return builder.build();
     }
 
-    protected static QueryOptions watchParams(final BigInteger index, final int blockSeconds,
-                                              QueryOptions queryOptions) {
+    protected static QueryOptions watchParams(BigInteger index, int blockSeconds, QueryOptions queryOptions) {
         checkArgument(!queryOptions.getIndex().isPresent() && !queryOptions.getWait().isPresent(),
                 "Index and wait cannot be overridden");
 
