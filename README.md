@@ -1,3 +1,8 @@
+[![build](https://github.com/kiwiproject/consul-client/actions/workflows/build.yml/badge.svg)](https://github.com/kiwiproject/consul-client/actions/workflows/build.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=kiwiproject_consul-client&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=kiwiproject_consul-client)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=kiwiproject_consul-client&metric=coverage)](https://sonarcloud.io/summary/new_code?id=kiwiproject_consul-client)
+[![CodeQL](https://github.com/kiwiproject/consul-client/actions/workflows/codeql.yml/badge.svg)](https://github.com/kiwiproject/consul-client/actions/workflows/codeql.yml)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ---
 
