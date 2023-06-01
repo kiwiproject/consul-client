@@ -108,12 +108,12 @@ public class KeyValueClient extends BaseCacheableClient {
      */
     public Optional<Value> getValue(String key, QueryOptions queryOptions) {
         try {
-            return getSingleValue(http.extract(api.getValue(trimLeadingSlash(key),
-                                               queryOptions.toQuery()),
-                                  NOT_FOUND_404));
-        } catch (ConsulException ignored) {
-            if(ignored.getCode() != NOT_FOUND_404) {
-                throw ignored;
+            Call<List<Value>> call = api.getValue(trimLeadingSlash(key), queryOptions.toQuery());
+            List<Value> values = http.extract(call, NOT_FOUND_404);
+            return getSingleValue(values);
+        } catch (ConsulException e) {
+            if (e.getCode() != NOT_FOUND_404) {
+                throw e;
             }
         }
 
@@ -132,19 +132,20 @@ public class KeyValueClient extends BaseCacheableClient {
      */
     public Optional<ConsulResponse<Value>> getConsulResponseWithValue(String key, QueryOptions queryOptions) {
         try {
-            ConsulResponse<List<Value>> consulResponse =
-                    http.extractConsulResponse(api.getValue(trimLeadingSlash(key), queryOptions.toQuery()), NOT_FOUND_404);
+            Call<List<Value>> call = api.getValue(trimLeadingSlash(key), queryOptions.toQuery());
+            ConsulResponse<List<Value>> consulResponse = http.extractConsulResponse(call, NOT_FOUND_404);
             Optional<Value> consulValue = getSingleValue(consulResponse.getResponse());
             if (consulValue.isPresent()) {
-                ConsulResponse<Value> result =
-                        new ConsulResponse<>(consulValue.get(), consulResponse.getLastContact(),
-                                                    consulResponse.isKnownLeader(), consulResponse.getIndex(),
-                                                    consulResponse.getCacheReponseInfo());
+                var result = new ConsulResponse<>(consulValue.get(),
+                        consulResponse.getLastContact(),
+                        consulResponse.isKnownLeader(),
+                        consulResponse.getIndex(),
+                        consulResponse.getCacheReponseInfo());
                 return Optional.of(result);
             }
-        } catch (ConsulException ignored) {
-            if (ignored.getCode() != NOT_FOUND_404) {
-                throw ignored;
+        } catch (ConsulException e) {
+            if (e.getCode() != NOT_FOUND_404) {
+                throw e;
             }
         }
 
