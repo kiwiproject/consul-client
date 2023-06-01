@@ -503,10 +503,10 @@ public class Consul {
          * @return The builder.
          */
         public Builder withFailoverInterceptor(ConsulFailoverStrategy strategy) {
-        	checkArgument(nonNull(strategy), "Must not provide a null strategy");
+            checkArgument(nonNull(strategy), "Must not provide a null strategy");
 
-        	consulFailoverInterceptor = new ConsulFailoverInterceptor(strategy);
-        	return this;
+            consulFailoverInterceptor = new ConsulFailoverInterceptor(strategy);
+            return this;
         }
 
         /**
