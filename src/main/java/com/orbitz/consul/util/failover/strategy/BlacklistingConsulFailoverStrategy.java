@@ -54,27 +54,8 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
         // If our blacklist contains the target we care about
         if (blacklist.containsKey(initialTarget)) {
 
-            // Find the first entity that doesnt exist in the blacklist
-            Optional<HostAndPort> optionalNext = targets.stream().filter(target -> {
-
-                // If we have blacklisted this key
-                if (blacklist.containsKey(target)) {
-
-                    // Get when we blacklisted this key
-                    final Instant blacklistedAt = blacklist.get(target);
-
-                    // If the duration between the blacklist time ("then") and "now" is greater than the
-                    // timeout duration (Duration(then, now) - timeout < 0), then remove the blacklist entry
-                    if (Duration.between(blacklistedAt, Instant.now()).minusMillis(timeout).isNegative()) {
-                        return false;
-                    } else {
-                        blacklist.remove(target);
-                        return true;
-                    }
-                } else {
-                    return true;
-                }
-            }).findAny();
+            // Find the first entity that doesn't exist in the blacklist
+            Optional<HostAndPort> optionalNext = findTargetNotInBlacklist();
 
             if (optionalNext.isEmpty()) {
                 return Optional.empty();
@@ -97,6 +78,35 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
             return Optional.ofNullable(previousRequest.newBuilder().url(nextURL).build());
         }
 
+    }
+
+    /**
+     * Find a target that is not blacklisted.
+     *
+     * @return an Optional containing a target, or an empty Optional of all are blacklisted
+     * @implNote This may mutate the blacklist instance field to remove a target from it.
+     */
+    private Optional<HostAndPort> findTargetNotInBlacklist() {
+        return targets.stream().filter(target -> {
+
+            // If we have blacklisted this key
+            if (blacklist.containsKey(target)) {
+
+                // Get when we blacklisted this key
+                final Instant blacklistedAt = blacklist.get(target);
+
+                // If the duration between the blacklist time ("then") and "now" is greater than the
+                // timeout duration (Duration(then, now) - timeout < 0), then remove the blacklist entry
+                if (Duration.between(blacklistedAt, Instant.now()).minusMillis(timeout).isNegative()) {
+                    return false;
+                } else {
+                    blacklist.remove(target);
+                    return true;
+                }
+            } else {
+                return true;
+            }
+        }).findAny();
     }
 
     private static boolean previousResponseFailedAndWasNot404(Response previousResponse) {
