@@ -30,6 +30,7 @@ import java.math.BigInteger;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -111,6 +112,71 @@ class ConsulCacheTest {
             // Second copy has been weeded out
             assertThat(map).hasSize(1);
         }
+    }
+
+    @Nested
+    class ConvertToMap {
+
+        @ParameterizedTest
+        @MethodSource("com.orbitz.consul.cache.ConsulCacheTest#nullAndEmptyConsulResponses")
+        void shouldReturnEmptyMap_WhenResponseIsNullOrEmpty(ConsulResponse<List<Value>> consulResponse) {
+            Function<Value, String> keyExtractor = input -> "service" + System.nanoTime();
+            var cacheConfig = mock(CacheConfig.class);
+            var eventHandler = mock(ClientEventHandler.class);
+            var callbackConsumer = new StubCallbackConsumer(List.of());
+
+            try (var consulCache = new ConsulCache<>(keyExtractor, callbackConsumer, cacheConfig, eventHandler, new CacheDescriptor(""))) {
+                ImmutableMap<String, Value> map = consulCache.convertToMap(consulResponse);
+                assertThat(map).isUnmodifiable().isEmpty();
+            }
+        }
+
+        @Test
+        void shouldIgnoreNullKeys() {
+            Function<Value, String> keyExtractor = input -> {
+                var key = input.getKey();
+                return Set.of("a", "c").contains(key) ? null : key;
+            };
+            var cacheConfig = mock(CacheConfig.class);
+            var eventHandler = mock(ClientEventHandler.class);
+            var callbackConsumer = new StubCallbackConsumer(List.of());
+            var cacheDescriptor = new CacheDescriptor("testEndpoint");
+
+            try (var consulCache = new ConsulCache<>(keyExtractor, callbackConsumer, cacheConfig, eventHandler, cacheDescriptor)) {
+                var value1 = createTestValue("a");
+                var value2 = createTestValue("b");
+                var value3 = createTestValue("c");
+                var value4 = createTestValue("d");
+                var response = List.<Value>of(value1, value2, value3, value4);
+                var consulResponse = new ConsulResponse<>(response, 0, false, BigInteger.ONE, null, null);
+
+                ImmutableMap<String, Value> map = consulCache.convertToMap(consulResponse);
+
+                assertThat(map)
+                        .isUnmodifiable()
+                        .hasSize(2)
+                        .containsEntry("b", value2)
+                        .containsEntry("d", value4);
+            }
+        }
+
+        private Value createTestValue(String key) {
+            return ImmutableValue.builder()
+                    .key(key)
+                    .createIndex(0)
+                    .modifyIndex(0)
+                    .lockIndex(0)
+                    .flags(0)
+                    .build();
+        }
+    }
+
+    static Stream<Arguments> nullAndEmptyConsulResponses() {
+        return Stream.of(
+                arguments((ConsulResponse<List<Value>>) null),
+                arguments(new ConsulResponse<>(null, 0, false, BigInteger.ONE, null, null)),
+                arguments(new ConsulResponse<>(List.of(), 0, false, BigInteger.ONE, null, null))
+        );
     }
 
     @Test
