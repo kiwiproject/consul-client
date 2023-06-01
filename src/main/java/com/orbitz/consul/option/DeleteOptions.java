@@ -1,41 +1,41 @@
 package com.orbitz.consul.option;
 
-import java.util.Optional;
+import static com.orbitz.consul.option.Options.optionallyAdd;
+
 import org.immutables.value.Value;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.orbitz.consul.option.Options.optionallyAdd;
+import java.util.Optional;
 
 @Value.Immutable
 public abstract class DeleteOptions implements ParamAdder {
 
-	public static final DeleteOptions BLANK = ImmutableDeleteOptions.builder().build();
-	public static final DeleteOptions RECURSE = ImmutableDeleteOptions.builder().recurse(true).build();
+    public static final DeleteOptions BLANK = ImmutableDeleteOptions.builder().build();
+    public static final DeleteOptions RECURSE = ImmutableDeleteOptions.builder().recurse(true).build();
 
-	public abstract Optional<Long> getCas();
+    public abstract Optional<Long> getCas();
 
-	public abstract Optional<Boolean> getRecurse();
+    public abstract Optional<Boolean> getRecurse();
 
-	public abstract Optional<String> getDatacenter();
+    public abstract Optional<String> getDatacenter();
 
-	@Value.Derived
-	public boolean isRecurse() {
-		return getRecurse().isPresent();
-	}
+    @Value.Derived
+    public boolean isRecurse() {
+        return getRecurse().isPresent();
+    }
 
-	@Override
-	public Map<String, Object> toQuery() {
-		final Map<String, Object> result = new HashMap<>();
+    @Override
+    public Map<String, Object> toQuery() {
+        final Map<String, Object> result = new HashMap<>();
 
-		if (isRecurse()) {
-			result.put("recurse", "");
-		}
+        if (isRecurse()) {
+            result.put("recurse", "");
+        }
 
-		optionallyAdd(result, "cas", getCas());
-		optionallyAdd(result, "dc", getDatacenter());
+        optionallyAdd(result, "cas", getCas());
+        optionallyAdd(result, "dc", getDatacenter());
 
-		return result;
-	}
+        return result;
+    }
 }
