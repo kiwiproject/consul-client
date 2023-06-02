@@ -275,15 +275,15 @@ class ConsulCacheTest {
 
             assertThat(listener.getCallCount()).isEqualTo(1);
 
-            // This used to check "equal to 1"; after switching to AssertJ is started failing, usually
+            // This used to check "equal to 1"; after switching to AssertJ it started failing, usually
             // with the call count at 2, but sometimes more. Moving this above the listener call count
             // assertion would (almost) always work. So, as far as I can tell, this only used to work
             // due to timing, because the callbackConsumer continues to be called back! And with the
             // default duration between requests at zero, it was getting called back frequently. Need
             // to do more investigation on the callback mechanism and how it schedules the next callback
             // based on elapsed time - and other factors - in ConsulCache when it sets the responseCallback
-            // instance field.
-            // TODO: Add a new issue to investigate this, then change this comment to reference the issue
+            // instance field. See https://github.com/kiwiproject/consul-client/issues/189 which is an
+            // investigation task.
             assertThat(callbackConsumer.getCallCount()).isPositive();
 
             final Map<String, Value> lastValues = listener.getLastValues();
