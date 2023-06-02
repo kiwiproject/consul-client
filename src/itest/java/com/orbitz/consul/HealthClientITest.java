@@ -13,7 +13,6 @@ import com.orbitz.consul.model.health.HealthCheck;
 import com.orbitz.consul.model.health.ServiceHealth;
 import com.orbitz.consul.option.ImmutableQueryOptions;
 import com.orbitz.consul.option.QueryOptions;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-class HealthITest extends BaseIntegrationTest {
+class HealthClientITest extends BaseIntegrationTest {
 
     private static final List<String> NO_TAGS = List.of();
     private static final Map<String, String> NO_META = Map.of();

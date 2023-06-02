@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-class EventITest extends BaseIntegrationTest {
+class EventClientITest extends BaseIntegrationTest {
 
     private EventClient eventClient;
 

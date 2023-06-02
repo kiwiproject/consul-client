@@ -3,13 +3,12 @@ package com.orbitz.consul;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orbitz.consul.model.operator.RaftServer;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-class OperatorITest extends BaseIntegrationTest {
+class OperatorClientITest extends BaseIntegrationTest {
 
     private OperatorClient operatorClient;
 

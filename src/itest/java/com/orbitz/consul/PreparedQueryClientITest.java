@@ -10,7 +10,6 @@ import com.orbitz.consul.model.query.ImmutablePreparedQuery;
 import com.orbitz.consul.model.query.ImmutableServiceQuery;
 import com.orbitz.consul.model.query.PreparedQuery;
 import com.orbitz.consul.model.query.StoredQuery;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-class PreparedQueryITest extends BaseIntegrationTest {
+class PreparedQueryClientITest extends BaseIntegrationTest {
 
     private PreparedQueryClient preparedQueryClient;
     private List<String> queryIdsToDelete;
