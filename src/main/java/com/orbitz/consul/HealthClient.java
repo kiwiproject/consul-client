@@ -149,9 +149,7 @@ public class HealthClient extends BaseCacheableClient {
      *
      * @param state        The state to query.
      * @param queryOptions The Query Options to use.
-     * @param callback     Callback implemented by callee to handle results.
-     * @return A {@link ConsulResponse} containing a list of
-     * {@link HealthCheck} objects.
+     * @param callback     Callback implemented by callee to handle results, containing a list of {@link HealthCheck} objects.
      */
     public void getChecksByState(State state, QueryOptions queryOptions,
                                  ConsulResponseCallback<List<HealthCheck>> callback) {

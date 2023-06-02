@@ -54,7 +54,7 @@ public class SnapshotClient extends BaseClient {
      * @param callback callback called once the operation is over. It the save operation is successful, the X-Consul-Index is send.
      */
     public void save(File destinationFile, QueryOptions queryOptions, Callback<BigInteger> callback) {
-        http.extractConsulResponse(api.generateSnapshot(queryOptions.toQuery()), new ConsulResponseCallback<ResponseBody>() {
+        http.extractConsulResponse(api.generateSnapshot(queryOptions.toQuery()), new ConsulResponseCallback<>() {
             @Override
             public void onComplete(ConsulResponse<ResponseBody> consulResponse) {
                 // Note that response.body() and response.body().byteStream() should be closed.

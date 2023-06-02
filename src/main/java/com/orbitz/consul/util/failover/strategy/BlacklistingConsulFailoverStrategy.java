@@ -123,12 +123,6 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
         this.blacklist.put(fromRequest(current), Instant.now());
     }
 
-    /**
-     * Reconstructs a HostAndPort instance from the request object
-     *
-     * @param request
-     * @return
-     */
     private HostAndPort fromRequest(Request request) {
         return HostAndPort.fromParts(request.url().host(), request.url().port());
     }

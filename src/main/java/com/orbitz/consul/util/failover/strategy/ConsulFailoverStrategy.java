@@ -19,7 +19,7 @@ public interface ConsulFailoverStrategy {
      * @return An optional failover request. This may return an empty optional, signaling that the request should be aborted
      */
     @NonNull
-    public Optional<Request> computeNextStage(@NonNull Request previousRequest, @Nullable Response previousResponse);
+    Optional<Request> computeNextStage(@NonNull Request previousRequest, @Nullable Response previousResponse);
 
     /**
      * Determines if there is a viable candidate for the next request. This lets us short circuit the first attempted request
@@ -29,7 +29,7 @@ public interface ConsulFailoverStrategy {
      * @param current The current inflight request.
      * @return A boolean representing if there is another possible request candidate available.
      */
-    public boolean isRequestViable(@NonNull Request current);
+    boolean isRequestViable(@NonNull Request current);
 
     /**
      * Marks the specified request as a failed URL (in case of exceptions and other events that could cause
@@ -38,6 +38,6 @@ public interface ConsulFailoverStrategy {
      *
      * @param current The current request object representing a request that failed
      */
-    public void markRequestFailed(@NonNull Request current);
+    void markRequestFailed(@NonNull Request current);
 
 }

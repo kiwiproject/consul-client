@@ -11,12 +11,14 @@ import java.util.Optional;
 
 public class ConsulResponse<T> {
 
-    public static interface CacheResponseInfo {
+    public interface CacheResponseInfo {
         /**
          * This value can be null if value is not in cache
-         * @return
+         *
+         * @return an Optional containing the age in seconds, or an empty Optional
          */
         Optional<Long> getAgeInSeconds();
+
         boolean isCacheHit();
     }
 
@@ -94,7 +96,7 @@ public class ConsulResponse<T> {
     }
 
     /**
-     * @see https://developer.hashicorp.com/consul/api-docs/features/caching#background-refresh-caching
+     * @see <a href="https://developer.hashicorp.com/consul/api-docs/features/caching#background-refresh-caching">Background Refresh Caching</a>
      */
     public Optional<CacheResponseInfo> getCacheReponseInfo(){
         return cacheResponseInfo;

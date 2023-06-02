@@ -1,14 +1,14 @@
 package com.orbitz.consul;
 
+import static com.orbitz.consul.Awaiting.awaitWith25MsPoll;
 import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static org.assertj.core.api.Assertions.assertThat;
-import static com.orbitz.consul.Awaiting.awaitWith25MsPoll;
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.FIVE_SECONDS;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
+
 import com.orbitz.consul.async.Callback;
 import com.orbitz.consul.option.QueryOptions;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -85,7 +85,7 @@ class SnapshotClientITest extends BaseIntegrationTest {
     }
 
     private <T> Callback<T> createCallback(final CountDownLatch latch, final AtomicBoolean success) {
-        return new Callback<T>() {
+        return new Callback<>() {
             @Override
             public void onResponse(T index) {
                 success.set(true);

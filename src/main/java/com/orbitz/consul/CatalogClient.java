@@ -55,8 +55,9 @@ public class CatalogClient extends BaseCacheableClient {
 
     /**
      * Get the list of datacenters with query options
-     * @param queryOptions
-     * @return
+     *
+     * @param queryOptions the query options to use
+     * @return a list of the datacenters
      */
     public List<String> getDatacenters(QueryOptions queryOptions) {
         return http.extract(api.getDatacenters(queryOptions.toHeaders()));
@@ -116,8 +117,7 @@ public class CatalogClient extends BaseCacheableClient {
      * <p/>
      * GET /v1/catalog/services?dc={datacenter}
      *
-     * @param callback     Callback implemented by callee to handle results.
-     * @return A {@link ConsulResponse} containing a map of service name to list of tags.
+     * @param callback Callback implemented by callee to handle results; the callback is provided a map of service name to list of tags.
      */
     public void getServices(ConsulResponseCallback<Map<String, List<String>>> callback) {
         getServices(QueryOptions.BLANK, callback);
@@ -142,8 +142,7 @@ public class CatalogClient extends BaseCacheableClient {
      * GET /v1/catalog/services?dc={datacenter}
      *
      * @param queryOptions The Query Options to use.
-     * @param callback     Callback implemented by callee to handle results.
-     * @return A {@link ConsulResponse} containing a map of service name to list of tags.
+     * @param callback     Callback implemented by callee to handle results, containing a map of service name to list of tags
      */
     public void getServices(QueryOptions queryOptions, ConsulResponseCallback<Map<String, List<String>>> callback) {
         http.extractConsulResponse(api.getServices(queryOptions.toQuery(),
@@ -180,9 +179,7 @@ public class CatalogClient extends BaseCacheableClient {
      * GET /v1/catalog/service/{service}?dc={datacenter}
      *
      * @param queryOptions The Query Options to use.
-     * @param callback     Callback implemented by callee to handle results.
-     * @return A {@link ConsulResponse} containing
-     * {@link CatalogService} objects.
+     * @param callback     Callback implemented by callee to handle results, containing a list of {@link CatalogService} objects
      */
     public void getService(String service, QueryOptions queryOptions, ConsulResponseCallback<List<CatalogService>> callback) {
         http.extractConsulResponse(api.getService(service, queryOptions.toQuery(),

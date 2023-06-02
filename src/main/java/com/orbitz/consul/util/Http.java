@@ -73,7 +73,7 @@ public class Http {
 
     @VisibleForTesting
     <T> retrofit2.Callback<T> createRetrofitCallback(ConsulResponseCallback<T> callback, Integer... okCodes) {
-        return new retrofit2.Callback<T>() {
+        return new retrofit2.Callback<>() {
             @Override
             public void onResponse(Call<T> call, Response<T> response) {
                 if (isSuccessful(response, okCodes)) {
@@ -100,7 +100,7 @@ public class Http {
     }
 
     private <T> ConsulResponseCallback<T> createConsulResponseCallbackWrapper(Callback<T> callback) {
-        return new ConsulResponseCallback<T>() {
+        return new ConsulResponseCallback<>() {
             @Override
             public void onComplete(ConsulResponse<T> consulResponse) {
                 callback.onResponse(consulResponse.getResponse());
@@ -122,7 +122,7 @@ public class Http {
 
         BigInteger index = isNull(indexHeaderValue) ? BigInteger.ZERO : new BigInteger(indexHeaderValue);
         long lastContact = isNull(lastContactHeaderValue) ? 0 : NumberUtils.toLong(lastContactHeaderValue);
-        boolean knownLeader = nonNull(knownLeaderHeaderValue) && Boolean.valueOf(knownLeaderHeaderValue);
+        boolean knownLeader = nonNull(knownLeaderHeaderValue) && Boolean.parseBoolean(knownLeaderHeaderValue);
         return new ConsulResponse<>(response.body(), lastContact, knownLeader, index,
                                     headers.get("X-Cache"), headers.get("Age"));
     }
