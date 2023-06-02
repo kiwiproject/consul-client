@@ -45,13 +45,13 @@ public class ConsistencyMode {
      * @param maxStaleInSeconds Optional duration for which data can be late
      *                          compared to Consul Server leader.
      * @return a not null ConsistencyMode
-     * @see https://developer.hashicorp.com/consul/api-docs/features/caching#simple-caching
+     * @see <a href="https://developer.hashicorp.com/consul/api-docs/features/caching#simple-caching">Simple Caching</a>
      */
     public static final ConsistencyMode createCachedConsistencyWithMaxAgeAndStale(final Optional<Long> maxAgeInSeconds,
             final Optional<Long> maxStaleInSeconds) {
         String maxAge = "";
         if (maxAgeInSeconds.isPresent()) {
-            final long v = maxAgeInSeconds.get().longValue();
+            final long v = maxAgeInSeconds.get();
             if (v < 0) {
                 throw new IllegalArgumentException("maxAgeInSeconds must greater or equal to 0");
             }
@@ -59,7 +59,7 @@ public class ConsistencyMode {
         }
 
         if (maxStaleInSeconds.isPresent()) {
-            final long v = maxStaleInSeconds.get().longValue();
+            final long v = maxStaleInSeconds.get();
             if (v < 0){
                 throw new IllegalArgumentException("maxStaleInSeconds must greater or equal to 0");
             }

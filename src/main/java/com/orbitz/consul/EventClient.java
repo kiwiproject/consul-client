@@ -176,7 +176,7 @@ public class EventClient extends BaseClient {
     }
 
     private ConsulResponseCallback<List<Event>> createConsulResponseCallbackWrapper(EventResponseCallback callback) {
-        return new ConsulResponseCallback<List<Event>>() {
+        return new ConsulResponseCallback<>() {
             @Override
             public void onComplete(ConsulResponse<List<Event>> response) {
                 callback.onComplete(ImmutableEventResponse.of(response.getResponse(), response.getIndex()));

@@ -313,7 +313,7 @@ class ConsulCacheTest {
         List<Value> result = List.of(value);
 
         try (var callbackConsumer = new AsyncCallbackConsumer(result)) {
-            try (var cache = new ConsulCache<String, Value>(
+            try (var cache = new ConsulCache<>(
                     keyExtractor, callbackConsumer, cacheConfig, eventHandler, new CacheDescriptor(""))) {
 
                 var goodListener = new StubListener();
@@ -356,7 +356,7 @@ class ConsulCacheTest {
         List<Value> result = List.of(value);
         var callbackConsumer = new StubCallbackConsumer(result);
 
-        try (var cache = new ConsulCache<String, Value>(
+        try (var cache = new ConsulCache<>(
                 keyExtractor, callbackConsumer, cacheConfig, eventHandler, new CacheDescriptor(""))) {
 
             var badListener = new AlwaysThrowsListener();
