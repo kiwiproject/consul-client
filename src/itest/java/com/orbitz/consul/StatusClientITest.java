@@ -1,5 +1,8 @@
 package com.orbitz.consul;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.google.common.net.HostAndPort;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -15,15 +18,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import com.google.common.net.HostAndPort;
-
 class StatusClientITest extends BaseIntegrationTest {
 
-    private static Logger LOG = LoggerFactory.getLogger(StatusClientITest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StatusClientITest.class);
 
-    private static Set<InetAddress> ips = new HashSet<>();
+    private static final Set<InetAddress> ips = new HashSet<>();
 
     @BeforeAll
     static void getIps() throws RuntimeException {

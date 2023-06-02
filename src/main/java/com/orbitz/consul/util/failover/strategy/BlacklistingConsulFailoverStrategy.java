@@ -20,13 +20,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrategy {
 
     // The map of blacklisted addresses
-    private Map<HostAndPort, Instant> blacklist = new ConcurrentHashMap<>();
+    private final Map<HostAndPort, Instant> blacklist = new ConcurrentHashMap<>();
 
     // The map of viable targets
-    private Collection<HostAndPort> targets;
+    private final Collection<HostAndPort> targets;
 
     // The blacklist timeout
-    private long timeout;
+    private final long timeout;
 
     /**
      * Constructs a blacklisting strategy with a collection of hosts and ports

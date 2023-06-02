@@ -15,11 +15,14 @@ import com.orbitz.consul.config.ClientConfig;
 import com.orbitz.consul.model.kv.ImmutableValue;
 import com.orbitz.consul.model.kv.Value;
 import com.orbitz.consul.monitoring.NoOpClientEventCallback;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import retrofit2.Retrofit;
+import retrofit2.mock.BehaviorDelegate;
+import retrofit2.mock.MockRetrofit;
+import retrofit2.mock.NetworkBehavior;
 
 import java.time.Duration;
 import java.util.Optional;
@@ -27,11 +30,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
-import retrofit2.Retrofit;
-import retrofit2.mock.BehaviorDelegate;
-import retrofit2.mock.MockRetrofit;
-import retrofit2.mock.NetworkBehavior;
 
 class KVCacheTest {
 
@@ -73,7 +71,7 @@ class KVCacheTest {
     }
 
     @Test
-    void testListenerWithMockRetrofit() throws InterruptedException {
+    void testListenerWithMockRetrofit() {
         var retrofit = new Retrofit.Builder()
                 // For safety, this is a black hole IP: see RFC 6666
                 .baseUrl("http://[100:0:0:0:0:0:0:0]/")

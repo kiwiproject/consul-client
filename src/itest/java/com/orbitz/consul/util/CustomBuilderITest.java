@@ -7,12 +7,11 @@ import com.orbitz.consul.Consul;
 import org.junit.jupiter.api.Test;
 
 import java.net.Proxy;
-import java.net.UnknownHostException;
 
 class CustomBuilderITest extends BaseIntegrationTest{
 
     @Test
-    void shouldConnectWithCustomTimeouts() throws UnknownHostException {
+    void shouldConnectWithCustomTimeouts() {
         var client = Consul.builder()
                 .withHostAndPort(defaultClientHostAndPort)
                 .withProxy(Proxy.NO_PROXY)
