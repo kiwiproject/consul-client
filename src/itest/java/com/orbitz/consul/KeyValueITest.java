@@ -530,4 +530,16 @@ class KeyValueITest extends BaseIntegrationTest {
         List<String> shouldBeEmpty = keyValueClient.getKeys("unknownKey");
         assertThat(shouldBeEmpty).isEmpty();
     }
+
+    @Test
+    void shouldReturnEmptyOptional_WhenGetValue_WithUnknownKey() {
+        var valueOptional = keyValueClient.getValue("unknownKey", QueryOptions.BLANK);
+        assertThat(valueOptional).isEmpty();
+    }
+
+    @Test
+    void shouldReturnEmptyOptional_WhenGetConsulResponseWithValue_WithUnknownKey() {
+        var consulResponseOptional = keyValueClient.getConsulResponseWithValue("unknownKey", QueryOptions.BLANK);
+        assertThat(consulResponseOptional).isEmpty();
+    }
 }
