@@ -194,14 +194,12 @@ class EventClientITest extends BaseIntegrationTest {
         @Override
         public void onComplete(EventResponse eventResponse) {
             completeCount.addAndGet(eventResponse.getEvents().size());
-            System.out.println("Got response with num events: " + eventResponse.getEvents().size());
             eventResponse.getEvents().forEach(event -> completedEventsMap.put(event.getName(), event));
         }
 
         @Override
         public void onFailure(Throwable throwable) {
             failureCount.incrementAndGet();
-            System.out.println("Caught!");
         }
 
         Collection<Event> getCompletedEvents() {
