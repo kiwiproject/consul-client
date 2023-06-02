@@ -211,6 +211,7 @@ public class EventClient extends BaseClient {
     public void listEvents(EventResponseCallback callback) {
         listEvents(null, QueryOptions.BLANK, callback);
     }
+
     /**
      * Retrofit API interface.
      */
