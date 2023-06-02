@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-class AgentITest extends BaseIntegrationTest {
+class AgentClientITest extends BaseIntegrationTest {
 
     private static final List<String> NO_TAGS = List.of();
     private static final Map<String, String> NO_META = Map.of();

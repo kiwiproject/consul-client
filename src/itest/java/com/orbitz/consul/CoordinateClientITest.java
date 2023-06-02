@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-class CoordinateITest extends BaseIntegrationTest {
+class CoordinateClientITest extends BaseIntegrationTest {
 
     @Test
     void shouldGetDatacenters() {

@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-class KeyValueITest extends BaseIntegrationTest {
+class KeyValueClientITest extends BaseIntegrationTest {
 
     private static final Charset TEST_CHARSET = Charset.forName("IBM297");
 

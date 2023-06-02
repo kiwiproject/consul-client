@@ -23,9 +23,10 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 
-class AclTest {
+class AclClientITest {
 
     public static GenericContainer<?> consulContainerAcl;
+
     static {
         consulContainerAcl = new GenericContainer<>("consul")
                 .withCommand("agent", "-dev", "-client", "0.0.0.0", "--enable-script-checks=true")
