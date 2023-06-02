@@ -8,7 +8,7 @@ import java.io.IOException;
 
 public class ConsulBookendInterceptor implements Interceptor {
 
-    private ConsulBookend consulBookend;
+    private final ConsulBookend consulBookend;
 
     public ConsulBookendInterceptor(ConsulBookend consulBookend) {
         this.consulBookend = consulBookend;

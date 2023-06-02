@@ -52,7 +52,7 @@ class KVCacheITest extends BaseIntegrationTest {
     }
 
     @Test
-    void nodeCacheKvTest() throws Exception {
+    void nodeCacheKvTest() {
         var root = randomUUIDString();
 
         for (int i = 0; i < 5; i++) {
@@ -99,7 +99,7 @@ class KVCacheITest extends BaseIntegrationTest {
     }
 
     @Test
-    void testListeners() throws Exception {
+    void testListeners() {
         var root = randomUUIDString();
         final List<Map<String, Value>> events = new ArrayList<>();
 
@@ -139,7 +139,7 @@ class KVCacheITest extends BaseIntegrationTest {
     }
 
     @Test
-    void testLateListenersGetValues() throws Exception {
+    void testLateListenersGetValues() {
         var root = randomUUIDString();
 
         try (var cache = KVCache.newCache(kvClient, root, 10)) {
@@ -172,7 +172,7 @@ class KVCacheITest extends BaseIntegrationTest {
     }
 
     @Test
-    void testListenersNonExistingKeys() throws Exception {
+    void testListenersNonExistingKeys() {
         var root = randomUUIDString();
 
         try (var cache = KVCache.newCache(kvClient, root, 10)) {
@@ -193,7 +193,7 @@ class KVCacheITest extends BaseIntegrationTest {
     }
 
     @Test
-    void testLifeCycleDoubleStart() throws Exception {
+    void testLifeCycleDoubleStart() {
         var root = randomUUIDString();
 
         try (var cache = KVCache.newCache(kvClient, root, 10)) {
@@ -211,12 +211,11 @@ class KVCacheITest extends BaseIntegrationTest {
     }
 
     @Test
-    void testLifeCycle() throws Exception {
+    void testLifeCycle() {
         var root = randomUUIDString();
         final List<Map<String, Value>> events = new ArrayList<>();
 
         // intentionally not using try-with-resources to test the cache lifecycle methods
-        // noinspection resource
         var cache = KVCache.newCache(kvClient, root, 10);
 
         try {

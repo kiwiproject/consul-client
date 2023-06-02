@@ -5,6 +5,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import okhttp3.ConnectionPool;
+import okhttp3.internal.Util;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,9 +15,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
-import okhttp3.ConnectionPool;
-import okhttp3.internal.Util;
 
 class LifecycleITest extends BaseIntegrationTest {
 
@@ -32,7 +31,7 @@ class LifecycleITest extends BaseIntegrationTest {
     }
 
     @Test
-    void shouldDestroyTheExecutorServiceWhenDestroyMethodIsInvoked() throws InterruptedException {
+    void shouldDestroyTheExecutorServiceWhenDestroyMethodIsInvoked() {
         var connectionPool = new ConnectionPool();
         var executorService = mock(ExecutorService.class);
 

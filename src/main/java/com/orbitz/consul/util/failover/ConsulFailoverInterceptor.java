@@ -10,7 +10,6 @@ import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -19,12 +18,12 @@ public class ConsulFailoverInterceptor implements Interceptor {
     private static final Logger LOG = LoggerFactory.getLogger(ConsulFailoverInterceptor.class);
 
     // The consul failover strategy
-    private ConsulFailoverStrategy strategy;
+    private final ConsulFailoverStrategy strategy;
 
     /**
      * Default constructor for a set of hosts and ports
      *
-     * @param targets
+     * @param targets the host/port pairs to use for failover
      */
     public ConsulFailoverInterceptor(Collection<HostAndPort> targets, long timeout) {
         this(new BlacklistingConsulFailoverStrategy(targets, timeout));
@@ -33,14 +32,14 @@ public class ConsulFailoverInterceptor implements Interceptor {
     /**
      * Allows customization of the interceptor chain
      *
-     * @param strategy
+     * @param strategy the failover strategy
      */
     public ConsulFailoverInterceptor(ConsulFailoverStrategy strategy) {
         this.strategy = strategy;
     }
 
     @Override
-    public Response intercept(Chain chain) throws IOException {
+    public Response intercept(Chain chain) {
 
         // The original request
         Request originalRequest = chain.request();

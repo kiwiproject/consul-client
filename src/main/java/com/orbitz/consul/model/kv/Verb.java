@@ -6,7 +6,7 @@ public enum Verb {
     GET_TREE("get-tree"), CHECK_INDEX("check-index"), CHECK_SESSION("check-session"),
     DELETE("delete"), DELETE_TREE("delete-tree"), DELETE_CHECK_AND_SET("delete-cas");
 
-    private String value;
+    private final String value;
 
     Verb(String value) {
         this.value = value;

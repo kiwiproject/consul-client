@@ -8,7 +8,6 @@ import com.orbitz.consul.config.CacheConfig;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
-
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +20,7 @@ public class TimeoutInterceptor implements Interceptor {
 
     private static final Logger LOG = LoggerFactory.getLogger(TimeoutInterceptor.class);
 
-    private CacheConfig config;
+    private final CacheConfig config;
 
     public TimeoutInterceptor(CacheConfig config) {
         this.config = config;
