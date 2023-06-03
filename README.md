@@ -120,8 +120,8 @@ List<ServiceHealth> nodes = healthClient.getHealthyServiceInstances("DataService
 ```java
 KeyValueClient kvClient = client.keyValueClient();
 
-kvClient.putValue("foo", "bar");
-String value = kvClient.getValueAsString("foo").get(); // bar
+kvClient.putValue("foo","bar");
+        String value=kvClient.getValueAsString("foo").orElseThrow(); // bar
 ```
 
 ### Example 5: Subscribe to value change.
@@ -143,9 +143,9 @@ cache.addListener(newValues -> {
 
     newValue.ifPresent(value -> {
         // Values are encoded in key/value store, decode it if needed
-        Optional<String> decodedValue = newValue.get().getValueAsString();
-        decodedValue.ifPresent(v -> System.out.println(String.format("Value is: %s", v))); //prints "bar"
-    });
+        Optional<String> decodedValue=newValue.get().getValueAsString();
+        decodedValue.ifPresent(v->System.out.printf("Value is: %s%n",v)); //prints "bar"
+        });
 });
 cache.start();
 // ...
