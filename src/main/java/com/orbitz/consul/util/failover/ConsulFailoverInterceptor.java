@@ -7,6 +7,7 @@ import com.orbitz.consul.util.failover.strategy.ConsulFailoverStrategy;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +39,7 @@ public class ConsulFailoverInterceptor implements Interceptor {
         this.strategy = strategy;
     }
 
+    @NotNull
     @Override
     public Response intercept(Chain chain) {
 

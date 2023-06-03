@@ -9,7 +9,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.orbitz.consul.config.CacheConfig;
-
+import okhttp3.Interceptor;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -23,15 +25,13 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
-import okhttp3.Interceptor;
-import okhttp3.Request;
-
 class TimeoutInterceptorTest {
 
     @ParameterizedTest(name = "expected timeout of {4} ms for url {0} with timeout of {1} ms and margin of {3} ms (enabled: {2})")
     @MethodSource("getInterceptParameters")
     void checkIntercept(String url, int defaultTimeout, boolean enabled, int margin, int expectedTimeoutMs)
             throws IOException {
+
         CacheConfig config = createConfigMock(enabled, margin);
         Interceptor.Chain chain = createChainMock(defaultTimeout, url);
 
@@ -75,7 +75,9 @@ class TimeoutInterceptorTest {
         when(chain.request()).thenReturn(request);
         when(chain.readTimeoutMillis()).thenReturn(defaultTimeout);
         when(chain.withReadTimeout(anyInt(), any(TimeUnit.class))).thenReturn(chain);
-        when(chain.proceed(any(Request.class))).thenReturn(null);
+
+        var response = mock(Response.class);
+        when(chain.proceed(any(Request.class))).thenReturn(response);
 
         return chain;
     }

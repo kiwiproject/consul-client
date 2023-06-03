@@ -6,6 +6,8 @@ import com.google.common.net.HostAndPort;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -39,8 +41,9 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
         this.timeout = timeout;
     }
 
+    @NonNull
     @Override
-    public Optional<Request> computeNextStage(Request previousRequest, Response previousResponse) {
+    public Optional<Request> computeNextStage(@NonNull Request previousRequest, @Nullable Response previousResponse) {
 
         // Create a host and port
         final HostAndPort initialTarget = fromRequest(previousRequest);
@@ -67,7 +70,7 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
             final HttpUrl nextURL = previousRequest.url().newBuilder().host(next.getHost()).port(next.getPort()).build();
 
             // Return the result
-            return Optional.ofNullable(previousRequest.newBuilder().url(nextURL).build());
+            return Optional.of(previousRequest.newBuilder().url(nextURL).build());
         } else {
 
             // Construct the next URL using the old parameters (ensures we don't have to do
@@ -75,7 +78,7 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
             final HttpUrl nextURL = previousRequest.url().newBuilder().host(initialTarget.getHost()).port(initialTarget.getPort()).build();
 
             // Return the result
-            return Optional.ofNullable(previousRequest.newBuilder().url(nextURL).build());
+            return Optional.of(previousRequest.newBuilder().url(nextURL).build());
         }
 
     }
@@ -114,12 +117,12 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
     }
 
     @Override
-    public boolean isRequestViable(Request current) {
+    public boolean isRequestViable(@NonNull Request current) {
         return (targets.size() > blacklist.size()) || !blacklist.containsKey(fromRequest(current));
     }
 
     @Override
-    public void markRequestFailed(Request current) {
+    public void markRequestFailed(@NonNull Request current) {
         this.blacklist.put(fromRequest(current), Instant.now());
     }
 

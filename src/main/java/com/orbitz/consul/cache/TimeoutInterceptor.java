@@ -9,6 +9,7 @@ import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,7 @@ public class TimeoutInterceptor implements Interceptor {
         this.config = config;
     }
 
+    @NotNull
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
@@ -34,8 +36,7 @@ public class TimeoutInterceptor implements Interceptor {
         // Snapshot might be very large. Timeout should be adjusted for this endpoint.
         if (request.url().encodedPath().contains("snapshot")) {
             readTimeout = (int) Duration.ofHours(1).toMillis();
-        }
-        else if (config.isTimeoutAutoAdjustmentEnabled()) {
+        } else if (config.isTimeoutAutoAdjustmentEnabled()) {
             String waitQuery = request.url().queryParameter("wait");
             Duration waitDuration = parseWaitQuery(waitQuery);
             if (nonNull(waitDuration)) {
@@ -44,7 +45,7 @@ public class TimeoutInterceptor implements Interceptor {
 
                 // According to https://developer.hashicorp.com/consul/api-docs/features/blocking
                 // A small random amount of additional wait time is added to the supplied maximum wait time by consul
-                // agent to spread out the wake up time of any concurrent requests.
+                // agent to spread out the wake-up time of any concurrent requests.
                 // This adds up to (wait / 16) additional time to the maximum duration.
                 int readTimeoutRequiredMargin = (int) Math.ceil((double)(waitDurationMs) / 16);
 
