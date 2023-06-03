@@ -5,7 +5,6 @@ import static com.orbitz.consul.TestUtils.randomUUIDString;
 import com.google.common.net.HostAndPort;
 import com.orbitz.consul.config.CacheConfig;
 import com.orbitz.consul.config.ClientConfig;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
@@ -24,22 +23,27 @@ public abstract class BaseIntegrationTest {
 
     protected static Consul client;
 
-    public static GenericContainer<?> consulContainer;
+    public static final GenericContainer<?> consulContainer;
+
     static {
+        // noinspection resource
         consulContainer = new GenericContainer<>("consul")
-            .withCommand("agent", "-dev", "-client", "0.0.0.0", "--enable-script-checks=true")
-            .withExposedPorts(8500);
+                .withCommand("agent", "-dev", "-client", "0.0.0.0", "--enable-script-checks=true")
+                .withExposedPorts(8500);
         consulContainer.start();
     }
-    public static GenericContainer<?> consulContainerAcl;
+
+    public static final GenericContainer<?> consulContainerAcl;
+
     static {
+        // noinspection resource
         consulContainerAcl = new GenericContainer<>("consul")
-            .withCommand("agent", "-dev", "-client", "0.0.0.0", "--enable-script-checks=true")
-            .withExposedPorts(8500)
-            .withEnv("CONSUL_LOCAL_CONFIG",
-                    "{\n" +
-                    "  \"acl\": {\n" +
-                    "    \"enabled\": true,\n" +
+                .withCommand("agent", "-dev", "-client", "0.0.0.0", "--enable-script-checks=true")
+                .withExposedPorts(8500)
+                .withEnv("CONSUL_LOCAL_CONFIG",
+                        "{\n" +
+                                "  \"acl\": {\n" +
+                                "    \"enabled\": true,\n" +
                     "    \"default_policy\": \"deny\",\n" +
                     "    \"tokens\": {\n" +
                     "      \"master\": \"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\"\n" +

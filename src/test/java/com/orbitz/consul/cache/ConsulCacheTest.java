@@ -56,36 +56,42 @@ class ConsulCacheTest {
 
         @Test
         void shouldRequireKeyConversionArg() {
+            // noinspection resource
             assertThatIllegalArgumentException().isThrownBy(() ->
                     new ConsulCache<>(null, callbackConsumer, cacheConfig, clientEventHandler, cacheDescriptor));
         }
 
         @Test
         void shouldRequireCallbackConsumerArg() {
+            // noinspection resource
             assertThatIllegalArgumentException().isThrownBy(() ->
                     new ConsulCache<>(keyConversion, null, cacheConfig, clientEventHandler, cacheDescriptor));
         }
 
         @Test
         void shouldRequireCacheConfigArg() {
+            // noinspection resource
             assertThatIllegalArgumentException().isThrownBy(() ->
                     new ConsulCache<>(keyConversion, callbackConsumer, null, clientEventHandler, cacheDescriptor));
         }
 
         @Test
         void shouldRequireEventHandlerArg() {
+            // noinspection resource
             assertThatIllegalArgumentException().isThrownBy(() ->
                     new ConsulCache<>(keyConversion, callbackConsumer, cacheConfig, null, cacheDescriptor));
         }
 
         @Test
         void shouldRequireCacheDescriptorArg() {
+            // noinspection resource
             assertThatIllegalArgumentException().isThrownBy(() ->
                     new ConsulCache<>(keyConversion, callbackConsumer, cacheConfig, clientEventHandler, null));
         }
 
         @Test
         void shouldRequireSchedulerArg() {
+            // noinspection resource
             assertThatIllegalArgumentException().isThrownBy(() ->
                     new ConsulCache<>(keyConversion, callbackConsumer, cacheConfig, clientEventHandler, cacheDescriptor, (Scheduler) null));
         }
@@ -147,7 +153,7 @@ class ConsulCacheTest {
                 var value2 = createTestValue("b");
                 var value3 = createTestValue("c");
                 var value4 = createTestValue("d");
-                var response = List.<Value>of(value1, value2, value3, value4);
+                var response = List.of(value1, value2, value3, value4);
                 var consulResponse = new ConsulResponse<>(response, 0, false, BigInteger.ONE, null, null);
 
                 ImmutableMap<String, Value> map = consulCache.convertToMap(consulResponse);

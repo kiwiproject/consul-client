@@ -12,15 +12,13 @@ import static org.mockito.Mockito.when;
 
 import com.orbitz.consul.ConsulException;
 import com.orbitz.consul.util.failover.strategy.ConsulFailoverStrategy;
-
+import okhttp3.Interceptor.Chain;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
-
-import okhttp3.Interceptor.Chain;
-import okhttp3.Request;
-import okhttp3.Response;
 
 class ConsulFailoverInterceptorTest {
 
@@ -39,6 +37,7 @@ class ConsulFailoverInterceptorTest {
 
         var chain = mock(Chain.class, RETURNS_DEEP_STUBS);
 
+        // noinspection resource
         assertThatExceptionOfType(ConsulException.class).isThrownBy(() -> interceptor.intercept(chain));
 
         verify(strategy, only()).isRequestViable(any(Request.class));
@@ -52,6 +51,7 @@ class ConsulFailoverInterceptorTest {
 
         var chain = mock(Chain.class, RETURNS_DEEP_STUBS);
 
+        // noinspection resource
         assertThatExceptionOfType(ConsulException.class).isThrownBy(() -> interceptor.intercept(chain));
 
         verify(strategy).isRequestViable(any(Request.class));
