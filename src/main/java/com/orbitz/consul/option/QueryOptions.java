@@ -1,5 +1,9 @@
 package com.orbitz.consul.option;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.orbitz.consul.option.Options.optionallyAdd;
+import static java.util.Objects.isNull;
+
 import org.immutables.value.Value;
 
 import java.math.BigInteger;
@@ -7,10 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.orbitz.consul.option.Options.optionallyAdd;
-import static java.util.Objects.isNull;
 
 /**
  * Container for common query options used by the Consul API.
@@ -106,9 +106,7 @@ public abstract class QueryOptions implements ParamAdder {
         Map<String, Object> result = new HashMap<>();
 
         Optional<String> consistency = getConsistencyMode().toParam();
-        if (consistency.isPresent()) {
-            result.put(consistency.get(), "");
-        }
+        consistency.ifPresent(s -> result.put(s, ""));
 
         if (isBlocking()) {
             optionallyAdd(result, "wait", getWait());

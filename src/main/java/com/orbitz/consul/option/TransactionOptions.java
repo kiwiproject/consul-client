@@ -1,12 +1,12 @@
 package com.orbitz.consul.option;
 
-import java.util.Optional;
+import static com.orbitz.consul.option.Options.optionallyAdd;
+
 import org.immutables.value.Value;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.orbitz.consul.option.Options.optionallyAdd;
+import java.util.Optional;
 
 /**
  * Container for common transaction options used by the Consul API.
@@ -37,10 +37,7 @@ public abstract class TransactionOptions implements ParamAdder {
 
     @Override
     public Map<String, String> toHeaders() {
-        Map<String, String> result = new HashMap<>();
-
-        ConsistencyMode consistencyMode = getConsistencyMode();
-        result.putAll(consistencyMode.getAdditionalHeaders());
-        return result;
+        var consistencyMode = getConsistencyMode();
+        return new HashMap<>(consistencyMode.getAdditionalHeaders());
     }
 }
