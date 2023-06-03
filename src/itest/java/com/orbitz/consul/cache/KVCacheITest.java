@@ -268,7 +268,7 @@ class KVCacheITest extends BaseIntegrationTest {
     }
 
     @Test
-    void ensureCacheInitialization() {
+    void ensureCacheInitialization() throws InterruptedException {
         var key = randomUUIDString();
         var value = randomUUIDString();
         kvClient.putValue(key, value);
@@ -283,9 +283,8 @@ class KVCacheITest extends BaseIntegrationTest {
             });
 
             cache.start();
-            completed.await(2, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            fail("", e.getMessage());
+            var countReachedZero = completed.await(2, TimeUnit.SECONDS);
+            assertThat(countReachedZero).isTrue();
         } finally {
             kvClient.deleteKey(key);
         }
@@ -295,7 +294,7 @@ class KVCacheITest extends BaseIntegrationTest {
 
     @ParameterizedTest(name = "queries of {0} seconds")
     @MethodSource("getBlockingQueriesDuration")
-    void checkUpdateNotifications(int queryDurationSec) {
+    void checkUpdateNotifications(int queryDurationSec) throws InterruptedException {
         var scheduledExecutor = Executors.newSingleThreadScheduledExecutor(
                 new ThreadFactoryBuilder().setDaemon(true).setNameFormat("kvcache-itest-%d").build()
         );
@@ -316,9 +315,8 @@ class KVCacheITest extends BaseIntegrationTest {
 
             cache.start();
             scheduledExecutor.schedule(() -> kvClient.putValue(key, newValue), 3, TimeUnit.SECONDS);
-            completed.await(4, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            fail(e.getMessage(), e);
+            var countReachedZero = completed.await(4, TimeUnit.SECONDS);
+            assertThat(countReachedZero).isTrue();
         } finally {
             kvClient.deleteKey(key);
             scheduledExecutor.shutdownNow();
