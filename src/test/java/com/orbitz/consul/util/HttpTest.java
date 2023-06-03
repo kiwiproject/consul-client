@@ -1,6 +1,7 @@
 package com.orbitz.consul.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
@@ -17,7 +18,6 @@ import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.ResponseBody;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import retrofit2.Call;
@@ -195,7 +195,7 @@ class HttpTest {
         doThrow(new IOException("failure")).when(call).execute();
         when(call.request()).thenReturn(mock(Request.class));
 
-        Assertions.assertThatThrownBy(() -> httpCall.apply(call)).isInstanceOf(ConsulException.class);
+        assertThatThrownBy(() -> httpCall.apply(call)).isInstanceOf(ConsulException.class);
 
         verify(clientEventHandler, only()).httpRequestFailure(any(Request.class), any(Throwable.class));
     }
@@ -223,7 +223,7 @@ class HttpTest {
         when(call.execute()).thenReturn((Response<U>) response);
         when(call.request()).thenReturn(mock(Request.class));
 
-        Assertions.assertThatThrownBy(() -> httpCall.apply(call)).isInstanceOf(ConsulException.class);
+        assertThatThrownBy(() -> httpCall.apply(call)).isInstanceOf(ConsulException.class);
 
         verify(clientEventHandler, only()).httpRequestInvalid(any(Request.class), any(Throwable.class));
     }
@@ -251,7 +251,8 @@ class HttpTest {
 
         Response<String> response = Response.success(expectedBody);
         retrofitCallback.onResponse(call, response);
-        latch.await(1, TimeUnit.SECONDS);
+        var countReachedZero = latch.await(1, TimeUnit.SECONDS);
+        assertThat(countReachedZero).isTrue();
 
         assertThat(result.get().getResponse()).isEqualTo(expectedBody);
         verify(clientEventHandler, only()).httpRequestSuccess(any(Request.class));
@@ -277,7 +278,8 @@ class HttpTest {
 
         Response<String> response = Response.error(400, ResponseBody.create("failure", MediaType.parse("")));
         retrofitCallback.onResponse(call, response);
-        latch.await(1, TimeUnit.SECONDS);
+        var countReachedZero = latch.await(1, TimeUnit.SECONDS);
+        assertThat(countReachedZero).isTrue();
 
         verify(clientEventHandler, only()).httpRequestInvalid(any(Request.class), any(Throwable.class));
     }
@@ -302,7 +304,9 @@ class HttpTest {
 
         retrofitCallback.onFailure(call, new RuntimeException("the request failed"));
 
-        latch.await(1, TimeUnit.SECONDS);
+        var countReachedZero = latch.await(1, TimeUnit.SECONDS);
+        assertThat(countReachedZero).isTrue();
+
         verify(clientEventHandler, only()).httpRequestFailure(any(Request.class), any(Throwable.class));
     }
 

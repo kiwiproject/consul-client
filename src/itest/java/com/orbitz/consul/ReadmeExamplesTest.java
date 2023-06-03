@@ -1,6 +1,7 @@
 package com.orbitz.consul;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import com.orbitz.consul.cache.KVCache;
 import com.orbitz.consul.cache.ServiceHealthCache;
 import com.orbitz.consul.cache.ServiceHealthKey;
@@ -8,7 +9,6 @@ import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.orbitz.consul.model.agent.Registration;
 import com.orbitz.consul.model.health.ServiceHealth;
 import com.orbitz.consul.model.kv.Value;
-
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -66,7 +66,7 @@ class ReadmeExamplesTest extends BaseIntegrationTest {
         KeyValueClient kvClient = client.keyValueClient();
 
         kvClient.putValue("foo", "bar");
-        String value = kvClient.getValueAsString("foo").get(); // bar
+        String value = kvClient.getValueAsString("foo").orElseThrow(); // bar
 
         assertThat(value).isEqualTo("bar");
     }
@@ -88,7 +88,7 @@ class ReadmeExamplesTest extends BaseIntegrationTest {
             newValue.ifPresent(value -> {
                 // Values are encoded in key/value store, decode it if needed
                 Optional<String> decodedValue = newValue.get().getValueAsString();
-                decodedValue.ifPresent(v -> System.out.println(String.format("Value is: %s", v))); //prints "bar"
+                decodedValue.ifPresent(v -> System.out.printf("Value is: %s%n", v)); // prints "bar"
             });
         });
         cache.start();

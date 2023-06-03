@@ -36,9 +36,7 @@ class StatusClientITest extends BaseIntegrationTest {
         try {
             netInts = NetworkInterface.getNetworkInterfaces();
             for (NetworkInterface netInt : Collections.list(netInts)) {
-                for (InetAddress inetAddress : Collections.list(netInt.getInetAddresses())) {
-                    ips.add(inetAddress);
-                }
+                ips.addAll(Collections.list(netInt.getInetAddresses()));
             }
         } catch (SocketException ex) {
             LOG.warn("Could not access local network adapters. Continuing", ex);

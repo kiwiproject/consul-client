@@ -4,11 +4,11 @@ import static com.orbitz.consul.Awaiting.awaitAtMost500ms;
 import static com.orbitz.consul.TestUtils.randomUUIDString;
 import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
+
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.BaseIntegrationTest;
 import com.orbitz.consul.model.State;
 import com.orbitz.consul.model.health.HealthCheck;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -39,6 +39,7 @@ class HealthCheckCacheITest extends BaseIntegrationTest {
                 hCheck.awaitInitialized(3, TimeUnit.SECONDS);
 
                 HealthCheck check = hCheck.getMap().get(checkId);
+                assertThat(check).isNotNull();
                 assertThat(check.getCheckId()).isEqualTo(checkId);
 
                 agentClient.failCheck(checkId);

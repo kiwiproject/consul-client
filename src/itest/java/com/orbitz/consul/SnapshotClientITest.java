@@ -9,14 +9,15 @@ import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 
 import com.orbitz.consul.async.Callback;
 import com.orbitz.consul.option.QueryOptions;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -29,14 +30,9 @@ class SnapshotClientITest extends BaseIntegrationTest {
     private SnapshotClient snapshotClient;
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp(@TempDir Path tempDir) throws IOException {
         snapshotClient = client.snapshotClient();
-        snapshotFile = File.createTempFile("snapshot", ".gz");
-    }
-
-    @AfterEach
-    void tearDown() {
-        snapshotFile.delete();
+        snapshotFile = File.createTempFile("snapshot", ".gz", tempDir.toFile());
     }
 
     @Test
