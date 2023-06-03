@@ -33,6 +33,7 @@ class BlacklistingConsulFailoverStrategyTest {
         var previousRequest = new Request.Builder().url("https://1.2.3.4:8501/v1/agent/members").build();
         Response previousResponse = null;
 
+        // noinspection ConstantValue
         Optional<Request> result = blacklistingConsulFailoverStrategy.computeNextStage(previousRequest, previousResponse);
 
         assertThat(result).isPresent();
@@ -44,12 +45,14 @@ class BlacklistingConsulFailoverStrategyTest {
         var previousRequest = new Request.Builder().url("https://1.2.3.4:8501/v1/agent/members").build();
         Response previousResponse = null;
 
+        // noinspection ConstantValue
         Optional<Request> result1 = blacklistingConsulFailoverStrategy.computeNextStage(previousRequest, previousResponse);
 
         assertThat(result1).isPresent();
         assertThat(result1.orElseThrow().url()).hasToString("https://1.2.3.4:8501/v1/agent/members");
 
         blacklistingConsulFailoverStrategy.markRequestFailed(result1.get());
+        // noinspection ConstantValue
         Optional<Request> result2 = blacklistingConsulFailoverStrategy.computeNextStage(result1.get(), previousResponse);
 
         assertThat(result2).isPresent();
@@ -61,12 +64,14 @@ class BlacklistingConsulFailoverStrategyTest {
         var previousRequest = new Request.Builder().url("https://1.2.3.4:8501/v1/agent/members").build();
         Response previousResponse = null;
 
+        // noinspection ConstantValue
         Optional<Request> result1 = blacklistingConsulFailoverStrategy.computeNextStage(previousRequest, previousResponse);
 
         assertThat(result1).isPresent();
         assertThat(result1.orElseThrow().url()).hasToString("https://1.2.3.4:8501/v1/agent/members");
 
         blacklistingConsulFailoverStrategy.markRequestFailed(result1.get());
+        // noinspection ConstantValue
         Optional<Request> result2 = blacklistingConsulFailoverStrategy.computeNextStage(result1.get(), previousResponse);
 
         assertThat(result2).isPresent();
@@ -74,6 +79,7 @@ class BlacklistingConsulFailoverStrategyTest {
 
         blacklistingConsulFailoverStrategy.markRequestFailed(result2.get());
 
+        // noinspection ConstantValue
         Optional<Request> result3 = blacklistingConsulFailoverStrategy.computeNextStage(result2.get(), previousResponse);
 
         assertThat(result3).isEmpty();

@@ -28,6 +28,7 @@ class AclClientITest {
     public static GenericContainer<?> consulContainerAcl;
 
     static {
+        // noinspection resource
         consulContainerAcl = new GenericContainer<>("consul")
                 .withCommand("agent", "-dev", "-client", "0.0.0.0", "--enable-script-checks=true")
                 .withExposedPorts(8500)
