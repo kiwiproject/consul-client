@@ -12,6 +12,7 @@ import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.monitoring.ClientEventHandler;
 import okhttp3.Headers;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -75,7 +76,7 @@ public class Http {
     <T> retrofit2.Callback<T> createRetrofitCallback(ConsulResponseCallback<T> callback, Integer... okCodes) {
         return new retrofit2.Callback<>() {
             @Override
-            public void onResponse(Call<T> call, Response<T> response) {
+            public void onResponse(@NonNull Call<T> call, @NonNull Response<T> response) {
                 if (isSuccessful(response, okCodes)) {
                     eventHandler.httpRequestSuccess(call.request());
                     callback.onComplete(consulResponse(response));
@@ -87,7 +88,7 @@ public class Http {
             }
 
             @Override
-            public void onFailure(Call<T> call, Throwable t) {
+            public void onFailure(@NonNull Call<T> call, @NonNull Throwable t) {
                 eventHandler.httpRequestFailure(call.request(), t);
                 callback.onFailure(t);
             }
