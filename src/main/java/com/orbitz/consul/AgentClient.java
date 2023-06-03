@@ -54,7 +54,7 @@ public class AgentClient extends BaseClient {
     }
 
     /**
-     * Indicates whether or not a particular service is registered with
+     * Indicates whether a particular service is registered with
      * the local Consul agent.
      *
      * @return <code>true</code> if a particular service is registered with
@@ -100,7 +100,7 @@ public class AgentClient extends BaseClient {
      * Registers the client as a service with Consul with a script based check.
      *
      * @param port     The public facing port of the service to register with Consul.
-     * @param args     Specifies command argument to run to update the status of the check..
+     * @param args     Specifies command argument to run to update the status of the check.
      * @param interval Health script run interval in seconds.
      * @param name     Service name to register.
      * @param id       Service id to register.
@@ -117,7 +117,7 @@ public class AgentClient extends BaseClient {
      * Registers the client as a service with Consul with a script based check.
      *
      * @param port     The public facing port of the service to register with Consul.
-     * @param args     Specifies command argument to run to update the status of the check..
+     * @param args     Specifies command argument to run to update the status of the check.
      * @param interval Health script run interval in seconds.
      * @param name     Service name to register.
      * @param id       Service id to register.
@@ -131,7 +131,7 @@ public class AgentClient extends BaseClient {
     }
 
     /**
-     * Registers the client as a service with Consul with an http based check
+     * Registers the client as a service with Consul with an HTTP based check
      *
      * @param port     The public facing port of the service to register with Consul.
      * @param http     Health check URL.
@@ -292,7 +292,7 @@ public class AgentClient extends BaseClient {
      * @param name     The Check Name.
      * @param args     Health script for Consul to use.
      * @param interval Health script run interval in seconds.
-     * @param notes    Human readable notes.  Not used by Consul.
+     * @param notes    Human-readable notes.  Not used by Consul.
      */
     public void registerCheck(String checkId, String name, List<String> args, long interval, String notes) {
         Check check = ImmutableCheck.builder()
@@ -313,7 +313,7 @@ public class AgentClient extends BaseClient {
      * @param name     The Check Name.
      * @param args     Specifies command argument to run to update the status of the check.
      * @param interval Health script run interval in seconds.
-     * @param notes    Human readable notes.  Not used by Consul.
+     * @param notes    Human-readable notes.  Not used by Consul.
      */
     public void registerCheck(String checkId, String name, String args, long interval, String notes) {
         Check check = ImmutableCheck.builder()
@@ -328,13 +328,13 @@ public class AgentClient extends BaseClient {
     }
 
     /**
-     * Registers a HTTP Health Check with the Agent.
+     * Registers an HTTP Health Check with the Agent.
      *
      * @param checkId  The Check ID to use.  Must be unique for the Agent.
      * @param name     The Check Name.
      * @param http     Health check URL.
      * @param interval Health script run interval in seconds.
-     * @param notes    Human readable notes.  Not used by Consul.
+     * @param notes    Human-readable notes.  Not used by Consul.
      */
     public void registerCheck(String checkId, String name, URL http, long interval, String notes) {
 
@@ -356,7 +356,7 @@ public class AgentClient extends BaseClient {
      * @param name     The Check Name.
      * @param tcp      Health check TCP host and port.
      * @param interval Health script run interval in seconds.
-     * @param notes    Human readable notes.  Not used by Consul.
+     * @param notes    Human-readable notes.  Not used by Consul.
      */
     public void registerCheck(String checkId, String name, HostAndPort tcp, long interval, String notes) {
 
@@ -388,7 +388,7 @@ public class AgentClient extends BaseClient {
      * @param checkId The Check ID to use.  Must be unique for the Agent.
      * @param name    The Check Name.
      * @param ttl     Time to live for the Consul dead man's switch.
-     * @param notes   Human readable notes.  Not used by Consul.
+     * @param notes   Human-readable notes.  Not used by Consul.
      */
     public void registerCheck(String checkId, String name, long ttl, String notes) {
 

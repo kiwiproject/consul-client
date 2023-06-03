@@ -48,10 +48,11 @@ public class SnapshotClient extends BaseClient {
 
     /**
      * Requests a new snapshot and save it in a file.
-     * Only a subset of the QueryOptions is supported: datacenter, consistencymode, and token.
+     * Only a subset of the QueryOptions is supported: datacenter, consistency mode, and token.
+     *
      * @param destinationFile file in which the snapshot is to be saved.
-     * @param queryOptions query options. Only a subset of the QueryOptions is supported: datacenter, consistencymode, and token.
-     * @param callback callback called once the operation is over. It the save operation is successful, the X-Consul-Index is send.
+     * @param queryOptions    query options. Only a subset of the QueryOptions is supported: datacenter, consistency mode, and token.
+     * @param callback        callback called once the operation is over. It the save operation is successful, the X-Consul-Index is sent.
      */
     public void save(File destinationFile, QueryOptions queryOptions, Callback<BigInteger> callback) {
         http.extractConsulResponse(api.generateSnapshot(queryOptions.toQuery()), new ConsulResponseCallback<>() {
