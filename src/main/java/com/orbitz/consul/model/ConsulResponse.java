@@ -59,7 +59,7 @@ public class ConsulResponse<T> {
     private final Optional<CacheResponseInfo> cacheResponseInfo;
 
     @VisibleForTesting
-    static CacheResponseInfo buildCacheReponseInfo(String headerHitMiss, String headerAge) throws NumberFormatException {
+    static CacheResponseInfo buildCacheResponseInfo(String headerHitMiss, String headerAge) throws NumberFormatException {
         ConsulResponse.CacheResponseInfo cacheInfo = null;
         if (nonNull(headerHitMiss)) {
             cacheInfo = new CacheResponseInfoImpl(headerHitMiss, headerAge);
@@ -68,7 +68,7 @@ public class ConsulResponse<T> {
     }
 
     public ConsulResponse(T response, long lastContact, boolean knownLeader, BigInteger index, String headerHitMiss, String headerAge) throws NumberFormatException {
-        this(response, lastContact, knownLeader, index, Optional.ofNullable(buildCacheReponseInfo(headerHitMiss, headerAge)));
+        this(response, lastContact, knownLeader, index, Optional.ofNullable(buildCacheResponseInfo(headerHitMiss, headerAge)));
     }
 
     public ConsulResponse(T response, long lastContact, boolean knownLeader, BigInteger index, Optional<CacheResponseInfo> cacheInfo) {

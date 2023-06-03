@@ -13,11 +13,11 @@ public class ConsistencyMode {
     private final String param;
     private final Map<String, String> additionalHeaders;
 
-    private ConsistencyMode(final String name, int ordinal, final String param) {
+    private ConsistencyMode(String name, int ordinal, String param) {
         this(name, ordinal, param, Map.of());
     }
 
-    private ConsistencyMode(final String name, int ordinal, final String param, final Map<String, String> headers) {
+    private ConsistencyMode(String name, int ordinal, String param, Map<String, String> headers) {
         this.name = name;
         this.ordinal = ordinal;
         this.param = param;
@@ -47,11 +47,11 @@ public class ConsistencyMode {
      * @return a not null ConsistencyMode
      * @see <a href="https://developer.hashicorp.com/consul/api-docs/features/caching#simple-caching">Simple Caching</a>
      */
-    public static final ConsistencyMode createCachedConsistencyWithMaxAgeAndStale(final Optional<Long> maxAgeInSeconds,
-            final Optional<Long> maxStaleInSeconds) {
+    public static ConsistencyMode createCachedConsistencyWithMaxAgeAndStale(Optional<Long> maxAgeInSeconds,
+                                                                            Optional<Long> maxStaleInSeconds) {
         String maxAge = "";
         if (maxAgeInSeconds.isPresent()) {
-            final long v = maxAgeInSeconds.get();
+            long v = maxAgeInSeconds.get();
             if (v < 0) {
                 throw new IllegalArgumentException("maxAgeInSeconds must greater or equal to 0");
             }
@@ -59,7 +59,7 @@ public class ConsistencyMode {
         }
 
         if (maxStaleInSeconds.isPresent()) {
-            final long v = maxStaleInSeconds.get();
+            long v = maxStaleInSeconds.get();
             if (v < 0){
                 throw new IllegalArgumentException("maxStaleInSeconds must greater or equal to 0");
             }
@@ -78,11 +78,13 @@ public class ConsistencyMode {
     }
 
     // The next methods are for compatibility with old enum type
+
     /**
      * ConsistencyMode used t be an enum, implement it.
+     *
      * @return the old enum name
      */
-    public final String name(){
+    public final String name() {
         return name;
     }
 
@@ -96,12 +98,12 @@ public class ConsistencyMode {
         return builder.toString();
     }
 
-    public int ordinal(){
+    public int ordinal() {
         return ordinal;
     }
 
-    public static final ConsistencyMode[] values(){
-        ConsistencyMode[] res = new ConsistencyMode[3];
+    public static ConsistencyMode[] values() {
+        var res = new ConsistencyMode[3];
         res[0] = DEFAULT;
         res[1] = STALE;
         res[2] = CONSISTENT;

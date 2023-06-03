@@ -306,7 +306,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
     }
 
     protected static QueryOptions watchParams(BigInteger index, int blockSeconds, QueryOptions queryOptions) {
-        checkArgument(!queryOptions.getIndex().isPresent() && !queryOptions.getWait().isPresent(),
+        checkArgument(queryOptions.getIndex().isEmpty() && queryOptions.getWait().isEmpty(),
                 "Index and wait cannot be overridden");
 
         ImmutableQueryOptions.Builder builder =  ImmutableQueryOptions.builder()
@@ -356,15 +356,22 @@ public class ConsulCache<K, V> implements AutoCloseable {
         void notify(Map<K, V> newValues);
     }
 
+    /**
+     * Add a new listener.
+     *
+     * @param listener the listener to add
+     * @return true to indicate the listener was added
+     * @implNote This always returns true because {@link CopyOnWriteArrayList} is used to store the listeners, and
+     * its {@link CopyOnWriteArrayList#add(Object)} method always returns true
+     */
     public boolean addListener(Listener<K, V> listener) {
         boolean locked = false;
-        boolean added;
         if (state.get() == State.STARTING) {
             listenersStartingLock.lock();
             locked = true;
         }
         try {
-            added = listeners.add(listener);
+            listeners.add(listener);
             if (state.get() == State.STARTED) {
                 try {
                     listener.notify(lastResponse.get());
@@ -372,13 +379,12 @@ public class ConsulCache<K, V> implements AutoCloseable {
                     LOG.warn("ConsulCache Listener's notify method threw an exception.", e);
                 }
             }
-        }
-        finally {
+        } finally {
             if (locked) {
                 listenersStartingLock.unlock();
             }
         }
-        return added;
+        return true;
     }
 
     public List<Listener<K, V>> getListeners() {

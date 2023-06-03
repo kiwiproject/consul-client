@@ -1,12 +1,11 @@
 package com.orbitz.consul.util.bookend;
 
-import java.util.Optional;
-
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.isNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class ConsulBookendContext {
 
@@ -38,6 +37,6 @@ public class ConsulBookendContext {
                 "Data for key '%s' is not of type: %s", key, klazz.getName());
 
         T castObject = klazz.cast(object);
-        return Optional.ofNullable(castObject);
+        return Optional.of(castObject);
     }
 }
