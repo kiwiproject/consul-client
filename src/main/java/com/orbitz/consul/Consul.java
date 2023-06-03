@@ -605,7 +605,7 @@ public class Consul {
         }
 
         /**
-         * Sets the ExecutorService to be used by the internal tasks dispatcher.
+         * Sets the ExecutorService to be used by the internal task dispatcher.
          * <p>
          * By default, an ExecutorService is created internally.
          * In this case, it will not be customizable nor manageable by the user application.
@@ -614,9 +614,9 @@ public class Consul {
          * When an application needs to be able to customize the ExecutorService parameters, and/or manage its lifecycle,
          * it can provide an instance of ExecutorService to the Builder. In that case, this ExecutorService will be used instead of creating one internally.
          *
-         * @param executorService The ExecutorService to be injected in the internal tasks dispatcher.
+         * @param executorService The ExecutorService to be injected in the internal task dispatcher.
          * @return The builder
-        */
+         */
         public Builder withExecutorService(ExecutorService executorService) {
             this.executorService = executorService;
 

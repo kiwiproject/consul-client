@@ -33,7 +33,7 @@ public interface ConsulFailoverStrategy {
 
     /**
      * Marks the specified request as a failed URL (in case of exceptions and other events that could cause
-     * us to never get a response. This avoids infinite loops where the strategy can never be made aware that the request
+     * us to never get a response). This avoids infinite loops where the strategy can never be made aware that the request
      * has failed.
      *
      * @param current The current request object representing a request that failed

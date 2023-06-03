@@ -11,7 +11,6 @@ import com.orbitz.consul.async.EventResponseCallback;
 import com.orbitz.consul.model.EventResponse;
 import com.orbitz.consul.model.event.Event;
 import com.orbitz.consul.option.QueryOptions;
-
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +28,7 @@ import java.util.stream.Stream;
 /**
  * Note that in the tests that list events, we have to assume there might have
  * been previous events created. So, in those tests we can't just make an assertion
- * about ALL events. Instead we have to make assertions about events that we have
+ * about ALL events. Instead, we have to make assertions about events that we have
  * just created in the test.
  */
 class EventClientITest extends BaseIntegrationTest {

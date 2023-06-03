@@ -91,7 +91,7 @@ public class KVCache extends ConsulCache<String, Value> {
     }
 
     /**
-     * Factory method to construct a String/{@link Value} map with a 10 second
+     * Factory method to construct a String/{@link Value} map with a 10-second
      * block interval
      *
      * @param kvClient the {@link KeyValueClient} to use
