@@ -36,7 +36,7 @@ class KVCacheTest {
     @ParameterizedTest(name = "wanted {0}, found {1}")
     @MethodSource("getKeyValueTestValues")
     void checkKeyExtractor(String rootPath, String input, String expected) {
-        //Called in the constructor of the cache, must be use in the test as it may modify rootPath value.
+        // Called in the constructor of the cache, must be used in the test as it may modify rootPath value.
         String keyPath = KVCache.prepareRootPath(rootPath);
 
         Function<Value, String> keyExtractor = KVCache.getKeyExtractorFunction(keyPath);
