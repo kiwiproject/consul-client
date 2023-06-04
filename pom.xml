@@ -47,7 +47,7 @@
 
     <scm>
         <connection>scm:git:https://github.com/kiwiproject/consul-client.git</connection>
-        <developerConnection>git@github.com:kiwiproject/consul-client.git</developerConnection>
+        <developerConnection>scm:git@github.com:kiwiproject/consul-client.git</developerConnection>
         <url>https://github.com/kiwiproject/consul-client</url>
     </scm>
 
