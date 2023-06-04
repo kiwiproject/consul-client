@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
-
 import org.slf4j.Logger;
 
 import java.time.Duration;
@@ -55,6 +54,8 @@ public class CacheConfig {
 
     /**
      * Gets the default watch duration for caches.
+     *
+     * @return the watch duration
      */
     public Duration getWatchDuration() {
         return watchDuration;
@@ -62,6 +63,8 @@ public class CacheConfig {
 
     /**
      * Gets the minimum back-off delay used in caches.
+     *
+     * @return the minimum back-off delay
      */
     public Duration getMinimumBackOffDelay() {
         return minBackOffDelay;
@@ -69,6 +72,8 @@ public class CacheConfig {
 
     /**
      * Gets the maximum back-off delay used in caches.
+     *
+     * @return maximum back-off delay
      */
     public Duration getMaximumBackOffDelay() {
         return maxBackOffDelay;
@@ -76,6 +81,8 @@ public class CacheConfig {
 
     /**
      * Is the automatic adjustment of read timeout enabled?
+     *
+     * @return true if automatic adjustment of read timeout is enabled, otherwise false
      */
     public boolean isTimeoutAutoAdjustmentEnabled() {
        return timeoutAutoAdjustmentEnabled;
@@ -83,7 +90,10 @@ public class CacheConfig {
 
     /**
      * Gets the margin of the read timeout for caches.
+     * <p>
      * The margin represents the additional amount of time given to the read timeout, in addition to the wait duration.
+     *
+     * @return the margin of the read timeout
      */
     public Duration getTimeoutAutoAdjustmentMargin() {
         return timeoutAutoAdjustmentMargin;
@@ -91,6 +101,8 @@ public class CacheConfig {
 
     /**
      * Gets the minimum time between two requests for caches.
+     *
+     * @return the minimum time between two requests
      */
     public Duration getMinimumDurationBetweenRequests() {
         return minDelayBetweenRequests;
@@ -98,6 +110,8 @@ public class CacheConfig {
 
     /**
      * Gets the minimum time between two requests for caches.
+     *
+     * @return the minimum time between two requests
      */
     public Duration getMinimumDurationDelayOnEmptyResult() {
         return minDelayOnEmptyResult;
@@ -105,6 +119,8 @@ public class CacheConfig {
 
     /**
      * Gets the function that will be called in case of error.
+     *
+     * @return a RefreshErrorLogConsumer that will be called when errors occur
      */
     public RefreshErrorLogConsumer getRefreshErrorLoggingConsumer() {
         return refreshErrorLogConsumer;
@@ -137,7 +153,10 @@ public class CacheConfig {
         }
 
         /**
-         * Sets the back-off delay used in caches.
+         * Sets the watch duration used in caches.
+         *
+         * @param delay the watch duration to use
+         * @return the Builder instance
          * @throws IllegalArgumentException if {@code delay} is negative.
          */
         public Builder withWatchDuration(Duration delay) {
@@ -148,6 +167,9 @@ public class CacheConfig {
 
         /**
          * Sets the back-off delay used in caches.
+         *
+         * @param delay the back-off delay to use
+         * @return the Builder instance
          * @throws IllegalArgumentException if {@code delay} is negative.
          */
         public Builder withBackOffDelay(Duration delay) {
@@ -159,7 +181,12 @@ public class CacheConfig {
 
         /**
          * Sets a random delay between the {@code minDelay} and {@code maxDelay} (inclusive) to occur between retries.
-         * @throws IllegalArgumentException if {@code minDelay} or {@code maxDelay} is negative, or if {@code minDelay} is superior to {@code maxDelay}.
+         *
+         * @param minDelay the minimum delay between retries
+         * @param maxDelay the maximum delay between retries
+         * @return the Builder instance
+         * @throws IllegalArgumentException if {@code minDelay} or {@code maxDelay} is negative, or if {@code minDelay}
+         *                                  is greater than to {@code maxDelay}.
          */
         public Builder withBackOffDelay(Duration minDelay, Duration maxDelay) {
             this.minBackOffDelay = checkNotNull(minDelay, "Minimum delay cannot be null");
@@ -171,6 +198,9 @@ public class CacheConfig {
 
         /**
          * Sets the minimum time between two requests for caches.
+         *
+         * @param delay the minimum time between two requests to use
+         * @return the Builder instance
          */
         public Builder withMinDelayBetweenRequests(Duration delay) {
             this.minDelayBetweenRequests = checkNotNull(delay, DELAY_CANNOT_BE_NULL);
@@ -179,6 +209,9 @@ public class CacheConfig {
 
         /**
          * Sets the minimum time between two requests for caches when an empty result is returned.
+         *
+         * @param delay the minimum time between two requests to use when an empty result is returned
+         * @return the Builder instance
          */
         public Builder withMinDelayOnEmptyResult(Duration delay) {
             this.minDelayOnEmptyResult = checkNotNull(delay, DELAY_CANNOT_BE_NULL);
@@ -187,6 +220,9 @@ public class CacheConfig {
 
         /**
          * Enable/Disable the automatic adjustment of read timeout
+         *
+         * @param enabled use true to enable automatic adjustment of read timeout, false to disable
+         * @return the Builder instance
          */
         public Builder withTimeoutAutoAdjustmentEnabled(boolean enabled) {
             this.timeoutAutoAdjustmentEnabled = enabled;
@@ -195,7 +231,11 @@ public class CacheConfig {
 
         /**
          * Sets the margin of the read timeout for caches.
+         * <p>
          * The margin represents the additional amount of time given to the read timeout, in addition to the wait duration.
+         *
+         * @param margin the margin of the read timeout to use
+         * @return the Builder instance
          */
         public Builder withTimeoutAutoAdjustmentMargin(Duration margin) {
             this.timeoutAutoAdjustmentMargin = checkNotNull(margin, "Margin cannot be null");
@@ -204,6 +244,8 @@ public class CacheConfig {
 
         /**
          * Log refresh errors as warning
+         *
+         * @return the Builder instance
          */
         public Builder withRefreshErrorLoggedAsWarning() {
             this.refreshErrorLogConsumer = Logger::warn;
@@ -212,6 +254,8 @@ public class CacheConfig {
 
         /**
          * Log refresh errors as error
+         *
+         * @return the Builder instance
          */
         public Builder withRefreshErrorLoggedAsError() {
             this.refreshErrorLogConsumer = Logger::error;
@@ -220,6 +264,9 @@ public class CacheConfig {
 
         /**
          * Log refresh errors using custom function
+         *
+         * @param fn the custom function to use when an error occurs
+         * @return the Builder instance
          */
         public Builder withRefreshErrorLoggedAs(RefreshErrorLogConsumer fn) {
             this.refreshErrorLogConsumer = fn;

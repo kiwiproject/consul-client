@@ -96,6 +96,7 @@ public class ConsulResponse<T> {
     }
 
     /**
+     * @return an Optional containing the CacheResponseInfo, or empty Optional if does not exist
      * @see <a href="https://developer.hashicorp.com/consul/api-docs/features/caching#background-refresh-caching">Background Refresh Caching</a>
      */
     public Optional<CacheResponseInfo> getCacheReponseInfo(){

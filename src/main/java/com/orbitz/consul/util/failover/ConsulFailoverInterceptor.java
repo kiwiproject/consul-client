@@ -25,6 +25,7 @@ public class ConsulFailoverInterceptor implements Interceptor {
      * Default constructor for a set of hosts and ports
      *
      * @param targets the host/port pairs to use for failover
+     * @param timeout the timeout in milliseconds
      */
     public ConsulFailoverInterceptor(Collection<HostAndPort> targets, long timeout) {
         this(new BlacklistingConsulFailoverStrategy(targets, timeout));
