@@ -44,7 +44,7 @@ public class CatalogClient extends BaseCacheableClient {
 
     /**
      * Retrieves all datacenters.
-     * <p/>
+     * <p>
      * GET /v1/catalog/datacenters
      *
      * @return A list of datacenter names.
@@ -65,7 +65,7 @@ public class CatalogClient extends BaseCacheableClient {
 
     /**
      * Retrieves all nodes.
-     * <p/>
+     * <p>
      * GET /v1/catalog/nodes
      *
      * @return A {@link ConsulResponse} containing a list of {@link Node} objects.
@@ -76,7 +76,7 @@ public class CatalogClient extends BaseCacheableClient {
 
     /**
      * Retrieves all nodes for a given datacenter with {@link QueryOptions}.
-     * <p/>
+     * <p>
      * GET /v1/catalog/nodes?dc={datacenter}
      *
      * @param queryOptions The Query Options to use.
@@ -90,7 +90,7 @@ public class CatalogClient extends BaseCacheableClient {
 
     /**
      * Asynchronously retrieves the nodes for a given datacenter with {@link QueryOptions}.
-     * <p/>
+     * <p>
      * GET /v1/catalog/nodes?dc={datacenter}
      *
      * @param queryOptions The Query Options to use.
@@ -103,7 +103,7 @@ public class CatalogClient extends BaseCacheableClient {
 
     /**
      * Retrieves all services for a given datacenter.
-     * <p/>
+     * <p>
      * GET /v1/catalog/services?dc={datacenter}
      *
      * @return A {@link ConsulResponse} containing a map of service name to list of tags.
@@ -114,7 +114,7 @@ public class CatalogClient extends BaseCacheableClient {
 
     /**
      * Asynchronously retrieves the services for a given datacenter.
-     * <p/>
+     * <p>
      * GET /v1/catalog/services?dc={datacenter}
      *
      * @param callback Callback implemented by callee to handle results; the callback is provided a map of service name to list of tags.
@@ -125,7 +125,7 @@ public class CatalogClient extends BaseCacheableClient {
 
     /**
      * Retrieves all services for a given datacenter.
-     * <p/>
+     * <p>
      * GET /v1/catalog/services?dc={datacenter}
      *
      * @param queryOptions The Query Options to use.
@@ -138,7 +138,7 @@ public class CatalogClient extends BaseCacheableClient {
 
     /**
      * Asynchronously retrieves the services for a given datacenter.
-     * <p/>
+     * <p>
      * GET /v1/catalog/services?dc={datacenter}
      *
      * @param queryOptions The Query Options to use.
@@ -151,9 +151,10 @@ public class CatalogClient extends BaseCacheableClient {
 
     /**
      * Retrieves the single service.
-     * <p/>
+     * <p>
      * GET /v1/catalog/service/{service}
      *
+     * @param service the name of the service to get
      * @return A {@link ConsulResponse} containing {@link CatalogService} objects.
      */
     public ConsulResponse<List<CatalogService>> getService(String service) {
@@ -162,9 +163,10 @@ public class CatalogClient extends BaseCacheableClient {
 
     /**
      * Retrieves a single service for a given datacenter with {@link QueryOptions}.
-     * <p/>
+     * <p>
      * GET /v1/catalog/service/{service}?dc={datacenter}
      *
+     * @param service      the name of the service to get
      * @param queryOptions The Query Options to use.
      * @return A {@link ConsulResponse} containing {@link CatalogService} objects.
      */
@@ -175,9 +177,10 @@ public class CatalogClient extends BaseCacheableClient {
 
     /**
      * Asynchronously retrieves the single service for a given datacenter with {@link QueryOptions}.
-     * <p/>
+     * <p>
      * GET /v1/catalog/service/{service}?dc={datacenter}
      *
+     * @param service      the name of the service to get
      * @param queryOptions The Query Options to use.
      * @param callback     Callback implemented by callee to handle results, containing a list of {@link CatalogService} objects
      */
@@ -188,9 +191,10 @@ public class CatalogClient extends BaseCacheableClient {
 
     /**
      * Retrieves a single node.
-     * <p/>
+     * <p>
      * GET /v1/catalog/node/{node}
      *
+     * @param node the name of the node to get
      * @return A list of matching {@link CatalogService} objects.
      */
     public ConsulResponse<CatalogNode> getNode(String node) {
@@ -199,9 +203,10 @@ public class CatalogClient extends BaseCacheableClient {
 
     /**
      * Retrieves a single node for a given datacenter with {@link QueryOptions}.
-     * <p/>
+     * <p>
      * GET /v1/catalog/node/{node}?dc={datacenter}
      *
+     * @param node         the name of the node to get
      * @param queryOptions The Query Options to use.
      * @return A list of matching {@link CatalogService} objects.
      */
@@ -212,9 +217,10 @@ public class CatalogClient extends BaseCacheableClient {
 
     /**
      * Asynchronously retrieves the single node for a given datacenter with {@link QueryOptions}.
-     * <p/>
+     * <p>
      * GET /v1/catalog/node/{node}?dc={datacenter}
      *
+     * @param node         the name of the node to get
      * @param queryOptions The Query Options to use.
      * @param callback     Callback implemented by callee to handle results.
      */
@@ -225,7 +231,7 @@ public class CatalogClient extends BaseCacheableClient {
 
     /**
      * Registers a service or node.
-     * <p/>
+     * <p>
      * PUT /v1/catalog/register
      *
      * @param registration A {@link CatalogRegistration}
@@ -236,18 +242,19 @@ public class CatalogClient extends BaseCacheableClient {
 
     /**
      * Registers a service or node.
-     * <p/>
+     * <p>
      * PUT /v1/catalog/register
      *
      * @param registration A {@link CatalogRegistration}
+     * @param options      The Query Options to use.
      */
     public void register(CatalogRegistration registration, QueryOptions options) {
         http.handle(api.register(registration, options.toQuery()));
     }
 
     /**
-     * Deregisters a service or node.
-     * <p/>
+     * De-registers a service or node.
+     * <p>
      * PUT /v1/catalog/deregister
      *
      * @param deregistration A {@link CatalogDeregistration}
@@ -257,11 +264,12 @@ public class CatalogClient extends BaseCacheableClient {
     }
 
     /**
-     * Deregisters a service or node.
-     * <p/>
+     * De-registers a service or node.
+     * <p>
      * PUT /v1/catalog/deregister
      *
      * @param deregistration A {@link CatalogDeregistration}
+     * @param options        The Query Options to use.
      */
     public void deregister(CatalogDeregistration deregistration, QueryOptions options) {
         http.handle(api.deregister(deregistration, options.toQuery()));

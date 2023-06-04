@@ -57,6 +57,7 @@ public class AgentClient extends BaseClient {
      * Indicates whether a particular service is registered with
      * the local Consul agent.
      *
+     * @param serviceId the ID of the service to check
      * @return <code>true</code> if a particular service is registered with
      * the local Consul agent, otherwise <code>false</code>.
      */
@@ -192,12 +193,12 @@ public class AgentClient extends BaseClient {
     /**
      * Registers the client as a service with Consul with multiple checks
      *
-     * @param port  The public facing port of the service to register with Consul.
+     * @param port   The public facing port of the service to register with Consul.
      * @param checks The health checks to run periodically.
-     * @param name  Service name to register.
-     * @param id    Service id to register.
-     * @param tags  Tags to register with.
-     * @param meta  Meta to register with.
+     * @param name   Service name to register.
+     * @param id     Service id to register.
+     * @param tags   Tags to register with.
+     * @param meta   Meta to register with.
      */
     public void register(int port, List<Registration.RegCheck> checks, String name, String id,
                          List<String> tags, Map<String, String> meta) {
@@ -218,8 +219,8 @@ public class AgentClient extends BaseClient {
      * Registers the client as a service with Consul.  Registration enables
      * the use of checks.
      *
-     * @param registration The registration payload.
-     * @param options An optional QueryOptions instance.
+     * @param registration          The registration payload.
+     * @param options               An optional QueryOptions instance.
      * @param queryParameterOptions The Query Parameter Options to use.
      */
     public void register(Registration registration, QueryOptions options, QueryParameterOptions queryParameterOptions) {
@@ -237,6 +238,9 @@ public class AgentClient extends BaseClient {
 
     /**
      * De-register a particular service from the Consul Agent.
+     *
+     * @param serviceId the ID of the service to de-register
+     * @param options   the query options to use
      */
     public void deregister(String serviceId, QueryOptions options) {
         http.handle(api.deregister(serviceId, options.toQuery()));
@@ -244,6 +248,8 @@ public class AgentClient extends BaseClient {
 
     /**
      * De-register a particular service from the Consul Agent.
+     *
+     * @param serviceId the ID of the service to de-register
      */
     public void deregister(String serviceId) {
         deregister(serviceId, QueryOptions.BLANK);
@@ -296,12 +302,12 @@ public class AgentClient extends BaseClient {
      */
     public void registerCheck(String checkId, String name, List<String> args, long interval, String notes) {
         Check check = ImmutableCheck.builder()
-            .id(checkId)
-            .name(name)
-            .args(args)
-            .interval(String.format("%ss", interval))
-            .notes(Optional.ofNullable(notes))
-            .build();
+                .id(checkId)
+                .name(name)
+                .args(args)
+                .interval(String.format("%ss", interval))
+                .notes(Optional.ofNullable(notes))
+                .build();
 
         registerCheck(check);
     }
@@ -422,7 +428,7 @@ public class AgentClient extends BaseClient {
 
     /**
      * Retrieves the Agent's configuration and member information.
-     * <p/>
+     * <p>
      * GET /v1/agent/self
      *
      * @return The Agent information.
@@ -433,7 +439,7 @@ public class AgentClient extends BaseClient {
 
     /**
      * Retrieves all checks registered with the Agent.
-     * <p/>
+     * <p>
      * GET /v1/agent/checks
      *
      * @return Map of Check ID to Checks.
@@ -444,7 +450,7 @@ public class AgentClient extends BaseClient {
 
     /**
      * Retrieves all checks registered with the Agent.
-     * <p/>
+     * <p>
      * GET /v1/agent/checks
      *
      * @param queryOptions The Query Options to use.
@@ -456,7 +462,7 @@ public class AgentClient extends BaseClient {
 
     /**
      * Retrieves all services registered with the Agent.
-     * <p/>
+     * <p>
      * GET /v1/agent/services
      *
      * @return Map of Service ID to Services.
@@ -467,7 +473,7 @@ public class AgentClient extends BaseClient {
 
     /**
      * Retrieves all services registered with the Agent.
-     * <p/>
+     * <p>
      * GET /v1/agent/services
      *
      * @param queryOptions The Query Options to use.
@@ -479,12 +485,13 @@ public class AgentClient extends BaseClient {
 
     /**
      * Retrieves all information about a service.
-     * <p/>
+     * <p>
      * GET /v1/agent/service/:service_id
      *
      * @param id           The service id.
      * @param queryOptions The Query Options to use.
      * @return A {@link ConsulResponse} containing {@link FullService} object.
+     * @throws NotRegisteredException if the service is not registered
      */
     public ConsulResponse<FullService> getService(String id, QueryOptions queryOptions) throws NotRegisteredException {
         try {
@@ -496,7 +503,7 @@ public class AgentClient extends BaseClient {
 
     /**
      * Retrieves all information about a service.
-     * <p/>
+     * <p>
      * GET /v1/agent/service/:service_id
      *
      * @param id           The service id.
@@ -510,7 +517,7 @@ public class AgentClient extends BaseClient {
 
     /**
      * Retrieves all members that the Agent can see in the gossip pool.
-     * <p/>
+     * <p>
      * GET /v1/agent/members
      *
      * @return List of Members.
@@ -521,7 +528,7 @@ public class AgentClient extends BaseClient {
 
     /**
      * Retrieves all members that the Agent can see in the gossip pool.
-     * <p/>
+     * <p>
      * GET /v1/agent/members
      *
      * @param queryOptions The Query Options to use.
@@ -533,7 +540,7 @@ public class AgentClient extends BaseClient {
 
     /**
      * GET /v1/agent/force-leave/{node}
-     * <p/>
+     * <p>
      * Instructs the agent to force a node into the "left" state.
      *
      * @param node Node name
@@ -544,10 +551,10 @@ public class AgentClient extends BaseClient {
 
     /**
      * GET /v1/agent/force-leave/{node}
-     * <p/>
+     * <p>
      * Instructs the agent to force a node into the "left" state.
      *
-     * @param node Node name
+     * @param node                  Node name
      * @param queryParameterOptions The Query Parameters Options to use.
      */
     public void forceLeave(String node, QueryParameterOptions queryParameterOptions) {
@@ -561,6 +568,7 @@ public class AgentClient extends BaseClient {
      * @param checkId The Check ID to check in.
      * @param state   The current state of the Check.
      * @param note    Any note to associate with the Check.
+     * @throws NotRegisteredException if the service has not registered
      */
     public void check(String checkId, State state, String note) throws NotRegisteredException {
         try {
@@ -575,8 +583,13 @@ public class AgentClient extends BaseClient {
     /**
      * Prepends the default TTL prefix to the serviceId to produce a check id,
      * then delegates to {@link #check(String, State, String)}.
-     * This method only works with TTL checks that have not been given a custom
-     * name.
+     * <p>
+     * <em>This method only works with TTL checks that have not been given a custom name.</em>
+     *
+     * @param serviceId the ID of the service to check
+     * @param state     the state to use in the check-in
+     * @param note      the note to add to the check-in
+     * @throws NotRegisteredException if the service has not registered
      */
     public void checkTtl(String serviceId, State state, String note) throws NotRegisteredException {
         check("service:" + serviceId, state, note);
@@ -584,6 +597,9 @@ public class AgentClient extends BaseClient {
 
     /**
      * Sets a TTL service check to "passing" state
+     *
+     * @param serviceId the ID of the service to set as passing
+     * @throws NotRegisteredException if the service has not registered
      */
     public void pass(String serviceId) throws NotRegisteredException {
         checkTtl(serviceId, State.PASS, null);
@@ -591,6 +607,10 @@ public class AgentClient extends BaseClient {
 
     /**
      * Sets a TTL service check to "passing" state with a note
+     *
+     * @param serviceId the ID of the service to set as passing
+     * @param note      the note to set on the check
+     * @throws NotRegisteredException if the service has not registered
      */
     public void pass(String serviceId, String note) throws NotRegisteredException {
         checkTtl(serviceId, State.PASS, note);
@@ -598,6 +618,9 @@ public class AgentClient extends BaseClient {
 
     /**
      * Sets a TTL service check to "warning" state.
+     *
+     * @param serviceId serviceId the ID of the service to set as warn
+     * @throws NotRegisteredException if the service has not registered
      */
     public void warn(String serviceId) throws NotRegisteredException {
         checkTtl(serviceId, State.WARN, null);
@@ -605,6 +628,10 @@ public class AgentClient extends BaseClient {
 
     /**
      * Sets a TTL service check to "warning" state with a note.
+     *
+     * @param serviceId serviceId the ID of the service to set as warn
+     * @param note      the note to set on the check
+     * @throws NotRegisteredException if the service has not registered
      */
     public void warn(String serviceId, String note) throws NotRegisteredException {
         checkTtl(serviceId, State.WARN, note);
@@ -612,6 +639,9 @@ public class AgentClient extends BaseClient {
 
     /**
      * Sets a TTL service check to "critical" state.
+     *
+     * @param serviceId serviceId the ID of the service to set as critical/fail
+     * @throws NotRegisteredException if the service has not registered
      */
     public void fail(String serviceId) throws NotRegisteredException {
         checkTtl(serviceId, State.FAIL, null);
@@ -619,6 +649,10 @@ public class AgentClient extends BaseClient {
 
     /**
      * Sets a TTL service check to "critical" state with a note.
+     *
+     * @param serviceId serviceId the ID of the service to set as critical/fail
+     * @param note      the note to set on the check
+     * @throws NotRegisteredException if the service has not registered
      */
     public void fail(String serviceId, String note) throws NotRegisteredException {
         checkTtl(serviceId, State.FAIL, note);
@@ -626,6 +660,9 @@ public class AgentClient extends BaseClient {
 
     /**
      * Sets a TTL check to "passing" state
+     *
+     * @param checkId the ID of the check to set as passing
+     * @throws NotRegisteredException if the service has not registered
      */
     public void passCheck(String checkId) throws NotRegisteredException {
         check(checkId, State.PASS, null);
@@ -633,6 +670,10 @@ public class AgentClient extends BaseClient {
 
     /**
      * Sets a TTL check to "passing" state with a note
+     *
+     * @param checkId the ID of the check to set as passing
+     * @param note    the note to set on the check
+     * @throws NotRegisteredException if the service has not registered
      */
     public void passCheck(String checkId, String note) throws NotRegisteredException {
         check(checkId, State.PASS, note);
@@ -640,6 +681,9 @@ public class AgentClient extends BaseClient {
 
     /**
      * Sets a TTL check to "warning" state.
+     *
+     * @param checkId the ID of the check to set as warn
+     * @throws NotRegisteredException if the service has not registered
      */
     public void warnCheck(String checkId) throws NotRegisteredException {
         check(checkId, State.WARN, null);
@@ -647,6 +691,10 @@ public class AgentClient extends BaseClient {
 
     /**
      * Sets a TTL check to "warning" state with a note.
+     *
+     * @param checkId the ID of the check to set as warn
+     * @param note    the note to set on the check
+     * @throws NotRegisteredException if the service has not registered
      */
     public void warnCheck(String checkId, String note) throws NotRegisteredException {
         check(checkId, State.WARN, note);
@@ -654,6 +702,9 @@ public class AgentClient extends BaseClient {
 
     /**
      * Sets a TTL check to "critical" state.
+     *
+     * @param checkId the ID of the check to set as critical/fail
+     * @throws NotRegisteredException if the service has not registered
      */
     public void failCheck(String checkId) throws NotRegisteredException {
         check(checkId, State.FAIL, null);
@@ -661,6 +712,10 @@ public class AgentClient extends BaseClient {
 
     /**
      * Sets a TTL check to "critical" state with a note.
+     *
+     * @param checkId the ID of the check to set as critical/fail
+     * @param note    the note to set on the check
+     * @throws NotRegisteredException if the service has not registered
      */
     public void failCheck(String checkId, String note) throws NotRegisteredException {
         check(checkId, State.FAIL, note);
@@ -680,11 +735,11 @@ public class AgentClient extends BaseClient {
 
     /**
      * GET /v1/agent/join/{address}?wan={@code wan}
-     *
+     * <p>
      * Instructs the agent to join a node.
      *
      * @param address The address to join.
-     * @param wan Use WAN pool.
+     * @param wan     Use WAN pool.
      * @return <code>true</code> if successful, otherwise <code>false</code>.
      */
     public boolean join(String address, boolean wan) {
@@ -693,10 +748,10 @@ public class AgentClient extends BaseClient {
 
     /**
      * GET /v1/agent/join/{address}?{@code queryOptions}
-     *
+     * <p>
      * Instructs the agent to join a node.
      *
-     * @param address The address to join.
+     * @param address      The address to join.
      * @param queryOptions The Query Options to use.
      * @return <code>true</code> if successful, otherwise <code>false</code>.
      */
@@ -705,7 +760,7 @@ public class AgentClient extends BaseClient {
 
         try {
             http.handle(api.join(address, queryOptions.toQuery()));
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             result = false;
         }
 
@@ -716,8 +771,8 @@ public class AgentClient extends BaseClient {
      * Toggles maintenance mode for a service ID.
      *
      * @param serviceId The service ID.
-     * @param enable <code>true</code> if the service should be in
-     *               maintenance mode, otherwise <code>false</code>.
+     * @param enable    <code>true</code> if the service should be in
+     *                  maintenance mode, otherwise <code>false</code>.
      */
     public void toggleMaintenanceMode(String serviceId, boolean enable) {
         toggleMaintenanceMode(serviceId, ImmutableQueryOptions.builder().enable(enable).build());
@@ -727,9 +782,9 @@ public class AgentClient extends BaseClient {
      * Toggles maintenance mode for a service ID.
      *
      * @param serviceId The service ID.
-     * @param enable <code>true</code> if the service should be in
-     *               maintenance mode, otherwise <code>false</code>.
-     * @param reason The reason for maintenance mode.
+     * @param enable    <code>true</code> if the service should be in
+     *                  maintenance mode, otherwise <code>false</code>.
+     * @param reason    The reason for maintenance mode.
      */
     public void toggleMaintenanceMode(String serviceId,
                                       boolean enable,
@@ -740,7 +795,7 @@ public class AgentClient extends BaseClient {
     /**
      * Toggles maintenance mode for a service ID.
      *
-     * @param serviceId The service ID.
+     * @param serviceId    The service ID.
      * @param queryOptions The Query Options to use.
      */
     public void toggleMaintenanceMode(String serviceId, QueryOptions queryOptions) {

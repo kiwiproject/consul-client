@@ -42,7 +42,8 @@ import java.util.function.Function;
  * A cache structure that can provide an up-to-date read-only
  * map backed by consul data
  *
- * @param <V>
+ * @param <K> the type of keys this cache contains
+ * @param <V> the type of values this cache contains
  */
 public class ConsulCache<K, V> implements AutoCloseable {
     enum State {
@@ -340,7 +341,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
     /**
      * passed in by creators to vary the content of the cached values
      *
-     * @param <V>
+     * @param <V> the type of values to be consumed
      */
     protected interface CallbackConsumer<V> {
         void consume(BigInteger index, ConsulResponseCallback<List<V>> callback);
@@ -350,7 +351,8 @@ public class ConsulCache<K, V> implements AutoCloseable {
      * Implementers can register a listener to receive
      * a new map when it changes
      *
-     * @param <V>
+     * @param <K> the type of keys
+     * @param <V> the type of values
      */
     public interface Listener<K, V> {
         void notify(Map<K, V> newValues);

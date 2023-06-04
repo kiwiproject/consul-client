@@ -41,7 +41,7 @@ public class HealthClient extends BaseCacheableClient {
 
     /**
      * Retrieves the healthchecks for a node.
-     * <p/>
+     * <p>
      * GET /v1/health/node/{node}
      *
      * @param node The node to return checks for
@@ -54,7 +54,7 @@ public class HealthClient extends BaseCacheableClient {
 
     /**
      * Retrieves the healthchecks for a node in a given datacenter with {@link QueryOptions}.
-     * <p/>
+     * <p>
      * GET /v1/health/node/{node}?dc={datacenter}
      *
      * @param node         The node to return checks for
@@ -70,9 +70,10 @@ public class HealthClient extends BaseCacheableClient {
 
     /**
      * Retrieves the healthchecks for a service.
-     * <p/>
+     * <p>
      * GET /v1/health/checks/{service}
      *
+     * @param service the name of the service to get health checks for
      * @return A {@link ConsulResponse} containing a list of
      * {@link HealthCheck} objects.
      */
@@ -82,9 +83,10 @@ public class HealthClient extends BaseCacheableClient {
 
     /**
      * Retrieves the healthchecks for a service in a given datacenter with {@link QueryOptions}.
-     * <p/>
+     * <p>
      * GET /v1/health/checks/{service}?dc={datacenter}
      *
+     * @param service      the name of the service to get health checks for
      * @param queryOptions The Query Options to use.
      * @return A {@link ConsulResponse} containing a list of
      * {@link HealthCheck} objects.
@@ -98,7 +100,7 @@ public class HealthClient extends BaseCacheableClient {
     /**
      * Asynchronously retrieves the healthchecks for a service in a given
      * datacenter with {@link QueryOptions}.
-     * <p/>
+     * <p>
      * GET /v1/health/checks/{service}?dc={datacenter}
      *
      * @param service      The service to query.
@@ -115,7 +117,7 @@ public class HealthClient extends BaseCacheableClient {
 
     /**
      * Retrieves the healthchecks for a state.
-     * <p/>
+     * <p>
      * GET /v1/health/state/{state}
      *
      * @param state The state to query.
@@ -128,7 +130,7 @@ public class HealthClient extends BaseCacheableClient {
 
     /**
      * Retrieves the healthchecks for a state in a given datacenter with {@link QueryOptions}.
-     * <p/>
+     * <p>
      * GET /v1/health/state/{state}?dc={datacenter}
      *
      * @param state        The state to query.
@@ -144,7 +146,7 @@ public class HealthClient extends BaseCacheableClient {
 
     /**
      * Asynchronously retrieves the healthchecks for a state in a given datacenter with {@link QueryOptions}.
-     * <p/>
+     * <p>
      * GET /v1/health/state/{state}?dc={datacenter}
      *
      * @param state        The state to query.
@@ -159,7 +161,7 @@ public class HealthClient extends BaseCacheableClient {
 
     /**
      * Retrieves the healthchecks for all healthy service instances.
-     * <p/>
+     * <p>
      * GET /v1/health/service/{service}?passing
      *
      * @param service The service to query.
@@ -173,7 +175,7 @@ public class HealthClient extends BaseCacheableClient {
     /**
      * Retrieves the healthchecks for all healthy service instances in a given datacenter with
      * {@link QueryOptions}.
-     * <p/>
+     * <p>
      * GET /v1/health/service/{service}?dc={datacenter}&amp;passing
      *
      * @param service      The service to query.
@@ -192,9 +194,9 @@ public class HealthClient extends BaseCacheableClient {
     /**
      * Asynchronously retrieves the healthchecks for all healthy service instances in a given
      * datacenter with {@link QueryOptions}.
-     * <p/>
+     * <p>
      * GET /v1/health/service/{service}?dc={datacenter}&amp;passing
-     * <p/>
+     * <p>
      * Experimental.
      *
      * @param service      The service to query.
@@ -210,7 +212,7 @@ public class HealthClient extends BaseCacheableClient {
 
     /**
      * Retrieves the healthchecks for all nodes.
-     * <p/>
+     * <p>
      * GET /v1/health/service/{service}
      *
      * @param service The service to query.
@@ -224,7 +226,7 @@ public class HealthClient extends BaseCacheableClient {
     /**
      * Retrieves the healthchecks for all nodes in a given datacenter with
      * {@link QueryOptions}.
-     * <p/>
+     * <p>
      * GET /v1/health/service/{service}?dc={datacenter}
      *
      * @param service      The service to query.
@@ -240,9 +242,9 @@ public class HealthClient extends BaseCacheableClient {
     /**
      * Asynchronously retrieves the healthchecks for all nodes in a given
      * datacenter with {@link QueryOptions}.
-     * <p/>
+     * <p>
      * GET /v1/health/service/{service}?dc={datacenter}
-     * <p/>
+     * <p>
      * Experimental.
      *
      * @param service      The service to query.

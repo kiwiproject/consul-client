@@ -77,8 +77,25 @@ public class Consul {
     private final OkHttpClient okHttpClient;
     private boolean destroyed;
 
+
     /**
      * Package-private constructor.
+     *
+     * @param agentClient         the {@link AgentClient}
+     * @param healthClient        the {@link HealthClient}
+     * @param keyValueClient      the {@link KeyValueClient}
+     * @param catalogClient       the {@link CatalogClient}
+     * @param statusClient        the {@link StatusClient}
+     * @param sessionClient       the {@link SessionClient}
+     * @param eventClient         the {@link EventClient}
+     * @param preparedQueryClient the {@link PreparedQueryClient}
+     * @param coordinateClient    the {@link CoordinateClient}
+     * @param operatorClient      the {@link OperatorClient}
+     * @param executorService     the executor service provided to OkHttp
+     * @param connectionPool      the OkHttp connection pool
+     * @param aclClient           the {@link AclClient}
+     * @param snapshotClient      the {@link SnapshotClient}
+     * @param okHttpClient        the {@link OkHttpClient}
      */
     protected Consul(AgentClient agentClient,
                      HealthClient healthClient,
@@ -454,12 +471,13 @@ public class Consul {
         }
 
         /**
-        * Attaches a {@link ConsulBookend} to each Consul request. This can be used for gathering
-        * metrics timings or debugging. {@see ConsulBookend}
-        *
-        * @param consulBookend The bookend implementation.
-        * @return The builder.
-        */
+         * Attaches a {@link ConsulBookend} to each Consul request. This can be used for gathering
+         * metrics timings or debugging.
+         *
+         * @param consulBookend The bookend implementation.
+         * @return The builder.
+         * @see ConsulBookend
+         */
         public Builder withConsulBookend(ConsulBookend consulBookend) {
             consulBookendInterceptor = new ConsulBookendInterceptor(consulBookend);
 

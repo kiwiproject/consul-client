@@ -78,7 +78,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * GET /v1/kv/{key}
      *
      * @param key The key to retrieve.
-     * @return An {@link Optional} containing the value or {@link Optional#empty()()}
+     * @return An {@link Optional} containing the value or {@link Optional#empty()}
      */
     public Optional<Value> getValue(String key) {
         return getValue(key, QueryOptions.BLANK);
@@ -90,7 +90,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * key/value store
      *
      * @param key The key to retrieve
-     * @return An {@link Optional} containing the {@link ConsulResponse} or {@link Optional#empty()()}
+     * @return An {@link Optional} containing the {@link ConsulResponse} or {@link Optional#empty()}
      */
     public Optional<ConsulResponse<Value>> getConsulResponseWithValue(String key) {
         return getConsulResponseWithValue(key, QueryOptions.BLANK);
@@ -102,9 +102,9 @@ public class KeyValueClient extends BaseCacheableClient {
      * <p>
      * GET /v1/kv/{key}
      *
-     * @param key The key to retrieve.
+     * @param key          The key to retrieve.
      * @param queryOptions The query options.
-     * @return An {@link Optional} containing the value or {@link Optional#empty()()}
+     * @return An {@link Optional} containing the value or {@link Optional#empty()}
      */
     public Optional<Value> getValue(String key, QueryOptions queryOptions) {
         try {
@@ -121,12 +121,12 @@ public class KeyValueClient extends BaseCacheableClient {
     }
 
     /**
-     * Returns a {@link ConsulResponse<Value>} for a specific key from the kv store.
+     * Returns a {@link ConsulResponse} for a specific key from the kv store.
      * Contains the consul response headers along with the configuration value.
      * <p>
      * GET /v1/kv/{key}
      *
-     * @param key The key to retrieve.
+     * @param key          The key to retrieve.
      * @param queryOptions The query options.
      * @return An {@link Optional} containing the ConsulResponse or {@link Optional#empty()}
      */
@@ -158,9 +158,9 @@ public class KeyValueClient extends BaseCacheableClient {
      * <p>
      * GET /v1/kv/{key}
      *
-     * @param key The key to retrieve.
+     * @param key          The key to retrieve.
      * @param queryOptions The query options.
-     * @param callback Callback implemented by callee to handle results.
+     * @param callback     Callback implemented by callee to handle results.
      */
     public void getValue(String key, QueryOptions queryOptions, final ConsulResponseCallback<Optional<Value>> callback) {
         ConsulResponseCallback<List<Value>> wrapper = new ConsulResponseCallback<>() {
@@ -219,7 +219,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * <p>
      * GET /v1/kv/{key}?recurse
      *
-     * @param key The key to retrieve.
+     * @param key          The key to retrieve.
      * @param queryOptions The query options.
      * @return A list of zero to many {@link Value} objects.
      */
@@ -239,7 +239,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * <p>
      * GET /v1/kv/{key}?recurse
      *
-     * @param key The key to retrieve.
+     * @param key          The key to retrieve.
      * @param queryOptions The query options to use.
      * @return A {@link ConsulResponse} with a list of zero to many {@link Value} objects and
      * consul response headers.
@@ -258,9 +258,9 @@ public class KeyValueClient extends BaseCacheableClient {
      * <p>
      * GET /v1/kv/{key}?recurse
      *
-     * @param key The key to retrieve.
+     * @param key          The key to retrieve.
      * @param queryOptions The query options.
-     * @param callback Callback implemented by callee to handle results.
+     * @param callback     Callback implemented by callee to handle results.
      */
     public void getValues(String key, QueryOptions queryOptions, ConsulResponseCallback<List<Value>> callback) {
         Map<String, Object> query = queryOptions.toQuery();
@@ -288,7 +288,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * <p>
      * GET /v1/kv/{key}
      *
-     * @param key The key to retrieve.
+     * @param key     The key to retrieve.
      * @param charset The charset of the value
      * @return An {@link Optional} containing the value as a string or
      * {@link Optional#empty()}
@@ -316,14 +316,14 @@ public class KeyValueClient extends BaseCacheableClient {
      * <p>
      * GET /v1/kv/{key}?recurse
      *
-     * @param key The key to retrieve.
+     * @param key     The key to retrieve.
      * @param charset The charset of the value
      * @return A list of zero to many string values.
      */
     public List<String> getValuesAsString(String key, Charset charset) {
         List<String> result = new ArrayList<>();
 
-        for(Value value : getValues(key)) {
+        for (Value value : getValues(key)) {
             value.getValueAsString(charset).ifPresent(result::add);
         }
 
@@ -343,7 +343,7 @@ public class KeyValueClient extends BaseCacheableClient {
     /**
      * Puts a value into the key/value store.
      *
-     * @param key The key to use as index.
+     * @param key   The key to use as index.
      * @param value The value to index.
      * @return <code>true</code> if the value was successfully indexed.
      */
@@ -354,8 +354,9 @@ public class KeyValueClient extends BaseCacheableClient {
     /**
      * Puts a value into the key/value store.
      *
-     * @param key The key to use as index.
-     * @param value The value to index.
+     * @param key     The key to use as index.
+     * @param value   The value to index.
+     * @param charset the {@link Charset} to use
      * @return <code>true</code> if the value was successfully indexed.
      */
     public boolean putValue(String key, String value, Charset charset) {
@@ -365,7 +366,7 @@ public class KeyValueClient extends BaseCacheableClient {
     /**
      * Puts a value into the key/value store.
      *
-     * @param key The key to use as index.
+     * @param key   The key to use as index.
      * @param value The value to index.
      * @param flags The flags for this key.
      * @return <code>true</code> if the value was successfully indexed.
@@ -377,9 +378,10 @@ public class KeyValueClient extends BaseCacheableClient {
     /**
      * Puts a value into the key/value store.
      *
-     * @param key The key to use as index.
-     * @param value The value to index.
-     * @param flags The flags for this key.
+     * @param key     The key to use as index.
+     * @param value   The value to index.
+     * @param flags   The flags for this key.
+     * @param charset the {@link Charset} to use
      * @return <code>true</code> if the value was successfully indexed.
      */
     public boolean putValue(String key, String value, long flags, Charset charset) {
@@ -389,8 +391,9 @@ public class KeyValueClient extends BaseCacheableClient {
     /**
      * Puts a value into the key/value store.
      *
-     * @param key The key to use as index.
-     * @param value The value to index.
+     * @param key        The key to use as index.
+     * @param value      The value to index.
+     * @param flags      The flags for this key.
      * @param putOptions PUT options (e.g. wait, acquire).
      * @return <code>true</code> if the value was successfully indexed.
      */
@@ -401,9 +404,11 @@ public class KeyValueClient extends BaseCacheableClient {
     /**
      * Puts a value into the key/value store.
      *
-     * @param key The key to use as index.
-     * @param value The value to index.
+     * @param key        The key to use as index.
+     * @param value      The value to index.
+     * @param flags      The flags for this key.
      * @param putOptions PUT options (e.g. wait, acquire).
+     * @param charset    the {@link Charset} to use
      * @return <code>true</code> if the value was successfully indexed.
      */
     public boolean putValue(String key, String value, long flags, PutOptions putOptions, Charset charset) {
@@ -427,8 +432,9 @@ public class KeyValueClient extends BaseCacheableClient {
     /**
      * Puts a value into the key/value store.
      *
-     * @param key The key to use as index.
-     * @param value The value to index.
+     * @param key        The key to use as index.
+     * @param value      The value to index.
+     * @param flags      The flags for this key.
      * @param putOptions PUT options (e.g. wait, acquire).
      * @return <code>true</code> if the value was successfully indexed.
      */
@@ -467,7 +473,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * <p>
      * GET /v1/kv/{key}?keys
      *
-     * @param key The key to retrieve.
+     * @param key          The key to retrieve.
      * @param queryOptions The query options.
      * @return A list of zero to many keys.
      */
@@ -479,9 +485,9 @@ public class KeyValueClient extends BaseCacheableClient {
      * Retrieves a list of matching keys for the given key, limiting the prefix of keys
      * returned, only up to the given separator.
      * <p>
-     * GET /v1/kv/{key}?keys&separator={separator}
+     * {@code GET /v1/kv/{key}?keys&separator={separator}}
      *
-     * @param key The key to retrieve.
+     * @param key       The key to retrieve.
      * @param separator The separator used to limit the prefix of keys returned.
      * @return A list of zero to many keys.
      */
@@ -492,10 +498,10 @@ public class KeyValueClient extends BaseCacheableClient {
     /**
      * Retrieves a list of matching keys for the given key.
      * <p>
-     * GET /v1/kv/{key}?keys&separator={separator}
+     * {@code GET /v1/kv/{key}?keys&separator={separator}}
      *
-     * @param key The key to retrieve.
-     * @param separator The separator used to limit the prefix of keys returned.
+     * @param key          The key to retrieve.
+     * @param separator    The separator used to limit the prefix of keys returned.
      * @param queryOptions The query options.
      * @return A list of zero to many keys.
      */
@@ -537,7 +543,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * <p>
      * DELETE /v1/kv/{key}
      *
-     * @param key The key to delete.
+     * @param key           The key to delete.
      * @param deleteOptions DELETE options (e.g. recurse, cas)
      */
     public void deleteKey(String key, DeleteOptions deleteOptions) {
@@ -552,7 +558,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * <p>
      * PUT /v1/kv/{key}?acquire={session}
      *
-     * @param key The key to acquire the lock.
+     * @param key     The key to acquire the lock.
      * @param session The session to acquire lock.
      * @return true if the lock is acquired successfully, false otherwise.
      */
@@ -565,9 +571,9 @@ public class KeyValueClient extends BaseCacheableClient {
      * <p>
      * PUT /v1/kv/{key}?acquire={session}
      *
-     * @param key The key to acquire the lock.
+     * @param key     The key to acquire the lock.
      * @param session The session to acquire lock.
-     * @param value key value (usually - application specific info about the lock requester)
+     * @param value   key value (usually - application specific info about the lock requester)
      * @return true if the lock is acquired successfully, false otherwise.
      */
     public boolean acquireLock(final String key, final String value, final String session) {
@@ -592,9 +598,8 @@ public class KeyValueClient extends BaseCacheableClient {
      * <p>
      * GET /v1/kv/{key}?release={sessionId}
      *
-     * @param key identifying the service.
+     * @param key       identifying the service.
      * @param sessionId the session ID
-     *
      * @return {@link SessionInfo}.
      */
     public boolean releaseLock(final String key, final String sessionId) {
@@ -611,7 +616,7 @@ public class KeyValueClient extends BaseCacheableClient {
      */
     public ConsulResponse<TxResponse> performTransaction(Operation... operations) {
         ImmutableTransactionOptions immutableTransactionOptions =
-            ImmutableTransactionOptions.builder().consistencyMode(ConsistencyMode.DEFAULT).build();
+                ImmutableTransactionOptions.builder().consistencyMode(ConsistencyMode.DEFAULT).build();
         return performTransaction(immutableTransactionOptions, operations);
     }
 
@@ -620,11 +625,10 @@ public class KeyValueClient extends BaseCacheableClient {
      * <p>
      * PUT /v1/tx
      *
-     * @deprecated Replaced by {@link #performTransaction(TransactionOptions, Operation...)}
-     *
      * @param consistency The consistency to use for the transaction.
-     * @param operations A list of KV operations.
+     * @param operations  A list of KV operations.
      * @return A {@link ConsulResponse} containing results and potential errors.
+     * @deprecated Replaced by {@link #performTransaction(TransactionOptions, Operation...)}
      */
     @Deprecated(since = "0.5.0", forRemoval = true)
     public ConsulResponse<TxResponse> performTransaction(ConsistencyMode consistency, Operation... operations) {
@@ -642,8 +646,8 @@ public class KeyValueClient extends BaseCacheableClient {
 
     private static Map<String, Object> consistencyQueryFor(ConsistencyMode consistency) {
         return consistency.toParam()
-            .map(paramValue -> Map.<String, Object>of(paramValue, "true"))
-            .orElseGet(Map::of);
+                .map(paramValue -> Map.<String, Object>of(paramValue, "true"))
+                .orElseGet(Map::of);
     }
 
     /**
@@ -652,7 +656,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * PUT /v1/tx
      *
      * @param transactionOptions transaction options (e.g. dc, consistency).
-     * @param operations A list of KV operations.
+     * @param operations         A list of KV operations.
      * @return A {@link ConsulResponse} containing results and potential errors.
      */
     public ConsulResponse<TxResponse> performTransaction(TransactionOptions transactionOptions, Operation... operations) {
@@ -669,13 +673,14 @@ public class KeyValueClient extends BaseCacheableClient {
 
     /**
      * Wraps {@link Operation} in a <code>"KV": { }</code> block.
+     *
      * @param operations An array of ops.
      * @return An array of wrapped ops.
      */
     static KvOperation[] kv(Operation... operations) {
         KvOperation[] kvs = new KvOperation[operations.length];
 
-        for (int i = 0; i < operations.length; i ++) {
+        for (int i = 0; i < operations.length; i++) {
             kvs[i] = new KvOperation(operations[i]);
         }
 
@@ -699,6 +704,7 @@ public class KeyValueClient extends BaseCacheableClient {
         @PUT("kv/{key}")
         Call<Boolean> putValue(@Path("key") String key,
                                @QueryMap Map<String, Object> query);
+
         @PUT("kv/{key}")
         Call<Boolean> putValue(@Path("key") String key,
                                @Body RequestBody data,

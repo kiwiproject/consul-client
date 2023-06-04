@@ -31,11 +31,15 @@ public class HealthCheckCache extends ConsulCache<String, HealthCheck> {
 
     /**
      * Factory method to construct a string/{@link HealthCheck} map for a particular {@link com.orbitz.consul.model.State}.
-     * <p/>
+     * <p>
      * Keys will be the {@link HealthCheck#getCheckId()}.
      *
-     * @param healthClient the {@link HealthClient}
-     * @param checkState   the state fo filter checks
+     * @param healthClient            the {@link HealthClient}
+     * @param checkState              the state fo filter checks
+     * @param watchSeconds            the seconds to block
+     * @param queryOptions            the query options to use
+     * @param keyExtractor            a function to convert values to keys
+     * @param callbackExecutorService the ScheduledExecutorService to use for asynchronous callbacks
      * @return a cache object
      */
     public static HealthCheckCache newCache(

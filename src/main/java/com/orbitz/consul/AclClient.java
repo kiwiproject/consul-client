@@ -39,6 +39,8 @@ public class AclClient extends BaseClient {
     }
 
     /**
+     * @param aclToken the AclToken to create
+     * @return the ID of the new token
      * @deprecated this method will be removed in a future release; it has no replacement
      */
     @Deprecated(since = "0.5.0", forRemoval = true)
@@ -47,6 +49,7 @@ public class AclClient extends BaseClient {
     }
 
     /**
+     * @param aclToken the token to update
      * @deprecated this method will be removed in a future release; it has no replacement
      */
     @Deprecated(since = "0.5.0", forRemoval = true)
@@ -55,6 +58,7 @@ public class AclClient extends BaseClient {
     }
 
     /**
+     * @param id the ID of the ACL to delete
      * @deprecated this method will be removed in a future release; it has no replacement
      */
     @Deprecated(since = "0.5.0", forRemoval = true)
@@ -63,6 +67,8 @@ public class AclClient extends BaseClient {
     }
 
     /**
+     * @param id the ID of the ACL for which to get information
+     * @return a list of AclResponse
      * @deprecated this method will be removed in a future release; it has no replacement
      */
     @Deprecated(since = "0.5.0", forRemoval = true)
@@ -71,6 +77,8 @@ public class AclClient extends BaseClient {
     }
 
     /**
+     * @param id the ID of the ACL to clone
+     * @return the ID of the new clone ACL
      * @deprecated this method will be removed in a future release; it has no replacement
      */
     @Deprecated(since = "0.5.0", forRemoval = true)
@@ -79,6 +87,7 @@ public class AclClient extends BaseClient {
     }
 
     /**
+     * @return a list of ACLs
      * @deprecated this method will be removed in a future release; it has no replacement
      */
     @Deprecated(since = "0.5.0", forRemoval = true)

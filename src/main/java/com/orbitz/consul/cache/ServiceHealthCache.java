@@ -37,12 +37,16 @@ public class ServiceHealthCache extends ConsulCache<ServiceHealthKey, ServiceHea
 
     /**
      * Factory method to construct a string/{@link ServiceHealth} map for a particular service.
-     * <p/>
+     * <p>
      * Keys will be a {@link HostAndPort} object made up of the service's address/port combo
      *
-     * @param healthClient the {@link HealthClient}
-     * @param serviceName  the name of the service
-     * @param passing      include only passing services?
+     * @param healthClient            the {@link HealthClient}
+     * @param serviceName             the name of the service
+     * @param passing                 include only passing services?
+     * @param watchSeconds            the seconds to block
+     * @param queryOptions            the query options to use
+     * @param keyExtractor            a function to convert values to keys
+     * @param callbackExecutorService the ScheduledExecutorService to use for asynchronous callbacks
      * @return a cache object
      */
     public static ServiceHealthCache newCache(
