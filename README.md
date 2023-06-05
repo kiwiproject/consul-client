@@ -37,6 +37,11 @@ did not want a reference to the original repository since it is no longer mainta
 be pushed back upstream. Thus, while we maintain the history that this is a fork , it is completely disconnected and is
 now a standalone (normal) repository.
 
+Migrating from rickfast/consul-client
+--------------------------------------------
+For the initial version 0.5.0, most likely the only thing you need to change in your POM is the group ID and the version number.
+
+However, if you are using `PolicyResponse` and/or `PolicyListResponse`, then you will need to change your code, since `datacenters` changed from `Optional<String>` to `Optional<List<String>>`, so code using either of those will no longer compile. This change was not avoidable, since the original type was incorrect.
 
 Installation
 -----------
@@ -51,7 +56,7 @@ In 0.11.X and 0.12.x, the Consul JAR is a shaded JAR, with most dependencies inc
 
 ```groovy
 dependencies {
-    implementation 'com.orbitz.consul:consul-client:1.5.3'
+    implementation 'org.kiwiproject:consul-client:[version]'
 }
 ```
 
@@ -59,7 +64,7 @@ dependencies {
 
 ```kotlin
 dependencies {
-    implementation("com.orbitz.consul:consul-client:1.5.3")
+    implementation("org.kiwiproject:consul-client:[version]")
 }
 ```
 
@@ -68,9 +73,9 @@ dependencies {
 ```xml
 <dependencies>
     <dependency>
-        <groupId>com.orbitz.consul</groupId>
+        <groupId>org.kiwiproject</groupId>
         <artifactId>consul-client</artifactId>
-        <version>1.5.3</version>
+        <version>[version]</version>
     </dependency>
 </dependencies>
 ```
