@@ -49,9 +49,7 @@ However, if you are using `PolicyResponse` and/or `PolicyListResponse`, then you
 Installation
 -----------
 
-In 0.13.x, both shaded and non-shaded JARs are provided. The shaded JAR has a `shaded` classifier, while the non-shaded JAR has no classifier. Note that this is a change from 0.12 and 0.11.
-
-In 0.11.X and 0.12.x, the Consul JAR is a shaded JAR, with most dependencies included. This was done because a number of issues being files were related to dependency conflicts. The JAR is a bit bigger, but the HTTP + JSON libraries are now internal to the JAR. Only Guava is still a transitive dependency.
+Use the following to include `consul-client` as a dependency in your project.
 
 ### Gradle:
 
@@ -83,6 +81,18 @@ dependencies {
 </dependencies>
 ```
 
+### Shaded JAR
+
+A shaded JAR is also provided using the [Maven Shade Plugin](https://maven.apache.org/plugins/maven-shade-plugin/) to create an "uber-jar" that includes dependencies. To use the shaded JAR, add a classifier, e.g. in Maven:
+
+```xml
+<dependency>
+    <groupId>org.kiwiproject</groupId>
+    <artifactId>consul-client</artifactId>
+    <version>[version]</version>
+    <classifier>shaded</classifier>
+</dependency>
+```
 
 Basic Usage
 -----------
