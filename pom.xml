@@ -281,6 +281,10 @@
                                     <pattern>com.google</pattern>
                                     <shadedPattern>com.orbitz.google</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>org.checkerframework</pattern>
+                                    <shadedPattern>com.orbitz.checkerframework</shadedPattern>
+                                </relocation>
                             </relocations>
                         </configuration>
                     </execution>
