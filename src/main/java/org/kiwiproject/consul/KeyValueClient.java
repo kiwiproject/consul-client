@@ -6,7 +6,6 @@ import static java.util.Objects.nonNull;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.primitives.UnsignedLongs;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import org.apache.commons.lang3.StringUtils;
@@ -417,7 +416,7 @@ public class KeyValueClient extends BaseCacheableClient {
         Map<String, Object> query = putOptions.toQuery();
 
         if (flags != 0) {
-            query.put("flags", UnsignedLongs.toString(flags));
+            query.put("flags", Long.toUnsignedString(flags));
         }
 
         if (isNull(value)) {
@@ -444,7 +443,7 @@ public class KeyValueClient extends BaseCacheableClient {
         Map<String, Object> query = putOptions.toQuery();
 
         if (flags != 0) {
-            query.put("flags", UnsignedLongs.toString(flags));
+            query.put("flags", Long.toUnsignedString(flags));
         }
 
         if (isNull(value)) {
