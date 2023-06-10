@@ -25,7 +25,7 @@ import java.util.Objects;
 
 class AclClientITest {
 
-    public static GenericContainer<?> consulContainerAcl;
+    public static final GenericContainer<?> consulContainerAcl;
 
     static {
         // noinspection resource
@@ -48,7 +48,7 @@ class AclClientITest {
 
     protected static Consul client;
 
-    protected static HostAndPort aclClientHostAndPort = HostAndPort.fromParts("localhost", consulContainerAcl.getFirstMappedPort());
+    protected static final HostAndPort aclClientHostAndPort = HostAndPort.fromParts("localhost", consulContainerAcl.getFirstMappedPort());
 
     private AclClient aclClient;
 
