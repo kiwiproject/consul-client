@@ -478,36 +478,6 @@ class KeyValueClientITest extends BaseIntegrationTest {
         assertThat(response.getResponse().results().get(0).get("KV").getKey()).isEqualTo(key);
     }
 
-    @SuppressWarnings("removal")
-    @Test
-    void testBasicTxn_Deprecated_Using_DEFAULT_ConsistencyMode() {
-        var key = randomUUIDString();
-        var value = Base64.encodeBase64String(RandomStringUtils.random(20).getBytes());
-        Operation[] operation = new Operation[] { ImmutableOperation.builder().verb("set")
-                .key(key)
-                .value(value).build() };
-
-        ConsulResponse<TxResponse> response = keyValueClient.performTransaction(ConsistencyMode.DEFAULT, operation);
-
-        assertThat(keyValueClient.getValueAsString(key)).contains(value);
-        assertThat(response.getResponse().results().get(0).get("KV").getKey()).isEqualTo(key);
-    }
-
-    @SuppressWarnings("removal")
-    @Test
-    void testBasicTxn_Deprecated_Using_CONSISTENT_ConsistencyMode() {
-        var key = randomUUIDString();
-        var value = Base64.encodeBase64String(RandomStringUtils.random(20).getBytes());
-        Operation[] operation = new Operation[] { ImmutableOperation.builder().verb("set")
-                .key(key)
-                .value(value).build() };
-
-        ConsulResponse<TxResponse> response = keyValueClient.performTransaction(ConsistencyMode.CONSISTENT, operation);
-
-        assertThat(keyValueClient.getValueAsString(key)).contains(value);
-        assertThat(response.getResponse().results().get(0).get("KV").getKey()).isEqualTo(key);
-    }
-
     @Test
     void testGetKeysWithSeparator() {
         keyValueClient.putValue("nested/first", "first");
