@@ -1,26 +1,40 @@
 package org.kiwiproject.consul.util;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 /**
  * Deserializes Consul time values with "s" suffix to {@link Long} objects.
+ *
+ * @see <a href="https://developer.hashicorp.com/consul/api-docs/features/blocking">Blocking Queries</a>
  */
 public class SecondsDeserializer extends JsonDeserializer<Long> {
 
+    private static final Pattern PATTERN = Pattern.compile("[a-zA-Z]");
+
     @Override
     public Long deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-        String value = p.getValueAsString();
+        var durationString = p.getValueAsString();
 
-        if (StringUtils.isNotEmpty(value)) {
-            value = value.replaceAll("[a-zA-Z]", "");
+        if (isNotBlank(durationString)) {
+            var duration = PATTERN.matcher(durationString).replaceAll("");
+            return toLongOrThrow(duration);
+        }
+
+        return null;
+    }
+
+    private static Long toLongOrThrow(String value) {
+        try {
             return Long.valueOf(value);
-        } else {
-            return null;
+        } catch (NumberFormatException e) {
+            throw new IllegalStateException("Expected a number but received a non-numeric value", e);
         }
     }
 }
