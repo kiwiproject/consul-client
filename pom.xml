@@ -255,35 +255,35 @@
                             <relocations>
                                 <relocation>
                                     <pattern>retrofit2</pattern>
-                                    <shadedPattern>com.orbitz.retrofit</shadedPattern>
+                                    <shadedPattern>org.kiwiproject.retrofit</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.squareup</pattern>
-                                    <shadedPattern>com.orbitz.squareup</shadedPattern>
+                                    <shadedPattern>org.kiwiproject.squareup</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>okio</pattern>
-                                    <shadedPattern>com.orbitz.okio</shadedPattern>
+                                    <shadedPattern>org.kiwiproject.okio</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>okhttp3</pattern>
-                                    <shadedPattern>com.orbitz.okhttp3</shadedPattern>
+                                    <shadedPattern>org.kiwiproject.okhttp3</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.apache</pattern>
-                                    <shadedPattern>com.orbitz.apache</shadedPattern>
+                                    <shadedPattern>org.kiwiproject.apache</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.fasterxml</pattern>
-                                    <shadedPattern>com.orbitz.fasterxml</shadedPattern>
+                                    <shadedPattern>org.kiwiproject.fasterxml</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.google</pattern>
-                                    <shadedPattern>com.orbitz.google</shadedPattern>
+                                    <shadedPattern>org.kiwiproject.google</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.checkerframework</pattern>
-                                    <shadedPattern>com.orbitz.checkerframework</shadedPattern>
+                                    <shadedPattern>org.kiwiproject.checkerframework</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

@@ -4,7 +4,7 @@
 
 _Under Kiwi Project this changelog will not be updated. It is here to retain history of the original project which
 was maintained at [rickfast/consul-client](https://github.com/rickfast/consul-client/). Instead, we will use the
-GitHub [Releases](https://github.com/kiwiproject/consul-client/releases) page as the offical changelog for
+GitHub [Releases](https://github.com/kiwiproject/consul-client/releases) page as the official changelog for
 all releases performed under the `org.kiwiproject` Maven groupId._
 
 _What follows is the original, unaltered changelog. It was never updated for releases after 1.0.1, which
