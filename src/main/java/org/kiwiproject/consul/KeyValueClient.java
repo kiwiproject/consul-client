@@ -625,36 +625,6 @@ public class KeyValueClient extends BaseCacheableClient {
      * <p>
      * PUT /v1/tx
      *
-     * @param consistency The consistency to use for the transaction.
-     * @param operations  A list of KV operations.
-     * @return A {@link ConsulResponse} containing results and potential errors.
-     * @deprecated Replaced by {@link #performTransaction(TransactionOptions, Operation...)}
-     */
-    @Deprecated(since = "0.5.0", forRemoval = true)
-    public ConsulResponse<TxResponse> performTransaction(ConsistencyMode consistency, Operation... operations) {
-
-        Map<String, Object> query = consistencyQueryFor(consistency);
-
-        try {
-            String json = Jackson.MAPPER.writeValueAsString(kv(operations));
-            RequestBody requestBody = RequestBody.create(json, MediaType.parse("application/json"));
-            return http.extractConsulResponse(api.performTransaction(requestBody, query));
-        } catch (JsonProcessingException e) {
-            throw new ConsulException(e);
-        }
-    }
-
-    private static Map<String, Object> consistencyQueryFor(ConsistencyMode consistency) {
-        return consistency.toParam()
-                .map(paramValue -> Map.<String, Object>of(paramValue, "true"))
-                .orElseGet(Map::of);
-    }
-
-    /**
-     * Performs a Consul transaction.
-     * <p>
-     * PUT /v1/tx
-     *
      * @param transactionOptions transaction options (e.g. dc, consistency).
      * @param operations         A list of KV operations.
      * @return A {@link ConsulResponse} containing results and potential errors.
