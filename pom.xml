@@ -18,7 +18,7 @@
     <url>https://github.com/kiwiproject/consul-client</url>
 
     <!-- NOTE: This is the year kiwiproject started maintaining its own "fork" of the original
-        riockfast/consul-client library. The inception year of the original library is 2014.
+        rickfast/consul-client library. The inception year of the original library is 2014.
         See the README for more background information. -->
     <inceptionYear>2023</inceptionYear>
 
