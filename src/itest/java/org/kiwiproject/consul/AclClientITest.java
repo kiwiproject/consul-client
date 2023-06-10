@@ -111,8 +111,10 @@ class AclClientITest {
         var policyName = randomUUIDString();
         PolicyResponse createdPolicy = aclClient.createPolicy(ImmutablePolicy.builder().name(policyName).build());
 
-        String newPolicyName = randomUUIDString();
-        aclClient.updatePolicy(createdPolicy.id(), ImmutablePolicy.builder().name(newPolicyName).build());
+        var newPolicyName = randomUUIDString();
+        var policyResponse = aclClient.updatePolicy(createdPolicy.id(), ImmutablePolicy.builder().name(newPolicyName).build());
+        assertThat(policyResponse.id()).isEqualTo(createdPolicy.id());
+        assertThat(policyResponse.name()).isEqualTo(newPolicyName);
 
         PolicyResponse updatedPolicy = aclClient.readPolicy(createdPolicy.id());
         assertThat(updatedPolicy.name()).isEqualTo(newPolicyName);
