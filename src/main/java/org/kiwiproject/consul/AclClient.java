@@ -1,9 +1,6 @@
 package org.kiwiproject.consul;
 
 import org.kiwiproject.consul.config.ClientConfig;
-import org.kiwiproject.consul.model.acl.AclResponse;
-import org.kiwiproject.consul.model.acl.AclToken;
-import org.kiwiproject.consul.model.acl.AclTokenId;
 import org.kiwiproject.consul.model.acl.Policy;
 import org.kiwiproject.consul.model.acl.PolicyResponse;
 import org.kiwiproject.consul.model.acl.Role;
@@ -36,63 +33,6 @@ public class AclClient extends BaseClient {
     AclClient(Retrofit retrofit, ClientConfig config, ClientEventCallback eventCallback) {
         super(CLIENT_NAME, config, eventCallback);
         this.api = retrofit.create(Api.class);
-    }
-
-    /**
-     * @param aclToken the AclToken to create
-     * @return the ID of the new token
-     * @deprecated this method will be removed in a future release; it has no replacement
-     */
-    @Deprecated(since = "0.5.0", forRemoval = true)
-    public String createAcl(AclToken aclToken) {
-        return http.extract(api.createAcl(aclToken)).id();
-    }
-
-    /**
-     * @param aclToken the token to update
-     * @deprecated this method will be removed in a future release; it has no replacement
-     */
-    @Deprecated(since = "0.5.0", forRemoval = true)
-    public void updateAcl(AclToken aclToken) {
-        http.handle(api.updateAcl(aclToken));
-    }
-
-    /**
-     * @param id the ID of the ACL to delete
-     * @deprecated this method will be removed in a future release; it has no replacement
-     */
-    @Deprecated(since = "0.5.0", forRemoval = true)
-    public void destroyAcl(String id) {
-        http.handle(api.destroyAcl(id));
-    }
-
-    /**
-     * @param id the ID of the ACL for which to get information
-     * @return a list of AclResponse
-     * @deprecated this method will be removed in a future release; it has no replacement
-     */
-    @Deprecated(since = "0.5.0", forRemoval = true)
-    public List<AclResponse> getAclInfo(String id) {
-        return http.extract(api.getAclInfo(id));
-    }
-
-    /**
-     * @param id the ID of the ACL to clone
-     * @return the ID of the new clone ACL
-     * @deprecated this method will be removed in a future release; it has no replacement
-     */
-    @Deprecated(since = "0.5.0", forRemoval = true)
-    public String cloneAcl(String id) {
-        return http.extract(api.cloneAcl(id)).id();
-    }
-
-    /**
-     * @return a list of ACLs
-     * @deprecated this method will be removed in a future release; it has no replacement
-     */
-    @Deprecated(since = "0.5.0", forRemoval = true)
-    public List<AclResponse> listAcls() {
-        return http.extract(api.listAcls());
     }
 
     public PolicyResponse createPolicy(Policy policy) {
@@ -180,48 +120,6 @@ public class AclClient extends BaseClient {
     }
 
     interface Api {
-
-        /**
-         * @deprecated this method will be removed in a future release; it has no replacement
-         */
-        @Deprecated(since = "0.5.0", forRemoval = true)
-        @PUT("acl/create")
-        Call<AclTokenId> createAcl(@Body AclToken aclToken);
-
-        /**
-         * @deprecated this method will be removed in a future release; it has no replacement
-         */
-        @Deprecated(since = "0.5.0", forRemoval = true)
-        @PUT("acl/update")
-        Call<Void> updateAcl(@Body AclToken aclToken);
-
-        /**
-         * @deprecated this method will be removed in a future release; it has no replacement
-         */
-        @Deprecated(since = "0.5.0", forRemoval = true)
-        @PUT("acl/destroy/{id}")
-        Call<Void> destroyAcl(@Path("id") String id);
-
-        /**
-         * @deprecated this method will be removed in a future release; it has no replacement
-         */
-        @Deprecated(since = "0.5.0", forRemoval = true)
-        @GET("acl/info/{id}")
-        Call<List<AclResponse>> getAclInfo(@Path("id") String id);
-
-        /**
-         * @deprecated this method will be removed in a future release; it has no replacement
-         */
-        @Deprecated(since = "0.5.0", forRemoval = true)
-        @PUT("acl/clone/{id}")
-        Call<AclTokenId> cloneAcl(@Path("id") String id);
-
-        /**
-         * @deprecated this method will be removed in a future release; it has no replacement
-         */
-        @Deprecated(since = "0.5.0", forRemoval = true)
-        @GET("acl/list")
-        Call<List<AclResponse>> listAcls();
 
         @PUT("acl/policy")
         Call<PolicyResponse> createPolicy(@Body Policy policy);
