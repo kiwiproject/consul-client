@@ -46,7 +46,11 @@ import java.util.function.Function;
  * @param <V> the type of values this cache contains
  */
 public class ConsulCache<K, V> implements AutoCloseable {
-    enum State {
+
+    /**
+     * Represents the possible states of a ConsulCache.
+     */
+    public enum State {
         LATENT, STARTING, STARTED, STOPPED
     }
 
@@ -397,8 +401,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
         return listeners.remove(listener);
     }
 
-    @VisibleForTesting
-    protected State getState() {
+    public State getState() {
         return state.get();
     }
 
