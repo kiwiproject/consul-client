@@ -42,9 +42,13 @@ now a standalone (normal) repository.
 
 Migrating from rickfast/consul-client
 --------------------------------------------
-For the initial version 0.5.0, most likely the only thing you need to change in your POM is the group ID and the version number.
+For the initial version [0.5.0](https://github.com/kiwiproject/consul-client/releases/tag/v0.5.0), most likely the only thing you need to change in your POM is the group ID and the version number. However, you should instead go directly to [0.6.0](https://github.com/kiwiproject/consul-client/releases/tag/v0.6.0), since there was an issue in the initial release in which the compile time dependencies were not included in the POM released to Maven Central. Other than the POM dependencies and a few minor documentation and minor changes in tests, 0.5.0 and 0.6.0 are basically the same.
 
-However, if you are using `PolicyResponse` and/or `PolicyListResponse`, then you will need to change your code, since `datacenters` changed from `Optional<String>` to `Optional<List<String>>`, so code using either of those will no longer compile. This change was not avoidable, since the original type was incorrect.
+If you are using `PolicyResponse` and/or `PolicyListResponse`, then you will need to change your code, since `datacenters` changed from `Optional<String>` to `Optional<List<String>>`, so code using either of those will no longer compile. This change was not avoidable, since the original type was incorrect.
+
+Starting with version [0.7.0](https://github.com/kiwiproject/consul-client/releases/tag/v0.7.0), the base package changes from `com.orbitz` to `org.kiwiproject`. The class names are the same, so existing code only needs to change the base package and recompile.
+
+[0.8.0](https://github.com/kiwiproject/consul-client/releases/tag/v0.8.0) removes all deprecated methods from `AgentClient` and `KeyValueClient`. The methods in `AgentClient` would have always failed anyway, since Consul no longer has the HTTP endpoints they were calling. Last, there is a direct replacement for the method removed from `KeyValueClient`. 
 
 Installation
 -----------
