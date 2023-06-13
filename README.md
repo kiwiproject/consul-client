@@ -11,7 +11,7 @@ Consul Client for Java
 
 ---
 
-🥝 _This repository is a work in progress as we transition consul-client from rickfast to kiwiproject._ 🥝
+🥝 _We have now transitioned consul-client from rickfast to kiwiproject. It is released to Maven Central. See the [releases](https://github.com/kiwiproject/consul-client/releases) for more information._ 🥝
 
 ---
 
