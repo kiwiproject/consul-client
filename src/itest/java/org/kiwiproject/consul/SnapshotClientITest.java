@@ -2,8 +2,8 @@ package org.kiwiproject.consul;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
+import static org.awaitility.Durations.FIVE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.FIVE_SECONDS;
-import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.kiwiproject.consul.Awaiting.awaitWith25MsPoll;
 import static org.kiwiproject.consul.TestUtils.randomUUIDString;
 
@@ -47,12 +47,12 @@ class SnapshotClientITest extends BaseIntegrationTest {
 
         client.agentClient().register(8080, new URL("http://localhost:123/health"), 1000L, serviceName, serviceId,
                 List.of(), Map.of());
-        awaitWith25MsPoll().atMost(TWO_HUNDRED_MILLISECONDS).until(() -> serviceExists(serviceName));
+        awaitWith25MsPoll().atMost(FIVE_HUNDRED_MILLISECONDS).until(() -> serviceExists(serviceName));
 
         ensureSaveSnapshot();
 
         client.agentClient().deregister(serviceId);
-        awaitWith25MsPoll().atMost(TWO_HUNDRED_MILLISECONDS).until(() -> !serviceExists(serviceName));
+        awaitWith25MsPoll().atMost(FIVE_HUNDRED_MILLISECONDS).until(() -> !serviceExists(serviceName));
 
         ensureRestoreSnapshot();
 

@@ -1,5 +1,6 @@
 package org.kiwiproject.consul;
 
+import static org.kiwiproject.consul.ConsulTestcontainers.CONSUL_DOCKER_IMAGE_NAME;
 import static org.kiwiproject.consul.TestUtils.randomUUIDString;
 
 import com.google.common.net.HostAndPort;
@@ -27,7 +28,7 @@ public abstract class BaseIntegrationTest {
 
     static {
         // noinspection resource
-        consulContainer = new GenericContainer<>("consul")
+        consulContainer = new GenericContainer<>(CONSUL_DOCKER_IMAGE_NAME)
                 .withCommand("agent", "-dev", "-client", "0.0.0.0", "--enable-script-checks=true")
                 .withExposedPorts(8500);
         consulContainer.start();
@@ -37,17 +38,17 @@ public abstract class BaseIntegrationTest {
 
     static {
         // noinspection resource
-        consulContainerAcl = new GenericContainer<>("consul")
+        consulContainerAcl = new GenericContainer<>(CONSUL_DOCKER_IMAGE_NAME)
                 .withCommand("agent", "-dev", "-client", "0.0.0.0", "--enable-script-checks=true")
                 .withExposedPorts(8500)
                 .withEnv("CONSUL_LOCAL_CONFIG",
                         "{\n" +
                                 "  \"acl\": {\n" +
                                 "    \"enabled\": true,\n" +
-                    "    \"default_policy\": \"deny\",\n" +
-                    "    \"tokens\": {\n" +
-                    "      \"master\": \"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\"\n" +
-                    "    }\n" +
+                                "    \"default_policy\": \"deny\",\n" +
+                                "    \"tokens\": {\n" +
+                                "      \"master\": \"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\"\n" +
+                                "    }\n" +
                     "  }\n" +
                     "}"
             );
