@@ -3,6 +3,7 @@ package org.kiwiproject.consul.config;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 
@@ -285,6 +286,7 @@ public class CacheConfig {
         }
     }
 
+    @JsonIgnoreType
     public interface RefreshErrorLogConsumer {
         void accept(Logger logger, String message, Throwable error);
     }

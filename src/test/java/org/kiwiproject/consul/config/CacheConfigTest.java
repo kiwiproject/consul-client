@@ -4,6 +4,7 @@ import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.kiwiproject.consul.Awaiting.awaitAtMost500ms;
 import static org.mockito.ArgumentMatchers.any;
@@ -11,6 +12,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -18,6 +23,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.kiwiproject.consul.cache.CacheDescriptor;
 import org.kiwiproject.consul.cache.ConsulCache;
+import org.kiwiproject.consul.config.CacheConfig.RefreshErrorLogConsumer;
 import org.kiwiproject.consul.model.ConsulResponse;
 import org.kiwiproject.consul.monitoring.ClientEventHandler;
 import org.slf4j.Logger;
@@ -33,6 +39,8 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 class CacheConfigTest {
+
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
 
     @Test
     void testDefaults() {
@@ -216,6 +224,42 @@ class CacheConfigTest {
         }
     }
 
+    @Test
+    void shouldNotIncludeRefreshErrorLoggingConsumerWhenSerializingToJson() throws JsonProcessingException {
+        var cacheConfig = CacheConfig.builder().build();
+        var json = OBJECT_MAPPER.writeValueAsString(cacheConfig);
+        assertThat(json)
+                .describedAs("neither getter name nor field name should be in JSON")
+                .doesNotContain("refreshErrorLoggingConsumer", "refreshErrorLogConsumer");
+    }
+
+    @Nested
+    class RefreshErrorLoggingConsumer {
+
+        @Test
+        void shouldBeExcludedFromJsonSerialization() throws JsonProcessingException {
+            var errors = List.of("error 1", "error 2", "error 3");
+            var container = new ErrorContainer("Test Error Container", errors, Logger::error);
+            var containerJson = OBJECT_MAPPER.writeValueAsString(container);
+
+            var multiHolder = new MultiErrorLogConsumerHolder("Test Multi-Holder", Logger::error, Logger::warn, Logger::info);
+            var multiHolderJson = OBJECT_MAPPER.writeValueAsString(multiHolder);
+
+            assertAll(
+                    () -> assertThat(containerJson).doesNotContain("errorLogConsumer"),
+                    () -> assertThat(multiHolderJson).doesNotContain("consumer1", "consumer2", "consumer3")
+            );
+        }
+
+        record ErrorContainer(String name, List<String> errors, RefreshErrorLogConsumer errorLogConsumer) {
+        }
+
+        record MultiErrorLogConsumerHolder(String name,
+                                           RefreshErrorLogConsumer consumer1,
+                                           RefreshErrorLogConsumer consumer2,
+                                           RefreshErrorLogConsumer consumer3) {
+        }
+    }
 
     static class TestCache extends ConsulCache<Integer, Integer> {
 
