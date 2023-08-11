@@ -51,7 +51,8 @@ class AclClientITest {
                                         "master": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
                                     }
                                 }
-                            }"""
+                            }
+                        """
                 );
         consulContainerAcl.start();
 
