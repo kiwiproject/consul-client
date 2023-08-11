@@ -26,6 +26,14 @@ public abstract class BaseIntegrationTest {
 
     public static final GenericContainer<?> consulContainer;
 
+    // NOTE:
+    // The following starts a consul container that will persist across all tests
+    // that extend this base class. Presumably it was done this way so that a single
+    // container is used instead of each test creating one. But, this way doesn't
+    // provide a way to shut the container down cleanly after all tests have run.
+    // We might want to consider using a test suite for all tests that extend this
+    // base class.
+
     static {
         // noinspection resource
         consulContainer = new GenericContainer<>(CONSUL_DOCKER_IMAGE_NAME)
@@ -34,31 +42,10 @@ public abstract class BaseIntegrationTest {
         consulContainer.start();
     }
 
-    public static final GenericContainer<?> consulContainerAcl;
-
-    static {
-        // noinspection resource
-        consulContainerAcl = new GenericContainer<>(CONSUL_DOCKER_IMAGE_NAME)
-                .withCommand("agent", "-dev", "-client", "0.0.0.0", "--enable-script-checks=true")
-                .withExposedPorts(8500)
-                .withEnv("CONSUL_LOCAL_CONFIG",
-                        "{\n" +
-                                "  \"acl\": {\n" +
-                                "    \"enabled\": true,\n" +
-                                "    \"default_policy\": \"deny\",\n" +
-                                "    \"tokens\": {\n" +
-                                "      \"master\": \"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\"\n" +
-                                "    }\n" +
-                    "  }\n" +
-                    "}"
-            );
-        consulContainerAcl.start();
-    }
-
     protected static HostAndPort defaultClientHostAndPort;
 
     @BeforeAll
-    static void beforeClass() {
+    static void beforeAll() {
         defaultClientHostAndPort = HostAndPort.fromParts("localhost", consulContainer.getFirstMappedPort());
         client = Consul.builder()
                 .withHostAndPort(defaultClientHostAndPort)
@@ -69,7 +56,7 @@ public abstract class BaseIntegrationTest {
     }
 
     @AfterEach
-    void after() {
+    void afterEach() {
         try {
             deregisterServices.forEach(client.agentClient()::deregister);
         } catch (ConsulException e) {
@@ -83,16 +70,17 @@ public abstract class BaseIntegrationTest {
 
     private static String createDeregistrationErrorMessage(ConsulException e) {
         return String.format(
-            "Unable to degister service. The serviceId was created using" +
-            " createAutoDeregisterServiceId, but maybe it should not have been." +
-            " For example, using the /agent/services endpoint only returns" +
-            " services registered against the specific local agent with" +
-            " which you are communicating. Message from the ConsulException: [%s]",
+            """
+            	Unable to degister service. The serviceId was created using\
+            	 createAutoDeregisterServiceId, but maybe it should not have been.\
+            	 For example, using the /agent/services endpoint only returns\
+            	 services registered against the specific local agent with\
+            	 which you are communicating. Message from the ConsulException: [%s]""",
             e.getMessage());
     }
 
     protected String createAutoDeregisterServiceId() {
-        String serviceId = randomUUIDString();
+        var serviceId = randomUUIDString();
         LOG.info("Created auto-deregister serviceId {}", serviceId);
         deregisterServices.add(serviceId);
 

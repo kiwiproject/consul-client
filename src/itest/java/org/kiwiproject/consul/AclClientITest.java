@@ -6,8 +6,8 @@ import static org.kiwiproject.consul.ConsulTestcontainers.CONSUL_DOCKER_IMAGE_NA
 import static org.kiwiproject.consul.TestUtils.randomUUIDString;
 
 import com.google.common.net.HostAndPort;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.kiwiproject.consul.model.acl.ImmutablePolicy;
 import org.kiwiproject.consul.model.acl.ImmutablePolicyLink;
@@ -24,47 +24,51 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * @implNote This does not extend {@link BaseIntegrationTest} because it needs to launch Consul with ACLs enabled
+ * and to create a client that uses the ACL token when connecting.
+ */
 class AclClientITest {
 
-    public static final GenericContainer<?> consulContainerAcl;
+    private static GenericContainer<?> consulContainerAcl;
+    private static Consul client;
+    private static HostAndPort aclClientHostAndPort;
+    private static AclClient aclClient;
 
-    static {
+    @BeforeAll
+    static void beforeAll() {
         // noinspection resource
         consulContainerAcl = new GenericContainer<>(CONSUL_DOCKER_IMAGE_NAME)
                 .withCommand("agent", "-dev", "-client", "0.0.0.0", "--enable-script-checks=true")
                 .withExposedPorts(8500)
                 .withEnv("CONSUL_LOCAL_CONFIG",
-                        "{\n" +
-                                "  \"acl\": {\n" +
-                                "    \"enabled\": true,\n" +
-                                "    \"default_policy\": \"deny\",\n" +
-                                "    \"tokens\": {\n" +
-                                "      \"master\": \"aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee\"\n" +
-                                "    }\n" +
-                                "  }\n" +
-                                "}"
+                        """
+                            {
+                                "acl": {
+                                    "enabled": true,
+                                    "default_policy": "deny",
+                                    "tokens": {
+                                        "master": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+                                    }
+                                }
+                            }"""
                 );
         consulContainerAcl.start();
-    }
 
-    protected static Consul client;
+        aclClientHostAndPort = HostAndPort.fromParts("localhost", consulContainerAcl.getFirstMappedPort());
 
-    protected static final HostAndPort aclClientHostAndPort = HostAndPort.fromParts("localhost", consulContainerAcl.getFirstMappedPort());
-
-    private AclClient aclClient;
-
-    @BeforeAll
-    static void beforeClass() {
         client = Consul.builder()
                 .withHostAndPort(aclClientHostAndPort)
                 .withAclToken("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")
                 .withReadTimeoutMillis(Duration.ofSeconds(2).toMillis())
                 .build();
+
+        aclClient = client.aclClient();
     }
 
-    @BeforeEach
-    void setUp() {
-        aclClient = client.aclClient();
+    @AfterAll
+    static void afterAll() {
+        consulContainerAcl.stop();
     }
 
     @Test
