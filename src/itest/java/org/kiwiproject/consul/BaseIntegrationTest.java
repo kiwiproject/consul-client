@@ -31,8 +31,12 @@ public abstract class BaseIntegrationTest {
     // that extend this base class. Presumably it was done this way so that a single
     // container is used instead of each test creating one. But, this way doesn't
     // provide a way to shut the container down cleanly after all tests have run.
-    // We might want to consider using a test suite for all tests that extend this
-    // base class.
+    // Test suites for all tests that extend this base class would be nice, except
+    // there isn't a way to do before/after suite logic. See the discussion in this
+    // issue for more details: https://github.com/junit-team/junit5/issues/456
+    //
+    // There is a comment in that issue with a possible workround:
+    // https://github.com/junit-team/junit5/issues/456#issuecomment-416945159
 
     static {
         // noinspection resource
