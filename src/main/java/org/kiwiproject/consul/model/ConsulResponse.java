@@ -102,7 +102,7 @@ public class ConsulResponse<T> {
      */
     @Deprecated(since = "1.1.0", forRemoval = true)
     public Optional<CacheResponseInfo> getCacheReponseInfo(){
-        return cacheResponseInfo;
+        return getCacheResponseInfo();
     }
 
     /**
