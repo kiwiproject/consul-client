@@ -75,11 +75,11 @@ public abstract class BaseIntegrationTest {
     private static String createDeregistrationErrorMessage(ConsulException e) {
         return String.format(
             """
-            	Unable to degister service. The serviceId was created using\
-            	 createAutoDeregisterServiceId, but maybe it should not have been.\
-            	 For example, using the /agent/services endpoint only returns\
-            	 services registered against the specific local agent with\
-            	 which you are communicating. Message from the ConsulException: [%s]""",
+                    Unable to degister service. The serviceId was created using\
+                     createAutoDeregisterServiceId, but maybe it should not have been.\
+                     For example, using the /agent/services endpoint only returns\
+                     services registered against the specific local agent with\
+                     which you are communicating. Message from the ConsulException: [%s]""",
             e.getMessage());
     }
 

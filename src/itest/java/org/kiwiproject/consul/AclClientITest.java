@@ -31,8 +31,6 @@ import java.util.Objects;
 class AclClientITest {
 
     private static GenericContainer<?> consulContainerAcl;
-    private static Consul client;
-    private static HostAndPort aclClientHostAndPort;
     private static AclClient aclClient;
 
     @BeforeAll
@@ -56,9 +54,9 @@ class AclClientITest {
                 );
         consulContainerAcl.start();
 
-        aclClientHostAndPort = HostAndPort.fromParts("localhost", consulContainerAcl.getFirstMappedPort());
+        var aclClientHostAndPort = HostAndPort.fromParts("localhost", consulContainerAcl.getFirstMappedPort());
 
-        client = Consul.builder()
+        var client = Consul.builder()
                 .withHostAndPort(aclClientHostAndPort)
                 .withAclToken("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")
                 .withReadTimeoutMillis(Duration.ofSeconds(2).toMillis())
