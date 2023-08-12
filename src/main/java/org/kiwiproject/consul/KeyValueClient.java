@@ -139,7 +139,7 @@ public class KeyValueClient extends BaseCacheableClient {
                         consulResponse.getLastContact(),
                         consulResponse.isKnownLeader(),
                         consulResponse.getIndex(),
-                        consulResponse.getCacheReponseInfo());
+                        consulResponse.getCacheResponseInfo());
                 return Optional.of(result);
             }
         } catch (ConsulException e) {
@@ -169,7 +169,7 @@ public class KeyValueClient extends BaseCacheableClient {
                         new ConsulResponse<>(getSingleValue(consulResponse.getResponse()),
                                 consulResponse.getLastContact(),
                                 consulResponse.isKnownLeader(), consulResponse.getIndex(),
-                                consulResponse.getCacheReponseInfo()));
+                                consulResponse.getCacheResponseInfo()));
             }
 
             @Override

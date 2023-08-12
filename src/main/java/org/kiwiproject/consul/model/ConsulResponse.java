@@ -97,9 +97,19 @@ public class ConsulResponse<T> {
 
     /**
      * @return an Optional containing the CacheResponseInfo, or empty Optional if it does not exist
+     * @deprecated replaced by {@link #getCacheResponseInfo()}
      * @see <a href="https://developer.hashicorp.com/consul/api-docs/features/caching#background-refresh-caching">Background Refresh Caching</a>
      */
+    @Deprecated(since = "1.1.0", forRemoval = true)
     public Optional<CacheResponseInfo> getCacheReponseInfo(){
+        return cacheResponseInfo;
+    }
+
+    /**
+     * @return an Optional containing the CacheResponseInfo, or empty Optional if it does not exist
+     * @see <a href="https://developer.hashicorp.com/consul/api-docs/features/caching#background-refresh-caching">Background Refresh Caching</a>
+     */
+    public Optional<CacheResponseInfo> getCacheResponseInfo() {
         return cacheResponseInfo;
     }
 

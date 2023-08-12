@@ -417,7 +417,7 @@ class KeyValueClientITest extends BaseIntegrationTest {
             public void onComplete(ConsulResponse<Optional<Value>> consulResponse) {
                 assertThat(consulResponse).isNotNull();
                 // No cache, no Cache info
-                assertThat(consulResponse.getCacheReponseInfo()).isEmpty();
+                assertThat(consulResponse.getCacheResponseInfo()).isEmpty();
                 success.incrementAndGet();
                 completed.countDown();
             }
