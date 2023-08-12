@@ -1,7 +1,6 @@
 package org.kiwiproject.consul.option;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static java.util.Objects.isNull;
 
 import org.immutables.value.Value;
 
@@ -52,16 +51,12 @@ public abstract class QueryOptions implements ParamAdder {
 
     @Value.Derived
     public List<String> getNodeMetaQuery() {
-        return isNull(getNodeMeta())
-                ? List.of()
-                : List.copyOf(getNodeMeta());
+        return List.copyOf(getNodeMeta());
     }
 
     @Value.Derived
     public List<String> getTagsQuery() {
-        return isNull(getTag())
-                ? List.of()
-                : List.copyOf(getTag());
+        return List.copyOf(getTag());
     }
 
     @Value.Check
