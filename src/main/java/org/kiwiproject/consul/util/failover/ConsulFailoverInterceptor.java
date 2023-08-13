@@ -51,14 +51,18 @@ public class ConsulFailoverInterceptor implements Interceptor {
         // targets are viable)
         if (strategy.isRequestViable(originalRequest)) {
 
-            // Initially, we have an inflight request and no response
+            // Initially, we have an inflight request
             Request previousRequest = originalRequest;
-            Response previousResponse = null;
 
             Optional<Request> nextRequest;
 
+            // Note:
+            // The previousResponse is never used here and is always null when calling computeNextStage.
+            // See discussion in issue #195 ("previousResponse is always null in ConsulFailoverInterceptor#intercept")
+            // Link: https://github.com/kiwiproject/consul-client/issues/195
+
             // Get the next viable request
-            while ((nextRequest = strategy.computeNextStage(previousRequest, previousResponse)).isPresent()) {
+            while ((nextRequest = strategy.computeNextStage(previousRequest, null)).isPresent()) {
                 // Get the response from the last viable request
                 try {
 
