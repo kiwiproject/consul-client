@@ -6,24 +6,25 @@ import org.kiwiproject.consul.model.kv.Value;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class AsyncCallbackConsumer implements ConsulCache.CallbackConsumer<Value>, AutoCloseable {
     private final List<Value> result;
+    private final ExecutorService executor;
     private int callCount;
-    private Thread thread;
 
     public AsyncCallbackConsumer(List<Value> result) {
         this.result = List.copyOf(result);
+        this.executor = Executors.newCachedThreadPool();
     }
 
     @Override
     public void consume(BigInteger index, final ConsulResponseCallback<List<Value>> callback) {
         callCount++;
-        thread = new Thread(() ->
+        executor.submit(() ->
                 callback.onComplete(new ConsulResponse<>(result, 0, true, BigInteger.ZERO, null, null)));
-        thread.setName("asyncCallbackConsumer");
-
-        thread.start();
     }
 
     public int getCallCount() {
@@ -32,14 +33,15 @@ public class AsyncCallbackConsumer implements ConsulCache.CallbackConsumer<Value
 
     @Override
     public void close() {
+        executor.shutdown();
         try {
-            thread.join(1000);
+            var terminated = executor.awaitTermination(5, TimeUnit.SECONDS);
+            if (! terminated) {
+                throw new RuntimeException("Executor timed out after 5 seconds before all tasks terminated");
+            }
         } catch (InterruptedException e) {
-            throw new RuntimeException("Thread did not terminate within timeout!");
-        }
-        if (thread.isAlive()) {
-            thread.interrupt();
-            throw new RuntimeException("Thread did not terminate in a timely manner!");
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Executor did not terminate within timeout", e);
         }
     }
 }
