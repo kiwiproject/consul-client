@@ -285,11 +285,10 @@ class ConsulCacheTest {
             // with the call count at 2, but sometimes more. Moving this above the listener call count
             // assertion would (almost) always work. So, as far as I can tell, this only used to work
             // due to timing, because the callbackConsumer continues to be called back! And with the
-            // default duration between requests at zero, it was getting called back frequently. Need
-            // to do more investigation on the callback mechanism and how it schedules the next callback
-            // based on elapsed time - and other factors - in ConsulCache when it sets the responseCallback
-            // instance field. See https://github.com/kiwiproject/consul-client/issues/189 which is an
-            // investigation task.
+            // default duration between requests at zero, it was getting called back frequently.
+            // Because the callback is called repeatedly, checking that the value is positive seems
+            // to be the best option, since the actual call count various per test run.
+            // Reference: https://github.com/kiwiproject/consul-client/issues/189
             assertThat(callbackConsumer.getCallCount()).isPositive();
 
             final Map<String, Value> lastValues = listener.getLastValues();
