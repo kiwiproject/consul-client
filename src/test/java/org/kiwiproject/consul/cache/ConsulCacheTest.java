@@ -235,7 +235,7 @@ class ConsulCacheTest {
     @MethodSource("getRetryDurationSamples")
     void testRetryDuration(Duration minDelay, Duration maxDelay) {
         var cacheConfig = CacheConfig.builder().withBackOffDelay(minDelay, maxDelay).build();
-        for (int i=0; i < 1000; i++) {
+        for (int i = 0; i < 1000; i++) {
             long retryDurationMs = ConsulCache.computeBackOffDelayMs(cacheConfig);
             assertThat(retryDurationMs)
                     .describedAs("Retry duration expected between %s and %s but got %d ms", minDelay, maxDelay, retryDurationMs)
@@ -252,6 +252,61 @@ class ConsulCacheTest {
             arguments(Duration.ofSeconds(10), Duration.ofSeconds(11)),
             arguments(Duration.ofMillis(10), Duration.ofMinutes(1))
         );
+    }
+
+    @Test
+    void shouldAddAndRemoveListeners() {
+        Function<Value, String> keyExtractor = Value::getKey;
+
+        var cacheConfig = CacheConfig.builder().build();
+        var eventHandler = mock(ClientEventHandler.class);
+
+        var key = "foo";
+        var value = ImmutableValue.builder()
+                .createIndex(1)
+                .modifyIndex(2)
+                .lockIndex(2)
+                .key(key)
+                .flags(0)
+                .build();
+        List<Value> result = List.of(value);
+        var callbackConsumer = new StubCallbackConsumer(result);
+
+        try (var cache = new ConsulCache<>(keyExtractor, callbackConsumer, cacheConfig, eventHandler, new CacheDescriptor(""))) {
+            var listener1 = new StubListener();
+            var listener2 = new StubListener();
+            var listener3 = new StubListener();
+
+            cache.addListener(listener1);
+            assertThat(cache.getListeners())
+                    .isUnmodifiable()
+                    .containsExactly(listener1);
+
+            cache.addListener(listener2);
+            assertThat(cache.getListeners())
+                    .isUnmodifiable()
+                    .containsExactly(listener1, listener2);
+
+            cache.addListener(listener3);
+            assertThat(cache.getListeners())
+                    .isUnmodifiable()
+                    .containsExactly(listener1, listener2, listener3);
+
+            assertThat(cache.removeListener(listener2)).isTrue();
+            assertThat(cache.getListeners())
+                    .isUnmodifiable()
+                    .containsExactly(listener1, listener3);
+
+            assertThat(cache.removeListener(listener1)).isTrue();
+            assertThat(cache.getListeners())
+                    .isUnmodifiable()
+                    .containsExactly(listener3);
+
+            assertThat(cache.removeListener(listener3)).isTrue();
+            assertThat(cache.getListeners())
+                    .isUnmodifiable()
+                    .isEmpty();
+        }
     }
 
     @Test
