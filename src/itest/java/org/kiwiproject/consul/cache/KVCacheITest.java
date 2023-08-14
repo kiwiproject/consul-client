@@ -18,7 +18,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.kiwiproject.consul.BaseIntegrationTest;
 import org.kiwiproject.consul.Consul;
 import org.kiwiproject.consul.KeyValueClient;
-import org.kiwiproject.consul.Synchroniser;
 import org.kiwiproject.consul.config.CacheConfig;
 import org.kiwiproject.consul.config.ClientConfig;
 import org.kiwiproject.consul.model.kv.Value;
@@ -112,8 +111,9 @@ class KVCacheITest extends BaseIntegrationTest {
             }
 
             for (int keyIdx = 0; keyIdx < 5; keyIdx++) {
-                kvClient.putValue(String.format("%s/%s", root, keyIdx), String.valueOf(keyIdx));
-                Synchroniser.pause(Duration.ofMillis(100));
+                var key = String.format("%s/%s", root, keyIdx);
+                kvClient.putValue(key, String.valueOf(keyIdx));
+                awaitAtMost500ms().until(() -> kvClient.getValue(key).isPresent());
             }
         }
 
@@ -152,8 +152,9 @@ class KVCacheITest extends BaseIntegrationTest {
             final List<Map<String, Value>> events = new ArrayList<>();
 
             for (int i = 0; i < 5; i++) {
-                kvClient.putValue(root + "/" + i, String.valueOf(i));
-                Synchroniser.pause(Duration.ofMillis(100));
+                var key = root + "/" + i;
+                kvClient.putValue(key, String.valueOf(i));
+                awaitAtMost500ms().until(() -> kvClient.getValue(key).isPresent());
             }
 
             cache.addListener(events::add);
@@ -231,8 +232,9 @@ class KVCacheITest extends BaseIntegrationTest {
             assertThat(cache.getState()).isEqualTo(ConsulCache.State.STARTED);
 
             for (int i = 0; i < 5; i++) {
-                kvClient.putValue(root + "/" + i, String.valueOf(i));
-                Synchroniser.pause(Duration.ofMillis(100));
+                var key = root + "/" + i;
+                kvClient.putValue(key, String.valueOf(i));
+                awaitAtMost500ms().until(() -> kvClient.getValue(key).isPresent());
             }
             assertThat(events).hasSize(6);
 
@@ -241,8 +243,9 @@ class KVCacheITest extends BaseIntegrationTest {
 
             // now assert that we get no more update to the listener
             for (int i = 0; i < 5; i++) {
-                kvClient.putValue(root + "/" + i + "-again", String.valueOf(i));
-                Synchroniser.pause(Duration.ofMillis(100));
+                var key = root + "/" + i + "-again";
+                kvClient.putValue(key, String.valueOf(i));
+                awaitAtMost500ms().until(() -> kvClient.getValue(key).isPresent());
             }
 
             assertThat(events).hasSize(6);
