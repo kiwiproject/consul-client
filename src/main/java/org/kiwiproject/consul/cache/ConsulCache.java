@@ -158,19 +158,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
                 lastContact.set(consulResponse.getLastContact());
                 isKnownLeader.set(consulResponse.isKnownLeader());
 
-                boolean locked = false;
-                if (state.get() == State.STARTING) {
-                    listenersStartingLock.lock();
-                    locked = true;
-                }
-                try {
-                    notifyListeners(full);
-                }
-                finally {
-                    if (locked) {
-                        listenersStartingLock.unlock();
-                    }
-                }
+                performListenerActionOptionallyLocking(() -> notifyListeners(full));
             }
 
             if (state.compareAndSet(State.STARTING, State.STARTED)) {
@@ -371,12 +359,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
      * its {@link CopyOnWriteArrayList#add(Object)} method always returns true
      */
     public boolean addListener(Listener<K, V> listener) {
-        boolean locked = false;
-        if (state.get() == State.STARTING) {
-            listenersStartingLock.lock();
-            locked = true;
-        }
-        try {
+        performListenerActionOptionallyLocking(() -> {
             listeners.add(listener);
             if (state.get() == State.STARTED) {
                 try {
@@ -385,12 +368,24 @@ public class ConsulCache<K, V> implements AutoCloseable {
                     LOG.warn("ConsulCache Listener's notify method threw an exception.", e);
                 }
             }
+        });
+
+        return true;
+    }
+
+    private void performListenerActionOptionallyLocking(Runnable action) {
+        var locked = false;
+        if (state.get() == State.STARTING) {
+            listenersStartingLock.lock();
+            locked = true;
+        }
+        try {
+            action.run();
         } finally {
             if (locked) {
                 listenersStartingLock.unlock();
             }
         }
-        return true;
     }
 
     public List<Listener<K, V>> getListeners() {
