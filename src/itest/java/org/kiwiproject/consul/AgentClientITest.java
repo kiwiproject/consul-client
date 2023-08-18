@@ -3,14 +3,18 @@ package org.kiwiproject.consul;
 import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.kiwiproject.consul.Awaiting.awaitAtMost500ms;
 import static org.kiwiproject.consul.TestUtils.randomUUIDString;
 
+import com.google.common.net.HostAndPort;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
+import org.junitpioneer.jupiter.RetryingTest;
 import org.kiwiproject.consul.model.ConsulResponse;
 import org.kiwiproject.consul.model.agent.FullService;
 import org.kiwiproject.consul.model.agent.ImmutableFullService;
@@ -26,12 +30,14 @@ import org.kiwiproject.consul.option.ImmutableQueryOptions;
 import org.kiwiproject.consul.option.ImmutableQueryParameterOptions;
 import org.kiwiproject.consul.option.QueryOptions;
 
+import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
@@ -47,6 +53,27 @@ class AgentClientITest extends BaseIntegrationTest {
     @BeforeEach
     void setUp() {
         agentClient = client.agentClient();
+    }
+
+    @RepeatedTest(5)
+    void shouldPing() {
+        assertThatCode(() -> agentClient.ping()).doesNotThrowAnyException();
+    }
+
+    @RetryingTest(name = "attempt {index}", maxAttempts = 5)
+    void shouldFailPing_WhenConnectionFailure() {
+        var randomPort = ThreadLocalRandom.current().nextInt(50_000, 65_536);
+        var consul = Consul.builder()
+                .withPing(false)
+                .withHostAndPort(HostAndPort.fromParts("localhost", randomPort))
+                .build();
+
+        var expectToFailAgentClient = consul.agentClient();
+
+        assertThatExceptionOfType(ConsulException.class)
+                .isThrownBy(expectToFailAgentClient::ping)
+                .withMessage("Error connecting to Consul")
+                .withCauseExactlyInstanceOf(ConnectException.class);
     }
 
     @Test
