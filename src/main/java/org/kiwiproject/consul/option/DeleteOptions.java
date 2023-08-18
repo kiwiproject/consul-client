@@ -20,7 +20,7 @@ public abstract class DeleteOptions implements ParamAdder {
 
     @Value.Derived
     public boolean isRecurse() {
-        return getRecurse().isPresent();
+        return getRecurse().orElse(false);
     }
 
     @Override
