@@ -7,6 +7,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.kiwiproject.consul.async.ConsulResponseCallback;
 import org.kiwiproject.consul.model.ConsulResponse;
 import org.kiwiproject.consul.model.kv.ImmutableOperation;
@@ -479,13 +481,31 @@ class KeyValueClientITest extends BaseIntegrationTest {
     }
 
     @Test
-    void testGetKeysWithSeparator() {
+    void shouldGetKeysWithSeparator_LimitingToPrefix() {
         keyValueClient.putValue("nested/first", "first");
         keyValueClient.putValue("nested/second", "second");
 
         List<String> keys = keyValueClient.getKeys("nested", "/");
-        assertThat(keys).hasSize(1);
-        assertThat(keys.get(0)).isEqualTo("nested/");
+        assertThat(keys).containsExactly("nested/");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = { "nested/", "/nested/" })
+    void shouldGetKeysWithSeparator_LimitingToNestedKeys(String key) {
+        keyValueClient.putValue("nested/first", "first");
+        keyValueClient.putValue("nested/second", "second");
+
+        List<String> keys = keyValueClient.getKeys(key, "/");
+        assertThat(keys).containsExactly("nested/first", "nested/second");
+    }
+
+    @Test
+    void shouldGetKeysWithSeparator_LimitingToPrefix_WithSeparatorOtherThanSlash() {
+        keyValueClient.putValue("children-first", "first");
+        keyValueClient.putValue("children-second", "second");
+
+        List<String> keys = keyValueClient.getKeys("children-", "-");
+        assertThat(keys).containsExactly("children-first", "children-second");
     }
 
     @Test
