@@ -1,6 +1,8 @@
 package org.kiwiproject.consul;
 
+import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.kiwiproject.consul.TestUtils.randomUUIDString;
 
 import org.apache.commons.codec.binary.Base64;
@@ -171,6 +173,48 @@ class KeyValueClientITest extends BaseIntegrationTest {
         assertThat(keyValueClient.putValue(key, value, TEST_CHARSET)).isTrue();
         assertThat(keyValueClient.putValue(key2, value2, TEST_CHARSET)).isTrue();
         assertThat(new HashSet<>(keyValueClient.getValuesAsString(key, TEST_CHARSET))).isEqualTo(Set.of(value, value2));
+    }
+
+    @Test
+    void shouldGetNestedValue() {
+        var topLevelKey = "folder-" + randomUUIDString();
+        var childKey = "child-" + randomUUIDString();
+        var key = topLevelKey + "/" + childKey;
+        var value = randomUUIDString();
+
+        assertThat(keyValueClient.putValue(key, value)).isTrue();
+        var receivedValue = keyValueClient.getValue(key).orElseThrow();
+        assertThat(receivedValue.getValueAsString()).contains(value);
+    }
+
+    @Test
+    void shouldGetNestedValues() {
+        var topLevelKey = "folder-" + randomUUIDString();
+
+        var childKey1 = "child-" + randomUUIDString();
+        var key1 = topLevelKey + "/" + childKey1;
+        var value1 = randomUUIDString();
+        assertThat(keyValueClient.putValue(key1, value1)).isTrue();
+
+        var childKey2 = "child-" + randomUUIDString();
+        var key2 = topLevelKey + "/" + childKey2;
+        var value2 = randomUUIDString();
+        assertThat(keyValueClient.putValue(key2, value2)).isTrue();
+
+        var childKey3 = "child-" + randomUUIDString();
+        var key3 = topLevelKey + "/" + childKey3;
+        var value3 = randomUUIDString();
+        assertThat(keyValueClient.putValue(key3, value3)).isTrue();
+
+        var valuesMap = keyValueClient.getValues(topLevelKey)
+                .stream()
+                .collect(toMap(Value::getKey, value -> value.getValueAsString().orElseThrow()));
+
+        assertThat(valuesMap).containsOnly(
+                entry(key1, value1),
+                entry(key2, value2),
+                entry(key3, value3)
+        );
     }
 
     @Test
@@ -401,7 +445,7 @@ class KeyValueClientITest extends BaseIntegrationTest {
 
         keyValueClient.deleteKey(key);
 
-        assertThat(!response.getResponse().isEmpty()).isTrue();
+        assertThat(response.getResponse()).isNotEmpty();
         assertThat(response.getIndex()).isNotNull();
     }
 
