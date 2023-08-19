@@ -55,6 +55,7 @@
         <!-- Versions for required dependencies -->
         <immutables.version>2.9.3</immutables.version>
         <kiwi-bom.version>2.0.0</kiwi-bom.version>
+        <okio.version>3.5.0</okio.version>
         <retrofit.version>2.9.0</retrofit.version>
 
         <!-- Versions for test dependencies -->
@@ -75,6 +76,14 @@
                 <groupId>org.kiwiproject</groupId>
                 <artifactId>kiwi-bom</artifactId>
                 <version>${kiwi-bom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.squareup.okio</groupId>
+                <artifactId>okio-bom</artifactId>
+                <version>${okio.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
