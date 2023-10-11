@@ -12,6 +12,7 @@ import java.math.BigInteger;
 import java.util.Optional;
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 @JsonDeserialize(as = ImmutableOperation.class)
 @JsonSerialize(as = ImmutableOperation.class)
 @JsonIgnoreProperties(ignoreUnknown = true)

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 @JsonSerialize(as = ImmutableServiceProxy.class)
 @JsonDeserialize(as = ImmutableServiceProxy.class)
 @JsonIgnoreProperties(ignoreUnknown = true)

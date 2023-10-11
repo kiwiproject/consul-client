@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 @JsonSerialize(as = ImmutableHealthCheck.class)
 @JsonDeserialize(as = ImmutableHealthCheck.class)
 @JsonIgnoreProperties(ignoreUnknown = true)

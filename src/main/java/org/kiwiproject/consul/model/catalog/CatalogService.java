@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 @JsonSerialize(as = ImmutableCatalogService.class)
 @JsonDeserialize(as = ImmutableCatalogService.class)
 @JsonIgnoreProperties(ignoreUnknown = true)

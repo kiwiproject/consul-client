@@ -9,6 +9,7 @@ import org.kiwiproject.consul.util.Base64EncodingDeserializer;
 import java.util.Optional;
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 @JsonSerialize(as = ImmutableEvent.class)
 @JsonDeserialize(as = ImmutableEvent.class)
 public abstract class Event {

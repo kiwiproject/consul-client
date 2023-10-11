@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 @JsonSerialize(as = ImmutableFullService.class)
 @JsonDeserialize(as = ImmutableFullService.class)
 @JsonIgnoreProperties(ignoreUnknown = true)

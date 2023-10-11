@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 @JsonSerialize(as = ImmutableSession.class)
 @JsonDeserialize(as = ImmutableSession.class)
 @JsonIgnoreProperties(ignoreUnknown = true)

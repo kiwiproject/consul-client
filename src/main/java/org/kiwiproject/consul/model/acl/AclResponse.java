@@ -11,6 +11,7 @@ import java.util.Optional;
 
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 @JsonSerialize(as = ImmutableAclResponse.class)
 @JsonDeserialize(as = ImmutableAclResponse.class)
 @JsonIgnoreProperties(ignoreUnknown = true)

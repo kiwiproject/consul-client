@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.immutables.value.Value.Immutable;
+import org.immutables.value.Value.Style;
 import org.immutables.value.Value.Lazy;
 import org.kiwiproject.consul.util.UnsignedLongDeserializer;
 
@@ -14,6 +15,7 @@ import java.util.Base64;
 import java.util.Optional;
 
 @Immutable
+@Style(jakarta = true)
 @JsonDeserialize(as = ImmutableValue.class)
 @JsonSerialize(as = ImmutableValue.class)
 @JsonIgnoreProperties(ignoreUnknown = true)

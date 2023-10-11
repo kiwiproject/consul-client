@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 public abstract class DeleteOptions implements ParamAdder {
 
     public static final DeleteOptions BLANK = ImmutableDeleteOptions.builder().build();

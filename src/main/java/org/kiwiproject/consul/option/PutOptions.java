@@ -7,10 +7,11 @@ import java.util.Map;
 import java.util.Optional;
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 public abstract class PutOptions implements ParamAdder {
-    
+
     public static final PutOptions BLANK = ImmutablePutOptions.builder().build();
-    
+
     public abstract Optional<Long> getCas();
     public abstract Optional<String> getAcquire();
     public abstract Optional<String> getRelease();

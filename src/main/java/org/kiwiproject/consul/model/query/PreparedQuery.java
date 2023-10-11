@@ -4,11 +4,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.immutables.value.Value.Immutable;
+import org.immutables.value.Value;
 
 import java.util.Optional;
 
-@Immutable
+@Value.Immutable
+@Value.Style(jakarta = true)
 @JsonDeserialize(as = ImmutablePreparedQuery.class)
 @JsonSerialize(as = ImmutablePreparedQuery.class)
 @JsonIgnoreProperties(ignoreUnknown = true)

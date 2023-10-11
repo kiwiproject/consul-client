@@ -11,6 +11,7 @@ import org.kiwiproject.consul.model.health.Service;
 import java.util.Map;
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 @JsonSerialize(as = ImmutableCatalogNode.class)
 @JsonDeserialize(as = ImmutableCatalogNode.class)
 @JsonIgnoreProperties(ignoreUnknown = true)

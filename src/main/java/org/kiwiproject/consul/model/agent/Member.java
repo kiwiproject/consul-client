@@ -10,6 +10,7 @@ import org.immutables.value.Value;
 import java.util.Map;
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 @JsonSerialize(as = ImmutableMember.class)
 @JsonDeserialize(as = ImmutableMember.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
