@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 @JsonSerialize(as = ImmutableQueryResult.class)
 @JsonDeserialize(as = ImmutableQueryResult.class)
 @JsonIgnoreProperties(ignoreUnknown = true)

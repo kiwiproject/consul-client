@@ -9,6 +9,7 @@ import org.immutables.value.Value;
 import java.util.Optional;
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 @JsonSerialize(as = ImmutableAclToken.class)
 @JsonDeserialize(as = ImmutableAclToken.class)
 @JsonIgnoreProperties(ignoreUnknown = true)

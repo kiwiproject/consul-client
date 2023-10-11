@@ -11,6 +11,7 @@ import java.util.Optional;
 
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 @JsonSerialize(as = ImmutableTelemetry.class)
 @JsonDeserialize(as = ImmutableTelemetry.class)
 @JsonIgnoreProperties(ignoreUnknown = true)

@@ -16,6 +16,7 @@ import java.util.Optional;
 
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 @JsonSerialize(as = ImmutableRegistration.class)
 @JsonDeserialize(as = ImmutableRegistration.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -87,7 +88,7 @@ public abstract class Registration {
 
         @JsonProperty("Timeout")
         public abstract Optional<String> getTimeout();
-        
+
         @JsonProperty("Notes")
         public abstract Optional<String> getNotes();
 
@@ -129,7 +130,7 @@ public abstract class Registration {
                     .timeout(String.format("%ss", timeout))
                     .build();
         }
-        
+
         public static RegCheck args(List<String> args, long interval, long timeout, String notes) {
             return ImmutableRegCheck
                     .builder()
@@ -156,7 +157,7 @@ public abstract class Registration {
                     .timeout(String.format("%ss", timeout))
                     .build();
         }
-        
+
         public static RegCheck http(String http, long interval, long timeout, String notes) {
             return ImmutableRegCheck
                     .builder()
@@ -183,7 +184,7 @@ public abstract class Registration {
                     .timeout(String.format("%ss", timeout))
                     .build();
         }
-        
+
         public static RegCheck tcp(String tcp, long interval, long timeout, String notes) {
             return ImmutableRegCheck
                     .builder()

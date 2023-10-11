@@ -10,6 +10,7 @@ import org.kiwiproject.consul.model.health.ServiceHealth;
 import java.util.List;
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 @JsonSerialize(as = ImmutableQueryResults.class)
 @JsonDeserialize(as = ImmutableQueryResults.class)
 @JsonIgnoreProperties(ignoreUnknown = true)

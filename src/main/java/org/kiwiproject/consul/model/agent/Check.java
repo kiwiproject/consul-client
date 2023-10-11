@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonSerialize(as = ImmutableCheck.class)
 @JsonDeserialize(as = ImmutableCheck.class)

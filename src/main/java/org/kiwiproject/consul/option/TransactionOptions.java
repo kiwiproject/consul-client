@@ -10,6 +10,7 @@ import java.util.Optional;
  * Container for common transaction options used by the Consul API.
  */
 @Value.Immutable
+@Value.Style(jakarta = true)
 public abstract class TransactionOptions implements ParamAdder {
 
     public static final TransactionOptions BLANK = ImmutableTransactionOptions.builder().build();

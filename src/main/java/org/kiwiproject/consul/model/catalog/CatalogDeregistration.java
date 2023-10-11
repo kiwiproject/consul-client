@@ -9,6 +9,7 @@ import org.immutables.value.Value;
 import java.util.Optional;
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 @JsonSerialize(as = ImmutableCatalogDeregistration.class)
 @JsonDeserialize(as = ImmutableCatalogDeregistration.class)
 @JsonIgnoreProperties(ignoreUnknown = true)

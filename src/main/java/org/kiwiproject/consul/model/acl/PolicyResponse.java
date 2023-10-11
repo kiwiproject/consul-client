@@ -7,6 +7,7 @@ import org.immutables.value.Value;
 
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 @JsonSerialize(as = ImmutablePolicyResponse.class)
 @JsonDeserialize(as = ImmutablePolicyResponse.class)
 @JsonIgnoreProperties(ignoreUnknown = true)

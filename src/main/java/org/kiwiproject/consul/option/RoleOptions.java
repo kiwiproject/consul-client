@@ -10,6 +10,7 @@ import java.util.Optional;
  * Container for common query options used by the Consul API.
  */
 @Value.Immutable
+@Value.Style(jakarta = true)
 public abstract class RoleOptions implements ParamAdder {
 
     public static final RoleOptions BLANK = ImmutableRoleOptions.builder().build();

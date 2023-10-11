@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 public abstract class EventOptions implements ParamAdder {
 
     public static final EventOptions BLANK = ImmutableEventOptions.builder().build();

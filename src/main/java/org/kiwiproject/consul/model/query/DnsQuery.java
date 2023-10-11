@@ -4,9 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.immutables.value.Value.Immutable;
+import org.immutables.value.Value;
 
-@Immutable
+@Value.Immutable
+@Value.Style(jakarta = true)
 @JsonDeserialize(as = ImmutableDnsQuery.class)
 @JsonSerialize(as = ImmutableDnsQuery.class)
 @JsonIgnoreProperties(ignoreUnknown = true)

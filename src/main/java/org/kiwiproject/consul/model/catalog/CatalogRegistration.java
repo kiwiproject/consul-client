@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 @JsonSerialize(as = ImmutableCatalogRegistration.class)
 @JsonDeserialize(as = ImmutableCatalogRegistration.class)
 @JsonIgnoreProperties(ignoreUnknown = true)

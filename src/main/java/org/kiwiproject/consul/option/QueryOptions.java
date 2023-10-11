@@ -14,6 +14,7 @@ import java.util.Optional;
  * Container for common query options used by the Consul API.
  */
 @Value.Immutable
+@Value.Style(jakarta = true)
 public abstract class QueryOptions implements ParamAdder {
 
     public static final QueryOptions BLANK = ImmutableQueryOptions.builder().build();

@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 @JsonSerialize(as = ImmutableNode.class)
 @JsonDeserialize(as = ImmutableNode.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -21,7 +22,7 @@ public abstract class Node {
 
     @JsonProperty("Address")
     public abstract String getAddress();
-    
+
     @JsonProperty("Datacenter")
     public abstract Optional<String> getDatacenter();
 

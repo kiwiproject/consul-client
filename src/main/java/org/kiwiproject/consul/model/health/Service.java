@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Value.Immutable
+@Value.Style(jakarta = true)
 @JsonSerialize(as = ImmutableService.class)
 @JsonDeserialize(as = ImmutableService.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -30,7 +31,7 @@ public abstract class Service {
     @JsonProperty("Tags")
     @JsonDeserialize(as = ImmutableList.class, contentAs = String.class)
     public abstract List<String> getTags();
-    
+
     @JsonProperty("Address")
     public abstract String getAddress();
 

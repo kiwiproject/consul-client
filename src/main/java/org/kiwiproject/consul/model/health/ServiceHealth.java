@@ -9,6 +9,7 @@ import org.immutables.value.Value;
 
 import java.util.List;
 @Value.Immutable
+@Value.Style(jakarta = true)
 @JsonSerialize(as = ImmutableServiceHealth.class)
 @JsonDeserialize(as = ImmutableServiceHealth.class)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -23,5 +24,5 @@ public abstract class ServiceHealth {
     @JsonProperty("Checks")
     @JsonDeserialize(as = ImmutableList.class, contentAs = HealthCheck.class)
     public abstract List<HealthCheck> getChecks();
-    
+
 }
