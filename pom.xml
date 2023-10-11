@@ -318,10 +318,6 @@
     NOTE:
     Override the javadoc plugin from kiwi-parent, otherwise javadoc will fail due to Immutables.
     Also, this project does not use Lombok, so don't include it in the sourcePath used for javadocs.
-
-    See https://github.com/immutables/immutables/issues/902 which describes the changes made here.
-    It doesn't seem that the annotation-api is strictly needed to generate the javadocs, but I left
-    it here anyway, and also added the jakarta flavor to "future-proof" things.
     -->
     <profiles>
         <profile>
@@ -345,21 +341,6 @@
                             <sourcepath>
                                 ${project.build.sourceDirectory}:${project.build.directory}/generated-sources/annotations
                             </sourcepath>
-
-                            <additionalDependencies>
-                                <additionalDependency>
-                                    <groupId>javax.annotation</groupId>
-                                    <artifactId>javax.annotation-api</artifactId>
-                                    <version>1.3.2</version>
-                                </additionalDependency>
-
-                                <!-- Added this for future-proofing -->
-                                <additionalDependency>
-                                    <groupId>jakarta.annotation</groupId>
-                                    <artifactId>jakarta.annotation-api</artifactId>
-                                    <version>2.1.1</version>
-                                </additionalDependency>
-                            </additionalDependencies>
 
                             <!-- Make JavaDoc understand the "new" tags introduced in Java 8 (!) -->
                             <tags>
