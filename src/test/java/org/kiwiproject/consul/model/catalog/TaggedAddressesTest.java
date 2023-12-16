@@ -30,7 +30,6 @@ class TaggedAddressesTest {
 
     @Test
     void buildingTaggedAddressWithoutWanAddressShouldThrow() {
-        // noinspection ResultOfMethodCallIgnored
         assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() ->
                 ImmutableTaggedAddresses.builder()
                         .lan("127.0.0.1")

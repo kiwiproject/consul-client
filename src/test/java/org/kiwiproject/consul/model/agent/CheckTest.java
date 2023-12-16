@@ -12,7 +12,6 @@ class CheckTest {
 
     @Test
     void buildingCheckThrowsIfMissingMethod() {
-        // noinspection ResultOfMethodCallIgnored
         assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> ImmutableCheck.builder()
                 .id("id")
                 .interval("10s")
@@ -22,7 +21,6 @@ class CheckTest {
 
     @Test
     void buildingCheckWithHttpThrowsIfMissingInterval() {
-        // noinspection ResultOfMethodCallIgnored
         assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> ImmutableCheck.builder()
                 .id("id")
                 .http("http://foo.local:1337/health")
@@ -32,7 +30,6 @@ class CheckTest {
 
     @Test
     void buildingCheckWithGrpcThrowsIfMissingInterval() {
-        // noinspection ResultOfMethodCallIgnored
         assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> ImmutableCheck.builder()
                 .id("id")
                 .grpc("localhost:12345")
@@ -42,7 +39,6 @@ class CheckTest {
 
     @Test
     void buildingCheckWithArgsThrowsIfMissingInterval() {
-        // noinspection ResultOfMethodCallIgnored
         assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> ImmutableCheck.builder()
                 .id("id")
                 .args(List.of("/bin/echo \"hi\""))
