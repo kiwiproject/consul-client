@@ -307,11 +307,27 @@ class CacheConfigTest {
 
         @Override
         public List<Integer> get() {
+            // NOTE:
+            // This code was introduced in commit 252ffd66 in November 2018.
+            // I do not know if lastCall was ever not null between then and
+            // now, but as far as I can tell, it always has a non-null value.
+            // But the original AssertJ assertion, even if it was executed and
+            // failed, would never be seen since this executes in a separate
+            // thread.
+            //
+            // Now, this throws an IllegalStateException "just in case"
+            // anything changes to make lastCall non-null, and the duration
+            // between calls is less than 20 milliseconds.
+            //
+            // I also do not know why 20 was chosen in the original commit,
+            // but I have left it as-is.
             if (nonNull(lastCall)) {
                 long millisBetween = Duration.between(lastCall, LocalTime.now()).toMillis();
-                assertThat(Math.abs(millisBetween - expectedInterval.toMillis()))
-                        .describedAs("expected duration between calls of %d, got %s", expectedInterval.toMillis(), millisBetween)
-                        .isLessThan(20);
+                var durationBetweenCalls = Math.abs(millisBetween - expectedInterval.toMillis());
+                if (durationBetweenCalls < 20) {
+                    var message = String.format("expected duration between calls of %d, got %s", expectedInterval.toMillis(), millisBetween);
+                    throw new IllegalStateException(message);
+                }
             }
             lastCall = LocalTime.now();
             run++;
