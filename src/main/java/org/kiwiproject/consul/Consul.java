@@ -25,6 +25,8 @@ import org.kiwiproject.consul.util.bookend.ConsulBookend;
 import org.kiwiproject.consul.util.bookend.ConsulBookendInterceptor;
 import org.kiwiproject.consul.util.failover.ConsulFailoverInterceptor;
 import org.kiwiproject.consul.util.failover.strategy.ConsulFailoverStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 
@@ -48,6 +50,8 @@ import java.util.function.IntSupplier;
 * @author rfast
 */
 public class Consul {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Consul.class);
 
     /**
     * Default Consul HTTP API host.
@@ -318,6 +322,7 @@ public class Consul {
         private Interceptor headerInterceptor;
         private Interceptor consulBookendInterceptor;
         private Interceptor consulFailoverInterceptor;
+        private int numTimesConsulFailoverInterceptorSet;
         private final NetworkTimeoutConfig.Builder networkTimeoutConfigBuilder = new NetworkTimeoutConfig.Builder();
         private ExecutorService executorService;
         private ConnectionPool connectionPool;
@@ -500,6 +505,11 @@ public class Consul {
          * Sets the list of hosts to contact if the current request target is
          * unavailable. When the call to a particular URL fails for any reason, the next {@link HostAndPort} specified
          * is used to retry the request. This will continue until all urls are exhausted.
+         * <p>
+         * Internally, this method constructs a {@link ConsulFailoverInterceptor} with a
+         * {@link org.kiwiproject.consul.util.failover.strategy.BlacklistingConsulFailoverStrategy BlacklistingConsulFailoverStrategy}.
+         * If you call this method, you should not use {@link #withFailoverInterceptor(ConsulFailoverStrategy)}
+         * as it will create a new failover interceptor which overrides the one set by this method.
          *
          * @param hostAndPort           A collection of {@link HostAndPort} that define the list of Consul agent addresses to use.
          * @param blacklistTimeInMillis The timeout (in milliseconds) to blacklist a particular {@link HostAndPort} before trying to use it again.
@@ -508,8 +518,10 @@ public class Consul {
         public Builder withMultipleHostAndPort(Collection<HostAndPort> hostAndPort, long blacklistTimeInMillis) {
             checkArgument(blacklistTimeInMillis >= 0, "Blacklist time must be positive");
             checkArgument(hostAndPort.size() >= 2, "Minimum of 2 addresses are required");
+            logWarningIfConsulFailoverInterceptorAlreadySet("withMultipleHostAndPort");
 
             consulFailoverInterceptor = new ConsulFailoverInterceptor(hostAndPort, blacklistTimeInMillis);
+            ++numTimesConsulFailoverInterceptorSet;
             withHostAndPort(hostAndPort.stream().findFirst().orElseThrow());
 
             return this;
@@ -517,14 +529,34 @@ public class Consul {
 
         /**
          * Constructs a failover interceptor with the given {@link ConsulFailoverStrategy}.
+         * <p>
+         * If you call this method, you should not use {@link #withMultipleHostAndPort(Collection, long)}
+         * as it will create a new failover interceptor which overrides the one set by this method.
+         *
          * @param strategy The strategy to use.
          * @return The builder.
          */
         public Builder withFailoverInterceptor(ConsulFailoverStrategy strategy) {
             checkArgument(nonNull(strategy), "Must not provide a null strategy");
+            logWarningIfConsulFailoverInterceptorAlreadySet("withFailoverInterceptor");
 
             consulFailoverInterceptor = new ConsulFailoverInterceptor(strategy);
+            ++numTimesConsulFailoverInterceptorSet;
             return this;
+        }
+
+        private void logWarningIfConsulFailoverInterceptorAlreadySet(String methodName) {
+            if (numTimesConsulFailoverInterceptorSet > 0) {
+                LOG.warn("A ConsulFailoverInterceptor was already present; this invocation to '{}' overrides it!" +
+                                " Make sure either 'withMultipleHostAndPort' or 'withFailoverInterceptor' is called," +
+                                " but not both.",
+                        methodName);
+            }
+        }
+
+        @VisibleForTesting
+        int numTimesConsulFailoverInterceptorSet() {
+            return numTimesConsulFailoverInterceptorSet;
         }
 
         /**
