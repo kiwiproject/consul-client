@@ -103,7 +103,7 @@ class CatalogClientITest extends BaseIntegrationTest {
     }
 
     @Test
-    void shouldGetTaggedAddressesForNodesLists() {
+    void shouldGetTaggedAddressesForNodeLists() {
         List<Node> nodesResp = catalogClient.getNodes().getResponse();
         assertThat(nodesResp).isNotEmpty();
         for (var node : nodesResp) {

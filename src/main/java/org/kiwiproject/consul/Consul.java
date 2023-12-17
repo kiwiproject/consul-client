@@ -356,8 +356,8 @@ public class Consul {
                 this.scheme = "http";
             }
 
-            //if url was already generated from a call to withMultipleHostAndPort or withMultipleHostAndPort
-            //it might have the old scheme saved into url, so recreate it here if it has changed
+            // if url was already generated from a call to withMultipleHostAndPort or withMultipleHostAndPort,
+            // it might have the old scheme saved into url, so recreate it here if it has changed
             if (!this.url.getProtocol().equals(this.scheme)) {
                 this.url = Urls.newUrl(scheme, this.url.getHost(), this.url.getPort());
             }
@@ -472,7 +472,7 @@ public class Consul {
 
         /**
          * Attaches a {@link ConsulBookend} to each Consul request. This can be used for gathering
-         * metrics timings or debugging.
+         * metrics, timings or debugging.
          *
          * @param consulBookend The bookend implementation.
          * @return The builder.
@@ -652,7 +652,7 @@ public class Consul {
          * When an application needs to be able to customize the ConnectionPool parameters, and/or manage its lifecycle,
          * it can provide an instance of ConnectionPool to the Builder. In that case, this ConnectionPool will be used instead of creating one internally.
          *
-         * @param connectionPool The ConnetcionPool to be injected in the internal  OkHttpClient
+         * @param connectionPool The ConnectionPool to be injected in the internal OkHttpClient
          * @return The builder
         */
         public Builder withConnectionPool(ConnectionPool connectionPool) {

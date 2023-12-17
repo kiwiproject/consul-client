@@ -13,7 +13,7 @@ public class ConsulResponse<T> {
 
     public interface CacheResponseInfo {
         /**
-         * This value can be null if value is not in cache
+         * This value can be null if the value is not in cache
          *
          * @return an Optional containing the age in seconds, or an empty Optional
          */

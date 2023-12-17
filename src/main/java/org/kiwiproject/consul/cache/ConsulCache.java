@@ -434,7 +434,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
 
         @Override
         public void shutdownNow() {
-            // do nothing, since executor was externally created
+            // do nothing, since the executor was externally created
         }
     }
 

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 
 /**
- * Serializes a time field (e.g. TTL) as seconds.
+ * Serializes a time field (e.g., TTL) as seconds.
  */
 public class SecondsSerializer extends JsonSerializer<Long> {
 

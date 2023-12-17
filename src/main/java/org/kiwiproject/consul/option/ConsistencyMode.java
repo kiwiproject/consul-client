@@ -77,7 +77,7 @@ public class ConsistencyMode {
         return new ConsistencyMode("CACHED", 3, "cached", headers);
     }
 
-    // The next methods are for compatibility with old enum type
+    // The next methods are for compatibility with the old enum type
 
     /**
      * ConsistencyMode used t be an enum, implement it.

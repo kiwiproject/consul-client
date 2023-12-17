@@ -29,7 +29,7 @@ public abstract class BaseIntegrationTest {
     // NOTE:
     // The following starts a consul container that will persist across all tests
     // that extend this base class. Presumably it was done this way so that a single
-    // container is used instead of each test creating one. But, this way doesn't
+    // container is used instead of each test creating one. But this way doesn't
     // provide a way to shut the container down cleanly after all tests have run.
     // Test suites for all tests that extend this base class would be nice, except
     // there isn't a way to do before/after suite logic. See the discussion in this

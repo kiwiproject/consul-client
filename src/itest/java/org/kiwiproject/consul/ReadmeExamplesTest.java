@@ -47,7 +47,7 @@ class ReadmeExamplesTest extends BaseIntegrationTest {
 
         // Check in with Consul (serviceId required only).
         // Client will prepend "service:" for service level checks.
-        // Note that you need to continually check in before the TTL expires, otherwise your service's state will be marked as "critical".
+        // Note that you need to continually check in before the TTL expires; otherwise your service's state will be marked as "critical".
         agentClient.pass(serviceId);
     }
 
@@ -103,7 +103,7 @@ class ReadmeExamplesTest extends BaseIntegrationTest {
 
         ServiceHealthCache svHealth = ServiceHealthCache.newCache(healthClient, serviceName);
         svHealth.addListener((Map<ServiceHealthKey, ServiceHealth> newValues) -> {
-            // do something with updated server map
+            // do something with the updated server map
         });
         svHealth.start();
         // ...

@@ -26,8 +26,8 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
- * Note that in the tests that list events, we have to assume there might have
- * been previous events created. So, in those tests we can't just make an assertion
+ * Note that in the tests which list events, we have to assume there might have
+ * been previous events created. So, in those tests, we can't just make an assertion
  * about ALL events. Instead, we have to make assertions about events that we have
  * just created in the test.
  */
