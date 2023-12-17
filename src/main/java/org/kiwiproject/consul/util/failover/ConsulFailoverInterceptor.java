@@ -108,7 +108,7 @@ public class ConsulFailoverInterceptor implements Interceptor {
             while ((maybeNextRequest = strategy.computeNextStage(previousRequest, null)).isPresent()) {
                 // Get the response from the last viable request
                 Exception exception;
-                Request nextRequest = maybeNextRequest.get();
+                Request nextRequest = maybeNextRequest.orElseThrow(IllegalStateException::new);
                 try {
 
                     // Cache for the next cycle if needed
