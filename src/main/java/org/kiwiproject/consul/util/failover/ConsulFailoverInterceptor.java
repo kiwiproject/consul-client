@@ -7,6 +7,7 @@ import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.kiwiproject.consul.ConsulException;
 import org.kiwiproject.consul.util.failover.strategy.BlacklistingConsulFailoverStrategy;
 import org.kiwiproject.consul.util.failover.strategy.ConsulFailoverStrategy;
@@ -95,31 +96,30 @@ public class ConsulFailoverInterceptor implements Interceptor {
             // Initially, we have an inflight request
             Request previousRequest = originalRequest;
 
-            Optional<Request> nextRequest;
-
             // Note:
             // The previousResponse is never used here and is always null when calling computeNextStage.
             // See discussion in issue #195 ("previousResponse is always null in ConsulFailoverInterceptor#intercept")
             // Link: https://github.com/kiwiproject/consul-client/issues/195
 
+            Optional<Request> maybeNextRequest;
             var currentAttempt = 1;
 
             // Get the next viable request
-            while ((nextRequest = strategy.computeNextStage(previousRequest, null)).isPresent()) {
+            while ((maybeNextRequest = strategy.computeNextStage(previousRequest, null)).isPresent()) {
                 // Get the response from the last viable request
                 Exception exception;
+                Request nextRequest = maybeNextRequest.get();
                 try {
 
                     // Cache for the next cycle if needed
-                    final Request next = nextRequest.get();
-                    previousRequest = next;
+                    previousRequest = nextRequest;
 
                     // Anything other than an exception is valid here.
                     // This is because a 400-series error is a valid code (Permission Denied/Key Not Found)
-                    return chain.proceed(next);
+                    return chain.proceed(nextRequest);
                 } catch (Exception ex) {
-                    LOG.debug("Failed to connect to {}", nextRequest.get().url(), ex);
-                    strategy.markRequestFailed(nextRequest.get());
+                    logExceptionThrownOnRequest(LOG, ex, nextRequest);
+                    strategy.markRequestFailed(nextRequest);
                     exception = ex;
                 }
 
@@ -135,6 +135,18 @@ public class ConsulFailoverInterceptor implements Interceptor {
         } else {
             throw new ConsulException(
                     "Consul failover strategy has determined that there are no viable hosts remaining.");
+        }
+    }
+
+    @VisibleForTesting
+    static void logExceptionThrownOnRequest(Logger logger, Exception ex, Request request) {
+        var url = request.url();
+        if (logger.isDebugEnabled()) {
+            logger.debug("Got error when connecting to {}", url, ex);
+        } else {
+            logger.warn("Got {} when connecting to {} (enable DEBUG level to see stack trace)",
+                    ex.getClass().getName(),
+                    url);
         }
     }
 }
