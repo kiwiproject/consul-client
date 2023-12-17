@@ -2,12 +2,12 @@ package org.kiwiproject.consul.util.failover;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.net.HostAndPort;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.VisibleForTesting;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.kiwiproject.consul.ConsulException;
 import org.kiwiproject.consul.util.failover.strategy.BlacklistingConsulFailoverStrategy;
 import org.kiwiproject.consul.util.failover.strategy.ConsulFailoverStrategy;
@@ -82,7 +82,7 @@ public class ConsulFailoverInterceptor implements Interceptor {
         return maxFailoverAttempts;
     }
 
-    @NotNull
+    @NonNull
     @Override
     public Response intercept(Chain chain) {
 
