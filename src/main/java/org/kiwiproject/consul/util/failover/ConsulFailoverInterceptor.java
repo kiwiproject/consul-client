@@ -1,5 +1,7 @@
 package org.kiwiproject.consul.util.failover;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.google.common.net.HostAndPort;
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -18,8 +20,16 @@ public class ConsulFailoverInterceptor implements Interceptor {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConsulFailoverInterceptor.class);
 
+    /**
+     * The default maximum number of failover attempts.
+     */
+    private static final int DEFAULT_MAX_FAILOVER_ATTEMPTS = 10;
+
     // The consul failover strategy
     private final ConsulFailoverStrategy strategy;
+
+    // The maximum number of failover attempts before giving up and throwing an exception
+    private int maxFailoverAttempts = DEFAULT_MAX_FAILOVER_ATTEMPTS;
 
     /**
      * Default constructor for a set of hosts and ports
@@ -38,6 +48,37 @@ public class ConsulFailoverInterceptor implements Interceptor {
      */
     public ConsulFailoverInterceptor(ConsulFailoverStrategy strategy) {
         this.strategy = strategy;
+    }
+
+    /**
+     * Change the maximum number of failover attempts before giving up.
+     * The default value is 10.
+     * <p>
+     * While this method can be called at any time after construction,
+     * it is intended to be called immediately following a constructor
+     * when there is a need to change the default maximum. For example:
+     * <pre>
+     * var interceptor = new ConsulFailoverInterceptor(hosts, timeout)
+     *         .withMaxFailoverAttempts(25);
+     * </pre>
+     *
+     * @param maxFailoverAttempts the new maximum number of failover attempts
+     * @return this instance, to permit chaining on a constructor call
+     */
+    public ConsulFailoverInterceptor withMaxFailoverAttempts(int maxFailoverAttempts) {
+        checkArgument(maxFailoverAttempts > 0, "maxFailoverAttempts must be positive");
+        this.maxFailoverAttempts = maxFailoverAttempts;
+        return this;
+    }
+
+    /**
+     * Return the maximum number of failover attempts, after which a
+     * {@link MaxFailoverAttemptsExceededException} is thrown.
+     *
+     * @return maximum failover attempts
+     */
+    public int maxFailoverAttempts() {
+        return maxFailoverAttempts;
     }
 
     @NotNull
@@ -61,9 +102,12 @@ public class ConsulFailoverInterceptor implements Interceptor {
             // See discussion in issue #195 ("previousResponse is always null in ConsulFailoverInterceptor#intercept")
             // Link: https://github.com/kiwiproject/consul-client/issues/195
 
+            var currentAttempt = 1;
+
             // Get the next viable request
             while ((nextRequest = strategy.computeNextStage(previousRequest, null)).isPresent()) {
                 // Get the response from the last viable request
+                Exception exception;
                 try {
 
                     // Cache for the next cycle if needed
@@ -76,6 +120,13 @@ public class ConsulFailoverInterceptor implements Interceptor {
                 } catch (Exception ex) {
                     LOG.debug("Failed to connect to {}", nextRequest.get().url(), ex);
                     strategy.markRequestFailed(nextRequest.get());
+                    exception = ex;
+                }
+
+                if (++currentAttempt > maxFailoverAttempts) {
+                    throw new MaxFailoverAttemptsExceededException(
+                            String.format("Reached max failover attempts (%d). Giving up.", maxFailoverAttempts),
+                            exception);
                 }
             }
 
