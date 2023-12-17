@@ -24,6 +24,8 @@ import org.kiwiproject.consul.option.ImmutableDeleteOptions;
 import org.kiwiproject.consul.option.ImmutableQueryOptions;
 import org.kiwiproject.consul.option.PutOptions;
 import org.kiwiproject.consul.option.QueryOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
 import java.util.HashSet;
@@ -38,6 +40,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 class KeyValueClientITest extends BaseIntegrationTest {
+
+    private static final Logger LOG = LoggerFactory.getLogger(KeyValueClientITest.class);
 
     private static final Charset TEST_CHARSET = Charset.forName("IBM297");
 
@@ -398,7 +402,7 @@ class KeyValueClientITest extends BaseIntegrationTest {
 
             @Override
             public void onFailure(Throwable throwable) {
-                throwable.printStackTrace();
+                LOG.error("getValues failed for key {}", key, throwable);
                 completed.countDown();
             }
         });

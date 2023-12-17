@@ -100,6 +100,7 @@ public class ConsulResponse<T> {
      * @deprecated replaced by {@link #getCacheResponseInfo()}
      * @see <a href="https://developer.hashicorp.com/consul/api-docs/features/caching#background-refresh-caching">Background Refresh Caching</a>
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated(since = "1.1.0", forRemoval = true)
     public Optional<CacheResponseInfo> getCacheReponseInfo(){
         return getCacheResponseInfo();
