@@ -505,6 +505,11 @@ public class Consul {
          * Sets the list of hosts to contact if the current request target is
          * unavailable. When the call to a particular URL fails for any reason, the next {@link HostAndPort} specified
          * is used to retry the request. This will continue until all urls are exhausted.
+         * <p>
+         * Internally, this method constructs a {@link ConsulFailoverInterceptor} with a
+         * {@link org.kiwiproject.consul.util.failover.strategy.BlacklistingConsulFailoverStrategy BlacklistingConsulFailoverStrategy}.
+         * If you call this method, you should not use {@link #withFailoverInterceptor(ConsulFailoverStrategy)}
+         * as it will create a new failover interceptor which overrides the one set by this method.
          *
          * @param hostAndPort           A collection of {@link HostAndPort} that define the list of Consul agent addresses to use.
          * @param blacklistTimeInMillis The timeout (in milliseconds) to blacklist a particular {@link HostAndPort} before trying to use it again.
@@ -524,6 +529,10 @@ public class Consul {
 
         /**
          * Constructs a failover interceptor with the given {@link ConsulFailoverStrategy}.
+         * <p>
+         * If you call this method, you should not use {@link #withMultipleHostAndPort(Collection, long)}
+         * as it will create a new failover interceptor which overrides the one set by this method.
+         *
          * @param strategy The strategy to use.
          * @return The builder.
          */
