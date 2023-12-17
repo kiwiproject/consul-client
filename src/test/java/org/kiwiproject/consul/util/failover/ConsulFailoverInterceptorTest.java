@@ -13,6 +13,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import okhttp3.HttpUrl;
 import okhttp3.Interceptor.Chain;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -22,7 +23,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.kiwiproject.consul.ConsulException;
 import org.kiwiproject.consul.util.failover.strategy.ConsulFailoverStrategy;
+import org.slf4j.Logger;
 
+import javax.net.ssl.SSLProtocolException;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -89,7 +92,7 @@ class ConsulFailoverInterceptorTest {
     void shouldReturnResponse_WhenGetResponse_BeforeExceedingMaxFailoverAttempts() throws IOException {
         when(strategy.isRequestViable(any(Request.class))).thenReturn(true);
 
-        var request = mock(Request.class, RETURNS_DEEP_STUBS);
+        var request = newMockRequest();
         when(strategy.computeNextStage(any(Request.class), isNull(Response.class)))
                 .thenReturn(Optional.of(request));
 
@@ -116,7 +119,7 @@ class ConsulFailoverInterceptorTest {
     void shouldThrowException_WhenMaxFailoverAttemptsExceeded() throws IOException {
         when(strategy.isRequestViable(any(Request.class))).thenReturn(true);
 
-        var request = mock(Request.class, RETURNS_DEEP_STUBS);
+        var request = newMockRequest();
         when(strategy.computeNextStage(any(Request.class), isNull(Response.class)))
                 .thenReturn(Optional.of(request));
 
@@ -132,5 +135,53 @@ class ConsulFailoverInterceptorTest {
 
         //noinspection resource
         verify(chain, times(10)).proceed(any(Request.class));
+    }
+
+    @Test
+    void shouldLogExceptionThrownOnRequest_WhenAtWarnLevel() {
+        var logger = newLoggerWithDebugEnabled(false);
+        var request = newMockRequest();
+        var exception = newSslProtocolException();
+
+        ConsulFailoverInterceptor.logExceptionThrownOnRequest(logger, exception, request);
+
+        verify(logger).isDebugEnabled();
+        verify(logger).warn("Got {} when connecting to {} (enable DEBUG level to see stack trace)",
+                exception.getClass().getName(),
+                nextConsulHttpUrl());
+        verifyNoMoreInteractions(logger);
+    }
+
+    @Test
+    void shouldLogExceptionThrownOnRequest_WhenAtDebugLevel() {
+        var logger = newLoggerWithDebugEnabled(true);
+        var request = newMockRequest();
+        var exception = newSslProtocolException();
+
+        ConsulFailoverInterceptor.logExceptionThrownOnRequest(logger, exception, request);
+
+        verify(logger).isDebugEnabled();
+        verify(logger).debug("Got error when connecting to {}", nextConsulHttpUrl(), exception);
+        verifyNoMoreInteractions(logger);
+    }
+
+    private static Logger newLoggerWithDebugEnabled(boolean value) {
+        var logger = mock(Logger.class);
+        when(logger.isDebugEnabled()).thenReturn(value);
+        return logger;
+    }
+
+    private static Request newMockRequest() {
+        var request = mock(Request.class);
+        when(request.url()).thenReturn(nextConsulHttpUrl());
+        return request;
+    }
+
+    private static SSLProtocolException newSslProtocolException() {
+        return new SSLProtocolException("The certificate chain length (11) exceeds the maximum allowed length (10)");
+    }
+
+    private static HttpUrl nextConsulHttpUrl() {
+        return HttpUrl.parse("https://consul.acme.com:8501");
     }
 }
