@@ -100,7 +100,7 @@ class ConsulCacheTest {
     /**
      * Test that if Consul for some reason returns a duplicate service or key/value entry
      * that we recover gracefully by taking the first value, ignoring duplicates, and warning
-     * user of the condition
+     * the user of the condition
      */
     @Test
     void testDuplicateServicesDontCauseFailure() {
@@ -115,7 +115,7 @@ class ConsulCacheTest {
             ConsulResponse<List<Value>> consulResponse = new ConsulResponse<>(response, 0, false, BigInteger.ONE, null, null);
             ImmutableMap<String, Value> map = consulCache.convertToMap(consulResponse);
             assertThat(map).isNotNull();
-            // Second copy has been weeded out
+            // The second copy has been weeded out
             assertThat(map).hasSize(1);
         }
     }
@@ -336,7 +336,7 @@ class ConsulCacheTest {
 
             assertThat(listener.getCallCount()).isEqualTo(1);
 
-            // This used to check "equal to 1"; after switching to AssertJ it started failing, usually
+            // This used to check "equal to 1"; after switching to AssertJ, it started failing, usually
             // with the call count at 2, but sometimes more. Moving this above the listener call count
             // assertion would (almost) always work. So, as far as I can tell, this only used to work
             // due to timing, because the callbackConsumer continues to be called back! And with the

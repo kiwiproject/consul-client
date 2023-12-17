@@ -98,7 +98,7 @@ public class AgentClient extends BaseClient {
     }
 
     /**
-     * Registers the client as a service with Consul with a script based check.
+     * Registers the client as a service with Consul with a script-based check.
      *
      * @param port     The public facing port of the service to register with Consul.
      * @param args     Specifies command argument to run to update the status of the check.
@@ -115,7 +115,7 @@ public class AgentClient extends BaseClient {
     }
 
     /**
-     * Registers the client as a service with Consul with a script based check.
+     * Registers the client as a service with Consul with a script-based check.
      *
      * @param port     The public facing port of the service to register with Consul.
      * @param args     Specifies command argument to run to update the status of the check.
@@ -132,7 +132,7 @@ public class AgentClient extends BaseClient {
     }
 
     /**
-     * Registers the client as a service with Consul with an HTTP based check
+     * Registers the client as a service with Consul with an HTTP-based check
      *
      * @param port     The public facing port of the service to register with Consul.
      * @param http     Health check URL.
@@ -149,7 +149,7 @@ public class AgentClient extends BaseClient {
     }
 
     /**
-     * Registers the client as a service with Consul with a TCP based check
+     * Registers the client as a service with Consul with a TCP-based check
      *
      * @param port     The public facing port of the service to register with Consul.
      * @param tcp      Health check TCP host and port.
@@ -239,7 +239,7 @@ public class AgentClient extends BaseClient {
     /**
      * De-register a particular service from the Consul Agent.
      *
-     * @param serviceId the ID of the service to de-register
+     * @param serviceId the ID of the service to deregister
      * @param options   the query options to use
      */
     public void deregister(String serviceId, QueryOptions options) {
@@ -249,7 +249,7 @@ public class AgentClient extends BaseClient {
     /**
      * De-register a particular service from the Consul Agent.
      *
-     * @param serviceId the ID of the service to de-register
+     * @param serviceId the ID of the service to deregister
      */
     public void deregister(String serviceId) {
         deregister(serviceId, QueryOptions.BLANK);
@@ -682,7 +682,7 @@ public class AgentClient extends BaseClient {
     /**
      * Sets a TTL check to "warning" state.
      *
-     * @param checkId the ID of the check to set as warn
+     * @param checkId the ID of the check to set as "warning"
      * @throws NotRegisteredException if the service has not registered
      */
     public void warnCheck(String checkId) throws NotRegisteredException {
@@ -692,7 +692,7 @@ public class AgentClient extends BaseClient {
     /**
      * Sets a TTL check to "warning" state with a note.
      *
-     * @param checkId the ID of the check to set as warn
+     * @param checkId the ID of the check to set as "warning"
      * @param note    the note to set on the check
      * @throws NotRegisteredException if the service has not registered
      */

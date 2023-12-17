@@ -42,7 +42,7 @@ class CacheConfigTest {
 
     /**
      * @implNote To serialize CacheConfig to JSON, we need to register the JavaTimeModule so that classes
-     * in the {@code java.time} package (e.g. Duration) can be serialized.
+     * in the {@code java.time} package (e.g., Duration) can be serialized.
      */
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper().registerModule(new JavaTimeModule());
 

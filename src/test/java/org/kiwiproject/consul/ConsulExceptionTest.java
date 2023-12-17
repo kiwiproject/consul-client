@@ -45,7 +45,7 @@ class ConsulExceptionTest {
     }
 
     // This is testing the code "as-is" when we imported into kiwiproject. Looking at the OkHttp code,
-    // I'm not sure if this can really happen, unless someone does what this test is doing and supplies
+    // I'm not sure if this can really happen unless someone does what this test is doing and supplies
     // a response with a success status code (2xx).
     @Test
     void shouldCreateWithCodeAndResponse_ThatContainsNullResponseErrorBody() {

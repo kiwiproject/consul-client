@@ -47,7 +47,7 @@ public class SessionClient extends BaseClient {
      * PUT /v1/session/create
      *
      * @param value The session to create.
-     * @return ID of the newly created session .
+     * @return ID of the newly created session.
      */
     public SessionCreatedResponse createSession(final Session value) {
         return createSession(value, null);

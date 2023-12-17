@@ -54,7 +54,7 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
             this.blacklist.put(initialTarget, Instant.now());
         }
 
-        // If our blacklist contains the target we care about
+        // Handle the case when the blacklist contains the target we care about
         if (blacklist.containsKey(initialTarget)) {
 
             // Find the first entity that doesn't exist in the blacklist

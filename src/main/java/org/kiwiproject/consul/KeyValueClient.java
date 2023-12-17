@@ -543,7 +543,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * DELETE /v1/kv/{key}
      *
      * @param key           The key to delete.
-     * @param deleteOptions DELETE options (e.g. recurse, cas)
+     * @param deleteOptions DELETE options (e.g., recurse, cas)
      */
     public void deleteKey(String key, DeleteOptions deleteOptions) {
         checkArgument(StringUtils.isNotEmpty(key), KEY_MUST_BE_DEFINED);
@@ -572,7 +572,7 @@ public class KeyValueClient extends BaseCacheableClient {
      *
      * @param key     The key to acquire the lock.
      * @param session The session to acquire lock.
-     * @param value   key value (usually - application specific info about the lock requester)
+     * @param value   key value (usually application-specific info about the lock requester)
      * @return true if the lock is acquired successfully, false otherwise.
      */
     public boolean acquireLock(final String key, final String value, final String session) {

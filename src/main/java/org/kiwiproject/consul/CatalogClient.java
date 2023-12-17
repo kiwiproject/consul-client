@@ -94,7 +94,7 @@ public class CatalogClient extends BaseCacheableClient {
      * GET /v1/catalog/nodes?dc={datacenter}
      *
      * @param queryOptions The Query Options to use.
-     * @param callback     Callback implemented by callee to handle results, which are list of {@link Node} objects.
+     * @param callback     Callback implemented by callee to handle results, which is a list of {@link Node} objects.
      */
     public void getNodes(QueryOptions queryOptions, ConsulResponseCallback<List<Node>> callback) {
         http.extractConsulResponse(api.getNodes(queryOptions.toQuery(), queryOptions.getTag(),
@@ -106,7 +106,7 @@ public class CatalogClient extends BaseCacheableClient {
      * <p>
      * GET /v1/catalog/services?dc={datacenter}
      *
-     * @return A {@link ConsulResponse} containing a map of service name to list of tags.
+     * @return A {@link ConsulResponse} containing a map of service name to a list of tags.
      */
     public ConsulResponse<Map<String, List<String>>> getServices() {
         return getServices(QueryOptions.BLANK);
@@ -117,7 +117,8 @@ public class CatalogClient extends BaseCacheableClient {
      * <p>
      * GET /v1/catalog/services?dc={datacenter}
      *
-     * @param callback Callback implemented by callee to handle results; the callback is provided a map of service name to list of tags.
+     * @param callback Callback implemented by callee to handle results; the callback is provided a map of service
+     *                 name to a list of tags.
      */
     public void getServices(ConsulResponseCallback<Map<String, List<String>>> callback) {
         getServices(QueryOptions.BLANK, callback);
@@ -129,7 +130,7 @@ public class CatalogClient extends BaseCacheableClient {
      * GET /v1/catalog/services?dc={datacenter}
      *
      * @param queryOptions The Query Options to use.
-     * @return A {@link ConsulResponse} containing a map of service name to list of tags.
+     * @return A {@link ConsulResponse} containing a map of service name to a list of tags.
      */
     public ConsulResponse<Map<String, List<String>>> getServices(QueryOptions queryOptions) {
         return http.extractConsulResponse(api.getServices(queryOptions.toQuery(),
@@ -142,7 +143,8 @@ public class CatalogClient extends BaseCacheableClient {
      * GET /v1/catalog/services?dc={datacenter}
      *
      * @param queryOptions The Query Options to use.
-     * @param callback     Callback implemented by callee to handle results, containing a map of service name to list of tags
+     * @param callback     Callback implemented by callee to handle results, containing a map of service name to
+     *                     a list of tags
      */
     public void getServices(QueryOptions queryOptions, ConsulResponseCallback<Map<String, List<String>>> callback) {
         http.extractConsulResponse(api.getServices(queryOptions.toQuery(),

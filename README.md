@@ -26,7 +26,7 @@ This library was imported from [rickfast/consul-client](https://github.com/rickf
 being maintained per a [note](https://github.com/rickfast/consul-client#notes-from-the-maintainer) from the original
 maintainer.
 
-Since we are still using this library in our services which use Dropwizard and Consul, we decided to import the original
+Since we are still using this library in services which use Dropwizard and Consul, we decided to import the original
 repository and continue maintaining it for our own use, and anyone else who might want to use it. We make no guarantees
 whatsoever about how long we will maintain it, and also plan to make our own changes such as changing the base package
 name to `org.kiwiproject` to be consistent with our other libraries.
@@ -37,18 +37,31 @@ would have to gain consent of all contributors, which we do not want to do).
 
 Another thing to note is that we _imported_ this repository from the original, so that it is a "disconnected fork". We
 did not want a reference to the original repository since it is no longer maintained and no changes here will ever
-be pushed back upstream. Thus, while we maintain the history that this is a fork , it is completely disconnected and is
+be pushed back upstream. Thus, while we maintain the history that this is a fork, it is completely disconnected and is
 now a standalone (normal) repository.
 
 Migrating from rickfast/consul-client
 --------------------------------------------
-For the initial version [0.5.0](https://github.com/kiwiproject/consul-client/releases/tag/v0.5.0), most likely the only thing you need to change in your POM is the group ID and the version number. However, you should instead go directly to [0.6.0](https://github.com/kiwiproject/consul-client/releases/tag/v0.6.0), since there was an issue in the initial release in which the compile time dependencies were not included in the POM released to Maven Central. Other than the POM dependencies and a few minor documentation and minor changes in tests, 0.5.0 and 0.6.0 are basically the same.
+For the initial version [0.5.0](https://github.com/kiwiproject/consul-client/releases/tag/v0.5.0), most likely
+the only thing you need to change in your POM is the group ID and the version number.
+However, you should instead go directly to [0.6.0](https://github.com/kiwiproject/consul-client/releases/tag/v0.6.0),
+since there was an issue in the initial release in which the compile time dependencies were not included in the
+POM released to Maven Central. Other than the POM dependencies and a few minor documentation and minor changes in tests,
+0.5.0 and 0.6.0 are basically the same.
 
-If you are using `PolicyResponse` and/or `PolicyListResponse`, then you will need to change your code, since `datacenters` changed from `Optional<String>` to `Optional<List<String>>`, so code using either of those will no longer compile. This change was not avoidable, since the original type was incorrect.
+If you are using `PolicyResponse` and/or `PolicyListResponse`, then you will need to change your code,
+since `datacenters` changed from `Optional<String>` to `Optional<List<String>>`,
+so code using either of those will no longer compile.
+This change was not avoidable, since the original type was incorrect.
 
-Starting with version [0.7.0](https://github.com/kiwiproject/consul-client/releases/tag/v0.7.0), the base package changes from `com.orbitz` to `org.kiwiproject`. The class names are the same, so existing code only needs to change the base package and recompile.
+Starting with version [0.7.0](https://github.com/kiwiproject/consul-client/releases/tag/v0.7.0), the base package
+changes from `com.orbitz` to `org.kiwiproject`. The class
+names are the same, so existing code only needs to change the base package and recompile.
 
-[0.8.0](https://github.com/kiwiproject/consul-client/releases/tag/v0.8.0) removes all deprecated methods from `AgentClient` and `KeyValueClient`. The methods in `AgentClient` would have always failed anyway, since Consul no longer has the HTTP endpoints they were calling. Last, there is a direct replacement for the method removed from `KeyValueClient`. 
+[0.8.0](https://github.com/kiwiproject/consul-client/releases/tag/v0.8.0) removes all deprecated methods
+from `AgentClient` and `KeyValueClient`.
+The methods in `AgentClient` would have always failed anyway, since Consul no longer has the
+HTTP endpoints they were calling. Last, there is a direct replacement for the method removed from `KeyValueClient`.
 
 Installation
 -----------
@@ -87,7 +100,9 @@ dependencies {
 
 ### Shaded JAR
 
-A shaded JAR is also provided using the [Maven Shade Plugin](https://maven.apache.org/plugins/maven-shade-plugin/) to create an "uber-jar" that includes dependencies. To use the shaded JAR, add a classifier, e.g. in Maven:
+A shaded JAR is also provided using the [Maven Shade Plugin](https://maven.apache.org/plugins/maven-shade-plugin/) to
+create an "uber-jar" that includes dependencies.
+To use the shaded JAR, add a classifier, e.g. in Maven:
 
 ```xml
 <dependency>
@@ -126,7 +141,7 @@ agentClient.register(service);
 
 // Check in with Consul (serviceId required only).
 // Client will prepend "service:" for service level checks.
-// Note that you need to continually check in before the TTL expires, otherwise your service's state will be marked as "critical".
+// Note that you need to continually check in before the TTL expires; otherwise your service's state will be marked as "critical".
 agentClient.pass(serviceId);
 ```
 
@@ -213,7 +228,8 @@ Development Notes
 `consul-client` makes use of [Immutables](https://immutables.github.io/) to generate code for many of the value classes.
 This provides a lot of functionality and benefit for little code, but it does require some additional development setup.
 
-Official instructions are [here](https://immutables.github.io/apt.html), although you may want to change the target directories to the more gradle-like "generated/source/apt/main" and  "generated/source/apt/test" targets.
+Official instructions are [here](https://immutables.github.io/apt.html), although you may want to change the target
+directories to the more gradle-like "generated/source/apt/main" and "generated/source/apt/test" targets.
 
 ### Integration Tests
 

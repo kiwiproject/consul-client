@@ -71,7 +71,7 @@ public class ConsulFailoverInterceptor implements Interceptor {
                     previousRequest = next;
 
                     // Anything other than an exception is valid here.
-                    // This is because a 400 series error is a valid code (Permission Denied/Key Not Found)
+                    // This is because a 400-series error is a valid code (Permission Denied/Key Not Found)
                     return chain.proceed(next);
                 } catch (Exception ex) {
                     LOG.debug("Failed to connect to {}", nextRequest.get().url(), ex);

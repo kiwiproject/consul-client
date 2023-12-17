@@ -88,8 +88,8 @@ class AgentClientITest extends BaseIntegrationTest {
         final List<?> clientAddrs = (List<?>) agent.getDebugConfig().get("ClientAddrs");
         assertThat(clientAddrs.get(0)).isNotNull();
 
-        // maybe we should not make any assertion on the actual value of the client address
-        // as like when we run consul in a docker container we would have "0.0.0.0"
+        // maybe we should not make any assertion on the actual value of the client address,
+        // as when we run consul in a docker container, we would have "0.0.0.0"
         assertThat(clientAddrs.get(0)).isIn("127.0.0.1", "0.0.0.0");
     }
 
