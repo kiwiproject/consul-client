@@ -516,7 +516,7 @@ public class Consul {
          * @return The builder.
          */
         public Builder withMultipleHostAndPort(Collection<HostAndPort> hostAndPort, long blacklistTimeInMillis) {
-            checkArgument(blacklistTimeInMillis >= 0, "Blacklist time must be positive");
+            checkArgument(blacklistTimeInMillis >= 0, "Blacklist time must be positive (or zero)");
             checkArgument(hostAndPort.size() >= 2, "Minimum of 2 addresses are required");
             logWarningIfConsulFailoverInterceptorAlreadySet("withMultipleHostAndPort");
 
