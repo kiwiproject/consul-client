@@ -35,6 +35,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.X509TrustManager;
 import java.net.Proxy;
 import java.net.URL;
+import java.time.Duration;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Map;
@@ -525,6 +526,41 @@ public class Consul {
             withHostAndPort(hostAndPort.stream().findFirst().orElseThrow());
 
             return this;
+        }
+
+        /**
+         * Sets the list of hosts to contact if the current request target is
+         * unavailable. When the call to a particular URL fails for any reason, the next {@link HostAndPort} specified
+         * is used to retry the request. This will continue until all urls are exhausted.
+         * <p>
+         * See {@link #withMultipleHostAndPort(Collection, long)} for more information about the internals.
+         *
+         * @param hostAndPort   A collection of {@link HostAndPort} that define the list of Consul agent addresses to use.
+         * @param blacklistTime The timeout to blacklist a particular {@link HostAndPort} before trying to use it again.
+         * @return The builder.
+         * @see #withMultipleHostAndPort(Collection, long)
+         */
+        public Builder withMultipleHostAndPort(Collection<HostAndPort> hostAndPort, Duration blacklistTime) {
+            return withMultipleHostAndPort(hostAndPort, blacklistTime.toMillis());
+        }
+
+        /**
+         * Sets the list of hosts to contact if the current request target is
+         * unavailable. When the call to a particular URL fails for any reason, the next {@link HostAndPort} specified
+         * is used to retry the request. This will continue until all urls are exhausted.
+         * <p>
+         * See {@link #withMultipleHostAndPort(Collection, long)} for more information about the internals.
+         *
+         * @param hostAndPort       A collection of {@link HostAndPort} that define the list of Consul agent addresses to use.
+         * @param blacklistTime     The timeout to blacklist a particular {@link HostAndPort} before trying to use it again.
+         * @param blacklistTimeUnit The unit of {@code blacklistTime}
+         * @return The builder.
+         * @see #withMultipleHostAndPort(Collection, long)
+         */
+        public Builder withMultipleHostAndPort(Collection<HostAndPort> hostAndPort,
+                                               long blacklistTime,
+                                               TimeUnit blacklistTimeUnit) {
+            return withMultipleHostAndPort(hostAndPort, blacklistTimeUnit.toMillis(blacklistTime));
         }
 
         /**
