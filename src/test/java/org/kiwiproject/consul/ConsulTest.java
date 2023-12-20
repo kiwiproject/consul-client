@@ -14,6 +14,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.kiwiproject.consul.util.failover.ConsulFailoverInterceptor;
 import org.kiwiproject.consul.util.failover.strategy.ConsulFailoverStrategy;
 
 import java.time.Duration;
@@ -82,6 +83,17 @@ class ConsulTest {
     }
 
     @Nested
+    class WithConsulFailoverInterceptor {
+
+        @Test
+        void shouldRequireNonNullInterceptor() {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> Consul.builder().withConsulFailoverInterceptor(null))
+                    .withMessage("failoverInterceptor must not be null");
+        }
+    }
+
+    @Nested
     class WithMultipleFailoverInterceptors {
 
         @Test
@@ -92,6 +104,16 @@ class ConsulTest {
             );
             var consulBuilder = Consul.builder()
                     .withMultipleHostAndPort(hosts, Duration.ofSeconds(10))
+                    .withFailoverInterceptor(mock(ConsulFailoverStrategy.class));
+
+            assertThat(consulBuilder.numTimesConsulFailoverInterceptorSet()).isEqualTo(2);
+        }
+
+        @Test
+        void shouldDetectWhenConsulInterceptorAlreadySetBy_withConsulFailoverInterceptor() {
+            var failoverInterceptor = new ConsulFailoverInterceptor(mock(ConsulFailoverStrategy.class));
+            var consulBuilder = Consul.builder()
+                    .withConsulFailoverInterceptor(failoverInterceptor)
                     .withFailoverInterceptor(mock(ConsulFailoverStrategy.class));
 
             assertThat(consulBuilder.numTimesConsulFailoverInterceptorSet()).isEqualTo(2);
