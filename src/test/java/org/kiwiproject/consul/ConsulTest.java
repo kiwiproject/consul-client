@@ -2,6 +2,7 @@ package org.kiwiproject.consul;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
 
@@ -15,8 +16,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.kiwiproject.consul.util.failover.strategy.ConsulFailoverStrategy;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 @DisplayName("Consul")
@@ -39,9 +42,24 @@ class ConsulTest {
                 HostAndPort.fromString("consul1.acme.com:8500"),
                 HostAndPort.fromString("consul2.acme.com:8500")
             );
-            assertThatIllegalArgumentException()
-                    .isThrownBy(() -> Consul.builder().withMultipleHostAndPort(hosts, blacklistTimeoutMillis).build())
-                    .withMessage("Blacklist time must be positive (or zero)");
+
+            var expectedMessage = "Blacklist time must be positive (or zero)";
+            assertAll(
+                    () -> assertThatIllegalArgumentException()
+                            .isThrownBy(() -> Consul.builder().withMultipleHostAndPort(hosts,
+                                    blacklistTimeoutMillis).build())
+                            .withMessage(expectedMessage),
+
+                    () -> assertThatIllegalArgumentException()
+                            .isThrownBy(() -> Consul.builder().withMultipleHostAndPort(hosts,
+                                    Duration.ofMillis(blacklistTimeoutMillis)).build())
+                            .withMessage(expectedMessage),
+
+                    () -> assertThatIllegalArgumentException()
+                            .isThrownBy(() -> Consul.builder().withMultipleHostAndPort(hosts,
+                                    blacklistTimeoutMillis, TimeUnit.MILLISECONDS).build())
+                            .withMessage(expectedMessage)
+            );
         }
     }
 
@@ -73,7 +91,7 @@ class ConsulTest {
                     HostAndPort.fromString("consul2.acme.com:8500")
             );
             var consulBuilder = Consul.builder()
-                    .withMultipleHostAndPort(hosts, 10_000)
+                    .withMultipleHostAndPort(hosts, Duration.ofSeconds(10))
                     .withFailoverInterceptor(mock(ConsulFailoverStrategy.class));
 
             assertThat(consulBuilder.numTimesConsulFailoverInterceptorSet()).isEqualTo(2);
@@ -87,7 +105,7 @@ class ConsulTest {
             );
             var consulBuilder = Consul.builder()
                     .withFailoverInterceptor(mock(ConsulFailoverStrategy.class))
-                    .withMultipleHostAndPort(hosts, 7_500);
+                    .withMultipleHostAndPort(hosts, 7_500_000, TimeUnit.MICROSECONDS);
 
             assertThat(consulBuilder.numTimesConsulFailoverInterceptorSet()).isEqualTo(2);
         }
