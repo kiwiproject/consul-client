@@ -503,6 +503,21 @@ public class Consul {
         }
 
         /**
+         * Uses the given failover interceptor.
+         *
+         * @param failoverInterceptor the failover interceptor to use
+         * @return The builder.
+         */
+        public Builder withConsulFailoverInterceptor(ConsulFailoverInterceptor failoverInterceptor) {
+            checkArgument(nonNull(failoverInterceptor), "failoverInterceptor must not be null");
+            logWarningIfConsulFailoverInterceptorAlreadySet("withConsulFailoverInterceptor");
+
+            this.consulFailoverInterceptor = failoverInterceptor;
+            ++numTimesConsulFailoverInterceptorSet;
+            return this;
+        }
+
+        /**
          * Sets the list of hosts to contact if the current request target is
          * unavailable. When the call to a particular URL fails for any reason, the next {@link HostAndPort} specified
          * is used to retry the request. This will continue until all urls are exhausted.
@@ -584,8 +599,8 @@ public class Consul {
         private void logWarningIfConsulFailoverInterceptorAlreadySet(String methodName) {
             if (numTimesConsulFailoverInterceptorSet > 0) {
                 LOG.warn("A ConsulFailoverInterceptor was already present; this invocation to '{}' overrides it!" +
-                                " Make sure either 'withMultipleHostAndPort' or 'withFailoverInterceptor' is called," +
-                                " but not both.",
+                                " Make sure only one of 'withConsulFailoverInterceptor'," +
+                                " 'withMultipleHostAndPort' or 'withFailoverInterceptor' is called.",
                         methodName);
             }
         }
