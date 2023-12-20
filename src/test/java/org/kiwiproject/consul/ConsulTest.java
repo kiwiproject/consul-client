@@ -41,7 +41,7 @@ class ConsulTest {
             );
             assertThatIllegalArgumentException()
                     .isThrownBy(() -> Consul.builder().withMultipleHostAndPort(hosts, blacklistTimeoutMillis).build())
-                    .withMessage("Blacklist time must be positive");
+                    .withMessage("Blacklist time must be positive (or zero)");
         }
     }
 
