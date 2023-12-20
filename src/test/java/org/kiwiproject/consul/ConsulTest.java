@@ -91,7 +91,7 @@ class ConsulTest {
                     HostAndPort.fromString("consul2.acme.com:8500")
             );
             var consulBuilder = Consul.builder()
-                    .withMultipleHostAndPort(hosts, 10_000)
+                    .withMultipleHostAndPort(hosts, Duration.ofSeconds(10))
                     .withFailoverInterceptor(mock(ConsulFailoverStrategy.class));
 
             assertThat(consulBuilder.numTimesConsulFailoverInterceptorSet()).isEqualTo(2);
@@ -105,7 +105,7 @@ class ConsulTest {
             );
             var consulBuilder = Consul.builder()
                     .withFailoverInterceptor(mock(ConsulFailoverStrategy.class))
-                    .withMultipleHostAndPort(hosts, 7_500);
+                    .withMultipleHostAndPort(hosts, 7_500_000, TimeUnit.MICROSECONDS);
 
             assertThat(consulBuilder.numTimesConsulFailoverInterceptorSet()).isEqualTo(2);
         }
