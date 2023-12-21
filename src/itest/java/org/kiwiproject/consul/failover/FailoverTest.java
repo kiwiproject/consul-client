@@ -1,12 +1,16 @@
 package org.kiwiproject.consul.failover;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import com.google.common.net.HostAndPort;
 import org.junit.jupiter.api.Test;
 import org.kiwiproject.consul.BaseIntegrationTest;
 import org.kiwiproject.consul.Consul;
+import org.kiwiproject.consul.ConsulException;
+import org.kiwiproject.consul.util.failover.MaxFailoverAttemptsExceededException;
 
+import java.net.SocketTimeoutException;
 import java.util.List;
 
 class FailoverTest extends BaseIntegrationTest {
@@ -50,5 +54,30 @@ class FailoverTest extends BaseIntegrationTest {
         // Get the peers again (should fail through 1.2.3.4 and 3.4.5.6 into localhost since the blacklist timeout has expired)
         List<String> peers2 = client.statusClient().getPeers();
         assertThat(peers2).isNotEmpty().isEqualTo(peers1);
+    }
+
+    @Test
+    void shouldRespectMaxFailoverAttempts_SetInConsulBuilder() {
+        // Create a set of targets
+        var port = consulContainer.getFirstMappedPort();
+        var targets = List.of(
+                HostAndPort.fromParts("1.2.3.4", port),
+                HostAndPort.fromParts("3.4.5.6", port),
+                HostAndPort.fromParts("localhost", port)
+        );
+
+        // Create our consul instance
+        var blacklistTimeInMillis = 200;
+        var consulBuilder = Consul.builder()
+                .withMultipleHostAndPort(targets, blacklistTimeInMillis)
+                .withConnectTimeoutMillis(50)
+                .withMaxFailoverAttempts(2);  // this means we won't get to localhost!
+
+        assertThatExceptionOfType(ConsulException.class)
+                .isThrownBy(consulBuilder::build)
+                .withMessage("Error connecting to Consul")
+                .havingCause()
+                .isExactlyInstanceOf(MaxFailoverAttemptsExceededException.class)
+                .withCauseInstanceOf(SocketTimeoutException.class);
     }
 }
