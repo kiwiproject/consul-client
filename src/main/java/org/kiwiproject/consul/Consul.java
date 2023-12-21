@@ -504,6 +504,9 @@ public class Consul {
 
         /**
          * Uses the given failover interceptor.
+         * <p>
+         * Note that only one method that sets a {@link ConsulFailoverInterceptor} should be used when
+         * constructing a Consul instance. Otherwise, only the last one is used.
          *
          * @param failoverInterceptor the failover interceptor to use
          * @return The builder.
@@ -524,8 +527,10 @@ public class Consul {
          * <p>
          * Internally, this method constructs a {@link ConsulFailoverInterceptor} with a
          * {@link org.kiwiproject.consul.util.failover.strategy.BlacklistingConsulFailoverStrategy BlacklistingConsulFailoverStrategy}.
-         * If you call this method, you should not use {@link #withFailoverInterceptor(ConsulFailoverStrategy)}
-         * as it will create a new failover interceptor which overrides the one set by this method.
+         * The hosts and blacklist time are provided to the failover strategy.
+         * <p>
+         * Note that only one method that sets a {@link ConsulFailoverInterceptor} should be used when
+         * constructing a Consul instance. Otherwise, only the last one is used.
          *
          * @param hostAndPort           A collection of {@link HostAndPort} that define the list of Consul agent addresses to use.
          * @param blacklistTimeInMillis The timeout (in milliseconds) to blacklist a particular {@link HostAndPort} before trying to use it again.
@@ -548,7 +553,11 @@ public class Consul {
          * unavailable. When the call to a particular URL fails for any reason, the next {@link HostAndPort} specified
          * is used to retry the request. This will continue until all urls are exhausted.
          * <p>
+         * This method sets a {@link ConsulFailoverInterceptor} using the given hosts and blacklist time.
          * See {@link #withMultipleHostAndPort(Collection, long)} for more information about the internals.
+         * <p>
+         * Note that only one method that sets a {@link ConsulFailoverInterceptor} should be used when
+         * constructing a Consul instance. Otherwise, only the last one is used.
          *
          * @param hostAndPort   A collection of {@link HostAndPort} that define the list of Consul agent addresses to use.
          * @param blacklistTime The timeout to blacklist a particular {@link HostAndPort} before trying to use it again.
@@ -564,7 +573,11 @@ public class Consul {
          * unavailable. When the call to a particular URL fails for any reason, the next {@link HostAndPort} specified
          * is used to retry the request. This will continue until all urls are exhausted.
          * <p>
+         * This method sets a {@link ConsulFailoverInterceptor} using the given hosts and blacklist time.
          * See {@link #withMultipleHostAndPort(Collection, long)} for more information about the internals.
+         * <p>
+         * Note that only one method that sets a {@link ConsulFailoverInterceptor} should be used when
+         * constructing a Consul instance. Otherwise, only the last one is used.
          *
          * @param hostAndPort       A collection of {@link HostAndPort} that define the list of Consul agent addresses to use.
          * @param blacklistTime     The timeout to blacklist a particular {@link HostAndPort} before trying to use it again.
@@ -581,26 +594,41 @@ public class Consul {
         /**
          * Constructs a failover interceptor with the given {@link ConsulFailoverStrategy}.
          * <p>
-         * If you call this method, you should not use {@link #withMultipleHostAndPort(Collection, long)}
-         * as it will create a new failover interceptor which overrides the one set by this method.
+         * Note that only one method that sets a {@link ConsulFailoverInterceptor} should be used when
+         * constructing a Consul instance. Otherwise, only the last one is used.
          *
          * @param strategy The strategy to use.
          * @return The builder.
          */
-        public Builder withFailoverInterceptor(ConsulFailoverStrategy strategy) {
+        public Builder withFailoverInterceptorUsingStrategy(ConsulFailoverStrategy strategy) {
             checkArgument(nonNull(strategy), "Must not provide a null strategy");
-            logWarningIfConsulFailoverInterceptorAlreadySet("withFailoverInterceptor");
+            logWarningIfConsulFailoverInterceptorAlreadySet("withFailoverInterceptorUsingStrategy");
 
             consulFailoverInterceptor = new ConsulFailoverInterceptor(strategy);
             ++numTimesConsulFailoverInterceptorSet;
             return this;
         }
 
+        /**
+         * Constructs a failover interceptor with the given {@link ConsulFailoverStrategy}.
+         * <p>
+         * Note that only one method that sets a {@link ConsulFailoverInterceptor} should be used when
+         * constructing a Consul instance. Otherwise, only the last one is used.
+         *
+         * @param strategy The strategy to use.
+         * @return The builder.
+         * @deprecated replaced by {@link #withFailoverInterceptorUsingStrategy(ConsulFailoverStrategy)}
+         */
+        @SuppressWarnings("DeprecatedIsStillUsed")
+        @Deprecated(since = "1.3.0", forRemoval = true)
+        public Builder withFailoverInterceptor(ConsulFailoverStrategy strategy) {
+            return withFailoverInterceptorUsingStrategy(strategy);
+        }
+
         private void logWarningIfConsulFailoverInterceptorAlreadySet(String methodName) {
             if (numTimesConsulFailoverInterceptorSet > 0) {
                 LOG.warn("A ConsulFailoverInterceptor was already present; this invocation to '{}' overrides it!" +
-                                " Make sure only one of 'withConsulFailoverInterceptor'," +
-                                " 'withMultipleHostAndPort' or 'withFailoverInterceptor' is called.",
+                                " Make sure only one method to set a failover interceptor is called.",
                         methodName);
             }
         }
