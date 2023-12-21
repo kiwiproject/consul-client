@@ -74,10 +74,18 @@ class ConsulTest {
     @Nested
     class WithFailoverInterceptor {
 
+        @SuppressWarnings("removal")
+        @Test
+        void shouldRequireFailoverStrategy_Deprecated() {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> Consul.builder().withFailoverInterceptor(null))
+                    .withMessage("Must not provide a null strategy");
+        }
+
         @Test
         void shouldRequireFailoverStrategy() {
             assertThatIllegalArgumentException()
-                    .isThrownBy(() -> Consul.builder().withFailoverInterceptor(null))
+                    .isThrownBy(() -> Consul.builder().withFailoverInterceptorUsingStrategy(null))
                     .withMessage("Must not provide a null strategy");
         }
     }
@@ -104,7 +112,7 @@ class ConsulTest {
             );
             var consulBuilder = Consul.builder()
                     .withMultipleHostAndPort(hosts, Duration.ofSeconds(10))
-                    .withFailoverInterceptor(mock(ConsulFailoverStrategy.class));
+                    .withFailoverInterceptorUsingStrategy(mock(ConsulFailoverStrategy.class));
 
             assertThat(consulBuilder.numTimesConsulFailoverInterceptorSet()).isEqualTo(2);
         }
@@ -114,19 +122,33 @@ class ConsulTest {
             var failoverInterceptor = new ConsulFailoverInterceptor(mock(ConsulFailoverStrategy.class));
             var consulBuilder = Consul.builder()
                     .withConsulFailoverInterceptor(failoverInterceptor)
-                    .withFailoverInterceptor(mock(ConsulFailoverStrategy.class));
+                    .withFailoverInterceptorUsingStrategy(mock(ConsulFailoverStrategy.class));
 
             assertThat(consulBuilder.numTimesConsulFailoverInterceptorSet()).isEqualTo(2);
         }
 
+        @SuppressWarnings("removal")
         @Test
-        void shouldDetectWhenConsulInterceptorAlreadySetBy_withFailoverInterceptor() {
+        void shouldDetectWhenConsulInterceptorAlreadySetBy_withFailoverInterceptor_Deprecated() {
             var hosts = List.of(
                     HostAndPort.fromString("consul1.acme.com:8500"),
                     HostAndPort.fromString("consul2.acme.com:8500")
             );
             var consulBuilder = Consul.builder()
                     .withFailoverInterceptor(mock(ConsulFailoverStrategy.class))
+                    .withMultipleHostAndPort(hosts, 7_500_000, TimeUnit.MICROSECONDS);
+
+            assertThat(consulBuilder.numTimesConsulFailoverInterceptorSet()).isEqualTo(2);
+        }
+
+        @Test
+        void shouldDetectWhenConsulInterceptorAlreadySetBy_withFailoverInterceptorUsingStrategy() {
+            var hosts = List.of(
+                    HostAndPort.fromString("consul1.acme.com:8500"),
+                    HostAndPort.fromString("consul2.acme.com:8500")
+            );
+            var consulBuilder = Consul.builder()
+                    .withFailoverInterceptorUsingStrategy(mock(ConsulFailoverStrategy.class))
                     .withMultipleHostAndPort(hosts, 7_500_000, TimeUnit.MICROSECONDS);
 
             assertThat(consulBuilder.numTimesConsulFailoverInterceptorSet()).isEqualTo(2);
