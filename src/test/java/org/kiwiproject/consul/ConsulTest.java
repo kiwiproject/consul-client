@@ -154,4 +154,21 @@ class ConsulTest {
             assertThat(consulBuilder.numTimesConsulFailoverInterceptorSet()).isEqualTo(2);
         }
     }
+
+    @Nested
+    class WithMaxFailoverAttempts {
+
+        @ParameterizedTest
+        @ValueSource(ints = { -10, -5, -1, 0 })
+        void shouldRequirePositiveNumbers(int maxFailoverAttempts) {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> Consul.builder().withMaxFailoverAttempts(maxFailoverAttempts));
+        }
+
+        @Test
+        void shouldReturnTheBuilder() {
+            var builder = Consul.builder();
+            assertThat(builder.withMaxFailoverAttempts(5)).isSameAs(builder);
+        }
+    }
 }

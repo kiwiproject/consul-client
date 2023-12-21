@@ -322,8 +322,9 @@ public class Consul {
         private Interceptor aclTokenInterceptor;
         private Interceptor headerInterceptor;
         private Interceptor consulBookendInterceptor;
-        private Interceptor consulFailoverInterceptor;
+        private ConsulFailoverInterceptor consulFailoverInterceptor;
         private int numTimesConsulFailoverInterceptorSet;
+        private int maxFailoverAttempts;
         private final NetworkTimeoutConfig.Builder networkTimeoutConfigBuilder = new NetworkTimeoutConfig.Builder();
         private ExecutorService executorService;
         private ConnectionPool connectionPool;
@@ -639,6 +640,20 @@ public class Consul {
         }
 
         /**
+         * Sets the maximum number of failover attempts that the
+         * {@link ConsulFailoverInterceptor}, if one is set, should use.
+         *
+         * @param maxFailoverAttempts the maximum number of attempts
+         * @return The builder.
+         * @see ConsulFailoverInterceptor#withMaxFailoverAttempts(int)
+         */
+        public Builder withMaxFailoverAttempts(int maxFailoverAttempts) {
+            checkArgument(maxFailoverAttempts > 0, "maxFailoverAttempts must be positive");
+            this.maxFailoverAttempts = maxFailoverAttempts;
+            return this;
+        }
+
+        /**
         * Sets the URL from a string.
         *
         * @param url The Consul agent URL.
@@ -878,8 +893,13 @@ public class Consul {
             return url.toExternalForm().replaceAll("/$", "") + "/v1/";
         }
 
-        private OkHttpClient createOkHttpClient(SSLContext sslContext, X509TrustManager trustManager, HostnameVerifier hostnameVerifier,
-                                                Proxy proxy, ExecutorService executorService, ConnectionPool connectionPool, ClientConfig clientConfig) {
+        private OkHttpClient createOkHttpClient(SSLContext sslContext,
+                                                X509TrustManager trustManager,
+                                                HostnameVerifier hostnameVerifier,
+                                                Proxy proxy,
+                                                ExecutorService executorService,
+                                                ConnectionPool connectionPool,
+                                                ClientConfig clientConfig) {
 
             final OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
@@ -900,6 +920,9 @@ public class Consul {
             }
 
             if (nonNull(consulFailoverInterceptor)) {
+                if (maxFailoverAttempts > 0) {
+                    consulFailoverInterceptor.withMaxFailoverAttempts(maxFailoverAttempts);
+                }
                 builder.addInterceptor(consulFailoverInterceptor);
             }
 
