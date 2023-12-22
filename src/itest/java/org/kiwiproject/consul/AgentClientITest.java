@@ -9,7 +9,6 @@ import static org.kiwiproject.consul.Awaiting.awaitAtMost500ms;
 import static org.kiwiproject.consul.TestUtils.randomUUIDString;
 
 import com.google.common.net.HostAndPort;
-import org.assertj.core.api.Assertions;
 import org.assertj.core.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
@@ -82,9 +81,9 @@ class AgentClientITest extends BaseIntegrationTest {
 
         Assumptions.assumeThat(agent.getDebugConfig()).isNotNull();
 
-        Assertions.assertThat(agent).isNotNull();
-        Assertions.assertThat(agent.getConfig()).isNotNull();
-        Assertions.assertThat(agent.getDebugConfig()).isNotNull();
+        assertThat(agent).isNotNull();
+        assertThat(agent.getConfig()).isNotNull();
+        assertThat(agent.getDebugConfig()).isNotNull();
         final List<?> clientAddrs = (List<?>) agent.getDebugConfig().get("ClientAddrs");
         assertThat(clientAddrs.get(0)).isNotNull();
 
@@ -332,7 +331,7 @@ class AgentClientITest extends BaseIntegrationTest {
                 .build();
 
         var registeredService = findService(service -> service.getId().equals(serviceId)).orElseThrow();
-        Assertions.assertThat(registeredService).isEqualTo(expectedService);
+        assertThat(registeredService).isEqualTo(expectedService);
     }
 
     @Test
@@ -365,7 +364,7 @@ class AgentClientITest extends BaseIntegrationTest {
         var services = agentClient.getServices(queryOptions).values();
 
         var registeredService = findService(services, service -> service.getId().equals(serviceId)).orElseThrow();
-        Assertions.assertThat(registeredService).isEqualTo(expectedService);
+        assertThat(registeredService).isEqualTo(expectedService);
     }
 
     @Test

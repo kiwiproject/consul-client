@@ -6,7 +6,6 @@ import static org.awaitility.Durations.FIVE_HUNDRED_MILLISECONDS;
 import static org.kiwiproject.consul.Awaiting.awaitWith25MsPoll;
 import static org.kiwiproject.consul.TestUtils.randomUUIDString;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.kiwiproject.consul.async.ConsulResponseCallback;
@@ -107,10 +106,10 @@ class CatalogClientITest extends BaseIntegrationTest {
         List<Node> nodesResp = catalogClient.getNodes().getResponse();
         assertThat(nodesResp).isNotEmpty();
         for (var node : nodesResp) {
-            Assertions.assertThat(node.getTaggedAddresses()).isNotNull();
+            assertThat(node.getTaggedAddresses()).isNotNull();
             if (node.getTaggedAddresses().isPresent()) {
-                Assertions.assertThat(node.getTaggedAddresses().get().getWan()).isNotNull();
-                Assertions.assertThat(node.getTaggedAddresses().get().getWan()).isNotEmpty();
+                assertThat(node.getTaggedAddresses().get().getWan()).isNotNull();
+                assertThat(node.getTaggedAddresses().get().getWan()).isNotEmpty();
             }
         }
     }
@@ -121,10 +120,10 @@ class CatalogClientITest extends BaseIntegrationTest {
         assertThat(nodesResp).isNotEmpty();
         for (var tmpNode : nodesResp) {
             var node = catalogClient.getNode(tmpNode.getNode()).getResponse().getNode();
-            Assertions.assertThat(node.getTaggedAddresses()).isNotNull();
+            assertThat(node.getTaggedAddresses()).isNotNull();
             if (node.getTaggedAddresses().isPresent()) {
-                Assertions.assertThat(node.getTaggedAddresses().get().getWan()).isNotNull();
-                Assertions.assertThat(node.getTaggedAddresses().get().getWan()).isNotEmpty();
+                assertThat(node.getTaggedAddresses().get().getWan()).isNotNull();
+                assertThat(node.getTaggedAddresses().get().getWan()).isNotEmpty();
             }
         }
     }
@@ -340,7 +339,7 @@ class CatalogClientITest extends BaseIntegrationTest {
     private void createAndCheckService(CatalogService expectedService, CatalogRegistration registration) {
         catalogClient.register(registration);
 
-        Assertions.assertThat(registration.service()).isPresent();
+        assertThat(registration.service()).isPresent();
         var serviceName = registration.service().orElseThrow().getService();
 
         var foundServiceRef = new AtomicReference<CatalogService>();
