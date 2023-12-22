@@ -5,8 +5,10 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.google.common.net.HostAndPort;
+import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -17,6 +19,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.kiwiproject.consul.util.failover.ConsulFailoverInterceptor;
 import org.kiwiproject.consul.util.failover.strategy.ConsulFailoverStrategy;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.X509TrustManager;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
@@ -169,6 +175,67 @@ class ConsulTest {
         void shouldReturnTheBuilder() {
             var builder = Consul.builder();
             assertThat(builder.withMaxFailoverAttempts(5)).isSameAs(builder);
+        }
+    }
+
+    @Nested
+    class AddSslSocketFactory {
+
+        @Test
+        void shouldDoNothingWhenSslContextIsNull() {
+            var okHttpClientBuilder = new OkHttpClient.Builder();
+
+            Consul.Builder.addSslSocketFactory(null, null, okHttpClientBuilder);
+
+            assertThat(okHttpClientBuilder.getSslSocketFactoryOrNull$okhttp()).isNull();
+            assertThat(okHttpClientBuilder.getX509TrustManagerOrNull$okhttp()).isNull();
+        }
+
+        @Test
+        void shouldAddSocketFactoryAndDefaultTrustManager_WhenGivenSslContext() throws NoSuchAlgorithmException {
+            var okHttpClientBuilder = new OkHttpClient.Builder();
+            var sslContext = mock(SSLContext.class);
+            var socketFactory = SSLContext.getDefault().getSocketFactory();
+            when(sslContext.getSocketFactory()).thenReturn(socketFactory);
+
+            Consul.Builder.addSslSocketFactory(sslContext, null, okHttpClientBuilder);
+
+            assertThat(okHttpClientBuilder.getSslSocketFactoryOrNull$okhttp()).isSameAs(socketFactory);
+            assertThat(okHttpClientBuilder.getX509TrustManagerOrNull$okhttp()).isNotNull();
+        }
+
+        @Test
+        void shouldAddSocketFactoryAndGivenTrustManager_WhenGivenBoth() throws NoSuchAlgorithmException {
+            var okHttpClientBuilder = new OkHttpClient.Builder();
+            var sslContext = mock(SSLContext.class);
+            var socketFactory = SSLContext.getDefault().getSocketFactory();
+            when(sslContext.getSocketFactory()).thenReturn(socketFactory);
+
+            var trustManager = new NonProductionX509TrustManager();
+
+            Consul.Builder.addSslSocketFactory(sslContext, trustManager, okHttpClientBuilder);
+
+            assertThat(okHttpClientBuilder.getSslSocketFactoryOrNull$okhttp()).isSameAs(socketFactory);
+            assertThat(okHttpClientBuilder.getX509TrustManagerOrNull$okhttp()).isSameAs(trustManager);
+        }
+    }
+
+    public static class NonProductionX509TrustManager implements X509TrustManager {
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] x509Certificates, String s) {
+            // Trust all clients
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] x509Certificates, String s) {
+            // Trust all servers
+        }
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            // Return an empty array of certificate authorities
+            return new X509Certificate[0];
         }
     }
 }
