@@ -14,6 +14,7 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.internal.Util;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.kiwiproject.consul.cache.TimeoutInterceptor;
 import org.kiwiproject.consul.config.ClientConfig;
 import org.kiwiproject.consul.monitoring.ClientEventCallback;
@@ -957,14 +958,20 @@ public class Consul {
             builder.addInterceptor(consulFailoverInterceptor);
         }
 
-        private static void addSslSocketFactory(SSLContext sslContext,
-                                                X509TrustManager trustManager,
-                                                OkHttpClient.Builder builder) {
+        @VisibleForTesting
+        static void addSslSocketFactory(@Nullable SSLContext sslContext,
+                                        @Nullable X509TrustManager trustManager,
+                                        OkHttpClient.Builder builder) {
 
-            if (nonNull(sslContext) && nonNull(trustManager)) {
-                builder.sslSocketFactory(sslContext.getSocketFactory(), trustManager);
-            } else if (nonNull(sslContext)) {
-                builder.sslSocketFactory(sslContext.getSocketFactory(), TrustManagerUtils.getDefaultTrustManager());
+            if (isNull(sslContext)) {
+                return;
+            }
+
+            var socketFactory = sslContext.getSocketFactory();
+            if (nonNull(trustManager)) {
+                builder.sslSocketFactory(socketFactory, trustManager);
+            } else {
+                builder.sslSocketFactory(socketFactory, TrustManagerUtils.getDefaultTrustManager());
             }
         }
 
