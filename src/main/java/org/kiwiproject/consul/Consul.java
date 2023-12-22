@@ -819,8 +819,6 @@ public class Consul {
         * @return A new Consul client.
         */
         public Consul build() {
-            final Retrofit retrofit;
-
             // if an ExecutorService is provided to the Builder, we use it, otherwise, we create one
             ExecutorService localExecutorService = this.executorService;
             if (isNull(localExecutorService)) {
@@ -836,7 +834,7 @@ public class Consul {
 
             ClientConfig config = nonNull(clientConfig) ? clientConfig : new ClientConfig();
 
-            OkHttpClient okHttpClient = createOkHttpClient(
+            var okHttpClient = createOkHttpClient(
                     this.sslContext,
                     this.trustManager,
                     this.hostnameVerifier,
@@ -844,30 +842,30 @@ public class Consul {
                     localExecutorService,
                     connectionPool,
                     config);
-            NetworkTimeoutConfig networkTimeoutConfig = new NetworkTimeoutConfig.Builder()
+            var networkTimeoutConfig = new NetworkTimeoutConfig.Builder()
                 .withConnectTimeout(okHttpClient::connectTimeoutMillis)
                 .withReadTimeout(okHttpClient::readTimeoutMillis)
                 .withWriteTimeout(okHttpClient::writeTimeoutMillis)
                 .build();
 
-            retrofit = createRetrofit(buildUrl(this.url), Jackson.MAPPER, okHttpClient);
+            final Retrofit retrofit = createRetrofit(buildUrl(this.url), Jackson.MAPPER, okHttpClient);
 
             ClientEventCallback eventCallback = nonNull(clientEventCallback) ?
                     clientEventCallback :
                     new NoOpClientEventCallback();
 
-            AgentClient agentClient = new AgentClient(retrofit, config, eventCallback);
-            HealthClient healthClient = new HealthClient(retrofit, config, eventCallback, networkTimeoutConfig);
-            KeyValueClient keyValueClient = new KeyValueClient(retrofit, config, eventCallback, networkTimeoutConfig);
-            CatalogClient catalogClient = new CatalogClient(retrofit, config, eventCallback, networkTimeoutConfig);
-            StatusClient statusClient = new StatusClient(retrofit, config, eventCallback);
-            SessionClient sessionClient = new SessionClient(retrofit, config, eventCallback);
-            EventClient eventClient = new EventClient(retrofit, config, eventCallback);
-            PreparedQueryClient preparedQueryClient = new PreparedQueryClient(retrofit, config, eventCallback);
-            CoordinateClient coordinateClient = new CoordinateClient(retrofit, config, eventCallback);
-            OperatorClient operatorClient = new OperatorClient(retrofit, config, eventCallback);
-            AclClient aclClient = new AclClient(retrofit, config, eventCallback);
-            SnapshotClient snapshotClient = new SnapshotClient(retrofit, config, eventCallback);
+            var agentClient = new AgentClient(retrofit, config, eventCallback);
+            var healthClient = new HealthClient(retrofit, config, eventCallback, networkTimeoutConfig);
+            var keyValueClient = new KeyValueClient(retrofit, config, eventCallback, networkTimeoutConfig);
+            var catalogClient = new CatalogClient(retrofit, config, eventCallback, networkTimeoutConfig);
+            var statusClient = new StatusClient(retrofit, config, eventCallback);
+            var sessionClient = new SessionClient(retrofit, config, eventCallback);
+            var eventClient = new EventClient(retrofit, config, eventCallback);
+            var preparedQueryClient = new PreparedQueryClient(retrofit, config, eventCallback);
+            var coordinateClient = new CoordinateClient(retrofit, config, eventCallback);
+            var operatorClient = new OperatorClient(retrofit, config, eventCallback);
+            var aclClient = new AclClient(retrofit, config, eventCallback);
+            var snapshotClient = new SnapshotClient(retrofit, config, eventCallback);
 
             if (ping) {
                 agentClient.ping();
@@ -919,18 +917,9 @@ public class Consul {
                 builder.addInterceptor(consulBookendInterceptor);
             }
 
-            if (nonNull(consulFailoverInterceptor)) {
-                if (maxFailoverAttempts > 0) {
-                    consulFailoverInterceptor.withMaxFailoverAttempts(maxFailoverAttempts);
-                }
-                builder.addInterceptor(consulFailoverInterceptor);
-            }
+            addConsulFailoverInterceptor(builder);
 
-            if (nonNull(sslContext) && nonNull(trustManager)) {
-                builder.sslSocketFactory(sslContext.getSocketFactory(), trustManager);
-            } else if (nonNull(sslContext)) {
-                builder.sslSocketFactory(sslContext.getSocketFactory(), TrustManagerUtils.getDefaultTrustManager());
-            }
+            addSslSocketFactory(sslContext, trustManager, builder);
 
             if (nonNull(hostnameVerifier)) {
                 builder.hostnameVerifier(hostnameVerifier);
@@ -939,7 +928,49 @@ public class Consul {
             if (nonNull(proxy)) {
                 builder.proxy(proxy);
             }
-            NetworkTimeoutConfig networkTimeoutConfig = networkTimeoutConfigBuilder.build();
+
+            var networkTimeoutConfig = networkTimeoutConfigBuilder.build();
+            addTimeouts(builder, networkTimeoutConfig);
+
+            builder.addInterceptor(new TimeoutInterceptor(clientConfig.getCacheConfig()));
+
+            var dispatcher = new Dispatcher(executorService);
+            dispatcher.setMaxRequests(Integer.MAX_VALUE);
+            dispatcher.setMaxRequestsPerHost(Integer.MAX_VALUE);
+            builder.dispatcher(dispatcher);
+
+            if (nonNull(connectionPool)) {
+                builder.connectionPool(connectionPool);
+            }
+
+            return builder.build();
+        }
+
+        private void addConsulFailoverInterceptor(OkHttpClient.Builder builder) {
+            if (isNull(consulFailoverInterceptor)) {
+                return;
+            }
+
+            if (maxFailoverAttempts > 0) {
+                consulFailoverInterceptor.withMaxFailoverAttempts(maxFailoverAttempts);
+            }
+            builder.addInterceptor(consulFailoverInterceptor);
+        }
+
+        private static void addSslSocketFactory(SSLContext sslContext,
+                                                X509TrustManager trustManager,
+                                                OkHttpClient.Builder builder) {
+
+            if (nonNull(sslContext) && nonNull(trustManager)) {
+                builder.sslSocketFactory(sslContext.getSocketFactory(), trustManager);
+            } else if (nonNull(sslContext)) {
+                builder.sslSocketFactory(sslContext.getSocketFactory(), TrustManagerUtils.getDefaultTrustManager());
+            }
+        }
+
+        private static void addTimeouts(OkHttpClient.Builder builder,
+                                        NetworkTimeoutConfig networkTimeoutConfig) {
+            
             if (networkTimeoutConfig.getClientConnectTimeoutMillis() >= 0) {
                 builder.connectTimeout(networkTimeoutConfig.getClientConnectTimeoutMillis(), TimeUnit.MILLISECONDS);
             }
@@ -951,18 +982,6 @@ public class Consul {
             if (networkTimeoutConfig.getClientWriteTimeoutMillis() >= 0) {
                 builder.writeTimeout(networkTimeoutConfig.getClientWriteTimeoutMillis(), TimeUnit.MILLISECONDS);
             }
-
-            builder.addInterceptor(new TimeoutInterceptor(clientConfig.getCacheConfig()));
-
-            Dispatcher dispatcher = new Dispatcher(executorService);
-            dispatcher.setMaxRequests(Integer.MAX_VALUE);
-            dispatcher.setMaxRequestsPerHost(Integer.MAX_VALUE);
-            builder.dispatcher(dispatcher);
-
-            if (nonNull(connectionPool)) {
-                builder.connectionPool(connectionPool);
-            }
-            return builder.build();
         }
 
         private Retrofit createRetrofit(String url, ObjectMapper mapper, OkHttpClient okHttpClient) {
