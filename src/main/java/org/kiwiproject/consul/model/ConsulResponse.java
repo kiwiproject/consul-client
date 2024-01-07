@@ -45,7 +45,7 @@ public class ConsulResponse<T> {
         }
 
         @Override
-        public String toString(){
+        public String toString() {
             return String.format("Cache[%s, age=%d]",
                                  cacheHit ? "HIT" : "MISS",
                                  ageInSeconds);
@@ -102,7 +102,7 @@ public class ConsulResponse<T> {
      */
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated(since = "1.1.0", forRemoval = true)
-    public Optional<CacheResponseInfo> getCacheReponseInfo(){
+    public Optional<CacheResponseInfo> getCacheReponseInfo() {
         return getCacheResponseInfo();
     }
 

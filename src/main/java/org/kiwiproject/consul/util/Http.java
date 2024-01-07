@@ -58,7 +58,7 @@ public class Http {
     }
 
     private <T> void ensureResponseSuccessful(Call<T> call, Response<T> response, Integer... okCodes) {
-        if(isSuccessful(response, okCodes)) {
+        if (isSuccessful(response, okCodes)) {
             eventHandler.httpRequestSuccess(call.request());
         } else {
             ConsulException exception = new ConsulException(response.code(), response);

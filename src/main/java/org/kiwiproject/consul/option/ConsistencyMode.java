@@ -60,10 +60,10 @@ public class ConsistencyMode {
 
         if (maxStaleInSeconds.isPresent()) {
             long v = maxStaleInSeconds.get();
-            if (v < 0){
+            if (v < 0) {
                 throw new IllegalArgumentException("maxStaleInSeconds must greater or equal to 0");
             }
-            if (!maxAge.isEmpty()){
+            if (!maxAge.isEmpty()) {
                 maxAge += ",";
             }
             maxAge += String.format("stale-if-error=%d", v);

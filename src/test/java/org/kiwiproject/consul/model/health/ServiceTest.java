@@ -7,14 +7,14 @@ import org.junit.jupiter.api.Test;
 class ServiceTest {
 
     @Test
-    void testEquals(){
+    void testEquals() {
         var service1 = newTaggedService("a", "b");
         var service2 = newTaggedService("a", "b");
         assertThat(service2).isEqualTo(service1);
     }
 
     @Test
-    void testNullTags(){
+    void testNullTags() {
         var service = newTaggedService();
         assertThat(service.getTags()).isEmpty();
     }
