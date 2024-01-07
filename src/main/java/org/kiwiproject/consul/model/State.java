@@ -45,8 +45,8 @@ public enum State {
      * @return The state.
      */
     public static State fromName(String name) {
-        for(State state : values()) {
-            if(state.getName().equals(name)) {
+        for (State state : values()) {
+            if (state.getName().equals(name)) {
                 return state;
             }
         }

@@ -357,7 +357,7 @@ public class Consul {
          * @param withHttps Set to true to use https for all Consul requests.
          * @return The builder.
          */
-        public Builder withHttps(boolean withHttps){
+        public Builder withHttps(boolean withHttps) {
             if (withHttps) {
                 this.scheme = "https";
             } else {

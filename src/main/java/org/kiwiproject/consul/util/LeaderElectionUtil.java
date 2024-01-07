@@ -20,7 +20,7 @@ public class LeaderElectionUtil {
         String key = getServiceKey(serviceName);
         Optional<Value> value = client.keyValueClient().getValue(key);
         return value.flatMap(val -> {
-            if(val.getSession().isPresent()) {
+            if (val.getSession().isPresent()) {
                 return val.getValueAsString();
             }
             return Optional.empty();
@@ -30,9 +30,9 @@ public class LeaderElectionUtil {
     public Optional<String> electNewLeaderForService(final String serviceName, final String info) {
         final String key = getServiceKey(serviceName);
         String sessionId = createSession(serviceName);
-        if(client.keyValueClient().acquireLock(key, info, sessionId)){
+        if (client.keyValueClient().acquireLock(key, info, sessionId)) {
             return Optional.of(info);
-        }else{
+        } else {
             return getLeaderInfoForService(serviceName);
         }
     }
@@ -41,7 +41,7 @@ public class LeaderElectionUtil {
         final String key = getServiceKey(serviceName);
         KeyValueClient kv = client.keyValueClient();
         Optional<Value> value = kv.getValue(key);
-        if(value.isPresent() && value.get().getSession().isPresent()) {
+        if (value.isPresent() && value.get().getSession().isPresent()) {
             return kv.releaseLock(key, value.get().getSession().get());
         } else {
             return true;
