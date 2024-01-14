@@ -13,9 +13,10 @@ class LeaderElectionUtilITest extends BaseIntegrationTest {
         var serviceName = "myservice100";
         var serviceInfo = "serviceinfo";
 
-        leaderElection.releaseLockForService(serviceName);
+        assertThat(leaderElection.releaseLockForService(serviceName)).isFalse();
         assertThat(leaderElection.getLeaderInfoForService(serviceName)).isEmpty();
         assertThat(leaderElection.electNewLeaderForService(serviceName, serviceInfo)).contains(serviceInfo);
         assertThat(leaderElection.releaseLockForService(serviceName)).isTrue();
+        assertThat(leaderElection.getLeaderInfoForService(serviceName)).isEmpty();
     }
 }
