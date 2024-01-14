@@ -7,6 +7,7 @@ import org.kiwiproject.consul.model.session.ImmutableSession;
 import org.kiwiproject.consul.model.session.Session;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 public class LeaderElectionUtil {
 
@@ -41,11 +42,11 @@ public class LeaderElectionUtil {
         final String key = getServiceKey(serviceName);
         KeyValueClient kv = client.keyValueClient();
         Optional<Value> value = kv.getValue(key);
-        if (value.isPresent() && value.get().getSession().isPresent()) {
-            return kv.releaseLock(key, value.get().getSession().get());
-        } else {
-            return true;
-        }
+
+        return value.map(Value::getSession)
+                .flatMap(Function.identity())
+                .map(sessionId -> kv.releaseLock(key, sessionId))
+                .orElse(false);
     }
 
 
