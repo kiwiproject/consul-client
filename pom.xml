@@ -53,7 +53,7 @@
 
     <properties>
         <!-- Versions for required dependencies -->
-        <immutables.version>2.10.0</immutables.version>
+        <immutables.version>2.10.1</immutables.version>
         <kiwi-bom.version>2.0.9</kiwi-bom.version>
         <okio.version>3.8.0</okio.version>
         <retrofit.version>2.9.0</retrofit.version>
