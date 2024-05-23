@@ -139,13 +139,14 @@ public class ConsulFailoverInterceptor implements Interceptor {
     }
 
     @VisibleForTesting
-    static void logExceptionThrownOnRequest(Logger logger, Exception ex, Request request) {
+    static void logExceptionThrownOnRequest(@NonNull Logger logger, @NonNull Exception ex, @NonNull Request request) {
         var url = request.url();
         if (logger.isDebugEnabled()) {
             logger.debug("Got error when connecting to {}", url, ex);
         } else {
-            logger.warn("Got {} when connecting to {} (enable DEBUG level to see stack trace)",
+            logger.warn("Got '{}:{}' when connecting to {} (enable DEBUG level to see stack trace)",
                     ex.getClass().getName(),
+                    ex.getMessage(),
                     url);
         }
     }

@@ -146,8 +146,9 @@ class ConsulFailoverInterceptorTest {
         ConsulFailoverInterceptor.logExceptionThrownOnRequest(logger, exception, request);
 
         verify(logger).isDebugEnabled();
-        verify(logger).warn("Got {} when connecting to {} (enable DEBUG level to see stack trace)",
+        verify(logger).warn("Got '{}:{}' when connecting to {} (enable DEBUG level to see stack trace)",
                 exception.getClass().getName(),
+                exception.getMessage(),
                 nextConsulHttpUrl());
         verifyNoMoreInteractions(logger);
     }
