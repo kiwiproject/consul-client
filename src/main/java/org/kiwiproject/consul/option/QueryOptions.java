@@ -17,6 +17,7 @@ import java.util.Optional;
 @Value.Style(jakarta = true)
 public abstract class QueryOptions implements ParamAdder {
 
+    @Deprecated(since = "1.3.3", forRemoval = true)
     public static final QueryOptions BLANK = ImmutableQueryOptions.builder().build();
 
     public abstract Optional<String> getWait();

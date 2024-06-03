@@ -12,6 +12,7 @@ import java.util.Optional;
 @Value.Style(jakarta = true)
 public abstract class EventOptions implements ParamAdder {
 
+    @Deprecated(since = "1.3.3", forRemoval = true)
     public static final EventOptions BLANK = ImmutableEventOptions.builder().build();
 
     public abstract Optional<String> getDatacenter();

@@ -13,6 +13,7 @@ import java.util.Optional;
 @Value.Style(jakarta = true)
 public abstract class TransactionOptions implements ParamAdder {
 
+    @Deprecated(since = "1.3.3", forRemoval = true)
     public static final TransactionOptions BLANK = ImmutableTransactionOptions.builder().build();
 
     public abstract Optional<String> getDatacenter();

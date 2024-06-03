@@ -13,6 +13,7 @@ import java.util.Optional;
 @Value.Style(jakarta = true)
 public abstract class TokenQueryOptions implements ParamAdder {
 
+    @Deprecated(since = "1.3.3", forRemoval = true)
     public static final TokenQueryOptions BLANK = ImmutableTokenQueryOptions.builder().build();
 
     public abstract Optional<String> getPolicy();

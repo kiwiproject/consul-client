@@ -15,6 +15,7 @@ import java.util.Optional;
 @Value.Style(jakarta = true)
 public abstract class QueryParameterOptions implements ParamAdder {
 
+    @Deprecated(since = "1.3.3", forRemoval = true)
     public static final QueryParameterOptions BLANK = ImmutableQueryParameterOptions.builder().build();
 
     public abstract Optional<Boolean> getReplaceExistingChecks();

@@ -13,6 +13,7 @@ import java.util.Optional;
 @Value.Style(jakarta = true)
 public abstract class RoleOptions implements ParamAdder {
 
+    @Deprecated(since = "1.3.3", forRemoval = true)
     public static final RoleOptions BLANK = ImmutableRoleOptions.builder().build();
 
     public abstract Optional<String> getPolicy();

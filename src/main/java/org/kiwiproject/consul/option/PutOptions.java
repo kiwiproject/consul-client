@@ -10,6 +10,7 @@ import java.util.Optional;
 @Value.Style(jakarta = true)
 public abstract class PutOptions implements ParamAdder {
 
+    @Deprecated(since = "1.3.3", forRemoval = true)
     public static final PutOptions BLANK = ImmutablePutOptions.builder().build();
 
     public abstract Optional<Long> getCas();
