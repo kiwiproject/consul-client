@@ -43,7 +43,7 @@ class HttpTest {
     }
 
     private <T> Function<Call<T>, T> createExtractWrapper() {
-        return (call) -> http.extract(call);
+        return call -> http.extract(call);
     }
 
     private Function<Call<Void>, Void> createHandleWrapper() {
@@ -54,7 +54,7 @@ class HttpTest {
     }
 
     private <T> Function<Call<T>, ConsulResponse<T>> createExtractConsulResponseWrapper() {
-        return (call) -> http.extractConsulResponse(call);
+        return call -> http.extractConsulResponse(call);
     }
 
     @Test

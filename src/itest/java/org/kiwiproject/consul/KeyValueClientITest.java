@@ -1,6 +1,6 @@
 package org.kiwiproject.consul;
 
-import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toUnmodifiableMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.kiwiproject.consul.TestUtils.randomUUIDString;
@@ -212,7 +212,7 @@ class KeyValueClientITest extends BaseIntegrationTest {
 
         var valuesMap = keyValueClient.getValues(topLevelKey)
                 .stream()
-                .collect(toMap(Value::getKey, value -> value.getValueAsString().orElseThrow()));
+                .collect(toUnmodifiableMap(Value::getKey, value -> value.getValueAsString().orElseThrow()));
 
         assertThat(valuesMap).containsOnly(
                 entry(key1, value1),

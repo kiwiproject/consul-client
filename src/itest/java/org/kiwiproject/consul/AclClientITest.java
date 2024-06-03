@@ -33,9 +33,9 @@ class AclClientITest {
     private static GenericContainer<?> consulContainerAcl;
     private static AclClient aclClient;
 
+    @SuppressWarnings("resource")
     @BeforeAll
     static void beforeAll() {
-        // noinspection resource
         consulContainerAcl = new GenericContainer<>(CONSUL_DOCKER_IMAGE_NAME)
                 .withCommand("agent", "-dev", "-client", "0.0.0.0", "--enable-script-checks=true")
                 .withExposedPorts(8500)

@@ -1,6 +1,5 @@
 package org.kiwiproject.consul;
 
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.kiwiproject.consul.TestUtils.randomUUIDString;
 
@@ -135,10 +134,10 @@ class PreparedQueryClientITest extends BaseIntegrationTest {
 
         assertThat(storedQueries).hasSize(2);
 
-        List<String> queryIds = storedQueries.stream().map(StoredQuery::getId).collect(toList());
+        List<String> queryIds = storedQueries.stream().map(StoredQuery::getId).toList();
         assertThat(queryIds).contains(id1, id2);
 
-        List<String> queryNames = storedQueries.stream().map(StoredQuery::getName).collect(toList());
+        List<String> queryNames = storedQueries.stream().map(StoredQuery::getName).toList();
         assertThat(queryNames).contains(query1, query2);
     }
 
