@@ -977,7 +977,7 @@ public class Consul {
 
         private static void addTimeouts(OkHttpClient.Builder builder,
                                         NetworkTimeoutConfig networkTimeoutConfig) {
-            
+
             if (networkTimeoutConfig.getClientConnectTimeoutMillis() >= 0) {
                 builder.connectTimeout(networkTimeoutConfig.getClientConnectTimeoutMillis(), TimeUnit.MILLISECONDS);
             }
