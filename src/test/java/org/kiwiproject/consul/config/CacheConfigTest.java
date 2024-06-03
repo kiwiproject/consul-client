@@ -283,7 +283,8 @@ class CacheConfigTest {
             final CallbackConsumer<Integer> callbackConsumer = (index, callback) ->
                     callback.onComplete(new ConsulResponse<>(responseSupplier.get(), 0, true, BigInteger.ZERO, null, null));
 
-            return new TestCache((i) -> i,
+            return new TestCache(
+                    i -> i,
                     callbackConsumer,
                     config,
                     clientEventHandler,

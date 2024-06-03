@@ -1,7 +1,6 @@
 package org.kiwiproject.consul;
 
 import static java.util.Objects.nonNull;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
@@ -596,7 +595,7 @@ class AgentClientITest extends BaseIntegrationTest {
                 .getNodeChecks(node, QueryOptions.BLANK).getResponse()
                 .stream()
                 .map(HealthCheck::getName)
-                .collect(toList());
+                .toList();
     }
 
     private void verifyState(String state, Consul client, String serviceId, String serviceName, String output) {

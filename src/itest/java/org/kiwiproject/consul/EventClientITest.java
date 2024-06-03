@@ -1,7 +1,6 @@
 package org.kiwiproject.consul;
 
 import static java.util.Objects.nonNull;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.kiwiproject.consul.Awaiting.awaitAtMost1s;
@@ -156,11 +155,11 @@ class EventClientITest extends BaseIntegrationTest {
     }
 
     private List<String> createRandomEventsGettingIds(int eventCount) {
-        return createRandomEventsAsStream(eventCount).map(Event::getId).collect(toList());
+        return createRandomEventsAsStream(eventCount).map(Event::getId).toList();
     }
 
     private List<Event> createRandomEvents(int eventCount) {
-        return createRandomEventsAsStream(eventCount).collect(toList());
+        return createRandomEventsAsStream(eventCount).toList();
     }
 
     private Stream<Event> createRandomEventsAsStream(int eventCount) {
@@ -169,7 +168,7 @@ class EventClientITest extends BaseIntegrationTest {
     }
 
     List<String> getEventIds(EventResponse eventResponse) {
-        return eventResponse.getEvents().stream().map(Event::getId).collect(toList());
+        return eventResponse.getEvents().stream().map(Event::getId).toList();
     }
 
     List<String> getEventIds(TestEventResponseCallback callback) {
@@ -177,7 +176,7 @@ class EventClientITest extends BaseIntegrationTest {
     }
 
     List<String> getEventIds(Collection<Event> events) {
-        return events.stream().map(Event::getId).collect(toList());
+        return events.stream().map(Event::getId).toList();
     }
 
     Collection<Event> getEvents(TestEventResponseCallback callback) {

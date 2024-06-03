@@ -16,6 +16,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+@SuppressWarnings("resource")
 public abstract class BaseIntegrationTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(BaseIntegrationTest.class);
@@ -39,7 +40,6 @@ public abstract class BaseIntegrationTest {
     // https://github.com/junit-team/junit5/issues/456#issuecomment-416945159
 
     static {
-        // noinspection resource
         consulContainer = new GenericContainer<>(CONSUL_DOCKER_IMAGE_NAME)
                 .withCommand("agent", "-dev", "-client", "0.0.0.0", "--enable-script-checks=true")
                 .withExposedPorts(8500);
