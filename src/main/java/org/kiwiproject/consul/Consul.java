@@ -622,7 +622,7 @@ public class Consul {
          * @deprecated replaced by {@link #withFailoverInterceptorUsingStrategy(ConsulFailoverStrategy)}
          */
         @SuppressWarnings("DeprecatedIsStillUsed")
-        @Deprecated(since = "1.3.3", forRemoval = true)
+        @Deprecated(since = "1.3.0", forRemoval = true)
         public Builder withFailoverInterceptor(ConsulFailoverStrategy strategy) {
             return withFailoverInterceptorUsingStrategy(strategy);
         }
