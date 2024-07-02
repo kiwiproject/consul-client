@@ -7,6 +7,7 @@ import com.google.common.primitives.Ints;
 import org.kiwiproject.consul.KeyValueClient;
 import org.kiwiproject.consul.config.CacheConfig;
 import org.kiwiproject.consul.model.kv.Value;
+import org.kiwiproject.consul.option.Options;
 import org.kiwiproject.consul.option.QueryOptions;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -87,7 +88,7 @@ public class KVCache extends ConsulCache<String, Value> {
             final KeyValueClient kvClient,
             final String rootPath,
             final int watchSeconds) {
-        return newCache(kvClient, rootPath, watchSeconds, QueryOptions.BLANK);
+        return newCache(kvClient, rootPath, watchSeconds, Options.BLANK_QUERY_OPTIONS);
     }
 
     /**

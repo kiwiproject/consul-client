@@ -10,6 +10,7 @@ import org.kiwiproject.consul.model.acl.Token;
 import org.kiwiproject.consul.model.acl.TokenListResponse;
 import org.kiwiproject.consul.model.acl.TokenResponse;
 import org.kiwiproject.consul.monitoring.ClientEventCallback;
+import org.kiwiproject.consul.option.Options;
 import org.kiwiproject.consul.option.RoleOptions;
 import org.kiwiproject.consul.option.TokenQueryOptions;
 import retrofit2.Call;
@@ -80,7 +81,7 @@ public class AclClient extends BaseClient {
     }
 
     public List<TokenListResponse> listTokens() {
-        return listTokens(TokenQueryOptions.BLANK);
+        return listTokens(Options.BLANK_TOKEN_QUERY_OPTIONS);
     }
 
     public List<TokenListResponse> listTokens(TokenQueryOptions queryOptions) {
@@ -108,7 +109,7 @@ public class AclClient extends BaseClient {
     }
 
     public List<RoleListResponse> listRoles() {
-        return listRoles(RoleOptions.BLANK);
+        return listRoles(Options.BLANK_ROLE_OPTIONS);
     }
 
     public List<RoleListResponse> listRoles(RoleOptions roleOptions) {

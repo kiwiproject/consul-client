@@ -4,6 +4,7 @@ import com.google.common.primitives.Ints;
 import org.kiwiproject.consul.CatalogClient;
 import org.kiwiproject.consul.config.CacheConfig;
 import org.kiwiproject.consul.model.catalog.CatalogService;
+import org.kiwiproject.consul.option.Options;
 import org.kiwiproject.consul.option.QueryOptions;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -50,6 +51,6 @@ public class ServiceCatalogCache extends ConsulCache<String, CatalogService> {
     public static ServiceCatalogCache newCache(final CatalogClient catalogClient, final String serviceName) {
         CacheConfig cacheConfig = catalogClient.getConfig().getCacheConfig();
         int watchSeconds = Ints.checkedCast(cacheConfig.getWatchDuration().getSeconds());
-        return newCache(catalogClient, serviceName, QueryOptions.BLANK, watchSeconds);
+        return newCache(catalogClient, serviceName, Options.BLANK_QUERY_OPTIONS, watchSeconds);
     }
 }

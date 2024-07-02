@@ -5,6 +5,7 @@ import com.google.common.primitives.Ints;
 import org.kiwiproject.consul.HealthClient;
 import org.kiwiproject.consul.config.CacheConfig;
 import org.kiwiproject.consul.model.health.ServiceHealth;
+import org.kiwiproject.consul.option.Options;
 import org.kiwiproject.consul.option.QueryOptions;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -82,7 +83,7 @@ public class ServiceHealthCache extends ConsulCache<ServiceHealthKey, ServiceHea
 
         return newCache(healthClient, serviceName, passing, watchSeconds, queryOptions, ServiceHealthKey::fromServiceHealth);
     }
-    
+
     public static ServiceHealthCache newCache(
             final HealthClient healthClient,
             final String serviceName,
@@ -96,6 +97,6 @@ public class ServiceHealthCache extends ConsulCache<ServiceHealthKey, ServiceHea
     public static ServiceHealthCache newCache(final HealthClient healthClient, final String serviceName) {
         CacheConfig cacheConfig = healthClient.getConfig().getCacheConfig();
         int watchSeconds = Ints.checkedCast(cacheConfig.getWatchDuration().getSeconds());
-        return newCache(healthClient, serviceName, true, QueryOptions.BLANK, watchSeconds);
+        return newCache(healthClient, serviceName, true, Options.BLANK_QUERY_OPTIONS, watchSeconds);
     }
 }

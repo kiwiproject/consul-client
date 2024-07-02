@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.kiwiproject.consul.async.EventResponseCallback;
 import org.kiwiproject.consul.model.EventResponse;
 import org.kiwiproject.consul.model.event.Event;
-import org.kiwiproject.consul.option.QueryOptions;
+import org.kiwiproject.consul.option.Options;
 
 import java.util.Collection;
 import java.util.List;
@@ -99,7 +99,7 @@ class EventClientITest extends BaseIntegrationTest {
         var eventCount = randomNumberOfEvents();
         var eventIds = createRandomEventsGettingIds(eventCount);
 
-        var eventResponse = eventClient.listEvents(QueryOptions.BLANK);
+        var eventResponse = eventClient.listEvents(Options.BLANK_QUERY_OPTIONS);
 
         var foundEventIds = getEventIds(eventResponse);
         assertThat(foundEventIds).hasSizeGreaterThanOrEqualTo(eventCount).containsAll(eventIds);
@@ -126,7 +126,7 @@ class EventClientITest extends BaseIntegrationTest {
         var eventIds = createRandomEventsGettingIds(eventCount);
 
         var callback = new TestEventResponseCallback();
-        eventClient.listEvents(QueryOptions.BLANK, callback);
+        eventClient.listEvents(Options.BLANK_QUERY_OPTIONS, callback);
 
         awaitAtMost1s().until(() -> callback.getCompleteCount() >= eventCount);
         assertThat(callback.getFailureCount()).isZero();
@@ -145,7 +145,7 @@ class EventClientITest extends BaseIntegrationTest {
         var name = event.getName();
 
         var callback = new TestEventResponseCallback();
-        eventClient.listEvents(name, QueryOptions.BLANK, callback);
+        eventClient.listEvents(name, Options.BLANK_QUERY_OPTIONS, callback);
 
         awaitAtMost1s().until(() -> callback.getCompleteCount() == 1);
         assertThat(callback.getFailureCount()).isZero();

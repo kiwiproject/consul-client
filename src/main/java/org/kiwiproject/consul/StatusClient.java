@@ -2,6 +2,7 @@ package org.kiwiproject.consul;
 
 import org.kiwiproject.consul.config.ClientConfig;
 import org.kiwiproject.consul.monitoring.ClientEventCallback;
+import org.kiwiproject.consul.option.Options;
 import org.kiwiproject.consul.option.QueryOptions;
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -35,7 +36,7 @@ public class StatusClient extends BaseClient {
      * @return The host/port of the leader.
      */
     public String getLeader() {
-        return getLeader(QueryOptions.BLANK);
+        return getLeader(Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -58,7 +59,7 @@ public class StatusClient extends BaseClient {
      * @return List of host/ports for raft peers.
      */
     public List<String> getPeers() {
-        return getPeers(QueryOptions.BLANK);
+        return getPeers(Options.BLANK_QUERY_OPTIONS);
     }
 
     /**

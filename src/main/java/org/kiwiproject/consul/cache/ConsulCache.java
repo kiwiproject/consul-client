@@ -15,6 +15,7 @@ import org.kiwiproject.consul.config.CacheConfig;
 import org.kiwiproject.consul.model.ConsulResponse;
 import org.kiwiproject.consul.monitoring.ClientEventHandler;
 import org.kiwiproject.consul.option.ImmutableQueryOptions;
+import org.kiwiproject.consul.option.Options;
 import org.kiwiproject.consul.option.QueryOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -316,7 +317,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
 
     private static QueryOptions watchDefaultParams(final BigInteger index, final int blockSeconds) {
         if (isNull(index)) {
-            return QueryOptions.BLANK;
+            return Options.BLANK_QUERY_OPTIONS;
         } else {
             return QueryOptions.blockSeconds(blockSeconds, index).build();
         }

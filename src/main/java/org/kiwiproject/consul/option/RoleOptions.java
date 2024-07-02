@@ -14,7 +14,7 @@ import java.util.Optional;
 public abstract class RoleOptions implements ParamAdder {
 
     /**
-     * @deprecated for removal in 2.0.0 (replacement will be in 1.4.0)
+     * @deprecated for removal in 2.0.0 (replaced by {@link Options#BLANK_ROLE_OPTIONS} in 1.4.0)
      */
     @Deprecated(since = "1.3.3", forRemoval = true)
     public static final RoleOptions BLANK = ImmutableRoleOptions.builder().build();

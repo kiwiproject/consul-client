@@ -24,7 +24,7 @@ import org.kiwiproject.consul.model.kv.Value;
 import org.kiwiproject.consul.monitoring.ClientEventHandler;
 import org.kiwiproject.consul.option.ConsistencyMode;
 import org.kiwiproject.consul.option.ImmutableQueryOptions;
-import org.kiwiproject.consul.option.QueryOptions;
+import org.kiwiproject.consul.option.Options;
 
 import java.math.BigInteger;
 import java.time.Duration;
@@ -192,7 +192,7 @@ class ConsulCacheTest {
                 .index(index)
                 .wait("10s")
                 .build();
-        var actualQueryOptions = ConsulCache.watchParams(index, 10, QueryOptions.BLANK);
+        var actualQueryOptions = ConsulCache.watchParams(index, 10, Options.BLANK_QUERY_OPTIONS);
         assertThat(actualQueryOptions).isEqualTo(expectedQueryOptions);
     }
 

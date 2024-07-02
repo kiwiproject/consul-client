@@ -7,6 +7,7 @@ import org.kiwiproject.consul.model.State;
 import org.kiwiproject.consul.model.health.HealthCheck;
 import org.kiwiproject.consul.model.health.ServiceHealth;
 import org.kiwiproject.consul.monitoring.ClientEventCallback;
+import org.kiwiproject.consul.option.Options;
 import org.kiwiproject.consul.option.QueryOptions;
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -49,7 +50,7 @@ public class HealthClient extends BaseCacheableClient {
      * {@link HealthCheck} objects.
      */
     public ConsulResponse<List<HealthCheck>> getNodeChecks(String node) {
-        return getNodeChecks(node, QueryOptions.BLANK);
+        return getNodeChecks(node, Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -78,7 +79,7 @@ public class HealthClient extends BaseCacheableClient {
      * {@link HealthCheck} objects.
      */
     public ConsulResponse<List<HealthCheck>> getServiceChecks(String service) {
-        return getServiceChecks(service, QueryOptions.BLANK);
+        return getServiceChecks(service, Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -125,7 +126,7 @@ public class HealthClient extends BaseCacheableClient {
      * {@link HealthCheck} objects.
      */
     public ConsulResponse<List<HealthCheck>> getChecksByState(State state) {
-        return getChecksByState(state, QueryOptions.BLANK);
+        return getChecksByState(state, Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -169,7 +170,7 @@ public class HealthClient extends BaseCacheableClient {
      * {@link HealthCheck} objects.
      */
     public ConsulResponse<List<ServiceHealth>> getHealthyServiceInstances(String service) {
-        return getHealthyServiceInstances(service, QueryOptions.BLANK);
+        return getHealthyServiceInstances(service, Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -220,7 +221,7 @@ public class HealthClient extends BaseCacheableClient {
      * {@link HealthCheck} objects.
      */
     public ConsulResponse<List<ServiceHealth>> getAllServiceInstances(String service) {
-        return getAllServiceInstances(service, QueryOptions.BLANK);
+        return getAllServiceInstances(service, Options.BLANK_QUERY_OPTIONS);
     }
 
     /**

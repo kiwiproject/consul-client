@@ -21,6 +21,7 @@ import org.kiwiproject.consul.model.health.ImmutableService;
 import org.kiwiproject.consul.model.health.Node;
 import org.kiwiproject.consul.model.health.Service;
 import org.kiwiproject.consul.option.ImmutableQueryOptions;
+import org.kiwiproject.consul.option.Options;
 import org.kiwiproject.consul.option.QueryOptions;
 
 import java.math.BigInteger;
@@ -264,7 +265,7 @@ class CatalogClientITest extends BaseIntegrationTest {
         client.agentClient().register(20001, 20, serviceName, serviceId, List.of(), Map.of());
 
         CompletableFuture<Map<String, List<String>>> cf = new CompletableFuture<>();
-        catalogClient.getServices(QueryOptions.BLANK, callbackFuture(cf));
+        catalogClient.getServices(Options.BLANK_QUERY_OPTIONS, callbackFuture(cf));
 
         Map<String, List<String>> result = cf.get(1, TimeUnit.SECONDS);
 
@@ -278,7 +279,7 @@ class CatalogClientITest extends BaseIntegrationTest {
         client.agentClient().register(20001, 20, serviceName, serviceId, List.of(), Map.of());
 
         CompletableFuture<List<CatalogService>> cf = new CompletableFuture<>();
-        catalogClient.getService(serviceName, QueryOptions.BLANK, callbackFuture(cf));
+        catalogClient.getService(serviceName, Options.BLANK_QUERY_OPTIONS, callbackFuture(cf));
 
         List<CatalogService> result = cf.get(1, TimeUnit.SECONDS);
 
@@ -311,7 +312,7 @@ class CatalogClientITest extends BaseIntegrationTest {
         catalogClient.register(registration);
 
         CompletableFuture<CatalogNode> cf = new CompletableFuture<>();
-        catalogClient.getNode(nodeName, QueryOptions.BLANK, callbackFuture(cf));
+        catalogClient.getNode(nodeName, Options.BLANK_QUERY_OPTIONS, callbackFuture(cf));
 
         CatalogNode node = cf.get(1, TimeUnit.SECONDS);
 

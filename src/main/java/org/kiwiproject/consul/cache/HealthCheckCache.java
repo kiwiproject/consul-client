@@ -4,6 +4,7 @@ import com.google.common.primitives.Ints;
 import org.kiwiproject.consul.HealthClient;
 import org.kiwiproject.consul.config.CacheConfig;
 import org.kiwiproject.consul.model.health.HealthCheck;
+import org.kiwiproject.consul.option.Options;
 import org.kiwiproject.consul.option.QueryOptions;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -77,7 +78,7 @@ public class HealthCheckCache extends ConsulCache<String, HealthCheck> {
             final org.kiwiproject.consul.model.State checkState,
             final int watchSeconds) {
 
-        return newCache(healthClient, checkState, watchSeconds, QueryOptions.BLANK);
+        return newCache(healthClient, checkState, watchSeconds, Options.BLANK_QUERY_OPTIONS);
     }
 
     public static HealthCheckCache newCache(final HealthClient healthClient, final org.kiwiproject.consul.model.State checkState) {

@@ -21,6 +21,7 @@ import org.kiwiproject.consul.option.ConsistencyMode;
 import org.kiwiproject.consul.option.DeleteOptions;
 import org.kiwiproject.consul.option.ImmutablePutOptions;
 import org.kiwiproject.consul.option.ImmutableTransactionOptions;
+import org.kiwiproject.consul.option.Options;
 import org.kiwiproject.consul.option.PutOptions;
 import org.kiwiproject.consul.option.QueryOptions;
 import org.kiwiproject.consul.option.TransactionOptions;
@@ -80,7 +81,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * @return An {@link Optional} containing the value or {@link Optional#empty()}
      */
     public Optional<Value> getValue(String key) {
-        return getValue(key, QueryOptions.BLANK);
+        return getValue(key, Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -92,7 +93,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * @return An {@link Optional} containing the {@link ConsulResponse} or {@link Optional#empty()}
      */
     public Optional<ConsulResponse<Value>> getConsulResponseWithValue(String key) {
-        return getConsulResponseWithValue(key, QueryOptions.BLANK);
+        return getConsulResponseWithValue(key, Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -195,7 +196,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * @return A list of zero to many {@link Value} objects.
      */
     public List<Value> getValues(String key) {
-        return getValues(key, QueryOptions.BLANK);
+        return getValues(key, Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -209,7 +210,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * consul response headers.
      */
     public ConsulResponse<List<Value>> getConsulResponseWithValues(String key) {
-        return getConsulResponseWithValues(key, QueryOptions.BLANK);
+        return getConsulResponseWithValues(key, Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -336,7 +337,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * @return <code>true</code> if the value was successfully indexed.
      */
     public boolean putValue(String key) {
-        return putValue(key, null, 0L, PutOptions.BLANK, Charset.defaultCharset());
+        return putValue(key, null, 0L, Options.BLANK_PUT_OPTIONS, Charset.defaultCharset());
     }
 
     /**
@@ -347,7 +348,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * @return <code>true</code> if the value was successfully indexed.
      */
     public boolean putValue(String key, String value) {
-        return putValue(key, value, 0L, PutOptions.BLANK);
+        return putValue(key, value, 0L, Options.BLANK_PUT_OPTIONS);
     }
 
     /**
@@ -359,7 +360,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * @return <code>true</code> if the value was successfully indexed.
      */
     public boolean putValue(String key, String value, Charset charset) {
-        return putValue(key, value, 0L, PutOptions.BLANK, charset);
+        return putValue(key, value, 0L, Options.BLANK_PUT_OPTIONS, charset);
     }
 
     /**
@@ -371,7 +372,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * @return <code>true</code> if the value was successfully indexed.
      */
     public boolean putValue(String key, String value, long flags) {
-        return putValue(key, value, flags, PutOptions.BLANK);
+        return putValue(key, value, flags, Options.BLANK_PUT_OPTIONS);
     }
 
     /**
@@ -384,7 +385,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * @return <code>true</code> if the value was successfully indexed.
      */
     public boolean putValue(String key, String value, long flags, Charset charset) {
-        return putValue(key, value, flags, PutOptions.BLANK, charset);
+        return putValue(key, value, flags, Options.BLANK_PUT_OPTIONS, charset);
     }
 
     /**
@@ -464,7 +465,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * @return A list of zero to many keys.
      */
     public List<String> getKeys(String key) {
-        return getKeys(key, QueryOptions.BLANK);
+        return getKeys(key, Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -491,7 +492,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * @return A list of zero to many keys.
      */
     public List<String> getKeys(String key, String separator) {
-        return getKeys(key, separator, QueryOptions.BLANK);
+        return getKeys(key, separator, Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -523,7 +524,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * @param key The key to delete.
      */
     public void deleteKey(String key) {
-        deleteKey(key, DeleteOptions.BLANK);
+        deleteKey(key, Options.BLANK_DELETE_OPTIONS);
     }
 
     /**
@@ -534,7 +535,7 @@ public class KeyValueClient extends BaseCacheableClient {
      * @param key The key to delete.
      */
     public void deleteKeys(String key) {
-        deleteKey(key, DeleteOptions.RECURSE);
+        deleteKey(key, Options.RECURSE_DELETE_OPTIONS);
     }
 
     /**
