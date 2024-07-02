@@ -9,6 +9,7 @@ import org.kiwiproject.consul.model.catalog.CatalogRegistration;
 import org.kiwiproject.consul.model.catalog.CatalogService;
 import org.kiwiproject.consul.model.health.Node;
 import org.kiwiproject.consul.monitoring.ClientEventCallback;
+import org.kiwiproject.consul.option.Options;
 import org.kiwiproject.consul.option.QueryOptions;
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -50,7 +51,7 @@ public class CatalogClient extends BaseCacheableClient {
      * @return A list of datacenter names.
      */
     public List<String> getDatacenters() {
-        return getDatacenters(QueryOptions.BLANK);
+        return getDatacenters(Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -71,7 +72,7 @@ public class CatalogClient extends BaseCacheableClient {
      * @return A {@link ConsulResponse} containing a list of {@link Node} objects.
      */
     public ConsulResponse<List<Node>> getNodes() {
-        return getNodes(QueryOptions.BLANK);
+        return getNodes(Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -109,7 +110,7 @@ public class CatalogClient extends BaseCacheableClient {
      * @return A {@link ConsulResponse} containing a map of service name to a list of tags.
      */
     public ConsulResponse<Map<String, List<String>>> getServices() {
-        return getServices(QueryOptions.BLANK);
+        return getServices(Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -121,7 +122,7 @@ public class CatalogClient extends BaseCacheableClient {
      *                 name to a list of tags.
      */
     public void getServices(ConsulResponseCallback<Map<String, List<String>>> callback) {
-        getServices(QueryOptions.BLANK, callback);
+        getServices(Options.BLANK_QUERY_OPTIONS, callback);
     }
 
     /**
@@ -160,7 +161,7 @@ public class CatalogClient extends BaseCacheableClient {
      * @return A {@link ConsulResponse} containing {@link CatalogService} objects.
      */
     public ConsulResponse<List<CatalogService>> getService(String service) {
-        return getService(service, QueryOptions.BLANK);
+        return getService(service, Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -200,7 +201,7 @@ public class CatalogClient extends BaseCacheableClient {
      * @return A list of matching {@link CatalogService} objects.
      */
     public ConsulResponse<CatalogNode> getNode(String node) {
-        return getNode(node, QueryOptions.BLANK);
+        return getNode(node, Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -239,7 +240,7 @@ public class CatalogClient extends BaseCacheableClient {
      * @param registration A {@link CatalogRegistration}
      */
     public void register(CatalogRegistration registration) {
-        register(registration, QueryOptions.BLANK);
+        register(registration, Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -262,7 +263,7 @@ public class CatalogClient extends BaseCacheableClient {
      * @param deregistration A {@link CatalogDeregistration}
      */
     public void deregister(CatalogDeregistration deregistration) {
-        deregister(deregistration, QueryOptions.BLANK);
+        deregister(deregistration, Options.BLANK_QUERY_OPTIONS);
     }
 
     /**

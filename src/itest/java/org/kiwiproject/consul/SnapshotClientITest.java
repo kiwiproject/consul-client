@@ -11,7 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.kiwiproject.consul.async.Callback;
-import org.kiwiproject.consul.option.QueryOptions;
+import org.kiwiproject.consul.option.Options;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,7 +62,7 @@ class SnapshotClientITest extends BaseIntegrationTest {
     private void ensureSaveSnapshot() throws InterruptedException {
         var latch = new CountDownLatch(1);
         var success = new AtomicBoolean(false);
-        snapshotClient.save(snapshotFile, QueryOptions.BLANK, createCallback(latch, success));
+        snapshotClient.save(snapshotFile, Options.BLANK_QUERY_OPTIONS, createCallback(latch, success));
         assertThat(latch.await(1, TimeUnit.MINUTES)).isTrue();
         assertThat(success.get()).isTrue();
     }
@@ -70,7 +70,7 @@ class SnapshotClientITest extends BaseIntegrationTest {
     private void ensureRestoreSnapshot() throws InterruptedException {
         var latch = new CountDownLatch(1);
         var success = new AtomicBoolean(false);
-        snapshotClient.restore(snapshotFile, QueryOptions.BLANK, createCallback(latch, success));
+        snapshotClient.restore(snapshotFile, Options.BLANK_QUERY_OPTIONS, createCallback(latch, success));
         assertThat(latch.await(1, TimeUnit.MINUTES)).isTrue();
         assertThat(success.get()).isTrue();
     }

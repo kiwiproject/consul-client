@@ -22,8 +22,7 @@ import org.kiwiproject.consul.model.session.SessionCreatedResponse;
 import org.kiwiproject.consul.option.ConsistencyMode;
 import org.kiwiproject.consul.option.ImmutableDeleteOptions;
 import org.kiwiproject.consul.option.ImmutableQueryOptions;
-import org.kiwiproject.consul.option.PutOptions;
-import org.kiwiproject.consul.option.QueryOptions;
+import org.kiwiproject.consul.option.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,7 +131,7 @@ class KeyValueClientITest extends BaseIntegrationTest {
     void putNullValueWithAnotherCharset() {
         var key = randomUUIDString();
 
-        assertThat(keyValueClient.putValue(key, null, 0, PutOptions.BLANK, TEST_CHARSET)).isTrue();
+        assertThat(keyValueClient.putValue(key, null, 0, Options.BLANK_PUT_OPTIONS, TEST_CHARSET)).isTrue();
 
         Value received = keyValueClient.getValue(key).orElseThrow();
         assertThat(received.getValue()).isEmpty();
@@ -145,7 +144,7 @@ class KeyValueClientITest extends BaseIntegrationTest {
 
         var key = randomUUIDString();
 
-        assertThat(keyValueClient.putValue(key, value, 0, PutOptions.BLANK)).isTrue();
+        assertThat(keyValueClient.putValue(key, value, 0, Options.BLANK_PUT_OPTIONS)).isTrue();
 
         Value received = keyValueClient.getValue(key).orElseThrow();
         assertThat(received.getValue()).isPresent();
@@ -393,7 +392,7 @@ class KeyValueClientITest extends BaseIntegrationTest {
         final var completed = new CountDownLatch(1);
         final var success = new AtomicBoolean(false);
 
-        keyValueClient.getValues(key, QueryOptions.BLANK, new ConsulResponseCallback<>() {
+        keyValueClient.getValues(key, Options.BLANK_QUERY_OPTIONS, new ConsulResponseCallback<>() {
             @Override
             public void onComplete(ConsulResponse<List<Value>> consulResponse) {
                 success.set(true);
@@ -461,7 +460,7 @@ class KeyValueClientITest extends BaseIntegrationTest {
         final var completed = new CountDownLatch(numTests);
         final var success = new AtomicInteger(0);
 
-        keyValueClient.getValue(key, QueryOptions.BLANK, new ConsulResponseCallback<>() {
+        keyValueClient.getValue(key, Options.BLANK_QUERY_OPTIONS, new ConsulResponseCallback<>() {
 
             @Override
             public void onComplete(ConsulResponse<Optional<Value>> consulResponse) {
@@ -570,13 +569,13 @@ class KeyValueClientITest extends BaseIntegrationTest {
 
     @Test
     void shouldReturnEmptyOptional_WhenGetValue_WithUnknownKey() {
-        var valueOptional = keyValueClient.getValue("unknownKey", QueryOptions.BLANK);
+        var valueOptional = keyValueClient.getValue("unknownKey", Options.BLANK_QUERY_OPTIONS);
         assertThat(valueOptional).isEmpty();
     }
 
     @Test
     void shouldReturnEmptyOptional_WhenGetConsulResponseWithValue_WithUnknownKey() {
-        var consulResponseOptional = keyValueClient.getConsulResponseWithValue("unknownKey", QueryOptions.BLANK);
+        var consulResponseOptional = keyValueClient.getConsulResponseWithValue("unknownKey", Options.BLANK_QUERY_OPTIONS);
         assertThat(consulResponseOptional).isEmpty();
     }
 }

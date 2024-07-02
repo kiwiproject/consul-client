@@ -14,7 +14,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.kiwiproject.consul.config.ClientConfig;
 import org.kiwiproject.consul.monitoring.NoOpClientEventCallback;
-import org.kiwiproject.consul.option.QueryOptions;
+import org.kiwiproject.consul.option.Options;
 import retrofit2.Response;
 
 class KeyValueClientTest {
@@ -37,7 +37,7 @@ class KeyValueClientTest {
             var consulException = new ConsulException(404, mock(Response.class));
             when(api.getValue(anyString(), anyMap())).thenThrow(consulException);
 
-            assertThat(keyValueClient.getValue("someKey", QueryOptions.BLANK)).isEmpty();
+            assertThat(keyValueClient.getValue("someKey", Options.BLANK_QUERY_OPTIONS)).isEmpty();
         }
 
         @ParameterizedTest
@@ -46,7 +46,7 @@ class KeyValueClientTest {
             var consulException = new ConsulException(statusCode, mock(Response.class));
             when(api.getValue(anyString(), anyMap())).thenThrow(consulException);
 
-            assertThatThrownBy(() -> keyValueClient.getValue("someKey", QueryOptions.BLANK))
+            assertThatThrownBy(() -> keyValueClient.getValue("someKey", Options.BLANK_QUERY_OPTIONS))
                     .isSameAs(consulException);
         }
     }
@@ -59,7 +59,7 @@ class KeyValueClientTest {
             var consulException = new ConsulException(404, mock(Response.class));
             when(api.getValue(anyString(), anyMap())).thenThrow(consulException);
 
-            assertThat(keyValueClient.getConsulResponseWithValue("someKey", QueryOptions.BLANK)).isEmpty();
+            assertThat(keyValueClient.getConsulResponseWithValue("someKey", Options.BLANK_QUERY_OPTIONS)).isEmpty();
         }
 
         @ParameterizedTest
@@ -68,7 +68,7 @@ class KeyValueClientTest {
             var consulException = new ConsulException(statusCode, mock(Response.class));
             when(api.getValue(anyString(), anyMap())).thenThrow(consulException);
 
-            assertThatThrownBy(() -> keyValueClient.getConsulResponseWithValue("someKey", QueryOptions.BLANK))
+            assertThatThrownBy(() -> keyValueClient.getConsulResponseWithValue("someKey", Options.BLANK_QUERY_OPTIONS))
                     .isSameAs(consulException);
         }
     }

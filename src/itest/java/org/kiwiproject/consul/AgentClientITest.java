@@ -26,6 +26,7 @@ import org.kiwiproject.consul.model.health.Service;
 import org.kiwiproject.consul.model.health.ServiceHealth;
 import org.kiwiproject.consul.option.ImmutableQueryOptions;
 import org.kiwiproject.consul.option.ImmutableQueryParameterOptions;
+import org.kiwiproject.consul.option.Options;
 import org.kiwiproject.consul.option.QueryOptions;
 
 import java.net.ConnectException;
@@ -259,7 +260,7 @@ class AgentClientITest extends BaseIntegrationTest {
                 .id(serviceId)
                 .build();
 
-        agentClient.register(reg, QueryOptions.BLANK);
+        agentClient.register(reg, Options.BLANK_QUERY_OPTIONS);
 
         awaitAtMost500ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId));
 
@@ -278,7 +279,7 @@ class AgentClientITest extends BaseIntegrationTest {
                 .replaceExistingChecks(true)
                 .build();
 
-        agentClient.register(secondRegistration, QueryOptions.BLANK, queryParameterOptions);
+        agentClient.register(secondRegistration, Options.BLANK_QUERY_OPTIONS, queryParameterOptions);
 
         var serviceHealthRef = new AtomicReference<ServiceHealth>();
         awaitAtMost500ms().until(() -> serviceHealthExistsWithNameAndId(serviceName, serviceId, serviceHealthRef));
@@ -377,7 +378,7 @@ class AgentClientITest extends BaseIntegrationTest {
 
         awaitAtMost500ms().until(() -> serviceExistsWithId(serviceId));
 
-        ConsulResponse<FullService> service = agentClient.getService(serviceId, QueryOptions.BLANK);
+        ConsulResponse<FullService> service = agentClient.getService(serviceId, Options.BLANK_QUERY_OPTIONS);
 
         FullService expectedService = ImmutableFullService.builder()
                 .id(serviceId)
@@ -406,7 +407,7 @@ class AgentClientITest extends BaseIntegrationTest {
 
         awaitAtMost500ms().until(() -> serviceExistsWithId(serviceId));
 
-        ConsulResponse<FullService> service = agentClient.getService(serviceId, QueryOptions.BLANK);
+        ConsulResponse<FullService> service = agentClient.getService(serviceId, Options.BLANK_QUERY_OPTIONS);
 
         var blockingQueryOptions = QueryOptions.blockSeconds(ttl, service.getResponse().getContentHash()).build();
 
@@ -423,7 +424,7 @@ class AgentClientITest extends BaseIntegrationTest {
     @Test
     void shouldGetServiceThrowErrorWhenServiceIsUnknown() {
         assertThatExceptionOfType(NotRegisteredException.class).isThrownBy(() ->
-                agentClient.getService(randomUUIDString(), QueryOptions.BLANK));
+                agentClient.getService(randomUUIDString(), Options.BLANK_QUERY_OPTIONS));
     }
 
     @Test
@@ -592,7 +593,7 @@ class AgentClientITest extends BaseIntegrationTest {
         var catalogService = client.catalogClient().getService(serviceName).getResponse().get(0);
         String node = catalogService.getNode();
         return client.healthClient()
-                .getNodeChecks(node, QueryOptions.BLANK).getResponse()
+                .getNodeChecks(node, Options.BLANK_QUERY_OPTIONS).getResponse()
                 .stream()
                 .map(HealthCheck::getName)
                 .toList();

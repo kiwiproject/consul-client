@@ -12,6 +12,7 @@ import org.kiwiproject.consul.model.ImmutableEventResponse;
 import org.kiwiproject.consul.model.event.Event;
 import org.kiwiproject.consul.monitoring.ClientEventCallback;
 import org.kiwiproject.consul.option.EventOptions;
+import org.kiwiproject.consul.option.Options;
 import org.kiwiproject.consul.option.QueryOptions;
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -70,7 +71,7 @@ public class EventClient extends BaseClient {
      * @return The newly created {@link Event}.
      */
     public Event fireEvent(String name) {
-        return fireEvent(name, EventOptions.BLANK);
+        return fireEvent(name, Options.BLANK_EVENT_OPTIONS);
     }
 
     /**
@@ -96,7 +97,7 @@ public class EventClient extends BaseClient {
      * @return The newly created {@link Event}.
      */
     public Event fireEvent(String name, String payload) {
-        return fireEvent(name, EventOptions.BLANK, payload);
+        return fireEvent(name, Options.BLANK_EVENT_OPTIONS, payload);
     }
 
     /**
@@ -129,7 +130,7 @@ public class EventClient extends BaseClient {
      *  a list of {@link Event} objects.
      */
     public EventResponse listEvents(String name) {
-        return listEvents(name, QueryOptions.BLANK);
+        return listEvents(name, Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -154,7 +155,7 @@ public class EventClient extends BaseClient {
      *  a list of {@link Event} objects.
      */
     public EventResponse listEvents() {
-        return listEvents(null, QueryOptions.BLANK);
+        return listEvents(null, Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -209,7 +210,7 @@ public class EventClient extends BaseClient {
      * @param callback The callback to asynchronously process the result.
      */
     public void listEvents(EventResponseCallback callback) {
-        listEvents(null, QueryOptions.BLANK, callback);
+        listEvents(null, Options.BLANK_QUERY_OPTIONS, callback);
     }
 
     /**
