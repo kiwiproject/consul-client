@@ -16,6 +16,7 @@ import org.kiwiproject.consul.model.health.HealthCheck;
 import org.kiwiproject.consul.model.health.Service;
 import org.kiwiproject.consul.monitoring.ClientEventCallback;
 import org.kiwiproject.consul.option.ImmutableQueryOptions;
+import org.kiwiproject.consul.option.Options;
 import org.kiwiproject.consul.option.QueryOptions;
 import org.kiwiproject.consul.option.QueryParameterOptions;
 import retrofit2.Call;
@@ -228,11 +229,11 @@ public class AgentClient extends BaseClient {
     }
 
     public void register(Registration registration, QueryOptions options) {
-        register(registration, options, QueryParameterOptions.BLANK);
+        register(registration, options, Options.BLANK_QUERY_PARAMETER_OPTIONS);
     }
 
     public void register(Registration registration) {
-        register(registration, QueryOptions.BLANK);
+        register(registration, Options.BLANK_QUERY_OPTIONS);
     }
 
 
@@ -252,7 +253,7 @@ public class AgentClient extends BaseClient {
      * @param serviceId the ID of the service to deregister
      */
     public void deregister(String serviceId) {
-        deregister(serviceId, QueryOptions.BLANK);
+        deregister(serviceId, Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -445,7 +446,7 @@ public class AgentClient extends BaseClient {
      * @return Map of Check ID to Checks.
      */
     public Map<String, HealthCheck> getChecks() {
-        return getChecks(QueryOptions.BLANK);
+        return getChecks(Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -468,7 +469,7 @@ public class AgentClient extends BaseClient {
      * @return Map of Service ID to Services.
      */
     public Map<String, Service> getServices() {
-        return getServices(QueryOptions.BLANK);
+        return getServices(Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -523,7 +524,7 @@ public class AgentClient extends BaseClient {
      * @return List of Members.
      */
     public List<Member> getMembers() {
-        return getMembers(QueryOptions.BLANK);
+        return getMembers(Options.BLANK_QUERY_OPTIONS);
     }
 
     /**
@@ -546,7 +547,7 @@ public class AgentClient extends BaseClient {
      * @param node Node name
      */
     public void forceLeave(String node) {
-        forceLeave(node, QueryParameterOptions.BLANK);
+        forceLeave(node, Options.BLANK_QUERY_PARAMETER_OPTIONS);
     }
 
     /**

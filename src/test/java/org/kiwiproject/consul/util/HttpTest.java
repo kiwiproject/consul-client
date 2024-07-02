@@ -310,7 +310,7 @@ class HttpTest {
         verify(clientEventHandler, only()).httpRequestFailure(any(Request.class), any(Throwable.class));
     }
 
-    @SuppressWarnings({ "unchecked", "unused" })
+    @SuppressWarnings("unchecked")
     private static <T> Call<T> createMockCallWithType(Class<T> resultType) {
         return mock(Call.class);
     }
