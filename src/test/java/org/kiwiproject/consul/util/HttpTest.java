@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 
@@ -61,7 +62,7 @@ class HttpTest {
     void extractingBodyShouldSucceedWhenRequestSucceed() throws IOException {
         var expectedBody = "success";
         Response<String> response = Response.success(expectedBody);
-        Call<String> call = createMockCallWithType(String.class);
+        Call<String> call = mock();
         when(call.execute()).thenReturn(response);
 
         String body = http.extract(call);
@@ -72,7 +73,7 @@ class HttpTest {
     @Test
     void handlingRequestShouldNotThrowWhenRequestSucceed() throws IOException {
         Response<Void> response = Response.success(204, null);
-        Call<Void> call = createMockCallWithType(Void.class);
+        Call<Void> call = mock();
         when(call.execute()).thenReturn(response);
 
         http.handle(call);
@@ -84,7 +85,7 @@ class HttpTest {
     void extractingConsulResponseShouldSucceedWhenRequestSucceed() throws IOException {
         var expectedBody = "success";
         Response<String> response = Response.success(expectedBody);
-        Call<String> call = createMockCallWithType(String.class);
+        Call<String> call = mock();
         when(call.execute()).thenReturn(response);
 
         ConsulResponse<String> consulResponse = http.extractConsulResponse(call);
@@ -230,9 +231,10 @@ class HttpTest {
 
     @Test
     void extractingConsulResponseAsyncShouldSucceedWhenRequestSucceed() throws InterruptedException {
-        AtomicReference<ConsulResponse<String>> result = new AtomicReference<>();
-        CountDownLatch latch = new CountDownLatch(1);
-        final ConsulResponseCallback<String> callback = new ConsulResponseCallback<>() {
+        var result = new AtomicReference<ConsulResponse<String>>();
+        var latch = new CountDownLatch(1);
+        var onFailureCount = new AtomicInteger();
+        var callback = new ConsulResponseCallback<String>() {
             @Override
             public void onComplete(ConsulResponse<String> consulResponse) {
                 result.set(consulResponse);
@@ -241,9 +243,10 @@ class HttpTest {
 
             @Override
             public void onFailure(Throwable throwable) {
+                onFailureCount.incrementAndGet();
             }
         };
-        var call = createMockCallWithType(String.class);
+        Call<String> call = mock();
         var request = new Request.Builder().url("http://localhost:8500/this/endpoint").build();
         when(call.request()).thenReturn(request);
         Callback<String> retrofitCallback = http.createRetrofitCallback(callback);
@@ -256,14 +259,18 @@ class HttpTest {
 
         assertThat(result.get().getResponse()).isEqualTo(expectedBody);
         verify(clientEventHandler, only()).httpRequestSuccess(any(Request.class));
+
+        assertThat(onFailureCount).hasValue(0);
     }
 
     @Test
     void extractingConsulResponseAsyncShouldFailWhenRequestIsInvalid() throws InterruptedException {
         var latch = new CountDownLatch(1);
+        var onCompleteCount = new AtomicInteger();
         var callback = new ConsulResponseCallback<String>() {
             @Override
             public void onComplete(ConsulResponse<String> consulResponse) {
+                onCompleteCount.incrementAndGet();
             }
 
             @Override
@@ -271,7 +278,7 @@ class HttpTest {
                 latch.countDown();
             }
         };
-        var call = createMockCallWithType(String.class);
+        Call<String> call = mock();
         var request = new Request.Builder().url("http://localhost:8500/this/endpoint").build();
         when(call.request()).thenReturn(request);
         Callback<String> retrofitCallback = http.createRetrofitCallback(callback);
@@ -282,14 +289,18 @@ class HttpTest {
         assertThat(countReachedZero).isTrue();
 
         verify(clientEventHandler, only()).httpRequestInvalid(any(Request.class), any(Throwable.class));
+
+        assertThat(onCompleteCount).hasValue(0);
     }
 
     @Test
     void extractingConsulResponseAsyncShouldFailWhenRequestFailed() throws InterruptedException {
         var latch = new CountDownLatch(1);
+        var onCompleteCount = new AtomicInteger();
         var callback = new ConsulResponseCallback<String>() {
             @Override
             public void onComplete(ConsulResponse<String> consulResponse) {
+                onCompleteCount.incrementAndGet();
             }
 
             @Override
@@ -297,7 +308,7 @@ class HttpTest {
                 latch.countDown();
             }
         };
-        var call = createMockCallWithType(String.class);
+        Call<String> call = mock();
         when(call.request()).thenReturn(mock(Request.class));
 
         Callback<String> retrofitCallback = http.createRetrofitCallback(callback);
@@ -308,11 +319,8 @@ class HttpTest {
         assertThat(countReachedZero).isTrue();
 
         verify(clientEventHandler, only()).httpRequestFailure(any(Request.class), any(Throwable.class));
-    }
 
-    @SuppressWarnings({ "unchecked", "unused" })
-    private static <T> Call<T> createMockCallWithType(Class<T> resultType) {
-        return mock(Call.class);
+        assertThat(onCompleteCount).hasValue(0);
     }
 
     @Test
