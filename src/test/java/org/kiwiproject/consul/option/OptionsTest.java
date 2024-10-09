@@ -107,9 +107,10 @@ class OptionsTest {
 
         @Test
         void shouldThrowUnsupportedOperationException_WhenGivenUnmodifiableMap() {
-            var data = Map.<String, Object>of();
+            var unmodifiableData = Map.<String, Object>of();
+            var optionalValue = Optional.of(42);
             assertThatExceptionOfType(UnsupportedOperationException.class)
-                    .isThrownBy(() -> Options.optionallyAdd(data, "theKey", Optional.of(42)));
+                    .isThrownBy(() -> Options.optionallyAdd(unmodifiableData, "theKey", optionalValue));
         }
     }
 
@@ -148,9 +149,10 @@ class OptionsTest {
 
         @Test
         void shouldThrowUnsupportedOperationException_WhenGivenUnmodifiableList() {
-            var data = List.<String>of();
+            var unmodifiableData = List.<String>of();
+            var optionalValue = Optional.of(true);
             assertThatExceptionOfType(UnsupportedOperationException.class)
-                    .isThrownBy(() -> Options.optionallyAdd(data, "theKey", Optional.of(true)));
+                    .isThrownBy(() -> Options.optionallyAdd(unmodifiableData, "theKey", optionalValue));
         }
     }
 }
