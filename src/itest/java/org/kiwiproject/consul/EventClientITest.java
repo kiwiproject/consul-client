@@ -52,7 +52,7 @@ class EventClientITest extends BaseIntegrationTest {
     @Test
     void shouldFireWithPayload() {
         var name = randomEventName();
-        var payload = RandomStringUtils.randomAlphabetic(20);
+        var payload = RandomStringUtils.secure().nextAlphabetic(20);
         var firedEvent = eventClient.fireEvent(name, payload);
 
         var foundEventRef = new AtomicReference<Event>();
@@ -219,7 +219,7 @@ class EventClientITest extends BaseIntegrationTest {
 
     private static String randomEventName() {
         var length = currentRandom().nextInt(10, 21);
-        return RandomStringUtils.randomAlphanumeric(length);
+        return RandomStringUtils.secure().nextAlphabetic(length);
     }
 
     private static ThreadLocalRandom currentRandom() {
