@@ -1,6 +1,8 @@
 package org.kiwiproject.consul.option;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,8 +23,29 @@ class OptionsTest {
     class From {
 
         @Test
+        void shouldThrowIllegalArgument_WhenGivenNullVarArgs() {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> Options.from((ParamAdder[]) null))
+                    .withMessage("the options vararg must not be null");
+        }
+
+        @Test
         void shouldReturnEmptyMap_WhenGivenNoOptions() {
             assertThat(Options.from()).isEmpty();
+        }
+
+        @Test
+        void shouldReturnEmptyMap_WhenOneNullArgument() {
+            var options = Options.from((ParamAdder) null);
+
+            assertThat(options).isEmpty();
+        }
+
+        @Test
+        void shouldReturnEmptyMap_WhenAllOptionsAreNull() {
+            var options = Options.from(null, null);
+
+            assertThat(options).isEmpty();
         }
 
         @Test
@@ -81,6 +104,14 @@ class OptionsTest {
             Options.optionallyAdd(data, key, value);
             assertThat(data).hasSize(1).containsEntry(key, "42");
         }
+
+        @Test
+        void shouldThrowUnsupportedOperationException_WhenGivenUnmodifiableMap() {
+            var unmodifiableData = Map.<String, Object>of();
+            var optionalValue = Optional.of(42);
+            assertThatExceptionOfType(UnsupportedOperationException.class)
+                    .isThrownBy(() -> Options.optionallyAdd(unmodifiableData, "theKey", optionalValue));
+        }
     }
 
     @Nested
@@ -114,6 +145,14 @@ class OptionsTest {
             var value = Optional.of(true);
             Options.optionallyAdd(data, key, value);
             assertThat(data).containsExactly(key);
+        }
+
+        @Test
+        void shouldThrowUnsupportedOperationException_WhenGivenUnmodifiableList() {
+            var unmodifiableData = List.<String>of();
+            var optionalValue = Optional.of(true);
+            assertThatExceptionOfType(UnsupportedOperationException.class)
+                    .isThrownBy(() -> Options.optionallyAdd(unmodifiableData, "theKey", optionalValue));
         }
     }
 }
