@@ -1,6 +1,6 @@
 package org.kiwiproject.consul;
 
-import static java.util.Objects.nonNull;
+import static org.kiwiproject.consul.ConsulClients.dcQuery;
 
 import org.kiwiproject.consul.config.ClientConfig;
 import org.kiwiproject.consul.model.coordinate.Coordinate;
@@ -45,10 +45,6 @@ public class CoordinateClient extends BaseClient {
 
     public List<Coordinate> getNodes() {
         return getNodes(null);
-    }
-
-    private Map<String, String> dcQuery(String dc) {
-        return nonNull(dc) ? Map.of("dc", dc) : Map.of();
     }
 
     /**

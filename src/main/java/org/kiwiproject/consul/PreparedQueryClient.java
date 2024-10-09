@@ -1,6 +1,6 @@
 package org.kiwiproject.consul;
 
-import static java.util.Objects.nonNull;
+import static org.kiwiproject.consul.ConsulClients.dcQuery;
 
 import org.kiwiproject.consul.async.Callback;
 import org.kiwiproject.consul.config.ClientConfig;
@@ -62,10 +62,6 @@ public class PreparedQueryClient extends BaseClient {
      */
     public String createPreparedQuery(PreparedQuery preparedQuery, final String dc) {
         return http.extract(api.createPreparedQuery(preparedQuery, dcQuery(dc))).getId();
-    }
-
-    private Map<String, String> dcQuery(String dc) {
-        return nonNull(dc) ? Map.of("dc", dc): Map.of();
     }
 
     /**
