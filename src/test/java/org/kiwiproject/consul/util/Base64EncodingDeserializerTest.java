@@ -14,7 +14,7 @@ class Base64EncodingDeserializerTest {
 
     @Test
     void shouldDeserialize() throws IOException {
-        var value = RandomStringUtils.randomAlphabetic(12);
+        var value = RandomStringUtils.secure().nextAlphabetic(12);
         var event = ImmutableEvent.builder()
                 .id("1")
                 .lTime(1L)

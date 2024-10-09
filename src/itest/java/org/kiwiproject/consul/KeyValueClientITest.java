@@ -516,7 +516,7 @@ class KeyValueClientITest extends BaseIntegrationTest {
     @Test
     void testBasicTxn() {
         var key = randomUUIDString();
-        var value = Base64.encodeBase64String(RandomStringUtils.random(20).getBytes());
+        var value = Base64.encodeBase64String(RandomStringUtils.secure().next(20).getBytes());
         Operation[] operation = new Operation[] { ImmutableOperation.builder().verb("set")
                 .key(key)
                 .value(value).build() };

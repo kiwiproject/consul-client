@@ -65,7 +65,7 @@ class OptionsTest {
         @BeforeEach
         void setUp() {
             data = new HashMap<>();
-            key = RandomStringUtils.randomAlphabetic(10);
+            key = RandomStringUtils.secure().nextAlphabetic(10);
         }
 
         @Test
@@ -92,7 +92,7 @@ class OptionsTest {
         @BeforeEach
         void setUp() {
             data = new ArrayList<>();
-            key = RandomStringUtils.randomAlphabetic(10);
+            key = RandomStringUtils.secure().nextAlphabetic(10);
         }
 
         @Test
