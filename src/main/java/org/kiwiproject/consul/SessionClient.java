@@ -1,7 +1,7 @@
 package org.kiwiproject.consul;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
+import static org.kiwiproject.consul.ConsulClients.dcQuery;
 
 import org.kiwiproject.consul.config.ClientConfig;
 import org.kiwiproject.consul.model.session.Session;
@@ -64,10 +64,6 @@ public class SessionClient extends BaseClient {
      */
     public SessionCreatedResponse createSession(final Session value, final String dc) {
         return http.extract(api.createSession(value, dcQuery(dc)));
-    }
-
-    private Map<String, String> dcQuery(String dc) {
-        return nonNull(dc) ? Map.of("dc", dc) : Map.of();
     }
 
     public Optional<SessionInfo> renewSession(final String sessionId) {
