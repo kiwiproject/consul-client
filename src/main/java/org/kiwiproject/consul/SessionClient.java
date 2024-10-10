@@ -1,7 +1,7 @@
 package org.kiwiproject.consul;
 
-import static java.util.Objects.isNull;
 import static org.kiwiproject.consul.ConsulClients.dcQuery;
+import static org.kiwiproject.consul.util.Lists.firstValueOrEmpty;
 
 import org.kiwiproject.consul.config.ClientConfig;
 import org.kiwiproject.consul.model.session.Session;
@@ -81,8 +81,7 @@ public class SessionClient extends BaseClient {
         List<SessionInfo> sessionInfo = http.extract(api.renewSession(sessionId,
                 Map.of(), dcQuery(dc)));
 
-        return isNull(sessionInfo) || sessionInfo.isEmpty() ? Optional.empty() :
-                Optional.of(sessionInfo.get(0));
+        return firstValueOrEmpty(sessionInfo);
     }
 
     /**
@@ -132,8 +131,7 @@ public class SessionClient extends BaseClient {
     public Optional<SessionInfo> getSessionInfo(final String sessionId, final String dc) {
         List<SessionInfo> sessionInfo = http.extract(api.getSessionInfo(sessionId, dcQuery(dc)));
 
-        return isNull(sessionInfo) || sessionInfo.isEmpty() ? Optional.empty() :
-                Optional.of(sessionInfo.get(0));
+        return firstValueOrEmpty(sessionInfo);
     }
 
     /**

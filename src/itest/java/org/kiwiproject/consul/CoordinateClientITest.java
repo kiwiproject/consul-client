@@ -1,6 +1,5 @@
 package org.kiwiproject.consul;
 
-import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
@@ -20,7 +19,7 @@ class CoordinateClientITest extends BaseIntegrationTest {
     @Test
     void shouldGetNodes() {
         List<Coordinate> nodes = client.coordinateClient().getNodes();
-        assertThat(isNull(nodes)).isFalse();
+        assertThat(nodes).isNotNull();
     }
 
     @Test
@@ -28,6 +27,6 @@ class CoordinateClientITest extends BaseIntegrationTest {
         String datacenter = client.coordinateClient().getDatacenters().get(0).getDatacenter();
 
         List<Coordinate> nodes = client.coordinateClient().getNodes(datacenter);
-        assertThat(isNull(nodes)).isFalse();
+        assertThat(nodes).isNotNull();
     }
 }
