@@ -110,7 +110,7 @@ public class KeyValueClient extends BaseCacheableClient {
         try {
             Call<List<Value>> call = api.getValue(Strings.trimLeadingSlash(key), queryOptions.toQuery());
             List<Value> values = http.extract(call, NOT_FOUND_404);
-            return getSingleValue(values);
+            return firstValueOrEmpty(values);
         } catch (ConsulException e) {
             if (e.getCode() != NOT_FOUND_404) {
                 throw e;
@@ -134,22 +134,14 @@ public class KeyValueClient extends BaseCacheableClient {
         try {
             Call<List<Value>> call = api.getValue(Strings.trimLeadingSlash(key), queryOptions.toQuery());
             ConsulResponse<List<Value>> consulResponse = http.extractConsulResponse(call, NOT_FOUND_404);
-            Optional<Value> consulValue = getSingleValue(consulResponse.getResponse());
-            if (consulValue.isPresent()) {
-                var result = new ConsulResponse<>(consulValue.get(),
-                        consulResponse.getLastContact(),
-                        consulResponse.isKnownLeader(),
-                        consulResponse.getIndex(),
-                        consulResponse.getCacheResponseInfo());
-                return Optional.of(result);
-            }
+            Optional<Value> consulValue = firstValueOrEmpty(consulResponse.getResponse());
+            return consulValue.map(value -> newConsulResponse(value, consulResponse));
         } catch (ConsulException e) {
             if (e.getCode() != NOT_FOUND_404) {
                 throw e;
             }
+            return Optional.empty();
         }
-
-        return Optional.empty();
     }
 
     /**
@@ -166,11 +158,9 @@ public class KeyValueClient extends BaseCacheableClient {
         ConsulResponseCallback<List<Value>> wrapper = new ConsulResponseCallback<>() {
             @Override
             public void onComplete(ConsulResponse<List<Value>> consulResponse) {
-                callback.onComplete(
-                        new ConsulResponse<>(getSingleValue(consulResponse.getResponse()),
-                                consulResponse.getLastContact(),
-                                consulResponse.isKnownLeader(), consulResponse.getIndex(),
-                                consulResponse.getCacheResponseInfo()));
+                Optional<Value> maybeValue = firstValueOrEmpty(consulResponse.getResponse());
+                ConsulResponse<Optional<Value>> maybeValueResponse = newConsulResponse(maybeValue, consulResponse);
+                callback.onComplete(maybeValueResponse);
             }
 
             @Override
@@ -182,8 +172,16 @@ public class KeyValueClient extends BaseCacheableClient {
         http.extractConsulResponse(api.getValue(Strings.trimLeadingSlash(key), queryOptions.toQuery()), wrapper, NOT_FOUND_404);
     }
 
-    private Optional<Value> getSingleValue(List<Value> values) {
+    private static Optional<Value> firstValueOrEmpty(List<Value> values) {
         return nonNull(values) && !values.isEmpty() ? Optional.of(values.get(0)) : Optional.empty();
+    }
+
+    private static <T> ConsulResponse<T> newConsulResponse(T value, ConsulResponse<List<Value>> response) {
+        return new ConsulResponse<T>(value,
+                response.getLastContact(),
+                response.isKnownLeader(),
+                response.getIndex(),
+                response.getCacheResponseInfo());
     }
 
     /**
