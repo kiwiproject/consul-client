@@ -177,7 +177,7 @@ public class KeyValueClient extends BaseCacheableClient {
     }
 
     private static <T> ConsulResponse<T> newConsulResponse(T value, ConsulResponse<List<Value>> response) {
-        return new ConsulResponse<T>(value,
+        return new ConsulResponse<>(value,
                 response.getLastContact(),
                 response.isKnownLeader(),
                 response.getIndex(),
