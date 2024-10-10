@@ -221,7 +221,7 @@ public class AgentClient extends BaseClient {
      * the use of checks.
      *
      * @param registration          The registration payload.
-     * @param options               An optional QueryOptions instance.
+     * @param options               A QueryOptions instance.
      * @param queryParameterOptions The Query Parameter Options to use.
      */
     public void register(Registration registration, QueryOptions options, QueryParameterOptions queryParameterOptions) {
