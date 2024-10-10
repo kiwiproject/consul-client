@@ -3,6 +3,7 @@ package org.kiwiproject.consul;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static org.kiwiproject.consul.util.Lists.firstValueOrEmpty;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.annotations.VisibleForTesting;
@@ -170,10 +171,6 @@ public class KeyValueClient extends BaseCacheableClient {
         };
 
         http.extractConsulResponse(api.getValue(Strings.trimLeadingSlash(key), queryOptions.toQuery()), wrapper, NOT_FOUND_404);
-    }
-
-    private static Optional<Value> firstValueOrEmpty(List<Value> values) {
-        return nonNull(values) && !values.isEmpty() ? Optional.of(values.get(0)) : Optional.empty();
     }
 
     private static <T> ConsulResponse<T> newConsulResponse(T value, ConsulResponse<List<Value>> response) {
