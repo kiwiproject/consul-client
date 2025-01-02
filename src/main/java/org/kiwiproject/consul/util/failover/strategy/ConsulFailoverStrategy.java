@@ -26,18 +26,18 @@ public interface ConsulFailoverStrategy {
      * (such as when we know with certainty that a host should not be available) without interfering with the consul client too
      * much.
      *
-     * @param current The current inflight request.
+     * @param request The current inflight request.
      * @return A boolean representing if there is another possible request candidate available.
      */
-    boolean isRequestViable(@NonNull Request current);
+    boolean isRequestViable(@NonNull Request request);
 
     /**
      * Marks the specified request as a failed URL (in case of exceptions and other events that could cause
      * us to never get a response). This avoids infinite loops where the strategy can never be made aware that the request
      * has failed.
      *
-     * @param current The current request object representing a request that failed
+     * @param request The request that failed
      */
-    void markRequestFailed(@NonNull Request current);
+    void markRequestFailed(@NonNull Request request);
 
 }

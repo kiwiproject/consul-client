@@ -11,9 +11,9 @@ import okhttp3.Response;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,6 +29,7 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
 
     // The map of viable targets
     private final Collection<HostAndPort> targets;
+    private final int numberOfTargets;
 
     // The blacklist timeout
     private final long timeout;
@@ -40,7 +41,8 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
      * @param timeout The timeout in milliseconds
      */
     public BlacklistingConsulFailoverStrategy(Collection<HostAndPort> targets, long timeout) {
-        this.targets = targets;
+        this.targets = List.copyOf(targets);
+        this.numberOfTargets = this.targets.size();
         this.timeout = timeout;
     }
 
@@ -54,7 +56,7 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
         // If the previous response failed, disallow this request from going through.
         // A 404 does NOT indicate a failure in this case, so it should never blacklist the previous target.
         if (previousResponseFailedAndWasNot404(previousResponse)) {
-            addToBlackist(nextTarget);
+            addToBlacklist(nextTarget);
         }
 
         // Handle the case when the blacklist contains the target we care about
@@ -100,26 +102,22 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
     boolean isPastBlacklistDuration(HostAndPort target) {
         var blacklistedAt = blacklist.get(target);
 
-        // Exit early if the target is not actually in the blacklist.
+        // Exit early if the target is not in the blacklist.
         // The only way this can be true is if a concurrent request causes the
         // target to be removed from the blacklist between the time it is first
         // checked in #findTargetNotInBlacklist and when this method gets the
-        // value of the target key above. If that happens, just return true. It
+        // value of the target key above. If that happens, return true. It
         // won't cause any problems with the Map#remove operation since that
         // will just return null if there was no mapping with the given key.
         if (isNull(blacklistedAt)) {
             return true;
         }
 
-        // If the duration between the blacklist time ("then") and "now" is greater than the
-        // timeout duration (Duration(then, now) - timeout >= 0), then the timeout has passed
-        var adjustedBlacklistDuration = Duration.between(blacklistedAt, Instant.now()).minusMillis(timeout);
-
-        return isPositiveOrZero(adjustedBlacklistDuration);
-    }
-
-    private static boolean isPositiveOrZero(Duration duration) {
-        return !duration.isNegative();
+        // If "now" is after or equal to the time target was blacklisted plus the timeout amount,
+        // then the timeout has passed
+        var timeoutExpiration = blacklistedAt.plusMillis(timeout);
+        var now = Instant.now();
+        return now.equals(timeoutExpiration) || now.isAfter(timeoutExpiration);
     }
 
     private static boolean previousResponseFailedAndWasNot404(Response previousResponse) {
@@ -127,8 +125,14 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
     }
 
     @Override
-    public boolean isRequestViable(@NonNull Request current) {
-        return findTargetNotInBlacklist().isPresent();
+    public boolean isRequestViable(@NonNull Request request) {
+        return atLeastOneTargetIsAvailable() ||
+                isNotBlacklisted(hostAndPortFromRequest(request)) ||
+                findTargetNotInBlacklist().isPresent();
+    }
+
+    private boolean atLeastOneTargetIsAvailable() {
+        return numberOfTargets > blacklist.size();
     }
 
     private boolean isNotBlacklisted(HostAndPort target) {
@@ -140,9 +144,9 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
     }
 
     @Override
-    public void markRequestFailed(@NonNull Request current) {
-        var hostAndPort = hostAndPortFromRequest(current);
-        addToBlackist(hostAndPort);
+    public void markRequestFailed(@NonNull Request request) {
+        var hostAndPort = hostAndPortFromRequest(request);
+        addToBlacklist(hostAndPort);
     }
 
     private HostAndPort hostAndPortFromRequest(Request request) {
@@ -150,7 +154,7 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
     }
 
     @VisibleForTesting
-    void addToBlackist(HostAndPort target) {
+    void addToBlacklist(HostAndPort target) {
         blacklist.put(target, Instant.now());
     }
 }

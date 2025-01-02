@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import com.google.common.net.HostAndPort;
 import okhttp3.Request;
 import okhttp3.Response;
-
 import org.awaitility.Durations;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -358,7 +357,7 @@ class BlacklistingConsulFailoverStrategyTest {
     }
 
     private void blacklistAll(Collection<HostAndPort> targets) {
-        targets.forEach(strategy::addToBlackist);
+        targets.forEach(strategy::addToBlacklist);
     }
 
     private static void randomlyBlacklistAllButOneTarget(List<HostAndPort> targets,
@@ -369,7 +368,7 @@ class BlacklistingConsulFailoverStrategyTest {
 
         var numToBlacklist = numTargets - 1;
         indices.subList(0, numToBlacklist).forEach(index ->
-                strategy.addToBlackist(targets.get(index)));
+                strategy.addToBlacklist(targets.get(index)));
 
         // guarantee we have one target available
         int numInBlacklist = strategy.blacklist.size();
