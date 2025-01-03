@@ -73,7 +73,7 @@ public class TimeoutInterceptor implements Interceptor {
                 wait = Duration.ofSeconds(Long.parseLong(query.replace("s","")));
             }
         } catch (Exception e) {
-            LOG.warn(String.format("Error while extracting wait duration from query parameters: %s", query));
+            LOG.warn("Error while extracting wait duration from query parameters: {}", query);
         }
         return wait;
     }
