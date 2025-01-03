@@ -1,5 +1,6 @@
 package org.kiwiproject.consul.util.failover.strategy;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -35,7 +36,10 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
     private final long timeout;
 
     /**
-     * Constructs a blacklisting strategy with a collection of hosts and ports
+     * Constructs a blacklisting strategy with a collection of hosts and ports.
+     * <p>
+     * The timeout is the number of milliseconds that must pass before a blacklisted target
+     * host can be removed from the blacklist.
      *
      * @param targets A set of viable hosts
      * @param timeout The timeout in milliseconds
@@ -43,6 +47,7 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
     public BlacklistingConsulFailoverStrategy(Collection<HostAndPort> targets, long timeout) {
         this.targets = List.copyOf(targets);
         this.numberOfTargets = this.targets.size();
+        checkArgument(timeout > 0, "timeout must be a positive number of milliseconds");
         this.timeout = timeout;
     }
 

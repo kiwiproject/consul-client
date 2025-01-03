@@ -3,6 +3,7 @@ package org.kiwiproject.consul.util.failover.strategy;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toCollection;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.Duration;
@@ -27,11 +29,42 @@ import java.util.List;
 import java.util.Optional;
 import java.util.random.RandomGenerator;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @DisplayName("BlacklistingConsulFailoverStrategy")
 class BlacklistingConsulFailoverStrategyTest {
 
     private BlacklistingConsulFailoverStrategy strategy;
+
+    @ParameterizedTest
+    @MethodSource("invalidTimeouts")
+    void shouldRequirePositiveTimeout(int timeout) {
+        var targets = List.of(
+                HostAndPort.fromParts("10.116.84.1", 8501),
+                HostAndPort.fromParts("10.116.84.2", 8501),
+                HostAndPort.fromParts("10.116.84.3", 8501)
+        );
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> new BlacklistingConsulFailoverStrategy(targets, timeout))
+                .withMessage("timeout must be a positive number of milliseconds");
+    }
+
+    static Stream<Integer> invalidTimeouts() {
+        var smallNegativeNumbers = RandomGenerator.getDefault()
+                .ints(-500, 0)
+                .limit(10)
+                .boxed();
+
+        var randomNegativeNumbers = RandomGenerator.getDefault()
+                .ints(Integer.MIN_VALUE, 0)
+                .limit(25)
+                .boxed();
+
+        var negativeNumbers = Stream.concat(smallNegativeNumbers, randomNegativeNumbers);
+
+        return Stream.concat(Stream.of(0), negativeNumbers);
+    }
 
     @Nested
     class ComputeNextStage {
