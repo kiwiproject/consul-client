@@ -58,6 +58,16 @@ public class TimeoutInterceptor implements Interceptor {
                 .proceed(request);
     }
 
+    /**
+     * Parse the query for a Blocking Query. It will be used in tbe value of the {@code wait}
+     * query parameter.
+     * <p>
+     * For details on the {@code wait} query parameter, see
+     * <a href="https://developer.hashicorp.com/consul/api-docs/features/blocking#blocking-queries">Blocking Queries</a>.
+     *
+     * @param query the value for the {@code wait} query parameter
+     * @return the Duration equivalent to the wait query, or null if the query is null, empty, or is not valid
+     */
     @VisibleForTesting
     @Nullable
     static Duration parseWaitQuery(String query) {
@@ -65,16 +75,21 @@ public class TimeoutInterceptor implements Interceptor {
             return null;
         }
 
-        Duration wait = null;
         try {
-            if (query.contains("m")) {
-                wait = Duration.ofMinutes(Long.parseLong(query.replace("m","")));
-            } else if (query.contains("s")) {
-                wait = Duration.ofSeconds(Long.parseLong(query.replace("s","")));
+            if (query.endsWith("m")) {
+                return Duration.ofMinutes(numberFrom(query));
+            } else if (query.endsWith("s")) {
+                return Duration.ofSeconds(numberFrom(query));
             }
-        } catch (Exception e) {
-            LOG.warn("Error while extracting wait duration from query parameters: {}", query);
+        } catch (Exception ignored) {
+            // intentionally ignored
         }
-        return wait;
+
+        LOG.warn("Invalid wait query '{}'. Expected a number plus 's' or 'm' ('10s' for seconds, '5m' for minutes).", query);
+        return null;
+    }
+
+    private static long numberFrom(String query) {
+        return Long.parseLong(query.substring(0, query.length() - 1));
     }
 }
