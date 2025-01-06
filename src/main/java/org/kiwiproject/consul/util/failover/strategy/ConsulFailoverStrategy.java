@@ -9,6 +9,15 @@ import java.util.Optional;
 
 public interface ConsulFailoverStrategy {
 
+    /**
+     * Computes the next failover stage for the consul failover strategy. This allows the end user to customize the way
+     * and methods by which additional failover targets may be selected.
+     *
+     * @param previousRequest  The last request to go out the door.
+     * @return An optional failover request. This may return an empty optional, signaling that the request should be aborted
+     */
+    @NonNull
+    Optional<Request> computeNextStage(Request previousRequest);
 
     /**
      * Computes the next failover stage for the consul failover strategy. This allows the end user to customize the way
