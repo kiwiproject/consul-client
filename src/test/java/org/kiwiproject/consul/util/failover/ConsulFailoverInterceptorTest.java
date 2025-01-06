@@ -72,6 +72,7 @@ class ConsulFailoverInterceptorTest {
         verify(strategy, only()).isRequestViable(any(Request.class));
     }
 
+    @SuppressWarnings("removal")
     @Test
     void shouldThrowException_WhenNextStageIsEmpty() {
         when(strategy.isRequestViable(any(Request.class))).thenReturn(true);
@@ -88,6 +89,7 @@ class ConsulFailoverInterceptorTest {
         verifyNoMoreInteractions(strategy);
     }
 
+    @SuppressWarnings("removal")
     @Test
     void shouldReturnResponse_WhenGetResponse_BeforeExceedingMaxFailoverAttempts() throws IOException {
         when(strategy.isRequestViable(any(Request.class))).thenReturn(true);
@@ -115,6 +117,7 @@ class ConsulFailoverInterceptorTest {
         verify(chain, times(3)).proceed(any(Request.class));
     }
 
+    @SuppressWarnings("removal")
     @Test
     void shouldThrowException_WhenMaxFailoverAttemptsExceeded() throws IOException {
         when(strategy.isRequestViable(any(Request.class))).thenReturn(true);

@@ -26,7 +26,10 @@ public interface ConsulFailoverStrategy {
      * @param previousRequest  The last request to go out the door.
      * @param previousResponse The response that was returned when the previousRequest was completed.
      * @return An optional failover request. This may return an empty optional, signaling that the request should be aborted
+     * @deprecated for removal in 2.0.0, replaced by {@link #computeNextStage(Request)}
      */
+    @Deprecated(since = "1.5.0", forRemoval = true)
+    @SuppressWarnings({ "java:S1133", "DeprecatedIsStillUsed" })
     @NonNull
     Optional<Request> computeNextStage(@NonNull Request previousRequest, @Nullable Response previousResponse);
 
