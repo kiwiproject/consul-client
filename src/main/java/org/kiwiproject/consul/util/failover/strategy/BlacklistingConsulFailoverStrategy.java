@@ -53,6 +53,12 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
 
     @NonNull
     @Override
+    public Optional<Request> computeNextStage(Request previousRequest) {
+        return computeNextStage(previousRequest, null);
+    }
+
+    @NonNull
+    @Override
     public Optional<Request> computeNextStage(@NonNull Request previousRequest, @Nullable Response previousResponse) {
 
         // Create a host and port

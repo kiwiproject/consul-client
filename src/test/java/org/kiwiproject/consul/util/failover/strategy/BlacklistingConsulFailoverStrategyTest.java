@@ -95,17 +95,14 @@ class BlacklistingConsulFailoverStrategyTest {
         @Test
         void getSecondUrlBackAfterFirstOneIsBlacklisted() {
             var previousRequest = new Request.Builder().url("https://1.2.3.4:8501/v1/agent/members").build();
-            Response previousResponse = null;
 
-            // noinspection ConstantValue
-            Optional<Request> result1 = strategy.computeNextStage(previousRequest, previousResponse);
+            Optional<Request> result1 = strategy.computeNextStage(previousRequest);
 
             assertThat(result1).isPresent();
             assertThat(result1.orElseThrow().url()).hasToString("https://1.2.3.4:8501/v1/agent/members");
 
             strategy.markRequestFailed(result1.get());
-            // noinspection ConstantValue
-            Optional<Request> result2 = strategy.computeNextStage(result1.get(), previousResponse);
+            Optional<Request> result2 = strategy.computeNextStage(result1.get());
 
             assertThat(result2).isPresent();
             assertThat(result2.orElseThrow().url()).hasToString("https://localhost:8501/v1/agent/members");
@@ -114,25 +111,21 @@ class BlacklistingConsulFailoverStrategyTest {
         @Test
         void getNoUrlBackAfterBothAreBlacklisted() {
             var previousRequest = new Request.Builder().url("https://1.2.3.4:8501/v1/agent/members").build();
-            Response previousResponse = null;
 
-            // noinspection ConstantValue
-            Optional<Request> result1 = strategy.computeNextStage(previousRequest, previousResponse);
+            Optional<Request> result1 = strategy.computeNextStage(previousRequest);
 
             assertThat(result1).isPresent();
             assertThat(result1.orElseThrow().url()).hasToString("https://1.2.3.4:8501/v1/agent/members");
 
             strategy.markRequestFailed(result1.get());
-            // noinspection ConstantValue
-            Optional<Request> result2 = strategy.computeNextStage(result1.get(), previousResponse);
+            Optional<Request> result2 = strategy.computeNextStage(result1.get());
 
             assertThat(result2).isPresent();
             assertThat(result2.orElseThrow().url()).hasToString("https://localhost:8501/v1/agent/members");
 
             strategy.markRequestFailed(result2.get());
 
-            // noinspection ConstantValue
-            Optional<Request> result3 = strategy.computeNextStage(result2.get(), previousResponse);
+            Optional<Request> result3 = strategy.computeNextStage(result2.get());
 
             assertThat(result3).isEmpty();
         }
@@ -207,10 +200,8 @@ class BlacklistingConsulFailoverStrategyTest {
         void shouldReturnRequest_WhenNoTargetsAreBlacklisted(int lastOctet) {
             var url = String.format("https://10.116.84.%d:8501/v1/agent/members", lastOctet);
             var previousRequest = new Request.Builder().url(url).build();
-            Response previousResponse = null;
 
-            // noinspection ConstantValue
-            Optional<Request> result = strategy.computeNextStage(previousRequest, previousResponse);
+            Optional<Request> result = strategy.computeNextStage(previousRequest);
 
             assertThat(result).isPresent();
             assertThat(result.orElseThrow().url()).hasToString(url);
@@ -223,12 +214,10 @@ class BlacklistingConsulFailoverStrategyTest {
         void shouldReturnRequest_WhenAtLeastOneTargetIsAvailable(int lastOctet) {
             var url = String.format("https://10.116.84.%d:8501/v1/agent/members", lastOctet);
             var previousRequest = new Request.Builder().url(url).build();
-            Response previousResponse = null;
 
             randomlyBlacklistAllButOneTarget(targets, strategy);
 
-            // noinspection ConstantValue
-            Optional<Request> result = strategy.computeNextStage(previousRequest, previousResponse);
+            Optional<Request> result = strategy.computeNextStage(previousRequest);
 
             assertThat(result).isPresent();
 
@@ -243,15 +232,13 @@ class BlacklistingConsulFailoverStrategyTest {
         void shouldReturnRequest_WhenBlacklistTimeoutExpires(int lastOctet) {
             var url = String.format("https://10.116.84.%d:8501/v1/agent/members", lastOctet);
             var previousRequest = new Request.Builder().url(url).build();
-            Response previousResponse = null;
 
             blacklistAll(targets);
 
             assertThat(strategy.blacklist).hasSameSizeAs(targets);
 
-            //noinspection ConstantValue
             await().atMost(Durations.TWO_HUNDRED_MILLISECONDS)
-                    .until(() -> strategy.computeNextStage(previousRequest, previousResponse).isPresent());
+                    .until(() -> strategy.computeNextStage(previousRequest).isPresent());
 
             assertThat(strategy.blacklist).hasSizeLessThan(targets.size());
         }
@@ -261,12 +248,10 @@ class BlacklistingConsulFailoverStrategyTest {
         void shouldNotReturnRequest_WhenAllTargetsAreBlacklisted(int lastOctet) {
             var url = String.format("https://10.116.84.%d:8501/v1/agent/members", lastOctet);
             var previousRequest = new Request.Builder().url(url).build();
-            Response previousResponse = null;
 
             blacklistAll(targets);
 
-            // noinspection ConstantValue
-            Optional<Request> result = strategy.computeNextStage(previousRequest, previousResponse);
+            Optional<Request> result = strategy.computeNextStage(previousRequest);
 
             assertThat(result).isEmpty();
 
