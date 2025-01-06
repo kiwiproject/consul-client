@@ -57,6 +57,7 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
         return computeNextStage(previousRequest, null);
     }
 
+    @SuppressWarnings("removal")
     @NonNull
     @Override
     public Optional<Request> computeNextStage(@NonNull Request previousRequest, @Nullable Response previousResponse) {

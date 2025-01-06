@@ -82,6 +82,7 @@ public class ConsulFailoverInterceptor implements Interceptor {
         return maxFailoverAttempts;
     }
 
+    @SuppressWarnings("removal")
     @NonNull
     @Override
     public Response intercept(Chain chain) {
