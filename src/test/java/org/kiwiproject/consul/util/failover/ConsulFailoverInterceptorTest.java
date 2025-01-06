@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.only;
@@ -72,12 +71,10 @@ class ConsulFailoverInterceptorTest {
         verify(strategy, only()).isRequestViable(any(Request.class));
     }
 
-    @SuppressWarnings("removal")
     @Test
     void shouldThrowException_WhenNextStageIsEmpty() {
         when(strategy.isRequestViable(any(Request.class))).thenReturn(true);
-        when(strategy.computeNextStage(any(Request.class), isNull(Response.class)))
-                .thenReturn(Optional.empty());
+        when(strategy.computeNextStage(any(Request.class))).thenReturn(Optional.empty());
 
         var chain = mock(Chain.class, RETURNS_DEEP_STUBS);
 
@@ -85,18 +82,16 @@ class ConsulFailoverInterceptorTest {
         assertThatExceptionOfType(ConsulException.class).isThrownBy(() -> interceptor.intercept(chain));
 
         verify(strategy).isRequestViable(any(Request.class));
-        verify(strategy).computeNextStage(any(Request.class), isNull(Response.class));
+        verify(strategy).computeNextStage(any(Request.class));
         verifyNoMoreInteractions(strategy);
     }
 
-    @SuppressWarnings("removal")
     @Test
     void shouldReturnResponse_WhenGetResponse_BeforeExceedingMaxFailoverAttempts() throws IOException {
         when(strategy.isRequestViable(any(Request.class))).thenReturn(true);
 
         var request = newMockRequest();
-        when(strategy.computeNextStage(any(Request.class), isNull(Response.class)))
-                .thenReturn(Optional.of(request));
+        when(strategy.computeNextStage(any(Request.class))).thenReturn(Optional.of(request));
 
         var response = mock(Response.class);
 
@@ -117,14 +112,12 @@ class ConsulFailoverInterceptorTest {
         verify(chain, times(3)).proceed(any(Request.class));
     }
 
-    @SuppressWarnings("removal")
     @Test
     void shouldThrowException_WhenMaxFailoverAttemptsExceeded() throws IOException {
         when(strategy.isRequestViable(any(Request.class))).thenReturn(true);
 
         var request = newMockRequest();
-        when(strategy.computeNextStage(any(Request.class), isNull(Response.class)))
-                .thenReturn(Optional.of(request));
+        when(strategy.computeNextStage(any(Request.class))).thenReturn(Optional.of(request));
 
         var chain = mock(Chain.class, RETURNS_DEEP_STUBS);
         when(chain.proceed(any(Request.class))).thenThrow(new RuntimeException("request to consul failed"));
