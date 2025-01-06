@@ -29,7 +29,7 @@ public interface ConsulFailoverStrategy {
      * @deprecated for removal in 2.0.0, replaced by {@link #computeNextStage(Request)}
      */
     @Deprecated(since = "1.5.0", forRemoval = true)
-    @SuppressWarnings({ "java:S1133", "DeprecatedIsStillUsed" })
+    @SuppressWarnings({ "java:S1133" })
     @NonNull
     Optional<Request> computeNextStage(@NonNull Request previousRequest, @Nullable Response previousResponse);
 
