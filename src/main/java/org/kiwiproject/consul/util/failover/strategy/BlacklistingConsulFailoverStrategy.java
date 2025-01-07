@@ -3,6 +3,7 @@ package org.kiwiproject.consul.util.failover.strategy;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static org.kiwiproject.consul.util.HostAndPorts.hostAndPortFromOkHttpRequest;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.net.HostAndPort;
@@ -63,7 +64,7 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
     public Optional<Request> computeNextStage(@NonNull Request previousRequest, @Nullable Response previousResponse) {
 
         // Create a host and port
-        var nextTarget = hostAndPortFromRequest(previousRequest);
+        var nextTarget = hostAndPortFromOkHttpRequest(previousRequest);
 
         // If the previous response failed, disallow this request from going through.
         // A 404 does NOT indicate a failure in this case, so it should never blacklist the previous target.
@@ -139,7 +140,7 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
     @Override
     public boolean isRequestViable(@NonNull Request request) {
         return atLeastOneTargetIsAvailable() ||
-                isNotBlacklisted(hostAndPortFromRequest(request)) ||
+                isNotBlacklisted(hostAndPortFromOkHttpRequest(request)) ||
                 findTargetNotInBlacklist().isPresent();
     }
 
@@ -157,12 +158,8 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
 
     @Override
     public void markRequestFailed(@NonNull Request request) {
-        var hostAndPort = hostAndPortFromRequest(request);
+        var hostAndPort = hostAndPortFromOkHttpRequest(request);
         addToBlacklist(hostAndPort);
-    }
-
-    private HostAndPort hostAndPortFromRequest(Request request) {
-        return HostAndPort.fromParts(request.url().host(), request.url().port());
     }
 
     @VisibleForTesting
