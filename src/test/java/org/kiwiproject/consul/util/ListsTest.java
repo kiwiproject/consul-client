@@ -53,4 +53,21 @@ class ListsTest {
             assertThat(Lists.isNullOrEmpty(list)).isFalse();
         }
     }
+
+    @Nested
+    class IsNotNullOrEmpty {
+
+        @ParameterizedTest
+        @NullAndEmptySource
+        void shouldReturnFalse_WhenListIsNullOrEmpty(List<String> list) {
+            assertThat(Lists.isNotNullOrEmpty(list)).isFalse();
+        }
+
+        @ParameterizedTest
+        @ValueSource(ints = { 1, 2, 3 })
+        void shouldReturnTrue_WhenListIsNotEmpty(int size) {
+            List<Integer> list = Collections.nCopies(size, 42);
+            assertThat(Lists.isNotNullOrEmpty(list)).isTrue();
+        }
+    }
 }
