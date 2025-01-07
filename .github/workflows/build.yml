@@ -15,7 +15,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java_version: [ '17', '21' ]
+        java_version: [ 17, 21 ]
+        consul-version: [ 1.16, 1.18, 1.19, 1.20 ]
+        include:
+          - java-version: 17
+            consul-version: 1.16
+          - java-version: 17
+            consul-version: 1.18
+          - java-version: 17
+            consul-version: 1.19
+          - java-version: 17
+            consul-version: 1.20
+          - java-version: 21
+            consul-version: 1.20
     steps:
       # Check out the project
       - uses: actions/checkout@v4
@@ -33,7 +45,7 @@ jobs:
       # Cache all the things
       - name: Cache SonarCloud packages
         uses: actions/cache@v4
-        if: ${{ env.SONAR_TOKEN != null && env.SONAR_TOKEN != '' && matrix.java_version == '17' }}
+        if: ${{ env.SONAR_TOKEN != null && env.SONAR_TOKEN != '' && matrix.java_version == '17' && matrix.consul-version == '1.20' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
@@ -61,9 +73,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         run: mvn -B -V verify
 
-      # Run Sonar Analysis (on Java version 17 only)
+      # Run Sonar Analysis (on Java version 17 and Consul 1.20 only)
       - name: Analyze with SonarCloud
-        if: ${{ env.SONAR_TOKEN != null && env.SONAR_TOKEN != '' && matrix.java_version == '17' }}
+        if: ${{ env.SONAR_TOKEN != null && env.SONAR_TOKEN != '' && matrix.java_version == '17' && matrix.consul-version == '1.20' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
