@@ -10,7 +10,7 @@ on:
       - '**/*.txt'
 jobs:
   build:
-    name: Build (Java ${{ matrix.java-version }}, Consul ${{ consul-version }})
+    name: Build
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
