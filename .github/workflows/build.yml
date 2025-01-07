@@ -15,15 +15,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java-version: [ 17, 21 ]
-        consul-version: [ 1.16, 1.18, 1.19, 1.20 ]
+        java-version: [ '17', '21' ]
+        # need to quote versions ending in 0, otherwise they're truncated
+        # for consistency, just quote everything
+        consul-version: [ '1.16', '1.18', '1.19', '1.20' ]
         exclude:
-          - java-version: 21
-            consul-version: 1.16
-          - java-version: 21
-            consul-version: 1.18
-          - java-version: 21
-            consul-version: 1.19
+          - java-version: '21'
+            consul-version: '1.16'
+          - java-version: '21'
+            consul-version: '1.18'
+          - java-version: '21'
+            consul-version: '1.19'
 
     env:
       CONSUL_IMAGE_VERSION: ${{ matrix.consul-version }}
