@@ -19,6 +19,10 @@ jobs:
         # Need to quote versions ending in 0, otherwise they're truncated
         # such that 1.20 becomes 1.2. For correctness and consistency, quote everything.
         consul-version: [ '1.16', '1.18', '1.19', '1.20' ]
+
+        # Only test against one Consul version when using JDK 21. If they
+        # all worked with JDK 17, it's probably good enough to only test
+        # against the latest Consul version on JDK 21.
         exclude:
           - java-version: '21'
             consul-version: '1.16'
