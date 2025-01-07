@@ -19,6 +19,7 @@ import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.time.Duration;
@@ -35,6 +36,14 @@ import java.util.stream.Stream;
 class BlacklistingConsulFailoverStrategyTest {
 
     private BlacklistingConsulFailoverStrategy strategy;
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    void shouldRequireNonEmptyTargetsCollection(Collection<HostAndPort> targets) {
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> new BlacklistingConsulFailoverStrategy(targets, 25))
+                .withMessage("targets must not be null or empty");
+    }
 
     @ParameterizedTest
     @MethodSource("invalidTimeouts")
