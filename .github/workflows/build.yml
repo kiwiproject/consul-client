@@ -17,17 +17,13 @@ jobs:
       matrix:
         java_version: [ 17, 21 ]
         consul-version: [ 1.16, 1.18, 1.19, 1.20 ]
-        include:
-          - java-version: 17
-            consul-version: 1.16
-          - java-version: 17
-            consul-version: 1.18
-          - java-version: 17
-            consul-version: 1.19
-          - java-version: 17
-            consul-version: 1.20
+        exclude:
           - java-version: 21
-            consul-version: 1.20
+            consul-version: 1.16
+          - java-version: 21
+            consul-version: 1.18
+          - java-version: 21
+            consul-version: 1.19
     steps:
       # Check out the project
       - uses: actions/checkout@v4
@@ -66,14 +62,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         run: mvn -B -V compile
 
-      # Run tests when Java version > 17 (Sonar runs tests and analysis on JDK 17)
+      # Run tests except on JDK 17 and Consul 1.20 (Sonar runs tests and analysis on JDK 17 / Consul 1.20)
       - name: Run tests
-        if: ${{ matrix.java_version != '17' }}
+        if: ${{ !(matrix.java-version == '17' && matrix.consul-version == '1.20.0') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         run: mvn -B -V verify
 
-      # Run Sonar Analysis (on Java version 17 and Consul 1.20 only)
+      # Run Sonar Analysis (on Java version 17 / Consul 1.20 only)
       - name: Analyze with SonarCloud
         if: ${{ env.SONAR_TOKEN != null && env.SONAR_TOKEN != '' && matrix.java_version == '17' && matrix.consul-version == '1.20' }}
         env:
