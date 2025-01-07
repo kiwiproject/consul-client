@@ -16,8 +16,8 @@ jobs:
       fail-fast: false
       matrix:
         java-version: [ '17', '21' ]
-        # need to quote versions ending in 0, otherwise they're truncated
-        # for consistency, just quote everything
+        # Need to quote versions ending in 0, otherwise they're truncated
+        # such that 1.20 becomes 1.2. For correctness and consistency, quote everything.
         consul-version: [ '1.16', '1.18', '1.19', '1.20' ]
         exclude:
           - java-version: '21'
