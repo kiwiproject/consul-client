@@ -64,7 +64,7 @@ jobs:
 
       # Run tests except on JDK 17 and Consul 1.20 (Sonar runs tests and analysis on JDK 17 / Consul 1.20)
       - name: Run tests
-        if: ${{ !(matrix.java-version == '17' && matrix.consul-version == '1.20.0') }}
+        if: ${{ !(matrix.java-version == '17' && matrix.consul-version == '1.20') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         run: mvn -B -V verify
