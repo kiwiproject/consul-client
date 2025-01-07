@@ -24,6 +24,10 @@ jobs:
             consul-version: 1.18
           - java-version: 21
             consul-version: 1.19
+
+    env:
+      CONSUL_IMAGE_VERSION: ${{ matrix.consul-version }}
+
     steps:
       # Check out the project
       - uses: actions/checkout@v4
