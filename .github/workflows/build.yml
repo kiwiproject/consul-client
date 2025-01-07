@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java_version: [ 17, 21 ]
+        java-version: [ 17, 21 ]
         consul-version: [ 1.16, 1.18, 1.19, 1.20 ]
         exclude:
           - java-version: 21
@@ -31,17 +31,17 @@ jobs:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
       # Set up the version of Java
-      - name: Set up JDK ${{ matrix.java_version }}
+      - name: Set up JDK ${{ matrix.java-version }}
         uses: actions/setup-java@v4
         with:
-          java-version: ${{ matrix.java_version }}
+          java-version: ${{ matrix.java-version }}
           distribution: 'zulu'
           check-latest: true
 
       # Cache all the things
       - name: Cache SonarCloud packages
         uses: actions/cache@v4
-        if: ${{ env.SONAR_TOKEN != null && env.SONAR_TOKEN != '' && matrix.java_version == '17' && matrix.consul-version == '1.20' }}
+        if: ${{ env.SONAR_TOKEN != null && env.SONAR_TOKEN != '' && matrix.java-version == '17' && matrix.consul-version == '1.20' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
@@ -71,7 +71,7 @@ jobs:
 
       # Run Sonar Analysis (on Java version 17 / Consul 1.20 only)
       - name: Analyze with SonarCloud
-        if: ${{ env.SONAR_TOKEN != null && env.SONAR_TOKEN != '' && matrix.java_version == '17' && matrix.consul-version == '1.20' }}
+        if: ${{ env.SONAR_TOKEN != null && env.SONAR_TOKEN != '' && matrix.java-version == '17' && matrix.consul-version == '1.20' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
