@@ -29,7 +29,7 @@ public class ConsulTestcontainers {
      * or {@code "hashicorp/consul:1.20"}.
      * <p>
      * By default, this will be {@code "hashicorp/consul:latest"}. To change the value, you can
-     * set the {@code CONSUL_VERSION} environment variable to the <em>tag name</em> that you
+     * set the {@code CONSUL_IMAGE_VERSION} environment variable to the <em>tag name</em> that you
      * want to use, such as {@code "1.18.2"}. The prefix is automatically prepended to the
      * version.
      *
