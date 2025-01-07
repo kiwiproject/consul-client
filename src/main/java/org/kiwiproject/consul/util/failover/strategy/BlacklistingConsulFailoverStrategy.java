@@ -29,11 +29,11 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
     @VisibleForTesting
     final Map<HostAndPort, Instant> blacklist = new ConcurrentHashMap<>();
 
-    // The map of viable targets
-    private final Collection<HostAndPort> targets;
+    // The list of viable targets
+    private final List<HostAndPort> targets;
     private final int numberOfTargets;
 
-    // The blacklist timeout
+    // The blacklist timeout (in milliseconds)
     private final long timeout;
 
     /**
@@ -46,8 +46,10 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
      * @param timeout The timeout in milliseconds
      */
     public BlacklistingConsulFailoverStrategy(Collection<HostAndPort> targets, long timeout) {
+        checkArgument(nonNull(targets) && !targets.isEmpty(), "targets must not be null or empty");
         this.targets = List.copyOf(targets);
         this.numberOfTargets = this.targets.size();
+        
         checkArgument(timeout > 0, "timeout must be a positive number of milliseconds");
         this.timeout = timeout;
     }
