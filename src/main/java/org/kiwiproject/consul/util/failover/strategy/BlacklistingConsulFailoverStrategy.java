@@ -13,6 +13,7 @@ import okhttp3.Response;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
@@ -21,6 +22,9 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * A {@link ConsulFailoverStrategy} that blacklists Consul servers for a certain amount
+ * of time before trying them again.
+ *
  * @author Troy Heanssgen
  */
 public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrategy {
@@ -46,12 +50,27 @@ public class BlacklistingConsulFailoverStrategy implements ConsulFailoverStrateg
      * @param timeout The timeout in milliseconds
      */
     public BlacklistingConsulFailoverStrategy(Collection<HostAndPort> targets, long timeout) {
+        this(targets, Duration.ofMillis(timeout));
+    }
+
+    /**
+     * Constructs a blacklisting strategy with a collection of hosts and ports.
+     * <p>
+     * The timeout is the amount of time that must pass before a blacklisted target
+     * host can be removed from the blacklist.
+     *
+     * @param targets A set of viable hosts
+     * @param timeout The timeout
+     */
+    public BlacklistingConsulFailoverStrategy(Collection<HostAndPort> targets, Duration timeout) {
         checkArgument(nonNull(targets) && !targets.isEmpty(), "targets must not be null or empty");
         this.targets = List.copyOf(targets);
         this.numberOfTargets = this.targets.size();
-        
-        checkArgument(timeout > 0, "timeout must be a positive number of milliseconds");
-        this.timeout = timeout;
+
+        checkArgument(nonNull(timeout), "timeout must not be null");
+        var timeoutMillis = timeout.toMillis();
+        checkArgument(timeoutMillis > 0, "timeout must be positive");
+        this.timeout = timeoutMillis;
     }
 
     @NonNull
