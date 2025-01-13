@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toCollection;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.awaitility.Awaitility.await;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,42 +38,66 @@ class BlacklistingConsulFailoverStrategyTest {
 
     private BlacklistingConsulFailoverStrategy strategy;
 
-    @ParameterizedTest
-    @NullAndEmptySource
-    void shouldRequireNonEmptyTargetsCollection(Collection<HostAndPort> targets) {
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> new BlacklistingConsulFailoverStrategy(targets, 25))
-                .withMessage("targets must not be null or empty");
-    }
+    @Nested
+    class Constructors {
 
-    @ParameterizedTest
-    @MethodSource("invalidTimeouts")
-    void shouldRequirePositiveTimeout(int timeout) {
-        var targets = List.of(
-                HostAndPort.fromParts("10.116.84.1", 8501),
-                HostAndPort.fromParts("10.116.84.2", 8501),
-                HostAndPort.fromParts("10.116.84.3", 8501)
-        );
+        @ParameterizedTest
+        @NullAndEmptySource
+        void shouldRequireNonEmptyTargetsCollection(Collection<HostAndPort> targets) {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> new BlacklistingConsulFailoverStrategy(targets, 25))
+                    .withMessage("targets must not be null or empty");
+        }
 
-        assertThatIllegalArgumentException()
-                .isThrownBy(() -> new BlacklistingConsulFailoverStrategy(targets, timeout))
-                .withMessage("timeout must be a positive number of milliseconds");
-    }
+        @ParameterizedTest
+        @MethodSource("invalidTimeouts")
+        void shouldRequirePositiveTimeout(int timeoutMillis) {
+            var targets = validTargets();
 
-    static Stream<Integer> invalidTimeouts() {
-        var smallNegativeNumbers = RandomGenerator.getDefault()
-                .ints(-500, 0)
-                .limit(10)
-                .boxed();
+            var expectedErrorMessage = "timeout must be positive";
+            assertAll(
+                    () -> assertThatIllegalArgumentException()
+                            .isThrownBy(() -> new BlacklistingConsulFailoverStrategy(targets, timeoutMillis))
+                            .withMessage(expectedErrorMessage),
 
-        var randomNegativeNumbers = RandomGenerator.getDefault()
-                .ints(Integer.MIN_VALUE, 0)
-                .limit(25)
-                .boxed();
+                    () -> assertThatIllegalArgumentException()
+                            .isThrownBy(() -> new BlacklistingConsulFailoverStrategy(targets, Duration.ofMillis(timeoutMillis)))
+                            .withMessage(expectedErrorMessage)
+            );
+        }
 
-        var negativeNumbers = Stream.concat(smallNegativeNumbers, randomNegativeNumbers);
+        @Test
+        void shouldRequireNonNullTimeoutDuration() {
+            var targets = validTargets();
 
-        return Stream.concat(Stream.of(0), negativeNumbers);
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> new BlacklistingConsulFailoverStrategy(targets, null))
+                    .withMessage("timeout must not be null");
+        }
+
+        private static List<HostAndPort> validTargets() {
+            return List.of(
+                    HostAndPort.fromParts("10.116.84.1", 8501),
+                    HostAndPort.fromParts("10.116.84.2", 8501),
+                    HostAndPort.fromParts("10.116.84.3", 8501)
+            );
+        }
+
+        static Stream<Integer> invalidTimeouts() {
+            var smallNegativeNumbers = RandomGenerator.getDefault()
+                    .ints(-500, 0)
+                    .limit(10)
+                    .boxed();
+
+            var randomNegativeNumbers = RandomGenerator.getDefault()
+                    .ints(Integer.MIN_VALUE, 0)
+                    .limit(25)
+                    .boxed();
+
+            var negativeNumbers = Stream.concat(smallNegativeNumbers, randomNegativeNumbers);
+
+            return Stream.concat(Stream.of(0), negativeNumbers);
+        }
     }
 
     @Nested
