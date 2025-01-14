@@ -76,9 +76,14 @@ public class RoundRobinConsulFailoverStrategy implements ConsulFailoverStrategy 
         var indexOfNextTarget = targets.indexOf(nextTarget);
 
         if (lastTargetIndex.get() == indexOfNextTarget) {
-            var nextIndex = nextCircularListIndex(indexOfNextTarget);
+            var nextIndex = indexOfNextTarget + 1;
 
-            lastTargetIndex.set(nextIndex);
+            // If all targets have failed, stop trying
+            if (nextIndex == numberOfTargets) {
+                return Optional.empty();
+            }
+
+            lastTargetIndex.compareAndSet(indexOfNextTarget, nextIndex);
 
             nextTarget = targets.get(nextIndex);
 
@@ -90,10 +95,6 @@ public class RoundRobinConsulFailoverStrategy implements ConsulFailoverStrategy 
                 .port(nextTarget.getPort())
                 .build();
         return Optional.of(previousRequest.newBuilder().url(nextURL).build());
-    }
-
-    private int nextCircularListIndex(int currentIndex) {
-        return (currentIndex + 1) % numberOfTargets;
     }
 
     private void sleepIfPositiveDelay() {

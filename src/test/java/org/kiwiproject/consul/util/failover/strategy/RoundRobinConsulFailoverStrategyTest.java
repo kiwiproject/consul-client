@@ -104,7 +104,7 @@ class RoundRobinConsulFailoverStrategyTest {
         }
 
         @Test
-        void shouldReturnExpectedTarget_AfterRequestFailure_AndWrapAroundToFirstTarget() {
+        void shouldReturnExpectedTarget_AfterRequestFailure_AndStopAfterGoingThroughAllTargets() {
             var request1 = newRequest("https://10.116.42.1:8501/v1/agent/members");
 
             // need to mark initial request as failed (but not on later calls
@@ -119,29 +119,10 @@ class RoundRobinConsulFailoverStrategyTest {
             assertThat(request3.url())
                     .hasToString("https://10.116.42.3:8501/v1/agent/members");
 
-            var request4 = strategy.computeNextStage(request3).orElseThrow();
-            assertThat(request4.url())
-                    .hasToString("https://10.116.42.1:8501/v1/agent/members");
-
-            var request5 = strategy.computeNextStage(request4).orElseThrow();
-            assertThat(request5.url())
-                    .hasToString("https://10.116.42.2:8501/v1/agent/members");
-        }
-
-        @ParameterizedTest
-        @ValueSource(ints = { 0, 1, 2 })
-        void shouldReturnExpectedNextTarget(int index) {
-            var target = targets.get(index);
-            var request = newMembersRequest(target);
-
-            strategy.markRequestFailed(request);
-
-            var nextRequest = strategy.computeNextStage(request).orElseThrow();
-
-            var nextIndex = (index == 2) ? 0 : index + 1;
-            var nextTarget = targets.get(nextIndex);
-            var expectedNextUrl = membersUrl(nextTarget);
-            assertThat(nextRequest.url()).hasToString(expectedNextUrl);
+            var request4 = strategy.computeNextStage(request3);
+             assertThat(request4)
+                    .describedAs("we should get an empty Request once we've tried all targets")
+                    .isEmpty();
         }
 
         @Nested
