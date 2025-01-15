@@ -6,7 +6,6 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOf
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -68,7 +67,9 @@ class ConsulFailoverInterceptorTest {
         // noinspection resource
         assertThatExceptionOfType(ConsulException.class).isThrownBy(() -> interceptor.intercept(chain));
 
-        verify(strategy, only()).isRequestViable(any(Request.class));
+        verify(strategy).isRequestViable(any(Request.class));
+        verify(strategy).reset();
+        verifyNoMoreInteractions(strategy);
     }
 
     @Test
@@ -83,6 +84,7 @@ class ConsulFailoverInterceptorTest {
 
         verify(strategy).isRequestViable(any(Request.class));
         verify(strategy).computeNextStage(any(Request.class));
+        verify(strategy).reset();
         verifyNoMoreInteractions(strategy);
     }
 

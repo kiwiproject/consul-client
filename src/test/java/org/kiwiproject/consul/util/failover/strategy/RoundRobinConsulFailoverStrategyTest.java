@@ -202,7 +202,7 @@ class RoundRobinConsulFailoverStrategyTest {
 
             strategy.markRequestFailed(request);
 
-            assertThat(strategy.lastTargetIndex).hasValue(index);
+            assertThat(strategy.lastTargetIndexThreadLocal.get()).hasValue(index);
         }
     }
 

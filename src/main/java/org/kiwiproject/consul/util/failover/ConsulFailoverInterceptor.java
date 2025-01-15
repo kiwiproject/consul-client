@@ -17,6 +17,11 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 import java.util.Optional;
 
+/**
+ * An OkHttp {@link Interceptor} that uses a {@link ConsulFailoverStrategy} to determine
+ * whether to proceed with a {@link Request} or whether to rewrite the request to a
+ * new (failover) Consul server.
+ */
 public class ConsulFailoverInterceptor implements Interceptor {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConsulFailoverInterceptor.class);
@@ -86,50 +91,54 @@ public class ConsulFailoverInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) {
 
-        // The original request
-        Request originalRequest = chain.request();
+        try {
+            // The original request
+            Request originalRequest = chain.request();
 
-        // If it is possible to do a failover on the first request (as in, one or more
-        // targets are viable)
-        if (strategy.isRequestViable(originalRequest)) {
+            // If it is possible to do a failover on the first request (as in, one or more
+            // targets are viable)
+            if (strategy.isRequestViable(originalRequest)) {
 
-            // Initially, we have an inflight request
-            Request previousRequest = originalRequest;
+                // Initially, we have an inflight request
+                Request previousRequest = originalRequest;
 
-            Optional<Request> maybeNextRequest;
-            var currentAttempt = 1;
+                Optional<Request> maybeNextRequest;
+                var currentAttempt = 1;
 
-            // Get the next viable request
-            while ((maybeNextRequest = strategy.computeNextStage(previousRequest)).isPresent()) {
-                // Get the response from the last viable request
-                Exception exception;
-                Request nextRequest = maybeNextRequest.orElseThrow(IllegalStateException::new);
-                try {
+                // Get the next viable request
+                while ((maybeNextRequest = strategy.computeNextStage(previousRequest)).isPresent()) {
+                    // Get the response from the last viable request
+                    Exception exception;
+                    Request nextRequest = maybeNextRequest.orElseThrow(IllegalStateException::new);
+                    try {
 
-                    // Cache for the next cycle if needed
-                    previousRequest = nextRequest;
+                        // Cache for the next cycle if needed
+                        previousRequest = nextRequest;
 
-                    // Anything other than an exception is valid here.
-                    // This is because a 400-series error is a valid code (Permission Denied/Key Not Found)
-                    return chain.proceed(nextRequest);
-                } catch (Exception ex) {
-                    logExceptionThrownOnRequest(LOG, ex, nextRequest);
-                    strategy.markRequestFailed(nextRequest);
-                    exception = ex;
+                        // Anything other than an exception is valid here.
+                        // This is because a 400-series error is a valid code (Permission Denied/Key Not Found)
+                        return chain.proceed(nextRequest);
+                    } catch (Exception ex) {
+                        logExceptionThrownOnRequest(LOG, ex, nextRequest);
+                        strategy.markRequestFailed(nextRequest);
+                        exception = ex;
+                    }
+
+                    if (++currentAttempt > maxFailoverAttempts) {
+                        throw new MaxFailoverAttemptsExceededException(
+                                String.format("Reached max failover attempts (%d). Giving up.", maxFailoverAttempts),
+                                exception);
+                    }
                 }
 
-                if (++currentAttempt > maxFailoverAttempts) {
-                    throw new MaxFailoverAttemptsExceededException(
-                            String.format("Reached max failover attempts (%d). Giving up.", maxFailoverAttempts),
-                            exception);
-                }
+                throw new ConsulException("Unable to successfully determine a viable host for communication.");
+
+            } else {
+                throw new ConsulException(
+                        "Consul failover strategy has determined that there are no viable hosts remaining.");
             }
-
-            throw new ConsulException("Unable to successfully determine a viable host for communication.");
-
-        } else {
-            throw new ConsulException(
-                    "Consul failover strategy has determined that there are no viable hosts remaining.");
+        } finally {
+            strategy.reset();
         }
     }
 

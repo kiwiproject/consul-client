@@ -7,6 +7,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.Optional;
 
+/**
+ * Defines a contract for selecting a Consul failover server when a request fails.
+ * <p>
+ * Implementations of this interface are used by
+ * {@link org.kiwiproject.consul.util.failover.ConsulFailoverInterceptor ConsulFailoverInterceptor}.
+ */
 public interface ConsulFailoverStrategy {
 
     /**
@@ -52,4 +58,16 @@ public interface ConsulFailoverStrategy {
      */
     void markRequestFailed(@NonNull Request request);
 
+    /**
+     * Reset the state when all options are exhausted (if needed).
+     * <p>
+     * Use this in implementations that need to keep internal state
+     * during a failover attempt. If the implementation is stateless,
+     * then there is no need to implement this method.
+     * <p>
+     * The default implementation does nothing.
+     */
+    default void reset() {
+        // no-op
+    }
 }

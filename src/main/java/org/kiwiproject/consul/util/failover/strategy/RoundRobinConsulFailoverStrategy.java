@@ -26,7 +26,8 @@ public class RoundRobinConsulFailoverStrategy implements ConsulFailoverStrategy 
 
     // set to invalid index for initial state, so that we always try the first target initially
     @VisibleForTesting
-    final AtomicInteger lastTargetIndex = new AtomicInteger(-1);
+    final ThreadLocal<AtomicInteger> lastTargetIndexThreadLocal =
+            ThreadLocal.withInitial(() -> new AtomicInteger(-1));
 
     private final List<HostAndPort> targets;
     private final int numberOfTargets;
@@ -74,6 +75,7 @@ public class RoundRobinConsulFailoverStrategy implements ConsulFailoverStrategy 
     public Optional<Request> computeNextStage(@NonNull Request previousRequest, @Nullable Response previousResponse) {
         var nextTarget = hostAndPortFromOkHttpRequest(previousRequest);
         var indexOfNextTarget = targets.indexOf(nextTarget);
+        var lastTargetIndex = lastTargetIndexThreadLocal.get();
 
         if (lastTargetIndex.get() == indexOfNextTarget) {
             var nextIndex = indexOfNextTarget + 1;
@@ -112,6 +114,12 @@ public class RoundRobinConsulFailoverStrategy implements ConsulFailoverStrategy 
     @Override
     public void markRequestFailed(@NonNull Request request) {
         var hostAndPort = hostAndPortFromOkHttpRequest(request);
+        var lastTargetIndex = lastTargetIndexThreadLocal.get();
         lastTargetIndex.set(targets.indexOf(hostAndPort));
+    }
+
+    @Override
+    public void reset() {
+        lastTargetIndexThreadLocal.remove();
     }
 }
