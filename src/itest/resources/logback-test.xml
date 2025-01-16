@@ -5,7 +5,10 @@
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
-    <root level="DEBUG">
+
+    <logger name="org.kiwiproject.consul" level="DEBUG"/>
+
+    <root level="WARN">
         <appender-ref ref="CONSOLE" />
     </root>
 </configuration>
