@@ -195,6 +195,23 @@ class RoundRobinConsulFailoverStrategyTest {
         }
     }
 
+    @Nested
+    class Reset {
+
+        @Test
+        void shouldResetLastTargetIndex() {
+            var request = newRequest("https://10.116.42.1:8501/v1/agent/members");
+
+            strategy.markRequestFailed(request);
+
+            assertThat(strategy.lastTargetIndexThreadLocal.get()).isZero();
+
+            strategy.reset();
+
+            assertThat(strategy.lastTargetIndexThreadLocal.get()).isEqualTo(-1);
+        }
+    }
+
     private static Request newMembersRequest(HostAndPort target) {
         var url = membersUrl(target);
         return newRequest(url);
