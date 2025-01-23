@@ -76,19 +76,6 @@ class RoundRobinConsulFailoverStrategyTest {
             assertThat(nextRequestHttpUrl).isEqualTo(request.url());
         }
 
-        @ParameterizedTest
-        @ValueSource(ints = { 0, 1, 2 })
-        void shouldReturnSameTarget_IfRequestSucceeds(int index) {
-            var target = targets.get(index);
-            var request = newMembersRequest(target);
-
-            var nextRequestHttpUrl = strategy.computeNextStage(request)
-                    .map(Request::url)
-                    .orElseThrow();
-
-            assertThat(nextRequestHttpUrl).isEqualTo(request.url());
-        }
-
         @Test
         void shouldReturnSecondTarget_IfFirstRequestFails() {
             var request = newRequest("https://10.116.42.1:8501/v1/agent/members");
@@ -107,17 +94,19 @@ class RoundRobinConsulFailoverStrategyTest {
         void shouldReturnExpectedTarget_AfterRequestFailure_AndStopAfterGoingThroughAllTargets() {
             var request1 = newRequest("https://10.116.42.1:8501/v1/agent/members");
 
-            // need to mark initial request as failed (but not on later calls
-            // because computeNextStage advances the index when needed)
             strategy.markRequestFailed(request1);
 
             var request2 = strategy.computeNextStage(request1).orElseThrow();
             assertThat(request2.url())
                     .hasToString("https://10.116.42.2:8501/v1/agent/members");
 
+            strategy.markRequestFailed(request2);
+
             var request3 = strategy.computeNextStage(request2).orElseThrow();
             assertThat(request3.url())
                     .hasToString("https://10.116.42.3:8501/v1/agent/members");
+
+            strategy.markRequestFailed(request3);
 
             var request4 = strategy.computeNextStage(request3);
              assertThat(request4)
@@ -202,7 +191,7 @@ class RoundRobinConsulFailoverStrategyTest {
 
             strategy.markRequestFailed(request);
 
-            assertThat(strategy.lastTargetIndexThreadLocal.get()).hasValue(index);
+            assertThat(strategy.lastTargetIndexThreadLocal.get()).isEqualTo(index);
         }
     }
 

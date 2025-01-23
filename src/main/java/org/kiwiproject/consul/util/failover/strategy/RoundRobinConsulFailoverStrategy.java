@@ -17,7 +17,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A {@link ConsulFailoverStrategy} that round-robins a list of Consul servers.
@@ -26,8 +25,7 @@ public class RoundRobinConsulFailoverStrategy implements ConsulFailoverStrategy 
 
     // set to invalid index for initial state, so that we always try the first target initially
     @VisibleForTesting
-    final ThreadLocal<AtomicInteger> lastTargetIndexThreadLocal =
-            ThreadLocal.withInitial(() -> new AtomicInteger(-1));
+    final ThreadLocal<Integer> lastTargetIndexThreadLocal = ThreadLocal.withInitial(() -> -1);
 
     private final List<HostAndPort> targets;
     private final int numberOfTargets;
@@ -73,25 +71,17 @@ public class RoundRobinConsulFailoverStrategy implements ConsulFailoverStrategy 
     @Override
     @NonNull
     public Optional<Request> computeNextStage(@NonNull Request previousRequest, @Nullable Response previousResponse) {
-        var nextTarget = hostAndPortFromOkHttpRequest(previousRequest);
-        var indexOfNextTarget = targets.indexOf(nextTarget);
-        var lastTargetIndex = lastTargetIndexThreadLocal.get();
+        var nextIndex = lastTargetIndexThreadLocal.get() + 1;
 
-        if (lastTargetIndex.get() == indexOfNextTarget) {
-            var nextIndex = indexOfNextTarget + 1;
+        if (nextIndex >= numberOfTargets) {
+            return Optional.empty();
+        }
 
-            // If all targets have failed, stop trying
-            if (nextIndex == numberOfTargets) {
-                return Optional.empty();
-            }
-
-            lastTargetIndex.compareAndSet(indexOfNextTarget, nextIndex);
-
-            nextTarget = targets.get(nextIndex);
-
+        if (nextIndex > 0) {
             sleepIfPositiveDelay();
         }
 
+        var nextTarget = targets.get(nextIndex);
         HttpUrl nextURL = previousRequest.url().newBuilder()
                 .host(nextTarget.getHost())
                 .port(nextTarget.getPort())
@@ -114,8 +104,7 @@ public class RoundRobinConsulFailoverStrategy implements ConsulFailoverStrategy 
     @Override
     public void markRequestFailed(@NonNull Request request) {
         var hostAndPort = hostAndPortFromOkHttpRequest(request);
-        var lastTargetIndex = lastTargetIndexThreadLocal.get();
-        lastTargetIndex.set(targets.indexOf(hostAndPort));
+        lastTargetIndexThreadLocal.set(targets.indexOf(hostAndPort));
     }
 
     @Override
