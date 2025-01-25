@@ -3,7 +3,6 @@ package org.kiwiproject.consul.util.failover.strategy;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.ThreadUtils.sleepQuietly;
-import static org.kiwiproject.consul.util.HostAndPorts.hostAndPortFromOkHttpRequest;
 import static org.kiwiproject.consul.util.Lists.isNotNullOrEmpty;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -52,7 +51,7 @@ public class RoundRobinConsulFailoverStrategy implements ConsulFailoverStrategy 
     public RoundRobinConsulFailoverStrategy(List<HostAndPort> targets, Duration delayAfterFailure) {
         checkArgument(isNotNullOrEmpty(targets), "targets must not be null or empty");
         this.targets = List.copyOf(targets);
-        this.numberOfTargets = targets.size();
+        this.numberOfTargets = this.targets.size();
 
         checkArgument(nonNull(delayAfterFailure), "delayAfterFailure must not be null");
         var millis = delayAfterFailure.toMillis();
@@ -103,8 +102,7 @@ public class RoundRobinConsulFailoverStrategy implements ConsulFailoverStrategy 
 
     @Override
     public void markRequestFailed(@NonNull Request request) {
-        var hostAndPort = hostAndPortFromOkHttpRequest(request);
-        lastTargetIndexThreadLocal.set(targets.indexOf(hostAndPort));
+        lastTargetIndexThreadLocal.set(lastTargetIndexThreadLocal.get() + 1);
     }
 
     @Override

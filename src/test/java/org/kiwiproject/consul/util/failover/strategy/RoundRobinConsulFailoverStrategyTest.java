@@ -185,9 +185,11 @@ class RoundRobinConsulFailoverStrategyTest {
 
         @ParameterizedTest
         @ValueSource(ints = { 0, 1, 2 })
-        void shouldSetLastTargetIndex_ToIndexOfHostAndPortFromRequest(int index) {
+        void shouldSetLastTargetIndex_ToNextIndex(int index) {
             var target = targets.get(index);
             var request = newMembersRequest(target);
+
+            strategy.lastTargetIndexThreadLocal.set(index - 1);
 
             strategy.markRequestFailed(request);
 
