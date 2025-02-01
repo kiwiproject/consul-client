@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.kiwiproject</groupId>
         <artifactId>kiwi-parent</artifactId>
-        <version>3.0.21</version>
+        <version>3.0.22</version>
     </parent>
 
     <artifactId>consul-client</artifactId>
@@ -54,7 +54,7 @@
     <properties>
         <!-- Versions for required dependencies -->
         <immutables.version>2.10.1</immutables.version>
-        <kiwi-bom.version>2.0.20</kiwi-bom.version>
+        <kiwi-bom.version>2.0.21</kiwi-bom.version>
         <okio.version>3.10.2</okio.version>
         <retrofit.version>2.11.0</retrofit.version>
 
