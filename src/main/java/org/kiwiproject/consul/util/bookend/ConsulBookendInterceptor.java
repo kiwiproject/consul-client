@@ -3,7 +3,7 @@ package org.kiwiproject.consul.util.bookend;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.io.IOException;
 
@@ -15,7 +15,7 @@ public class ConsulBookendInterceptor implements Interceptor {
         this.consulBookend = consulBookend;
     }
 
-    @NotNull
+    @NonNull
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();

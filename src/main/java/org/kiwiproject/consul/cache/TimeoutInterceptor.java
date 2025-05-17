@@ -7,8 +7,8 @@ import com.google.common.base.Strings;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.kiwiproject.consul.config.CacheConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +27,7 @@ public class TimeoutInterceptor implements Interceptor {
         this.config = config;
     }
 
-    @NotNull
+    @NonNull
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();

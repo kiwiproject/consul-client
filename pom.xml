@@ -93,11 +93,6 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.checkerframework</groupId>
-            <artifactId>checker-qual</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
@@ -111,6 +106,11 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
         </dependency>
 
         <dependency>
@@ -294,8 +294,8 @@
                                     <shadedPattern>org.kiwiproject.google</shadedPattern>
                                 </relocation>
                                 <relocation>
-                                    <pattern>org.checkerframework</pattern>
-                                    <shadedPattern>org.kiwiproject.checkerframework</shadedPattern>
+                                    <pattern>org.jspecify</pattern>
+                                    <shadedPattern>org.kiwiproject.jspecify</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

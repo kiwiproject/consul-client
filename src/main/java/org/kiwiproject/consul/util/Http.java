@@ -7,7 +7,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
 import okhttp3.Headers;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.jspecify.annotations.NonNull;
 import org.kiwiproject.consul.ConsulException;
 import org.kiwiproject.consul.async.Callback;
 import org.kiwiproject.consul.async.ConsulResponseCallback;

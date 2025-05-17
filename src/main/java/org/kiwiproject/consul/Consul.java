@@ -14,7 +14,7 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.internal.Util;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.kiwiproject.consul.cache.TimeoutInterceptor;
 import org.kiwiproject.consul.config.ClientConfig;
 import org.kiwiproject.consul.monitoring.ClientEventCallback;
