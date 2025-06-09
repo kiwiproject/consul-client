@@ -62,7 +62,7 @@
         <!-- nothing to see here yet...move along...move along... -->
 
         <!-- Versions for plugins -->
-        <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
+        <build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
 
         <!-- Sonar properties -->
         <sonar.projectKey>kiwiproject_consul-client</sonar.projectKey>
