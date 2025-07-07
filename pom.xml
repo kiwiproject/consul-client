@@ -55,7 +55,7 @@
         <!-- Versions for required dependencies -->
         <immutables.version>2.11.0</immutables.version>
         <kiwi-bom.version>2.0.26</kiwi-bom.version>
-        <okio.version>3.14.0</okio.version>
+        <okio.version>3.15.0</okio.version>
         <retrofit.version>3.0.0</retrofit.version>
 
         <!-- Versions for test dependencies -->
