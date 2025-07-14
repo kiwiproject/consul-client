@@ -5,8 +5,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import okhttp3.ConnectionPool;
-import okhttp3.internal.Util;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +52,10 @@ class LifecycleITest extends BaseIntegrationTest {
     void shouldBeDestroyableWithCustomExecutorService() throws InterruptedException {
         var connectionPool = new ConnectionPool();
         var workQueue = new SynchronousQueue<Runnable>();
-        var threadFactory = Util.threadFactory("OkHttp Dispatcher", false);
+        var threadFactory = new ThreadFactoryBuilder()
+                        .setNameFormat("Consul-Client-OkHttp-Dispatcher-%d")
+                        .setDaemon(true)
+                        .build();
         var executorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60, TimeUnit.SECONDS,
                 workQueue, threadFactory);
 

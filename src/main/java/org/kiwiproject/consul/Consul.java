@@ -7,13 +7,13 @@ import static java.util.Objects.nonNull;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.net.HostAndPort;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import okhttp3.ConnectionPool;
 import okhttp3.Dispatcher;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.internal.Util;
 import org.jspecify.annotations.Nullable;
 import org.kiwiproject.consul.cache.TimeoutInterceptor;
 import org.kiwiproject.consul.config.ClientConfig;
@@ -42,6 +42,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.IntSupplier;
@@ -825,8 +826,9 @@ public class Consul {
             if (isNull(localExecutorService)) {
                 // mimics okhttp3.Dispatcher#executorService implementation, except
                 // using daemon thread so shutdown is not blocked (issue #133)
+                var threadFactory = newDaemonThreadFactory();
                 localExecutorService = new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60, TimeUnit.SECONDS,
-                        new SynchronousQueue<>(), Util.threadFactory("OkHttp Dispatcher", true));
+                        new SynchronousQueue<>(), threadFactory);
             }
 
             if (isNull(connectionPool)) {
@@ -886,6 +888,13 @@ public class Consul {
                     aclClient,
                     snapshotClient,
                     okHttpClient);
+        }
+
+        private static ThreadFactory newDaemonThreadFactory() {
+            return new ThreadFactoryBuilder()
+                    .setNameFormat("Consul-Client-OkHttp-Dispatcher-%d")
+                    .setDaemon(true)
+                    .build();
         }
 
         private String buildUrl(URL url) {
