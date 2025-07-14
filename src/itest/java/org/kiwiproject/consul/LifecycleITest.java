@@ -2,8 +2,8 @@ package org.kiwiproject.consul;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import okhttp3.ConnectionPool;
@@ -32,7 +32,7 @@ class LifecycleITest extends BaseIntegrationTest {
 
     @Test
     void shouldDestroyTheExecutorServiceWhenDestroyMethodIsInvoked() {
-        var connectionPool = new ConnectionPool();
+        var connectionPool = spy(new ConnectionPool());
         var executorService = mock(ExecutorService.class);
 
         Consul client = Consul.builder()
@@ -45,7 +45,7 @@ class LifecycleITest extends BaseIntegrationTest {
 
         assertThat(client.isDestroyed()).isTrue();
         verify(executorService).shutdownNow();
-        verifyNoMoreInteractions(executorService);
+        verify(connectionPool).evictAll();
     }
 
     @Test
