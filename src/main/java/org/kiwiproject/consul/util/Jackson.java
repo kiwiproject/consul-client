@@ -13,9 +13,9 @@ public class Jackson {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new Jdk8Module());
         mapper.registerModule(new GuavaModule());
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_ABSENT);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+        mapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
+        mapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_ABSENT);
+        mapper.setDefaultPropertyInclusion(JsonInclude.Include.NON_EMPTY);
         return mapper;
     }
 
