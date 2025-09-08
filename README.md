@@ -61,7 +61,7 @@ names are the same, so existing code only needs to change the base package and r
 [0.8.0](https://github.com/kiwiproject/consul-client/releases/tag/v0.8.0) removes all deprecated methods
 from `AgentClient` and `KeyValueClient`.
 The methods in `AgentClient` would have always failed anyway, since Consul no longer has the
-HTTP endpoints they were calling. Last, there is a direct replacement for the method removed from `KeyValueClient`.
+HTTP endpoints they were calling. Last, there is no direct replacement for the method removed from `KeyValueClient`.
 
 Installation
 -----------
