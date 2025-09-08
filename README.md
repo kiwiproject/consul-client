@@ -36,7 +36,7 @@ All other [kiwiproject](https://github.com/kiwiproject/) projects are MIT-licens
 would have to gain consent of all contributors, which we do not want to do).
 
 Another thing to note is that we _imported_ this repository from the original, so that it is a "disconnected fork". We
-did not want a reference to the original repository since it is no longer maintained and no changes here will ever
+did not want a reference to the original repository since it is no longer maintained and no changes here will never
 be pushed back upstream. Thus, while we maintain the history that this is a fork, it is completely disconnected and is
 now a standalone (normal) repository.
 
