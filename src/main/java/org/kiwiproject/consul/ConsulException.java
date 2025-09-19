@@ -1,7 +1,6 @@
 package org.kiwiproject.consul;
 
 import static java.util.Objects.isNull;
-import static org.kiwiproject.consul.util.Http.requestUrlOf;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -61,7 +60,7 @@ public class ConsulException extends RuntimeException {
      */
     public ConsulException(Call<?> call, Response<?> response) {
         super(String.format("Consul request to [%s] failed with status [%s]: %s",
-                requestUrlOf(call), response.code(), message(response)));
+                call.request().url().toString(), response.code(), message(response)));
         this.code = response.code();
         this.hasCode = true;
     }
