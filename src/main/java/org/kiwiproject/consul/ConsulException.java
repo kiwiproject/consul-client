@@ -1,8 +1,10 @@
 package org.kiwiproject.consul;
 
 import static java.util.Objects.isNull;
+import static org.kiwiproject.consul.util.Http.requestUrlOf;
 
 import okhttp3.ResponseBody;
+import retrofit2.Call;
 import retrofit2.Response;
 
 import java.io.IOException;
@@ -38,6 +40,12 @@ public class ConsulException extends RuntimeException {
         this.hasCode = false;
     }
 
+    /**
+     * Constructs an instance for the given status code and Retrofit {@link Response}.
+     * 
+     * @deprecated use {@link #ConsulException(Call, Response)}
+     */
+    @Deprecated(since = "1.7.0", forRemoval = true)
     public ConsulException(int code, Response<?> response) {
         super(String.format("Consul request failed with status [%s]: %s",
                 code, message(response)));
@@ -45,6 +53,24 @@ public class ConsulException extends RuntimeException {
         this.hasCode = true;
     }
 
+    /**
+     * Constructs an instance from the given Retrofit {@link Call} and corresponding {@link Response}.
+     * 
+     * @param call the {@link Call} that initiated the request
+     * @param response the {@link Response}
+     */
+    public ConsulException(Call<?> call, Response<?> response) {
+        super(String.format("Consul request to [%s] failed with status [%s]: %s",
+                requestUrlOf(call), response.code(), message(response)));
+        this.code = response.code();
+        this.hasCode = true;
+    }
+
+    /**
+     * Constructs an instance for the given {@link Throwable}.
+     * 
+     * @param throwable the cause
+     */
     public ConsulException(Throwable throwable) {
         super("Consul request failed", throwable);
         this.code = 0;

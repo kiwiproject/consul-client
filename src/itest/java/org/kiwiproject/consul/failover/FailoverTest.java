@@ -75,7 +75,7 @@ class FailoverTest extends BaseIntegrationTest {
 
         assertThatExceptionOfType(ConsulException.class)
                 .isThrownBy(consulBuilder::build)
-                .withMessage("Error connecting to Consul")
+                .withMessage("Error connecting to Consul agent")
                 .havingCause()
                 .isExactlyInstanceOf(MaxFailoverAttemptsExceededException.class)
                 .withCauseInstanceOf(SocketTimeoutException.class);

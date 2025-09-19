@@ -71,7 +71,7 @@ class AgentClientITest extends BaseIntegrationTest {
 
         assertThatExceptionOfType(ConsulException.class)
                 .isThrownBy(expectToFailAgentClient::ping)
-                .withMessage("Error connecting to Consul")
+                .withMessage("Error connecting to Consul agent")
                 .withCauseExactlyInstanceOf(ConnectException.class);
     }
 

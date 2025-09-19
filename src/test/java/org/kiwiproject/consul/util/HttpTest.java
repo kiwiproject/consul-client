@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import okhttp3.Headers;
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.ResponseBody;
@@ -26,6 +27,7 @@ import retrofit2.Response;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -114,6 +116,7 @@ class HttpTest {
     @SuppressWarnings("unchecked")
     private <U, V> void checkForFailedRequest(Function<Call<U>, V> httpCall) throws IOException {
         Call<U> call = mock(Call.class);
+        mockRequestForCall(call);
         doThrow(new IOException("failure")).when(call).execute();
 
         httpCall.apply(call);
@@ -141,6 +144,7 @@ class HttpTest {
     private <U, V> void checkForInvalidRequest(Function<Call<U>, V> httpCall) throws IOException {
         Response<U> response = Response.error(400, ResponseBody.create("failure", MediaType.parse("")));
         Call<U> call = mock(Call.class);
+        mockRequestForCall(call);
         when(call.execute()).thenReturn(response);
 
         httpCall.apply(call);
@@ -194,7 +198,7 @@ class HttpTest {
     private <U, V> void checkFailureEventIsSentWhenRequestFailed(Function<Call<U>, V> httpCall) throws IOException {
         Call<U> call = mock(Call.class);
         doThrow(new IOException("failure")).when(call).execute();
-        when(call.request()).thenReturn(mock(Request.class));
+        mockRequestForCall(call);
 
         assertThatThrownBy(() -> httpCall.apply(call)).isInstanceOf(ConsulException.class);
 
@@ -222,11 +226,21 @@ class HttpTest {
 
         Call<U> call = mock(Call.class);
         when(call.execute()).thenReturn((Response<U>) response);
-        when(call.request()).thenReturn(mock(Request.class));
+        mockRequestForCall(call);
 
         assertThatThrownBy(() -> httpCall.apply(call)).isInstanceOf(ConsulException.class);
 
         verify(clientEventHandler, only()).httpRequestInvalid(any(Request.class), any(Throwable.class));
+    }
+
+    private static <U> void mockRequestForCall(Call<U> call) {
+        var url = new HttpUrl.Builder()
+                .scheme("https")
+                .host("localhost")
+                .port(12345)
+                .build();
+        var headers = new Headers.Builder().build();
+        when(call.request()).thenReturn(new Request(url, "GET", headers, null, Map.of()));
     }
 
     @Test
