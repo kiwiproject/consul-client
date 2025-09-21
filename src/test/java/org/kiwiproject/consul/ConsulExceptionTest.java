@@ -1,10 +1,15 @@
 package org.kiwiproject.consul;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import okhttp3.MediaType;
+import okhttp3.Request;
 import okhttp3.ResponseBody;
 import org.junit.jupiter.api.Test;
+import retrofit2.Call;
 import retrofit2.Response;
 
 import java.io.IOException;
@@ -33,6 +38,7 @@ class ConsulExceptionTest {
     }
 
     @Test
+    @SuppressWarnings("removal")
     void shouldCreateWithCodeAndResponse() {
         var response = Response.error(404,
                 ResponseBody.create("Not Found", MediaType.get("application/json")));
@@ -48,6 +54,7 @@ class ConsulExceptionTest {
     // I'm not sure if this can really happen unless someone does what this test is doing and supplies
     // a response with a success status code (2xx).
     @Test
+    @SuppressWarnings("removal")
     void shouldCreateWithCodeAndResponse_ThatContainsNullResponseErrorBody() {
         var response = Response.success(206, "Partial Content");
         var ex = new ConsulException(206, response);
@@ -56,6 +63,27 @@ class ConsulExceptionTest {
         assertThat(ex.getCause()).isNull();
         assertThat(ex.getCode()).isEqualTo(206);
         assertThat(ex.hasCode()).isTrue();
+    }
+
+    @Test
+    void shouldCreateWithCallAndResponse() {
+        var request = new Request.Builder()
+                .url("http://localhost:9200")
+                .build();
+        Call<String> call = mock();
+        when(call.request()).thenReturn(request);
+
+        var response = Response.error(404,
+                ResponseBody.create("Not Found", MediaType.get("application/json")));
+
+        var ex = new ConsulException(call, response);
+
+        assertAll(
+            () -> assertThat(ex.getMessage()).isEqualTo("Consul request to [%s] failed with status [404]: Not Found", request.url()),
+            () -> assertThat(ex.getCause()).isNull(),
+            () -> assertThat(ex.getCode()).isEqualTo(404),
+            () -> assertThat(ex.hasCode()).isTrue()
+        );
     }
 
     @Test

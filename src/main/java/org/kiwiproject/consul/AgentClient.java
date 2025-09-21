@@ -75,11 +75,11 @@ public class AgentClient extends BaseClient {
             retrofit2.Response<Void> response = api.ping().execute();
 
             if (!response.isSuccessful()) {
-                throw new ConsulException(String.format("Error pinging Consul: %s",
+                throw new ConsulException(String.format("Error pinging Consul agent: %s",
                         response.message()));
             }
         } catch (Exception ex) {
-            throw new ConsulException("Error connecting to Consul", ex);
+            throw new ConsulException("Error connecting to Consul agent", ex);
         }
     }
 

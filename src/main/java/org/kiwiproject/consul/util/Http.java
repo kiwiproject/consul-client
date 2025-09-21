@@ -53,15 +53,20 @@ public class Http {
             return call.execute();
         } catch (IOException e) {
             eventHandler.httpRequestFailure(call.request(), e);
-            throw new ConsulException(e);
+            var message = String.format("Consul request to [%s] failed due to IOException", requestUrlOf(call));
+            throw new ConsulException(message, e);
         }
+    }
+
+    public static String requestUrlOf(Call<?> call) {
+        return call.request().url().toString();
     }
 
     private <T> void ensureResponseSuccessful(Call<T> call, Response<T> response, Integer... okCodes) {
         if (isSuccessful(response, okCodes)) {
             eventHandler.httpRequestSuccess(call.request());
         } else {
-            ConsulException exception = new ConsulException(response.code(), response);
+            var exception = new ConsulException(call, response);
             eventHandler.httpRequestInvalid(call.request(), exception);
             throw exception;
         }
@@ -81,7 +86,7 @@ public class Http {
                     eventHandler.httpRequestSuccess(call.request());
                     callback.onComplete(consulResponse(response));
                 } else {
-                    ConsulException exception = new ConsulException(response.code(), response);
+                    var exception = new ConsulException(call, response);
                     eventHandler.httpRequestInvalid(call.request(), exception);
                     callback.onFailure(exception);
                 }

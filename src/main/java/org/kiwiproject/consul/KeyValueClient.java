@@ -632,7 +632,7 @@ public class KeyValueClient extends BaseCacheableClient {
             RequestBody requestBody = RequestBody.create(json, MediaType.parse("application/json"));
             return http.extractConsulResponse(api.performTransaction(requestBody, query));
         } catch (JsonProcessingException e) {
-            throw new ConsulException(e);
+            throw new ConsulException("Error processing JSON", e);
         }
     }
 
