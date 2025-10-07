@@ -172,15 +172,16 @@ class ServiceHealthCacheITest extends BaseIntegrationTest {
         var executor = Executors.newSingleThreadExecutor();
 
         try (var cache = ServiceHealthCache.newCache(client.healthClient(), serviceName)) {
-            var eventCount = new AtomicInteger(0);
+            var earlyCount = new AtomicInteger();
+            var lateCount  = new AtomicInteger();
             var lateAdded = new CountDownLatch(1);
             var lateFired = new CountDownLatch(1);
 
             cache.addListener(newValues -> {
-                eventCount.incrementAndGet();
+                earlyCount.incrementAndGet();
                 executor.submit(() -> {
                     cache.addListener(newValues1 -> {
-                        eventCount.incrementAndGet();
+                        lateCount.incrementAndGet();
                         lateFired.countDown();
                     });
                     lateAdded.countDown();
@@ -204,9 +205,13 @@ class ServiceHealthCacheITest extends BaseIntegrationTest {
                     .describedAs("late listener registered")
                     .isTrue();
 
-            assertThat(eventCount)
-                    .describedAs("should have seen at least two events")
-                    .hasValueGreaterThanOrEqualTo(2);
+            assertThat(earlyCount)
+                    .describedAs("early listener fired at least once")
+                    .hasValueGreaterThanOrEqualTo(1);
+
+            assertThat(lateCount)
+                    .describedAs("late listener fired at least once")
+                    .hasValueGreaterThanOrEqualTo(1);
 
             cache.stop();
         } finally {
