@@ -2,8 +2,8 @@ package org.kiwiproject.consul.cache;
 
 import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.kiwiproject.consul.Awaiting.awaitAtMost1s;
 import static org.kiwiproject.consul.Awaiting.awaitAtMost500ms;
+import static org.kiwiproject.consul.Awaiting.awaitAtMost2s;
 import static org.kiwiproject.consul.TestUtils.randomUUIDString;
 
 import com.google.common.collect.ImmutableMap;
@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -167,21 +169,30 @@ class ServiceHealthCacheITest extends BaseIntegrationTest {
     @Test
     void shouldNotifyLateListenersRaceCondition() throws Exception {
         var serviceName = randomUUIDString();
+        var executor = Executors.newSingleThreadExecutor();
 
         try (var cache = ServiceHealthCache.newCache(client.healthClient(), serviceName)) {
-            final var eventCount = new AtomicInteger(0);
+            var eventCount = new AtomicInteger(0);
+            var added = new CountDownLatch(1);
+
             cache.addListener(newValues -> {
                 eventCount.incrementAndGet();
-                Thread t = new Thread(() -> cache.addListener(newValues1 -> eventCount.incrementAndGet()));
-                t.start();
+                executor.submit(() -> {
+                    cache.addListener(newValues1 -> eventCount.incrementAndGet());
+                    added.countDown();
+                });
             });
 
             cache.start();
             cache.awaitInitialized(1000, TimeUnit.MILLISECONDS);
 
-            awaitAtMost1s().until(() -> eventCount.get() == 2);
+            awaitAtMost2s().alias("late listened added").until(() -> added.getCount() == 0);
+
+            awaitAtMost2s().alias("both listeners are added").until(() -> eventCount.get() == 2);
 
             cache.stop();
+        } finally {
+            executor.shutdownNow();
         }
     }
 }
