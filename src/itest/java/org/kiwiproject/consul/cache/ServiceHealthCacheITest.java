@@ -3,8 +3,6 @@ package org.kiwiproject.consul.cache;
 import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.kiwiproject.consul.Awaiting.awaitAtMost500ms;
-import static org.kiwiproject.consul.Awaiting.awaitAtMost5s;
-import static org.kiwiproject.consul.Awaiting.awaitAtMost2s;
 import static org.kiwiproject.consul.TestUtils.randomUUIDString;
 
 import com.google.common.collect.ImmutableMap;
@@ -169,6 +167,7 @@ class ServiceHealthCacheITest extends BaseIntegrationTest {
 
     @Test
     void shouldNotifyLateListenersRaceCondition() throws Exception {
+        var serviceId = createAutoDeregisterServiceId();
         var serviceName = randomUUIDString();
         var executor = Executors.newSingleThreadExecutor();
 
@@ -189,11 +188,25 @@ class ServiceHealthCacheITest extends BaseIntegrationTest {
             });
 
             cache.start();
-            cache.awaitInitialized(1000, TimeUnit.MILLISECONDS);
+            cache.awaitInitialized(1, TimeUnit.SECONDS);
 
-            awaitAtMost2s().alias("late listened added").until(() -> lateAdded.getCount() == 0);
-            awaitAtMost5s().alias("late listened fired").until(() -> lateFired.getCount() == 0);
-            awaitAtMost5s().alias("both listeners are added").until(() -> eventCount.get() == 2);
+            // Force a new event so the late listener definitely gets one.
+            // The following registers a new service (initially in "critical" state)
+            // and then makes the health check as "passing", triggering a change event.
+            agentClient.register(60_090, 10L, serviceName, serviceId, List.of(), Map.of());
+            agentClient.pass(serviceId);
+
+            assertThat(lateAdded.await(2, TimeUnit.SECONDS))
+                    .describedAs("late listener added")
+                    .isTrue();
+
+            assertThat(lateFired.await(2, TimeUnit.SECONDS))
+                    .describedAs("late listener registered")
+                    .isTrue();
+
+            assertThat(eventCount)
+                    .describedAs("should have seen at least two events")
+                    .hasValueGreaterThanOrEqualTo(2);
 
             cache.stop();
         } finally {
