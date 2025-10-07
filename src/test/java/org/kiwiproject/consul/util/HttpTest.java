@@ -27,7 +27,6 @@ import retrofit2.Response;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -239,8 +238,8 @@ class HttpTest {
                 .host("localhost")
                 .port(12345)
                 .build();
-        var headers = new Headers.Builder().build();
-        when(call.request()).thenReturn(new Request(url, "GET", headers, null, Map.of()));
+        var req = new Request.Builder().url(url).get().build();
+        when(call.request()).thenReturn(req);
     }
 
     @Test
