@@ -49,6 +49,13 @@ public class Awaiting {
         return awaitWith25MsPoll().atMost(TWO_SECONDS);
     }
 
+    /**
+     * Awaits up to 5s with a 25ms poll interval.
+     */
+    public static ConditionFactory awaitAtMost5s() {
+        return awaitWith25MsPoll().atMost(FIVE_SECONDS);
+    }
+
     public static ConditionFactory awaitWith25MsPoll() {
         return awaitWithPollingMs(25);
     }

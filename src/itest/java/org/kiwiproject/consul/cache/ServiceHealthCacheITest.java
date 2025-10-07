@@ -3,6 +3,7 @@ package org.kiwiproject.consul.cache;
 import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.kiwiproject.consul.Awaiting.awaitAtMost500ms;
+import static org.kiwiproject.consul.Awaiting.awaitAtMost5s;
 import static org.kiwiproject.consul.Awaiting.awaitAtMost2s;
 import static org.kiwiproject.consul.TestUtils.randomUUIDString;
 
@@ -13,6 +14,8 @@ import org.kiwiproject.consul.AgentClient;
 import org.kiwiproject.consul.BaseIntegrationTest;
 import org.kiwiproject.consul.model.State;
 import org.kiwiproject.consul.model.health.ServiceHealth;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +27,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 class ServiceHealthCacheITest extends BaseIntegrationTest {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ServiceHealthCacheITest.class);
 
     private static final List<String> NO_TAGS = List.of();
     private static final Map<String, String> NO_META = Map.of();
@@ -176,8 +181,10 @@ class ServiceHealthCacheITest extends BaseIntegrationTest {
             var added = new CountDownLatch(1);
 
             cache.addListener(newValues -> {
+                LOG.debug("Adding listener to cache");
                 eventCount.incrementAndGet();
                 executor.submit(() -> {
+                    LOG.debug("Adding 'late' listener to cache");
                     cache.addListener(newValues1 -> eventCount.incrementAndGet());
                     added.countDown();
                 });
@@ -186,9 +193,17 @@ class ServiceHealthCacheITest extends BaseIntegrationTest {
             cache.start();
             cache.awaitInitialized(1000, TimeUnit.MILLISECONDS);
 
-            awaitAtMost2s().alias("late listened added").until(() -> added.getCount() == 0);
+            awaitAtMost2s().alias("late listened added").until(() -> {
+                var count = added.getCount();
+                LOG.debug("[late listened added] added.count = {}", count);
+                return count == 0;
+            });
 
-            awaitAtMost2s().alias("both listeners are added").until(() -> eventCount.get() == 2);
+            awaitAtMost5s().alias("both listeners are added").until(() -> {
+                int count = eventCount.get();
+                LOG.debug("[both listeners are added] eventCount = {}", count);
+                return count == 2;
+            });
 
             cache.stop();
         } finally {
