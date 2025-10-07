@@ -14,8 +14,6 @@ import org.kiwiproject.consul.AgentClient;
 import org.kiwiproject.consul.BaseIntegrationTest;
 import org.kiwiproject.consul.model.State;
 import org.kiwiproject.consul.model.health.ServiceHealth;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
