@@ -239,8 +239,8 @@ class HttpTest {
                 .host("localhost")
                 .port(12345)
                 .build();
-        var headers = new Headers.Builder().build();
-        when(call.request()).thenReturn(new Request(url, "GET", headers, null, Map.of()));
+        var req = new Request.Builder().url(url).get().build();
+        when(call.request()).thenReturn(req);
     }
 
     @Test

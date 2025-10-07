@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>consul-client</artifactId>
-    <version>1.7.1-SNAPSHOT</version>
+    <version>1.8.0-alpha.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -55,6 +55,7 @@
         <!-- Versions for required dependencies -->
         <immutables.version>2.11.3</immutables.version>
         <kiwi-bom.version>2.0.32</kiwi-bom.version>
+        <okhttp.version>5.1.0</okhttp.version>
         <retrofit.version>3.0.0</retrofit.version>
 
         <!-- Versions for test dependencies -->
@@ -71,6 +72,31 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Override the okhttp-bom version from kiwi-bom. Also need to set version for okhttp-jvm which is NOT in the BOM as of 5.1.0! -->
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp-bom</artifactId>
+                <version>${okhttp.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!--
+                As of 5.x, the okhttp JAR is empty and (in Maven) we need to use okhttp-jvm.
+
+                As mentioned above in the okhttp-bom import, unfortunately the OkHttp 5.1.0 BOM
+                does NOT include okhttp-jvm, so we need to make the version explicit here.
+
+                See:
+                * Issue "Empty okhttp jar for release 5.0.0 with Maven builds" at https://github.com/square/okhttp/issues/8913
+                * The "Maven and JVM Projects" section of the README at https://github.com/square/okhttp?tab=readme-ov-file#maven-and-jvm-projects
+            -->
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp-jvm</artifactId>
+                <version>${okhttp.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.kiwiproject</groupId>
                 <artifactId>kiwi-bom</artifactId>
@@ -106,7 +132,7 @@
 
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
-            <artifactId>okhttp</artifactId>
+            <artifactId>okhttp-jvm</artifactId>
         </dependency>
 
         <dependency>
