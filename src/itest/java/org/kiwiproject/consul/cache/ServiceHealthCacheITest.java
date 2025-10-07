@@ -181,10 +181,10 @@ class ServiceHealthCacheITest extends BaseIntegrationTest {
             var added = new CountDownLatch(1);
 
             cache.addListener(newValues -> {
-                LOG.debug("Adding listener to cache");
+                // LOG.debug("Adding listener to cache");
                 eventCount.incrementAndGet();
                 executor.submit(() -> {
-                    LOG.debug("Adding 'late' listener to cache");
+                    // LOG.debug("Adding 'late'listener to cache");
                     cache.addListener(newValues1 -> eventCount.incrementAndGet());
                     added.countDown();
                 });
@@ -195,13 +195,13 @@ class ServiceHealthCacheITest extends BaseIntegrationTest {
 
             awaitAtMost2s().alias("late listened added").until(() -> {
                 var count = added.getCount();
-                LOG.debug("[late listened added] added.count = {}", count);
+                // LOG.debug("[late listened added] added.count = {}", count);
                 return count == 0;
             });
 
             awaitAtMost5s().alias("both listeners are added").until(() -> {
                 int count = eventCount.get();
-                LOG.debug("[both listeners are added] eventCount = {}", count);
+                // LOG.debug("[both listeners are added] eventCount = {}", count);
                 return count == 2;
             });
 
