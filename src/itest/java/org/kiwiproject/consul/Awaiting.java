@@ -8,8 +8,6 @@ import static org.awaitility.Durations.TWO_SECONDS;
 
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionFactory;
-import org.testcontainers.shaded.org.bouncycastle.jcajce.provider.asymmetric.dsa.DSASigner.stdDSA;
-
 import java.time.Duration;
 
 /**
