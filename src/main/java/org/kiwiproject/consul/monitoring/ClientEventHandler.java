@@ -52,8 +52,8 @@ public class ClientEventHandler {
         EVENT_EXECUTOR.submit(() -> callback.onCachePollingSuccess(clientName, cacheDescriptor, withNotification, duration));
     }
 
-    public void cachePollingSuccess(CacheDescriptor cacheDescriptor, boolean withNotification, long duration) {
-        EVENT_EXECUTOR.submit(() -> callback.onCachePollingSuccess(clientName, cacheDescriptor, withNotification, Duration.of(duration, ChronoUnit.MILLIS)));
+    public void cachePollingSuccess(CacheDescriptor cacheDescriptor, boolean withNotification, long durationMillis) {
+        EVENT_EXECUTOR.submit(() -> callback.onCachePollingSuccess(clientName, cacheDescriptor, withNotification, Duration.of(durationMillis, ChronoUnit.MILLIS)));
     }
 
     public void stop() {
