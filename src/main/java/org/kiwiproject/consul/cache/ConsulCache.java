@@ -68,7 +68,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
     private final Scheduler scheduler;
     private final CopyOnWriteArrayList<Listener<K, V>> listeners = new CopyOnWriteArrayList<>();
     private final ReentrantLock listenersStartingLock = new ReentrantLock();
-    private final Stopwatch stopWatch = Stopwatch.createUnstarted();
+    private final Stopwatch stopwatch = Stopwatch.createUnstarted();
     private final ReentrantLock stopwatchLock = new ReentrantLock();
 
     private final Function<V, K> keyConversion;
@@ -144,7 +144,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
                 return;
             }
 
-            var elapsedTimeMillis = withStopWatchLock(() -> stopWatch.elapsed(TimeUnit.MILLISECONDS));
+            var elapsedTimeMillis = withStopwatchLock(() -> stopwatch.elapsed(TimeUnit.MILLISECONDS));
             updateIndex(consulResponse);
             LOG.debug("Consul cache updated for {} (index={}), request duration: {} ms",
                     cacheDescriptor, latestIndex, elapsedTimeMillis);
@@ -231,7 +231,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
             try {
                 scheduler.schedule(ConsulCache.this::runCallback, delayMillis, TimeUnit.MILLISECONDS);
             } catch (RejectedExecutionException ignored) {
-                LOG.info("Ignoring RejectedExecutionException for {}; scheduler was probably shut down during stop()",
+                LOG.debug("Ignoring RejectedExecutionException for {}; scheduler was probably shut down during stop()",
                         cacheDescriptor);
             }
         }
@@ -261,7 +261,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
 
         State previous = state.getAndSet(State.STOPPED);
 
-        withStopWatchLock(() -> stopIfRunningQuietly(stopWatch));
+        withStopwatchLock(() -> stopIfRunningQuietly(stopwatch));
 
         if (previous != State.STOPPED) {
             scheduler.shutdownNow();
@@ -275,7 +275,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
 
     private void runCallback() {
         if (isRunning()) {
-            withStopWatchLock(() -> stopWatch.reset().start());
+            withStopwatchLock(() -> stopwatch.reset().start());
             callBackConsumer.consume(latestIndex.get(), responseCallback);
         }
     }
@@ -289,7 +289,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
     }
 
     public ImmutableMap<K, V> getMap() {
-        return lastResponse.get();
+        return Optional.ofNullable(lastResponse.get()).orElseGet(ImmutableMap::of);
     }
 
     public ConsulResponse<ImmutableMap<K,V>> getMapWithMetadata() {
@@ -462,12 +462,12 @@ public class ConsulCache<K, V> implements AutoCloseable {
 
     protected static void checkWatch(int networkReadMillis, int cacheWatchSeconds) {
         if (networkReadMillis <= TimeUnit.SECONDS.toMillis(cacheWatchSeconds)) {
-            throw new IllegalArgumentException("Cache watchInterval="+ cacheWatchSeconds + "sec >= networkClientReadTimeout="
-                + networkReadMillis + "ms. It can cause issues");
+            throw new IllegalArgumentException("Cache watchInterval = "+ cacheWatchSeconds + " sec >= networkClientReadTimeout = "
+                + networkReadMillis + " ms. It can cause issues");
         }
     }
 
-    private void withStopWatchLock(Runnable action) {
+    private void withStopwatchLock(Runnable action) {
         stopwatchLock.lock();
         try {
             action.run();
@@ -476,7 +476,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
         }
     }
 
-    private <T> T withStopWatchLock(Supplier<T> action) {
+    private <T> T withStopwatchLock(Supplier<T> action) {
         stopwatchLock.lock();
         try {
             return action.get();
@@ -491,6 +491,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
                 stopwatch.stop();
             }
         } catch (IllegalStateException ignored) {
+            // As long as this method is always called while the lock is held, this should not occur under
             LOG.debug("Stopwatch was already stopped; ignoring IllegalStateException thrown by stop()");
         }
     }
