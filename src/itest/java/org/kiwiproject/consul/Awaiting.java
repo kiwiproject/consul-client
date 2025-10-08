@@ -1,12 +1,13 @@
 package org.kiwiproject.consul;
 
 import static org.awaitility.Durations.FIVE_HUNDRED_MILLISECONDS;
+import static org.awaitility.Durations.FIVE_SECONDS;
 import static org.awaitility.Durations.ONE_HUNDRED_MILLISECONDS;
 import static org.awaitility.Durations.ONE_SECOND;
+import static org.awaitility.Durations.TWO_SECONDS;
 
 import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionFactory;
-
 import java.time.Duration;
 
 /**
@@ -37,6 +38,20 @@ public class Awaiting {
      */
     public static ConditionFactory awaitAtMost1s() {
         return awaitWith25MsPoll().atMost(ONE_SECOND);
+    }
+
+    /**
+     * Awaits up to 2s with a 25ms poll interval.
+     */
+    public static ConditionFactory awaitAtMost2s() {
+        return awaitWith25MsPoll().atMost(TWO_SECONDS);
+    }
+
+    /**
+     * Awaits up to 5s with a 25ms poll interval.
+     */
+    public static ConditionFactory awaitAtMost5s() {
+        return awaitWith25MsPoll().atMost(FIVE_SECONDS);
     }
 
     public static ConditionFactory awaitWith25MsPoll() {

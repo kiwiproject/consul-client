@@ -2,7 +2,6 @@ package org.kiwiproject.consul.cache;
 
 import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.kiwiproject.consul.Awaiting.awaitAtMost1s;
 import static org.kiwiproject.consul.Awaiting.awaitAtMost500ms;
 import static org.kiwiproject.consul.TestUtils.randomUUIDString;
 
@@ -18,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -166,22 +167,55 @@ class ServiceHealthCacheITest extends BaseIntegrationTest {
 
     @Test
     void shouldNotifyLateListenersRaceCondition() throws Exception {
+        var serviceId = createAutoDeregisterServiceId();
         var serviceName = randomUUIDString();
+        var executor = Executors.newSingleThreadExecutor();
 
         try (var cache = ServiceHealthCache.newCache(client.healthClient(), serviceName)) {
-            final var eventCount = new AtomicInteger(0);
+            var earlyCount = new AtomicInteger();
+            var lateCount  = new AtomicInteger();
+            var lateAdded = new CountDownLatch(1);
+            var lateFired = new CountDownLatch(1);
+
             cache.addListener(newValues -> {
-                eventCount.incrementAndGet();
-                Thread t = new Thread(() -> cache.addListener(newValues1 -> eventCount.incrementAndGet()));
-                t.start();
+                earlyCount.incrementAndGet();
+                executor.submit(() -> {
+                    cache.addListener(newValues1 -> {
+                        lateCount.incrementAndGet();
+                        lateFired.countDown();
+                    });
+                    lateAdded.countDown();
+                });
             });
 
             cache.start();
-            cache.awaitInitialized(1000, TimeUnit.MILLISECONDS);
+            cache.awaitInitialized(1, TimeUnit.SECONDS);
 
-            awaitAtMost1s().until(() -> eventCount.get() == 2);
+            // Force a new event so the late listener definitely gets one.
+            // The following registers a new service (initially in "critical" state)
+            // and then makes the health check as "passing", triggering a change event.
+            agentClient.register(60_090, 10L, serviceName, serviceId, List.of(), Map.of());
+            agentClient.pass(serviceId);
+
+            assertThat(lateAdded.await(2, TimeUnit.SECONDS))
+                    .describedAs("late listener added")
+                    .isTrue();
+
+            assertThat(lateFired.await(2, TimeUnit.SECONDS))
+                    .describedAs("late listener registered")
+                    .isTrue();
+
+            assertThat(earlyCount)
+                    .describedAs("early listener fired at least once")
+                    .hasValueGreaterThanOrEqualTo(1);
+
+            assertThat(lateCount)
+                    .describedAs("late listener fired at least once")
+                    .hasValueGreaterThanOrEqualTo(1);
 
             cache.stop();
+        } finally {
+            executor.shutdownNow();
         }
     }
 }
