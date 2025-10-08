@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * A cache structure that can provide an up-to-date read-only
@@ -68,6 +69,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
     private final CopyOnWriteArrayList<Listener<K, V>> listeners = new CopyOnWriteArrayList<>();
     private final ReentrantLock listenersStartingLock = new ReentrantLock();
     private final Stopwatch stopWatch = Stopwatch.createUnstarted();
+    private final ReentrantLock stopwatchLock = new ReentrantLock();
 
     private final Function<V, K> keyConversion;
     private final CallbackConsumer<V> callBackConsumer;
@@ -142,7 +144,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
                 return;
             }
 
-            long elapsedTime = stopWatch.elapsed(TimeUnit.MILLISECONDS);
+            var elapsedTime = withStopWatchLock(() -> stopWatch.elapsed(TimeUnit.MILLISECONDS));
             updateIndex(consulResponse);
             LOG.debug("Consul cache updated for {} (index={}), request duration: {} ms",
                     cacheDescriptor, latestIndex, elapsedTime);
@@ -152,12 +154,13 @@ public class ConsulCache<K, V> implements AutoCloseable {
             boolean changed = !full.equals(lastResponse.get());
             eventHandler.cachePollingSuccess(cacheDescriptor, changed, elapsedTime);
 
+            // metadata changes; always set
+            lastContact.set(consulResponse.getLastContact());
+            isKnownLeader.set(consulResponse.isKnownLeader());
+
             if (changed) {
                 // changes
                 lastResponse.set(full);
-                // metadata changes
-                lastContact.set(consulResponse.getLastContact());
-                isKnownLeader.set(consulResponse.isKnownLeader());
 
                 performListenerActionOptionallyLocking(() -> notifyListeners(full));
             }
@@ -172,6 +175,10 @@ public class ConsulCache<K, V> implements AutoCloseable {
                 timeToWait = minimumDelayOnEmptyResult;
             }
             timeToWait = timeToWait.minusMillis(elapsedTime);
+            if (timeToWait.isNegative()) {
+                // ensure a minimum non-negative wait time
+                timeToWait = Duration.ofMillis(1);
+            }
 
             scheduler.schedule(ConsulCache.this::runCallback, timeToWait.toMillis(), TimeUnit.MILLISECONDS);
         }
@@ -240,9 +247,13 @@ public class ConsulCache<K, V> implements AutoCloseable {
         }
 
         State previous = state.getAndSet(State.STOPPED);
-        if (stopWatch.isRunning()) {
-            stopWatch.stop();
-        }
+
+        withStopWatchLock(() -> {
+            if (stopWatch.isRunning()) {
+                stopWatch.stop();
+            }
+        });
+
         if (previous != State.STOPPED) {
             scheduler.shutdownNow();
         }
@@ -255,7 +266,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
 
     private void runCallback() {
         if (isRunning()) {
-            stopWatch.reset().start();
+            withStopWatchLock(() -> stopWatch.reset().start());
             callBackConsumer.consume(latestIndex.get(), responseCallback);
         }
     }
@@ -364,7 +375,8 @@ public class ConsulCache<K, V> implements AutoCloseable {
             listeners.add(listener);
             if (state.get() == State.STARTED) {
                 try {
-                    listener.notify(lastResponse.get());
+                    var snapshot = Optional.ofNullable(lastResponse.get()).orElseGet(ImmutableMap::of);
+                    listener.notify(snapshot);
                 } catch (RuntimeException e) {
                     LOG.warn("ConsulCache Listener's notify method threw an exception.", e);
                 }
@@ -443,6 +455,24 @@ public class ConsulCache<K, V> implements AutoCloseable {
         if (networkReadMillis <= TimeUnit.SECONDS.toMillis(cacheWatchSeconds)) {
             throw new IllegalArgumentException("Cache watchInterval="+ cacheWatchSeconds + "sec >= networkClientReadTimeout="
                 + networkReadMillis + "ms. It can cause issues");
+        }
+    }
+
+    private void withStopWatchLock(Runnable action) {
+        stopwatchLock.lock();
+        try {
+            action.run();
+        } finally {
+            stopwatchLock.unlock();
+        }
+    }
+
+    private <T> T withStopWatchLock(Supplier<T> action) {
+        stopwatchLock.lock();
+        try {
+            return action.get();
+        } finally {
+            stopwatchLock.unlock();
         }
     }
 }
