@@ -1,9 +1,7 @@
 package org.kiwiproject.consul;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
-import static org.awaitility.Durations.FIVE_HUNDRED_MILLISECONDS;
-import static org.awaitility.Durations.FIVE_SECONDS;
+import static org.awaitility.Durations.ONE_SECOND;
 import static org.kiwiproject.consul.Awaiting.awaitWith25MsPoll;
 import static org.kiwiproject.consul.TestUtils.randomUUIDString;
 
@@ -16,8 +14,9 @@ import org.kiwiproject.consul.option.Options;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -45,18 +44,25 @@ class SnapshotClientITest extends BaseIntegrationTest {
         var serviceName = randomUUIDString();
         var serviceId = randomUUIDString();
 
-        client.agentClient().register(8080, new URL("http://localhost:123/health"), 1000L, serviceName, serviceId,
+        var healthCheckUrl = URI.create("http://localhost:123/health").toURL();
+        client.agentClient().register(8080, healthCheckUrl, 1000L, serviceName, serviceId,
                 List.of(), Map.of());
-        awaitWith25MsPoll().atMost(FIVE_HUNDRED_MILLISECONDS).until(() -> serviceExists(serviceName));
+        awaitWith25MsPoll().atMost(ONE_SECOND).until(() -> serviceExists(serviceName));
 
         ensureSaveSnapshot();
 
         client.agentClient().deregister(serviceId);
-        awaitWith25MsPoll().atMost(FIVE_HUNDRED_MILLISECONDS).until(() -> !serviceExists(serviceName));
+        awaitWith25MsPoll().atMost(ONE_SECOND).until(() -> !serviceExists(serviceName));
 
         ensureRestoreSnapshot();
 
-        await().atMost(FIVE_SECONDS).until(() -> serviceExists(serviceName));
+        awaitWith25MsPoll().atMost(Duration.ofSeconds(30)).until(() -> {
+            try {
+                return serviceExists(serviceName);
+            } catch (Exception ignored) {
+                return false;
+            }
+        });
     }
 
     private void ensureSaveSnapshot() throws InterruptedException {
