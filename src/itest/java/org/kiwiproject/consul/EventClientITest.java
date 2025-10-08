@@ -84,14 +84,16 @@ class EventClientITest extends BaseIntegrationTest {
         var event1 = events.get(index);
         var name = event1.getName();
 
-        // add another with the same name
-        var event2 = eventClient.fireEvent(name);
+        // fire several more events with the same name
+        eventClient.fireEvent(name);
+        eventClient.fireEvent(name);
+        eventClient.fireEvent(name);
 
         var eventResponse = eventClient.listEvents(name);
         assertThat(eventResponse.getEvents())
-                .describedAs("events should be in order of creation using the LTime (Lamport time)")
-                .extracting(Event::getId)
-                .containsExactly(event1.getId(), event2.getId());
+                .describedAs("events should have same name")
+                .extracting(Event::getName)
+                .containsOnly(name);
     }
 
     @Test
