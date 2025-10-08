@@ -180,7 +180,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
                 timeToWait = Duration.ofMillis(1);
             }
 
-            scheduler.schedule(ConsulCache.this::runCallback, timeToWait.toMillis(), TimeUnit.MILLISECONDS);
+            scheduleRunCallbackSafely(timeToWait.toMillis());
         }
 
         private void updateIndex(ConsulResponse<List<V>> consulResponse) {
@@ -220,7 +220,20 @@ public class ConsulCache<K, V> implements AutoCloseable {
 
             cacheConfig.getRefreshErrorLoggingConsumer().accept(LOG, message, throwable);
 
-            scheduler.schedule(ConsulCache.this::runCallback, delayMs, TimeUnit.MILLISECONDS);
+            scheduleRunCallbackSafely(delayMs);
+        }
+
+        private void scheduleRunCallbackSafely(long delayMillis) {
+            if (isNotRunning()) {
+                return;
+            }
+
+            try {
+                scheduler.schedule(ConsulCache.this::runCallback, delayMillis, TimeUnit.MILLISECONDS);
+            } catch (RejectedExecutionException ignored) {
+                LOG.info("Ignoring RejectedExecutionException for {}; scheduler was probably shut down during stop()",
+                        cacheDescriptor);
+            }
         }
 
         private boolean isNotRunning() {
@@ -248,11 +261,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
 
         State previous = state.getAndSet(State.STOPPED);
 
-        withStopWatchLock(() -> {
-            if (stopWatch.isRunning()) {
-                stopWatch.stop();
-            }
-        });
+        withStopWatchLock(() -> stopIfRunningQuietly(stopWatch));
 
         if (previous != State.STOPPED) {
             scheduler.shutdownNow();
@@ -473,6 +482,16 @@ public class ConsulCache<K, V> implements AutoCloseable {
             return action.get();
         } finally {
             stopwatchLock.unlock();
+        }
+    }
+
+    private static void stopIfRunningQuietly(Stopwatch stopwatch) {
+        try {
+            if (stopwatch.isRunning()) {
+                stopwatch.stop();
+            }
+        } catch (IllegalStateException ignored) {
+            LOG.debug("Stopwatch was already stopped; ignoring IllegalStateException thrown by stop()");
         }
     }
 }
