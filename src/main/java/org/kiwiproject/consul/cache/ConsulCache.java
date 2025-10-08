@@ -144,15 +144,15 @@ public class ConsulCache<K, V> implements AutoCloseable {
                 return;
             }
 
-            var elapsedTime = withStopWatchLock(() -> stopWatch.elapsed(TimeUnit.MILLISECONDS));
+            var elapsedTimeMillis = withStopWatchLock(() -> stopWatch.elapsed(TimeUnit.MILLISECONDS));
             updateIndex(consulResponse);
             LOG.debug("Consul cache updated for {} (index={}), request duration: {} ms",
-                    cacheDescriptor, latestIndex, elapsedTime);
+                    cacheDescriptor, latestIndex, elapsedTimeMillis);
 
             ImmutableMap<K, V> full = convertToMap(consulResponse);
 
             boolean changed = !full.equals(lastResponse.get());
-            eventHandler.cachePollingSuccess(cacheDescriptor, changed, elapsedTime);
+            eventHandler.cachePollingSuccess(cacheDescriptor, changed, elapsedTimeMillis);
 
             // metadata changes; always set
             lastContact.set(consulResponse.getLastContact());
@@ -174,7 +174,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
             if (hasNullOrEmptyResponse(consulResponse) && isLongerThan(minimumDelayOnEmptyResult, timeToWait)) {
                 timeToWait = minimumDelayOnEmptyResult;
             }
-            timeToWait = timeToWait.minusMillis(elapsedTime);
+            timeToWait = timeToWait.minusMillis(elapsedTimeMillis);
             if (timeToWait.isNegative()) {
                 // ensure a minimum non-negative wait time
                 timeToWait = Duration.ofMillis(1);
