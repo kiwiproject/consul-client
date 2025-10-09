@@ -10,6 +10,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import org.kiwiproject.consul.async.ConsulResponseCallback;
 import org.kiwiproject.consul.config.CacheConfig;
 import org.kiwiproject.consul.model.ConsulResponse;
@@ -467,15 +468,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
         }
     }
 
-    private void withStopwatchLock(Runnable action) {
-        stopwatchLock.lock();
-        try {
-            action.run();
-        } finally {
-            stopwatchLock.unlock();
-        }
-    }
-
+    @CanIgnoreReturnValue
     private <T> T withStopwatchLock(Supplier<T> action) {
         stopwatchLock.lock();
         try {
@@ -485,14 +478,17 @@ public class ConsulCache<K, V> implements AutoCloseable {
         }
     }
 
-    private static void stopIfRunningQuietly(Stopwatch stopwatch) {
+    @VisibleForTesting
+    static boolean stopIfRunningQuietly(Stopwatch stopwatch) {
         try {
             if (stopwatch.isRunning()) {
                 stopwatch.stop();
+                return true;
             }
         } catch (IllegalStateException ignored) {
             // As long as this method is always called while the lock is held, this should not occur under
             LOG.debug("Stopwatch was already stopped; ignoring IllegalStateException thrown by stop()");
         }
+        return false;  // either was not running or caught IllegalStateException
     }
 }

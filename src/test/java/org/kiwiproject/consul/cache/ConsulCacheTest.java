@@ -5,8 +5,11 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.FIVE_SECONDS;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -434,4 +437,43 @@ class ConsulCacheTest {
         }
     }
 
+    @Nested
+    class StopIfRunningQuietly {
+
+        private Stopwatch stopwatch;
+
+        @BeforeEach
+        void setUp() {
+            stopwatch = Stopwatch.createStarted();
+        }
+
+        @Test
+        void shouldStopWhenRunning() {
+            var wasStopped = ConsulCache.stopIfRunningQuietly(stopwatch);
+            assertThat(wasStopped).isTrue();
+            assertThat(stopwatch.isRunning()).isFalse();
+        }
+
+        @Test
+        void shouldDoNothingWhenAlreadyStopped() {
+            stopwatch.stop();
+
+            var wasStopped = ConsulCache.stopIfRunningQuietly(stopwatch);
+            assertThat(wasStopped).isFalse();
+            assertThat(stopwatch.isRunning()).isFalse();
+        }
+
+        @Test
+        void shouldIgnoreIllegalStateDuringRaceCondition_WhenIsRunningReturnsTrue_ButWasAlreadyStopped() {
+            var stopwatchSpy = spy(stopwatch);
+
+            // Simulate race condition by stopping the Stopwatch, but
+            // tell the spy to return true from isRunning.
+            stopwatchSpy.stop();
+            doReturn(true).when(stopwatchSpy).isRunning();
+
+            var wasStopped = ConsulCache.stopIfRunningQuietly(stopwatchSpy);
+            assertThat(wasStopped).isFalse();
+        }
+    }
 }
