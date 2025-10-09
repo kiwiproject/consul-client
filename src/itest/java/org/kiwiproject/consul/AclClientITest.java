@@ -1,7 +1,9 @@
 package org.kiwiproject.consul;
 
+import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
+import static org.awaitility.Awaitility.await;
 import static org.kiwiproject.consul.ConsulTestcontainers.CONSUL_DOCKER_IMAGE_NAME;
 import static org.kiwiproject.consul.TestUtils.randomUUIDString;
 
@@ -19,6 +21,7 @@ import org.kiwiproject.consul.model.acl.RoleResponse;
 import org.kiwiproject.consul.model.acl.Token;
 import org.kiwiproject.consul.model.acl.TokenResponse;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.time.Duration;
 import java.util.List;
@@ -36,6 +39,7 @@ class AclClientITest {
     @SuppressWarnings("resource")
     @BeforeAll
     static void beforeAll() {
+        var token = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
         consulContainerAcl = new GenericContainer<>(CONSUL_DOCKER_IMAGE_NAME)
                 .withCommand("agent", "-dev", "-client", "0.0.0.0", "--enable-script-checks=true")
                 .withExposedPorts(8500)
@@ -46,23 +50,43 @@ class AclClientITest {
                                     "enabled": true,
                                     "default_policy": "deny",
                                     "tokens": {
-                                        "master": "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+                                        "master": "%s"
                                     }
                                 }
                             }
-                        """
-                );
+                        """.formatted(token))
+                .waitingFor(Wait.forHttp("/v1/status/leader")
+                    .forStatusCode(200)
+                    .withStartupTimeout(Duration.ofSeconds(30)));
+        
         consulContainerAcl.start();
 
         var aclClientHostAndPort = HostAndPort.fromParts("localhost", consulContainerAcl.getFirstMappedPort());
 
         var client = Consul.builder()
                 .withHostAndPort(aclClientHostAndPort)
-                .withAclToken("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee")
+                .withAclToken(token)
                 .withReadTimeoutMillis(Duration.ofSeconds(2).toMillis())
                 .build();
 
         aclClient = client.aclClient();
+
+        ensureAclSubsystemIsReady();
+    }
+
+    private static void ensureAclSubsystemIsReady() {
+        await().atMost(Duration.ofSeconds(20))
+                .pollInterval(Duration.ofMillis(100))
+                .alias("Consul ACL subsystem did not become ready within 5 seconds")
+                .until(() -> {
+                    try {
+                        // readSelfToken is ACL-protected and will fail if ACL system not bootstrapped
+                        var self = aclClient.readSelfToken();
+                        return nonNull(self);
+                    } catch (Exception e) {
+                        return false;
+                    }
+                });
     }
 
     @AfterAll
