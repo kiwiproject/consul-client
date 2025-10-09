@@ -11,6 +11,7 @@ import org.kiwiproject.consul.config.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.time.Duration;
 import java.util.List;
@@ -42,7 +43,10 @@ public abstract class BaseIntegrationTest {
     static {
         consulContainer = new GenericContainer<>(CONSUL_DOCKER_IMAGE_NAME)
                 .withCommand("agent", "-dev", "-client", "0.0.0.0", "--enable-script-checks=true")
-                .withExposedPorts(8500);
+                .withExposedPorts(8500)
+                .waitingFor(Wait.forHttp("/v1/status/leader")
+                    .forStatusCode(200)
+                    .withStartupTimeout(Duration.ofSeconds(30)));
         consulContainer.start();
     }
 
