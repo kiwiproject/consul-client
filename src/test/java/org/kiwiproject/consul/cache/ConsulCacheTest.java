@@ -264,14 +264,7 @@ class ConsulCacheTest {
         var cacheConfig = CacheConfig.builder().build();
         var eventHandler = mock(ClientEventHandler.class);
 
-        var key = "foo";
-        var value = ImmutableValue.builder()
-                .createIndex(1)
-                .modifyIndex(2)
-                .lockIndex(2)
-                .key(key)
-                .flags(0)
-                .build();
+        var value = newSampleValue();
         List<Value> result = List.of(value);
         var callbackConsumer = new StubCallbackConsumer(result);
 
@@ -319,14 +312,7 @@ class ConsulCacheTest {
         var cacheConfig = CacheConfig.builder().build();
         var eventHandler = mock(ClientEventHandler.class);
 
-        var key = "foo";
-        var value = ImmutableValue.builder()
-                .createIndex(1)
-                .modifyIndex(2)
-                .lockIndex(2)
-                .key(key)
-                .flags(0)
-                .build();
+        var value = newSampleValue();
         List<Value> result = List.of(value);
         var callbackConsumer = new StubCallbackConsumer(result);
 
@@ -352,6 +338,7 @@ class ConsulCacheTest {
             final Map<String, Value> lastValues = listener.getLastValues();
             assertThat(lastValues).isNotNull();
             assertThat(lastValues).hasSameSizeAs(result);
+            var key = value.getKey();
             assertThat(lastValues).containsKey(key);
             assertThat(lastValues).containsEntry(key, value);
         }
@@ -365,14 +352,7 @@ class ConsulCacheTest {
                 .build();
         var eventHandler = mock(ClientEventHandler.class);
 
-        var key = "foo";
-        var value = ImmutableValue.builder()
-                .createIndex(1)
-                .modifyIndex(2)
-                .lockIndex(2)
-                .key(key)
-                .flags(0)
-                .build();
+        var value = newSampleValue();
         List<Value> result = List.of(value);
 
         try (var callbackConsumer = new AsyncCallbackConsumer(result)) {
@@ -394,6 +374,7 @@ class ConsulCacheTest {
                 Map<String, Value> lastValues = goodListener.getLastValues();
                 assertThat(lastValues).isNotNull();
                 assertThat(lastValues).hasSameSizeAs(result);
+                var key = value.getKey();
                 assertThat(lastValues).containsKey(key);
                 assertThat(lastValues).containsEntry(key, value);
             }
@@ -408,14 +389,7 @@ class ConsulCacheTest {
                 .build();
         var eventHandler = mock(ClientEventHandler.class);
 
-        var key = "foo";
-        var value = ImmutableValue.builder()
-                .createIndex(1)
-                .modifyIndex(2)
-                .lockIndex(2)
-                .key(key)
-                .flags(0)
-                .build();
+        var value = newSampleValue();
         List<Value> result = List.of(value);
         var callbackConsumer = new StubCallbackConsumer(result);
 
@@ -475,5 +449,31 @@ class ConsulCacheTest {
             var wasStopped = ConsulCache.stopIfRunningQuietly(stopwatchSpy);
             assertThat(wasStopped).isFalse();
         }
+    }
+
+    @Test
+    void shouldReturnEmptyMap_WhenLastResponseIsNull() {
+        Function<Value, String> keyExtractor = Value::getKey;
+
+        var cacheConfig = CacheConfig.builder().build();
+        var eventHandler = mock(ClientEventHandler.class);
+
+        var value = newSampleValue();
+        List<Value> result = List.of(value);
+        var callbackConsumer = new StubCallbackConsumer(result);
+
+        try (var cache = new ConsulCache<>(keyExtractor, callbackConsumer, cacheConfig, eventHandler, new CacheDescriptor(""))) {
+            assertThat(cache.getMap()).isEmpty();
+        }
+    }
+
+    private static ImmutableValue newSampleValue() {
+        return ImmutableValue.builder()
+                .createIndex(1)
+                .modifyIndex(2)
+                .lockIndex(2)
+                .key("foo")
+                .flags(0)
+                .build();
     }
 }
