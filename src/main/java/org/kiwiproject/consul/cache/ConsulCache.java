@@ -225,15 +225,22 @@ public class ConsulCache<K, V> implements AutoCloseable {
         }
 
         private void scheduleRunCallbackSafely(long delayMillis) {
-            if (isNotRunning()) {
-                return;
+            scheduleRunCallbackSafely(isRunning(), cacheDescriptor, scheduler, delayMillis, ConsulCache.this::runCallback);
+        }
+
+        @VisibleForTesting
+        static boolean scheduleRunCallbackSafely(boolean isRunning, CacheDescriptor descriptor, Scheduler scheduler, long delayMillis, Runnable callback) {
+            if (!isRunning) {
+                return false;
             }
 
             try {
-                scheduler.schedule(ConsulCache.this::runCallback, delayMillis, TimeUnit.MILLISECONDS);
+                scheduler.schedule(callback, delayMillis, TimeUnit.MILLISECONDS);
+                return true;
             } catch (RejectedExecutionException ignored) {
                 LOG.debug("Ignoring RejectedExecutionException for {}; scheduler was probably shut down during stop()",
-                        cacheDescriptor);
+                        descriptor);
+                return false;
             }
         }
 

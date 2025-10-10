@@ -6,11 +6,15 @@ import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.FIVE_SECONDS;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.spy;
-
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.util.concurrent.Runnables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -34,6 +38,9 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -186,6 +193,55 @@ class ConsulCacheTest {
                 arguments(new ConsulResponse<>(null, 0, false, BigInteger.ONE, null, null)),
                 arguments(new ConsulResponse<>(List.of(), 0, false, BigInteger.ONE, null, null))
         );
+    }
+
+    @Nested
+    class ScheduleRunCallbackSafely  {
+        
+        private Scheduler scheduler;
+        private CacheDescriptor descriptor;
+        private Runnable callback;
+
+        @BeforeEach
+        void setUp() {
+            scheduler = mock(Scheduler.class);
+            descriptor = new CacheDescriptor("testEndpoint", "testKey");
+            callback = Runnables.doNothing();
+        }
+        
+        @Test
+        void shouldNotSchedule_WheCacheIsNotRunning() {
+            var result = ConsulCache.DefaultConsulResponseCallback.scheduleRunCallbackSafely(
+                    false, descriptor, scheduler, 500, callback);
+            assertThat(result).isFalse();
+
+            verifyNoInteractions(scheduler);
+        }
+
+        @Test
+        void shouldIgnoreRejectedExecutionExceptions() {
+            var delayMillis = ThreadLocalRandom.current().nextLong(100, 1000);
+            doThrow(new RejectedExecutionException("I reject you!"))
+                    .when(scheduler)
+                    .schedule(callback, delayMillis, TimeUnit.MILLISECONDS);
+
+            var result = ConsulCache.DefaultConsulResponseCallback.scheduleRunCallbackSafely(
+                    true, descriptor, scheduler, delayMillis, callback);
+            assertThat(result).isFalse();
+
+            verify(scheduler, only()).schedule(callback, delayMillis, TimeUnit.MILLISECONDS);
+        }
+
+        @Test
+        void shouldSchedule() {
+            var delayMillis = ThreadLocalRandom.current().nextLong(100, 1000);
+
+            var result = ConsulCache.DefaultConsulResponseCallback.scheduleRunCallbackSafely(
+                    true, descriptor, scheduler, delayMillis, callback);
+            assertThat(result).isTrue();
+
+            verify(scheduler, only()).schedule(callback, delayMillis, TimeUnit.MILLISECONDS);
+        }
     }
 
     @Test
