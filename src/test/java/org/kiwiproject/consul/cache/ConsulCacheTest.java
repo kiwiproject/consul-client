@@ -5,9 +5,16 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.FIVE_SECONDS;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.util.concurrent.Runnables;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -31,6 +38,9 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -185,6 +195,55 @@ class ConsulCacheTest {
         );
     }
 
+    @Nested
+    class ScheduleRunCallbackSafely  {
+        
+        private Scheduler scheduler;
+        private CacheDescriptor descriptor;
+        private Runnable callback;
+
+        @BeforeEach
+        void setUp() {
+            scheduler = mock(Scheduler.class);
+            descriptor = new CacheDescriptor("testEndpoint", "testKey");
+            callback = Runnables.doNothing();
+        }
+        
+        @Test
+        void shouldNotSchedule_WheCacheIsNotRunning() {
+            var result = ConsulCache.DefaultConsulResponseCallback.scheduleRunCallbackSafely(
+                    false, descriptor, scheduler, 500, callback);
+            assertThat(result).isFalse();
+
+            verifyNoInteractions(scheduler);
+        }
+
+        @Test
+        void shouldIgnoreRejectedExecutionExceptions() {
+            var delayMillis = ThreadLocalRandom.current().nextLong(100, 1000);
+            doThrow(new RejectedExecutionException("I reject you!"))
+                    .when(scheduler)
+                    .schedule(callback, delayMillis, TimeUnit.MILLISECONDS);
+
+            var result = ConsulCache.DefaultConsulResponseCallback.scheduleRunCallbackSafely(
+                    true, descriptor, scheduler, delayMillis, callback);
+            assertThat(result).isFalse();
+
+            verify(scheduler, only()).schedule(callback, delayMillis, TimeUnit.MILLISECONDS);
+        }
+
+        @Test
+        void shouldSchedule() {
+            var delayMillis = ThreadLocalRandom.current().nextLong(100, 1000);
+
+            var result = ConsulCache.DefaultConsulResponseCallback.scheduleRunCallbackSafely(
+                    true, descriptor, scheduler, delayMillis, callback);
+            assertThat(result).isTrue();
+
+            verify(scheduler, only()).schedule(callback, delayMillis, TimeUnit.MILLISECONDS);
+        }
+    }
+
     @Test
     void testWatchParamsWithNoAdditionalOptions() {
         var index = new BigInteger("12");
@@ -261,14 +320,7 @@ class ConsulCacheTest {
         var cacheConfig = CacheConfig.builder().build();
         var eventHandler = mock(ClientEventHandler.class);
 
-        var key = "foo";
-        var value = ImmutableValue.builder()
-                .createIndex(1)
-                .modifyIndex(2)
-                .lockIndex(2)
-                .key(key)
-                .flags(0)
-                .build();
+        var value = newSampleValue();
         List<Value> result = List.of(value);
         var callbackConsumer = new StubCallbackConsumer(result);
 
@@ -316,14 +368,7 @@ class ConsulCacheTest {
         var cacheConfig = CacheConfig.builder().build();
         var eventHandler = mock(ClientEventHandler.class);
 
-        var key = "foo";
-        var value = ImmutableValue.builder()
-                .createIndex(1)
-                .modifyIndex(2)
-                .lockIndex(2)
-                .key(key)
-                .flags(0)
-                .build();
+        var value = newSampleValue();
         List<Value> result = List.of(value);
         var callbackConsumer = new StubCallbackConsumer(result);
 
@@ -349,6 +394,7 @@ class ConsulCacheTest {
             final Map<String, Value> lastValues = listener.getLastValues();
             assertThat(lastValues).isNotNull();
             assertThat(lastValues).hasSameSizeAs(result);
+            var key = value.getKey();
             assertThat(lastValues).containsKey(key);
             assertThat(lastValues).containsEntry(key, value);
         }
@@ -362,14 +408,7 @@ class ConsulCacheTest {
                 .build();
         var eventHandler = mock(ClientEventHandler.class);
 
-        var key = "foo";
-        var value = ImmutableValue.builder()
-                .createIndex(1)
-                .modifyIndex(2)
-                .lockIndex(2)
-                .key(key)
-                .flags(0)
-                .build();
+        var value = newSampleValue();
         List<Value> result = List.of(value);
 
         try (var callbackConsumer = new AsyncCallbackConsumer(result)) {
@@ -391,6 +430,7 @@ class ConsulCacheTest {
                 Map<String, Value> lastValues = goodListener.getLastValues();
                 assertThat(lastValues).isNotNull();
                 assertThat(lastValues).hasSameSizeAs(result);
+                var key = value.getKey();
                 assertThat(lastValues).containsKey(key);
                 assertThat(lastValues).containsEntry(key, value);
             }
@@ -405,14 +445,7 @@ class ConsulCacheTest {
                 .build();
         var eventHandler = mock(ClientEventHandler.class);
 
-        var key = "foo";
-        var value = ImmutableValue.builder()
-                .createIndex(1)
-                .modifyIndex(2)
-                .lockIndex(2)
-                .key(key)
-                .flags(0)
-                .build();
+        var value = newSampleValue();
         List<Value> result = List.of(value);
         var callbackConsumer = new StubCallbackConsumer(result);
 
@@ -434,4 +467,69 @@ class ConsulCacheTest {
         }
     }
 
+    @Nested
+    class StopIfRunningQuietly {
+
+        private Stopwatch stopwatch;
+
+        @BeforeEach
+        void setUp() {
+            stopwatch = Stopwatch.createStarted();
+        }
+
+        @Test
+        void shouldStopWhenRunning() {
+            var wasStopped = ConsulCache.stopIfRunningQuietly(stopwatch);
+            assertThat(wasStopped).isTrue();
+            assertThat(stopwatch.isRunning()).isFalse();
+        }
+
+        @Test
+        void shouldDoNothingWhenAlreadyStopped() {
+            stopwatch.stop();
+
+            var wasStopped = ConsulCache.stopIfRunningQuietly(stopwatch);
+            assertThat(wasStopped).isFalse();
+            assertThat(stopwatch.isRunning()).isFalse();
+        }
+
+        @Test
+        void shouldIgnoreIllegalStateDuringRaceCondition_WhenIsRunningReturnsTrue_ButWasAlreadyStopped() {
+            var stopwatchSpy = spy(stopwatch);
+
+            // Simulate race condition by stopping the Stopwatch, but
+            // tell the spy to return true from isRunning.
+            stopwatchSpy.stop();
+            doReturn(true).when(stopwatchSpy).isRunning();
+
+            var wasStopped = ConsulCache.stopIfRunningQuietly(stopwatchSpy);
+            assertThat(wasStopped).isFalse();
+        }
+    }
+
+    @Test
+    void shouldReturnEmptyMap_WhenLastResponseIsNull() {
+        Function<Value, String> keyExtractor = Value::getKey;
+
+        var cacheConfig = CacheConfig.builder().build();
+        var eventHandler = mock(ClientEventHandler.class);
+
+        var value = newSampleValue();
+        List<Value> result = List.of(value);
+        var callbackConsumer = new StubCallbackConsumer(result);
+
+        try (var cache = new ConsulCache<>(keyExtractor, callbackConsumer, cacheConfig, eventHandler, new CacheDescriptor(""))) {
+            assertThat(cache.getMap()).isEmpty();
+        }
+    }
+
+    private static ImmutableValue newSampleValue() {
+        return ImmutableValue.builder()
+                .createIndex(1)
+                .modifyIndex(2)
+                .lockIndex(2)
+                .key("foo")
+                .flags(0)
+                .build();
+    }
 }

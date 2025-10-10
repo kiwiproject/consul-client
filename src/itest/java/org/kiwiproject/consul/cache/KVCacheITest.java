@@ -20,6 +20,7 @@ import org.kiwiproject.consul.Consul;
 import org.kiwiproject.consul.KeyValueClient;
 import org.kiwiproject.consul.config.CacheConfig;
 import org.kiwiproject.consul.config.ClientConfig;
+import org.kiwiproject.consul.model.ConsulResponse;
 import org.kiwiproject.consul.model.kv.Value;
 
 import java.time.Duration;
@@ -66,6 +67,7 @@ class KVCacheITest extends BaseIntegrationTest {
             }
 
             ImmutableMap<String, Value> map = cache.getMap();
+            ConsulResponse<ImmutableMap<String, Value>> consulResponse = cache.getMapWithMetadata();
             for (int i = 0; i < 5; i++) {
                 var keyStr = String.format("%s/%s", root, i);
                 var valStr = String.valueOf(i);
@@ -73,6 +75,9 @@ class KVCacheITest extends BaseIntegrationTest {
                 var value = map.get(keyStr);
                 assertThat(value).isNotNull();
                 assertThat(value.getValueAsString()).contains(valStr);
+
+                var mapFromResponse = consulResponse.getResponse();
+                assertThat(mapFromResponse).isEqualTo(map);
             }
 
             for (int i = 0; i < 5; i++) {
@@ -84,6 +89,7 @@ class KVCacheITest extends BaseIntegrationTest {
             awaitAtMost500ms().until(() -> cache.getMap().size() == 5);
 
             map = cache.getMap();
+            consulResponse = cache.getMapWithMetadata();
             for (int i = 0; i < 5; i++) {
                 var keyStr = String.format("%s/%s", root, i);
                 var valStr = i % 2 == 0 ? String.valueOf(i * 10) : String.valueOf(i);
@@ -91,6 +97,9 @@ class KVCacheITest extends BaseIntegrationTest {
                 var value = map.get(keyStr);
                 assertThat(value).isNotNull();
                 assertThat(value.getValueAsString()).contains(valStr);
+
+                var mapFromResponse = consulResponse.getResponse();
+                assertThat(mapFromResponse).isEqualTo(map);
             }
         }
 

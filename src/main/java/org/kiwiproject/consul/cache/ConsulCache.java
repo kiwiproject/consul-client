@@ -10,6 +10,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import org.kiwiproject.consul.async.ConsulResponseCallback;
 import org.kiwiproject.consul.config.CacheConfig;
 import org.kiwiproject.consul.model.ConsulResponse;
@@ -38,6 +39,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * A cache structure that can provide an up-to-date read-only
@@ -67,7 +69,8 @@ public class ConsulCache<K, V> implements AutoCloseable {
     private final Scheduler scheduler;
     private final CopyOnWriteArrayList<Listener<K, V>> listeners = new CopyOnWriteArrayList<>();
     private final ReentrantLock listenersStartingLock = new ReentrantLock();
-    private final Stopwatch stopWatch = Stopwatch.createUnstarted();
+    private final Stopwatch stopwatch = Stopwatch.createUnstarted();
+    private final ReentrantLock stopwatchLock = new ReentrantLock();
 
     private final Function<V, K> keyConversion;
     private final CallbackConsumer<V> callBackConsumer;
@@ -142,22 +145,23 @@ public class ConsulCache<K, V> implements AutoCloseable {
                 return;
             }
 
-            long elapsedTime = stopWatch.elapsed(TimeUnit.MILLISECONDS);
+            var elapsedTimeMillis = withStopwatchLock(() -> stopwatch.elapsed(TimeUnit.MILLISECONDS));
             updateIndex(consulResponse);
             LOG.debug("Consul cache updated for {} (index={}), request duration: {} ms",
-                    cacheDescriptor, latestIndex, elapsedTime);
+                    cacheDescriptor, latestIndex, elapsedTimeMillis);
 
             ImmutableMap<K, V> full = convertToMap(consulResponse);
 
             boolean changed = !full.equals(lastResponse.get());
-            eventHandler.cachePollingSuccess(cacheDescriptor, changed, elapsedTime);
+            eventHandler.cachePollingSuccess(cacheDescriptor, changed, elapsedTimeMillis);
+
+            // metadata changes; always set
+            lastContact.set(consulResponse.getLastContact());
+            isKnownLeader.set(consulResponse.isKnownLeader());
 
             if (changed) {
                 // changes
                 lastResponse.set(full);
-                // metadata changes
-                lastContact.set(consulResponse.getLastContact());
-                isKnownLeader.set(consulResponse.isKnownLeader());
 
                 performListenerActionOptionallyLocking(() -> notifyListeners(full));
             }
@@ -171,9 +175,13 @@ public class ConsulCache<K, V> implements AutoCloseable {
             if (hasNullOrEmptyResponse(consulResponse) && isLongerThan(minimumDelayOnEmptyResult, timeToWait)) {
                 timeToWait = minimumDelayOnEmptyResult;
             }
-            timeToWait = timeToWait.minusMillis(elapsedTime);
+            timeToWait = timeToWait.minusMillis(elapsedTimeMillis);
+            if (timeToWait.isNegative()) {
+                // ensure a minimum non-negative wait time
+                timeToWait = Duration.ofMillis(1);
+            }
 
-            scheduler.schedule(ConsulCache.this::runCallback, timeToWait.toMillis(), TimeUnit.MILLISECONDS);
+            scheduleRunCallbackSafely(timeToWait.toMillis());
         }
 
         private void updateIndex(ConsulResponse<List<V>> consulResponse) {
@@ -213,7 +221,27 @@ public class ConsulCache<K, V> implements AutoCloseable {
 
             cacheConfig.getRefreshErrorLoggingConsumer().accept(LOG, message, throwable);
 
-            scheduler.schedule(ConsulCache.this::runCallback, delayMs, TimeUnit.MILLISECONDS);
+            scheduleRunCallbackSafely(delayMs);
+        }
+
+        private void scheduleRunCallbackSafely(long delayMillis) {
+            scheduleRunCallbackSafely(isRunning(), cacheDescriptor, scheduler, delayMillis, ConsulCache.this::runCallback);
+        }
+
+        @VisibleForTesting
+        static boolean scheduleRunCallbackSafely(boolean isRunning, CacheDescriptor descriptor, Scheduler scheduler, long delayMillis, Runnable callback) {
+            if (!isRunning) {
+                return false;
+            }
+
+            try {
+                scheduler.schedule(callback, delayMillis, TimeUnit.MILLISECONDS);
+                return true;
+            } catch (RejectedExecutionException ignored) {
+                LOG.debug("Ignoring RejectedExecutionException for {}; scheduler was probably shut down during stop()",
+                        descriptor);
+                return false;
+            }
         }
 
         private boolean isNotRunning() {
@@ -240,9 +268,9 @@ public class ConsulCache<K, V> implements AutoCloseable {
         }
 
         State previous = state.getAndSet(State.STOPPED);
-        if (stopWatch.isRunning()) {
-            stopWatch.stop();
-        }
+
+        withStopwatchLock(() -> stopIfRunningQuietly(stopwatch));
+
         if (previous != State.STOPPED) {
             scheduler.shutdownNow();
         }
@@ -255,7 +283,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
 
     private void runCallback() {
         if (isRunning()) {
-            stopWatch.reset().start();
+            withStopwatchLock(() -> stopwatch.reset().start());
             callBackConsumer.consume(latestIndex.get(), responseCallback);
         }
     }
@@ -269,7 +297,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
     }
 
     public ImmutableMap<K, V> getMap() {
-        return lastResponse.get();
+        return Optional.ofNullable(lastResponse.get()).orElseGet(ImmutableMap::of);
     }
 
     public ConsulResponse<ImmutableMap<K,V>> getMapWithMetadata() {
@@ -364,7 +392,8 @@ public class ConsulCache<K, V> implements AutoCloseable {
             listeners.add(listener);
             if (state.get() == State.STARTED) {
                 try {
-                    listener.notify(lastResponse.get());
+                    var snapshot = Optional.ofNullable(lastResponse.get()).orElseGet(ImmutableMap::of);
+                    listener.notify(snapshot);
                 } catch (RuntimeException e) {
                     LOG.warn("ConsulCache Listener's notify method threw an exception.", e);
                 }
@@ -441,8 +470,32 @@ public class ConsulCache<K, V> implements AutoCloseable {
 
     protected static void checkWatch(int networkReadMillis, int cacheWatchSeconds) {
         if (networkReadMillis <= TimeUnit.SECONDS.toMillis(cacheWatchSeconds)) {
-            throw new IllegalArgumentException("Cache watchInterval="+ cacheWatchSeconds + "sec >= networkClientReadTimeout="
-                + networkReadMillis + "ms. It can cause issues");
+            throw new IllegalArgumentException("Cache watchInterval = "+ cacheWatchSeconds + " sec >= networkClientReadTimeout = "
+                + networkReadMillis + " ms. It can cause issues");
         }
+    }
+
+    @CanIgnoreReturnValue
+    private <T> T withStopwatchLock(Supplier<T> action) {
+        stopwatchLock.lock();
+        try {
+            return action.get();
+        } finally {
+            stopwatchLock.unlock();
+        }
+    }
+
+    @VisibleForTesting
+    static boolean stopIfRunningQuietly(Stopwatch stopwatch) {
+        try {
+            if (stopwatch.isRunning()) {
+                stopwatch.stop();
+                return true;
+            }
+        } catch (IllegalStateException ignored) {
+            // As long as this method is always called while the lock is held, this should not occur under
+            LOG.debug("Stopwatch was already stopped; ignoring IllegalStateException thrown by stop()");
+        }
+        return false;  // either was not running or caught IllegalStateException
     }
 }
