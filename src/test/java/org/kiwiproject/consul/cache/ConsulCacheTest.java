@@ -5,11 +5,20 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.awaitility.Awaitility.await;
 import static org.awaitility.Durations.FIVE_SECONDS;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -24,6 +33,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.kiwiproject.consul.TestUtils;
+import org.kiwiproject.consul.async.ConsulResponseCallback;
 import org.kiwiproject.consul.cache.ConsulCache.CallbackConsumer;
 import org.kiwiproject.consul.cache.ConsulCache.Scheduler;
 import org.kiwiproject.consul.config.CacheConfig;
@@ -43,6 +53,7 @@ import java.util.Set;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -604,6 +615,83 @@ class ConsulCacheTest {
             ConsulResponse<ImmutableMap<String, Value>> respWithMeta = cache.getMapWithMetadata();
 
             assertThat(respWithMeta.getCacheResponseInfo()).isEmpty();
+        }
+    }
+
+    @Test
+    void onFailure_in_DefaultConsulResponseCallback_shouldReportErrorAndScheduleWhenRunning() {
+        // Arrange deterministic backoff and a no-op error logger we can spy on
+        var errorLogger = spy(CacheConfig.RefreshErrorLogConsumer.class);
+
+        var delay = Duration.ofMillis(250);
+        var cacheConfig = CacheConfig.builder()
+                .withBackOffDelay(delay)
+                .withRefreshErrorLoggedAs(errorLogger)
+                .build();
+
+        // Provide a do-nothing default to the spy, so calling accept() works
+        doAnswer(invocation -> null).when(errorLogger).accept(any(), anyString(), any());
+
+        var eventHandler = mock(ClientEventHandler.class);
+        var scheduler = mock(Scheduler.class);
+        var cacheDescriptor = new CacheDescriptor("/kv", "test");
+
+        // CallbackConsumer that always fails
+        var exception = new RuntimeException("boom");
+        CallbackConsumer<Value> failingConsumer = (index, callback) -> callback.onFailure(exception);
+
+        Function<Value, String> keyExtractor = Value::getKey;
+
+        try (var cache = new ConsulCache<>(keyExtractor, failingConsumer, cacheConfig, eventHandler, cacheDescriptor, scheduler)) {
+            cache.start();
+
+            // Verify event handler notified
+            var timeoutMillis = timeout(500);
+            verify(eventHandler, timeoutMillis)
+                    .cachePollingError(same(cacheDescriptor), any(RuntimeException.class));
+
+            // Verify callback was scheduled with the configured backoff delay
+            verify(scheduler, timeoutMillis)
+                    .schedule(any(Runnable.class), eq(delay.toMillis()), eq(TimeUnit.MILLISECONDS));
+
+            // Verify the logging consumer was invoked
+            var expectedErrorMessage = String.format("Error getting response from consul for %s, will retry in %d %s",
+                    cacheDescriptor,
+                    delay.toMillis(),
+                    TimeUnit.MILLISECONDS
+            );
+            verify(errorLogger, atLeastOnce())
+                    .accept(any(), eq(expectedErrorMessage), same(exception));
+        }
+    }
+
+    @Test
+    void onFailure_in_DefaultConsulResponseCallback_shouldDoNothingWhenNotRunning() {
+        Function<Value, String> keyExtractor = Value::getKey;
+        var delay = Duration.ofMillis(100);
+        var cacheConfig = CacheConfig.builder().withBackOffDelay(delay).build();
+        var eventHandler = mock(ClientEventHandler.class);
+        var scheduler = mock(Scheduler.class);
+        var cacheDescriptor = new CacheDescriptor("/kv", "test");
+
+        var callbackHolder = new AtomicReference<ConsulResponseCallback<List<Value>>>();
+        CallbackConsumer<Value> capturingConsumer = (index, callback) -> callbackHolder.set(callback);
+
+        try (var cache = new ConsulCache<>(keyExtractor, capturingConsumer, cacheConfig, eventHandler, cacheDescriptor, scheduler)) {
+            cache.start();
+            assertThat(callbackHolder.get())
+                    .describedAs("precondition: callback should be captured after start()")
+                    .isNotNull();
+
+            // Stop cache so that onFailure sees a non-running state
+            cache.stop();
+
+            // Manually invoke onFailure after stopping
+            callbackHolder.get().onFailure(new RuntimeException("boom"));
+
+            // Verify no interactions since the cache is not running
+            verify(eventHandler, never()).cachePollingError(any(), any());
+            verify(scheduler, never()).schedule(any(Runnable.class), anyLong(), any());
         }
     }
 
