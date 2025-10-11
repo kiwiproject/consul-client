@@ -53,9 +53,9 @@
 
     <properties>
         <!-- Versions for required dependencies -->
-        <immutables.version>2.11.4</immutables.version>
-        <kiwi-bom.version>2.0.32</kiwi-bom.version>
-        <okhttp.version>5.1.0</okhttp.version>
+        <immutables.version>2.11.6</immutables.version>
+        <kiwi-bom.version>2.1.0</kiwi-bom.version>
+        <okhttp.version>5.2.1</okhttp.version>
         <retrofit.version>3.0.0</retrofit.version>
 
         <!-- Versions for test dependencies -->
