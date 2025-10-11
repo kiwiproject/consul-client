@@ -12,6 +12,7 @@ import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.Runnables;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.kiwiproject.consul.TestUtils;
 import org.kiwiproject.consul.cache.ConsulCache.CallbackConsumer;
@@ -520,6 +522,88 @@ class ConsulCacheTest {
 
         try (var cache = new ConsulCache<>(keyExtractor, callbackConsumer, cacheConfig, eventHandler, new CacheDescriptor(""))) {
             assertThat(cache.getMap()).isEmpty();
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource(textBlock = """
+            HIT, 0
+            HIT, 5
+            HIT, 5000
+            """)
+    void shouldPopulateLastCacheInfoWhenResponseContainsCacheHitHeaders(String cacheHeader, String ageHeader) {
+        Function<Value, String> keyConversion = value -> TestUtils.randomUUIDString();
+
+        var value = newSampleValue();
+        List<Value> result = List.of(value);
+        var callbackConsumer = new StubCallbackConsumer(result, cacheHeader, ageHeader);
+
+        var cacheConfig = CacheConfig.builder().withMinDelayBetweenRequests(Duration.ofMillis(20)).build();
+        var eventHandler = new ClientEventHandler("test", null);
+        var descriptor = new CacheDescriptor("test.endpoint");
+
+        try (var cache = new ConsulCache<>(keyConversion, callbackConsumer, cacheConfig, eventHandler, descriptor)) {
+            cache.start();
+            await().atMost(FIVE_SECONDS).until(() -> cache.awaitInitialized(100, TimeUnit.MILLISECONDS));
+
+            ConsulResponse<ImmutableMap<String, Value>> respWithMeta = cache.getMapWithMetadata();
+
+            var cacheInfoOpt = respWithMeta.getCacheResponseInfo();
+            assertThat(cacheInfoOpt).isPresent();
+
+            var cacheInfo = cacheInfoOpt.orElseThrow();
+            assertThat(cacheInfo.isCacheHit()).isTrue();
+            assertThat(cacheInfo.getAgeInSeconds()).hasValue(Long.valueOf(ageHeader));
+        }
+    }
+
+    @Test
+    void shouldPopulateLastCacheInfoWhenResponseContainsCacheMissHeaders() {
+        Function<Value, String> keyConversion = value -> TestUtils.randomUUIDString();
+
+        var value = newSampleValue();
+        List<Value> result = List.of(value);
+        var cacheHeader = "MISS";
+        var callbackConsumer = new StubCallbackConsumer(result, cacheHeader, null);
+
+        var cacheConfig = CacheConfig.builder().withMinDelayBetweenRequests(Duration.ofMillis(15)).build();
+        var eventHandler = new ClientEventHandler("test", null);
+        var descriptor = new CacheDescriptor("test.endpoint");
+
+        try (var cache = new ConsulCache<>(keyConversion, callbackConsumer, cacheConfig, eventHandler, descriptor)) {
+            cache.start();
+            await().atMost(FIVE_SECONDS).until(() -> cache.awaitInitialized(100, TimeUnit.MILLISECONDS));
+
+            ConsulResponse<ImmutableMap<String, Value>> respWithMeta = cache.getMapWithMetadata();
+
+            var cacheInfoOpt = respWithMeta.getCacheResponseInfo();
+            assertThat(cacheInfoOpt).isPresent();
+
+            var cacheInfo = cacheInfoOpt.orElseThrow();
+            assertThat(cacheInfo.isCacheHit()).isFalse();
+            assertThat(cacheInfo.getAgeInSeconds()).isEmpty();
+        }
+    }
+
+    @Test
+    void shouldHaveEmptyLastCacheInfoWhenResponseDoesNotContainCacheHeaders() {
+        Function<Value, String> keyConversion = value -> TestUtils.randomUUIDString();
+
+        var value = newSampleValue();
+        List<Value> result = List.of(value);
+        var callbackConsumer = new StubCallbackConsumer(result);
+
+        var cacheConfig = CacheConfig.builder().withMinDelayBetweenRequests(Duration.ofMillis(15)).build();
+        var eventHandler = new ClientEventHandler("test", null);
+        var descriptor = new CacheDescriptor("test.endpoint");
+
+        try (var cache = new ConsulCache<>(keyConversion, callbackConsumer, cacheConfig, eventHandler, descriptor)) {
+            cache.start();
+            await().atMost(FIVE_SECONDS).until(() -> cache.awaitInitialized(100, TimeUnit.MILLISECONDS));
+
+            ConsulResponse<ImmutableMap<String, Value>> respWithMeta = cache.getMapWithMetadata();
+
+            assertThat(respWithMeta.getCacheResponseInfo()).isEmpty();
         }
     }
 

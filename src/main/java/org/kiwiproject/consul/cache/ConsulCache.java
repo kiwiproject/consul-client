@@ -158,6 +158,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
             // metadata changes; always set
             lastContact.set(consulResponse.getLastContact());
             isKnownLeader.set(consulResponse.isKnownLeader());
+            lastCacheInfo.set(consulResponse.getCacheResponseInfo().orElse(null));
 
             if (changed) {
                 // changes
@@ -229,10 +230,18 @@ public class ConsulCache<K, V> implements AutoCloseable {
         }
 
         @VisibleForTesting
-        static boolean scheduleRunCallbackSafely(boolean isRunning, CacheDescriptor descriptor, Scheduler scheduler, long delayMillis, Runnable callback) {
+        static boolean scheduleRunCallbackSafely(boolean isRunning,
+                                                 CacheDescriptor descriptor,
+                                                 Scheduler scheduler,
+                                                 long delayMillis,
+                                                 Runnable callback) {
+
             if (!isRunning) {
+                LOG.trace("Ignoring request to schedule next callback for [{}]; the cache is not running", descriptor);
                 return false;
             }
+
+            LOG.trace("Scheduling next callback for [{}] with {} ms delay", descriptor, delayMillis);
 
             try {
                 scheduler.schedule(callback, delayMillis, TimeUnit.MILLISECONDS);
