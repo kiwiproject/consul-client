@@ -60,7 +60,7 @@ public class ConsulException extends RuntimeException {
      */
     public ConsulException(Call<?> call, Response<?> response) {
         super(String.format("Consul request to [%s] failed with status [%s]: %s",
-                call.request().url().toString(), response.code(), message(response)));
+                call.request().url(), response.code(), message(response)));
         this.code = response.code();
         this.hasCode = true;
     }
