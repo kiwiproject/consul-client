@@ -37,6 +37,11 @@ public abstract class BaseIntegrationTest {
     //
     // There is a comment in that issue with a possible workaround:
     // https://github.com/junit-team/junit5/issues/456#issuecomment-416945159
+    //
+    // JUnit 5.11.0 introduced BeforeSuite/AfterSuite, but after looking into it,
+    // I think it will just add more complexity than perhaps it is worth right
+    // now. I am adding this as an FYI that JUnit does support suites now, in
+    // case we want to revisit in the future.
 
     static {
         consulContainer = new ConsulContainer(CONSUL_DOCKER_IMAGE_NAME)
