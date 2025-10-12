@@ -483,8 +483,8 @@ class KeyValueClientITest extends BaseIntegrationTest {
                 .isFalse();
         assertThat(completed.getCount()).isOne();
 
-        var maxAgeInSeconds = Optional.of(60L);
-        var maxStaleInSeconds = Optional.of(180L);
+        var maxAgeInSeconds = 60L;
+        var maxStaleInSeconds = 180L;
         var consistencyMode = ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(maxAgeInSeconds, maxStaleInSeconds);
         var queryOptions = ImmutableQueryOptions.builder()
                 .consistencyMode(consistencyMode)
