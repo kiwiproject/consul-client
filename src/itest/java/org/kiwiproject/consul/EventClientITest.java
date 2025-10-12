@@ -4,6 +4,7 @@ import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
 import static org.kiwiproject.consul.Awaiting.awaitAtMost1s;
+import static org.kiwiproject.consul.Awaiting.awaitAtMost2s;
 import static org.kiwiproject.consul.Awaiting.awaitWith25MsPoll;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -69,10 +70,13 @@ class EventClientITest extends BaseIntegrationTest {
         var eventCount = randomNumberOfEvents();
         var eventIds = createRandomEventsGettingIds(eventCount);
 
-        var eventResponse = eventClient.listEvents();
-
-        var foundEventIds = getEventIds(eventResponse);
-        assertThat(foundEventIds).hasSizeGreaterThanOrEqualTo(eventCount).containsAll(eventIds);
+        awaitAtMost2s().untilAsserted(() -> {
+            var eventResponse = eventClient.listEvents();
+            var foundEventIds = getEventIds(eventResponse);
+            assertThat(foundEventIds)
+                    .hasSizeGreaterThanOrEqualTo(eventCount)
+                    .containsAll(eventIds);
+        });
     }
 
     @Test
@@ -101,10 +105,13 @@ class EventClientITest extends BaseIntegrationTest {
         var eventCount = randomNumberOfEvents();
         var eventIds = createRandomEventsGettingIds(eventCount);
 
-        var eventResponse = eventClient.listEvents(Options.BLANK_QUERY_OPTIONS);
-
-        var foundEventIds = getEventIds(eventResponse);
-        assertThat(foundEventIds).hasSizeGreaterThanOrEqualTo(eventCount).containsAll(eventIds);
+        awaitAtMost2s().untilAsserted(() -> {
+            var eventResponse = eventClient.listEvents(Options.BLANK_QUERY_OPTIONS);
+            var foundEventIds = getEventIds(eventResponse);
+            assertThat(foundEventIds)
+                    .hasSizeGreaterThanOrEqualTo(eventCount)
+                    .containsAll(eventIds);
+        });
     }
 
     @Test
