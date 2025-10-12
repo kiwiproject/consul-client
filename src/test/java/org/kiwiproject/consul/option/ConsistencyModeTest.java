@@ -24,7 +24,7 @@ class ConsistencyModeTest {
     }
 
     @Test
-    void checkHeadersForCached() {
+    void checkHeadersForCached_WithOptionals() {
         var consistency = ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(Optional.of(30L), Optional.of(60L));
         assertThat(consistency.toParam()).contains("cached");
         assertThat(consistency.getAdditionalHeaders()).hasSize(1);
@@ -43,21 +43,67 @@ class ConsistencyModeTest {
     }
 
     @Test
-    void checkBadMaxAge() {
+    void checkHeadersForCached() {
+        var consistency = ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(30L, 60L);
+        assertThat(consistency.toParam()).contains("cached");
+        assertThat(consistency.getAdditionalHeaders()).hasSize(1);
+        assertThat(consistency.getAdditionalHeaders()).containsEntry("Cache-Control", "max-age=30,stale-if-error=60");
+
+        consistency = ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(30L, null);
+        assertThat(consistency.getAdditionalHeaders()).containsEntry("Cache-Control", "max-age=30");
+
+        consistency = ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(null, 60L);
+        assertThat(consistency.getAdditionalHeaders()).containsEntry("Cache-Control", "stale-if-error=60");
+
+        consistency = ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(0L, null);
+        assertThat(consistency.getAdditionalHeaders()).containsEntry("Cache-Control", "max-age=0");
+
+        consistency = ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(null, 0L);
+        assertThat(consistency.getAdditionalHeaders()).containsEntry("Cache-Control", "stale-if-error=0");
+
+        // Consistency cache without Cache-Control directives
+        consistency = ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(null, (Long) null);
+        assertThat(consistency.toParam()).contains("cached");
+        assertThat(consistency.getAdditionalHeaders()).isEmpty();
+    }
+
+    @Test
+    void checkBadMaxAge_WithOptionals() {
         assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() ->
                 ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(Optional.of(-1L), Optional.empty()));
     }
 
     @Test
-    void checkBadMaxStaleError() {
+    void checkBadMaxAge() {
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() ->
+                ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(-1L, null));
+    }
+
+    @Test
+    void checkBadMaxStaleError_WithOptionals() {
         assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() ->
                 ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(Optional.empty(), Optional.of(-2L)));
     }
 
     @Test
-    void shouldHaveToString() {
+    void checkBadMaxStaleError() {
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() ->
+                ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(null, -2L));
+    }
+
+    @Test
+    void shouldHaveToString_WithOptionals() {
         var maxAgeSeconds = Optional.of(30L);
         var maxStaleSeconds = Optional.of(60L);
+        var consistency = ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(maxAgeSeconds, maxStaleSeconds);
+
+        assertThat(consistency.toString()).contains("CACHED[Cache-Control=max-age=30,stale-if-error=60]");
+    }
+
+    @Test
+    void shouldHaveToString() {
+        var maxAgeSeconds = 30L;
+        var maxStaleSeconds = 60L;
         var consistency = ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(maxAgeSeconds, maxStaleSeconds);
 
         assertThat(consistency.toString()).contains("CACHED[Cache-Control=max-age=30,stale-if-error=60]");
