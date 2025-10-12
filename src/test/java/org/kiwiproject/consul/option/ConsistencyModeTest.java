@@ -23,6 +23,7 @@ class ConsistencyModeTest {
         assertThat(ConsistencyMode.values()[2].name()).isEqualTo("CONSISTENT");
     }
 
+    @SuppressWarnings("removal")
     @Test
     void checkHeadersForCached_WithOptionals() {
         var consistency = ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(Optional.of(30L), Optional.of(60L));
@@ -67,6 +68,7 @@ class ConsistencyModeTest {
         assertThat(consistency.getAdditionalHeaders()).isEmpty();
     }
 
+    @SuppressWarnings("removal")
     @Test
     void checkBadMaxAge_WithOptionals() {
         assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() ->
@@ -79,6 +81,7 @@ class ConsistencyModeTest {
                 ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(-1L, null));
     }
 
+    @SuppressWarnings("removal")
     @Test
     void checkBadMaxStaleError_WithOptionals() {
         assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() ->
@@ -91,6 +94,7 @@ class ConsistencyModeTest {
                 ConsistencyMode.createCachedConsistencyWithMaxAgeAndStale(null, -2L));
     }
 
+    @SuppressWarnings("removal")
     @Test
     void shouldHaveToString_WithOptionals() {
         var maxAgeSeconds = Optional.of(30L);
