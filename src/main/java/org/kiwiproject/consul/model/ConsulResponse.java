@@ -77,6 +77,11 @@ public class ConsulResponse<T> {
         this(response, lastContact, knownLeader, index, buildCacheResponseInfo(headerHitMiss, headerAge));
     }
 
+    /**
+     * @deprecated replaced by {@link #ConsulResponse(Object, long, boolean, BigInteger, CacheResponseInfo)}
+     */
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    @Deprecated(since = "1.8.0", forRemoval = true)
     public ConsulResponse(T response,
                           long lastContact,
                           boolean knownLeader,
