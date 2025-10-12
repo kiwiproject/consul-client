@@ -42,8 +42,34 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * A cache structure that can provide an up-to-date read-only
- * map backed by consul data
+ * Asynchronous, read-only snapshot cache backed by Consul.
+ * <p>
+ * {@code ConsulCache} repeatedly queries Consul (optionally using Consul’s
+ * <em>blocking query</em> mechanism for long polling) via a supplied
+ * {@link CallbackConsumer}. It maintains an immutable snapshot map of the
+ * latest data, keyed by a caller-provided {@code keyConversion} function.
+ * <p>
+ * Callers can:
+ * <ul>
+ *   <li>Start/stop the cache via {@link #start()} / {@link #stop()} (also {@link #close()}).</li>
+ *   <li>Read the current snapshot with {@link #getMap()} or {@link #getMapWithMetadata()}.</li>
+ *   <li>Wait for the first successful fetch with {@link #awaitInitialized(long, java.util.concurrent.TimeUnit)}.</li>
+ *   <li>Register {@link Listener}s to be notified when the snapshot changes.</li>
+ * </ul>
+ *
+ * <h3>Threading & notifications</h3>
+ * All public methods are safe for concurrent use. Listener callbacks are invoked on the cache’s internal
+ * scheduler thread; implementations should return quickly and offload expensive work.
+ *
+ * <h3>Subclassing</h3>
+ * This class is intended to be subclassed: constructors are {@code protected}. Typical subclasses bind a
+ * specific Consul endpoint by supplying:
+ * <ul>
+ *   <li>a {@code CallbackConsumer<V>} that enqueues the Retrofit call (usually a blocking query), and</li>
+ *   <li>a {@code Function<V,K>} that derives keys for the snapshot map.</li>
+ * </ul>
+ * Subclasses usually expose public factory methods that call one of the protected constructors; overriding
+ * lifecycle methods is not required.
  *
  * @param <K> the type of keys this cache contains
  * @param <V> the type of values this cache contains
