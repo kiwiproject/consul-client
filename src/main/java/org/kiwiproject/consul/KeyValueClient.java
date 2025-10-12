@@ -178,7 +178,7 @@ public class KeyValueClient extends BaseCacheableClient {
                 response.getLastContact(),
                 response.isKnownLeader(),
                 response.getIndex(),
-                response.getCacheResponseInfo());
+                response.getCacheResponseInfoOrNull());
     }
 
     /**

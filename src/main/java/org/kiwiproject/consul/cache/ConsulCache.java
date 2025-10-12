@@ -408,7 +408,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
                 lastContact.get(),
                 isKnownLeader.get(),
                 latestIndex.get(),
-                Optional.ofNullable(lastCacheInfo.get())
+                lastCacheInfo.get()
         );
     }
 

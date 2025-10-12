@@ -132,9 +132,22 @@ public class ConsulResponse<T> {
     /**
      * @return an Optional containing the CacheResponseInfo, or empty Optional if it does not exist
      * @see <a href="https://developer.hashicorp.com/consul/api-docs/features/caching#background-refresh-caching">Background Refresh Caching</a>
+     * @see #getCacheResponseInfoOrNull()
      */
     public Optional<CacheResponseInfo> getCacheResponseInfo() {
         return Optional.ofNullable(cacheResponseInfo);
+    }
+
+    /**
+     * This is a convenience method for use by code that expect {@code null} instead of {@link Optional}.
+     *
+     * @return the CacheResponseInfo or null if it does not exist
+     * @see <a href="https://developer.hashicorp.com/consul/api-docs/features/caching#background-refresh-caching">Background Refresh Caching</a>
+     * @see #getCacheResponseInfo()
+     */
+    @Nullable
+    public CacheResponseInfo getCacheResponseInfoOrNull() {
+        return cacheResponseInfo;
     }
 
     @Override
