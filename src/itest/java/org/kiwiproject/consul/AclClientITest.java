@@ -20,8 +20,7 @@ import org.kiwiproject.consul.model.acl.PolicyResponse;
 import org.kiwiproject.consul.model.acl.RoleResponse;
 import org.kiwiproject.consul.model.acl.Token;
 import org.kiwiproject.consul.model.acl.TokenResponse;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.consul.ConsulContainer;
 
 import java.time.Duration;
 import java.util.List;
@@ -33,18 +32,15 @@ import java.util.Objects;
  */
 class AclClientITest {
 
-    private static GenericContainer<?> consulContainerAcl;
+    private static ConsulContainer consulContainerAcl;
     private static AclClient aclClient;
 
-    @SuppressWarnings("resource")
     @BeforeAll
     static void beforeAll() {
         var token = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee";
-        consulContainerAcl = new GenericContainer<>(CONSUL_DOCKER_IMAGE_NAME)
-                .withCommand("agent", "-dev", "-client", "0.0.0.0", "--enable-script-checks=true")
-                .withExposedPorts(8500)
-                .withEnv("CONSUL_LOCAL_CONFIG",
-                        """
+
+        consulContainerAcl = new ConsulContainer(CONSUL_DOCKER_IMAGE_NAME)
+                .withEnv("CONSUL_LOCAL_CONFIG", """
                             {
                                 "acl": {
                                     "enabled": true,
@@ -54,11 +50,8 @@ class AclClientITest {
                                     }
                                 }
                             }
-                        """.formatted(token))
-                .waitingFor(Wait.forHttp("/v1/status/leader")
-                    .forStatusCode(200)
-                    .withStartupTimeout(Duration.ofSeconds(30)));
-        
+                        """.formatted(token));
+
         consulContainerAcl.start();
 
         var aclClientHostAndPort = HostAndPort.fromParts("localhost", consulContainerAcl.getFirstMappedPort());
@@ -77,7 +70,7 @@ class AclClientITest {
     private static void ensureAclSubsystemIsReady() {
         await().atMost(Duration.ofSeconds(20))
                 .pollInterval(Duration.ofMillis(100))
-                .alias("Consul ACL subsystem did not become ready within 5 seconds")
+                .alias("Consul ACL subsystem did not become ready within 20 seconds")
                 .until(() -> {
                     try {
                         // readSelfToken is ACL-protected and will fail if ACL system not bootstrapped

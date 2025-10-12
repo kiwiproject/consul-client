@@ -10,14 +10,12 @@ import org.kiwiproject.consul.config.CacheConfig;
 import org.kiwiproject.consul.config.ClientConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.consul.ConsulContainer;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-@SuppressWarnings("resource")
 public abstract class BaseIntegrationTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(BaseIntegrationTest.class);
@@ -26,7 +24,7 @@ public abstract class BaseIntegrationTest {
 
     protected static Consul client;
 
-    public static final GenericContainer<?> consulContainer;
+    public static final ConsulContainer consulContainer;
 
     // NOTE:
     // The following starts a consul container that will persist across all tests
@@ -37,16 +35,14 @@ public abstract class BaseIntegrationTest {
     // there isn't a way to do before/after suite logic. See the discussion in this
     // issue for more details: https://github.com/junit-team/junit5/issues/456
     //
-    // There is a comment in that issue with a possible workround:
+    // There is a comment in that issue with a possible workaround:
     // https://github.com/junit-team/junit5/issues/456#issuecomment-416945159
 
     static {
-        consulContainer = new GenericContainer<>(CONSUL_DOCKER_IMAGE_NAME)
-                .withCommand("agent", "-dev", "-client", "0.0.0.0", "--enable-script-checks=true")
-                .withExposedPorts(8500)
-                .waitingFor(Wait.forHttp("/v1/status/leader")
-                    .forStatusCode(200)
-                    .withStartupTimeout(Duration.ofSeconds(30)));
+        consulContainer = new ConsulContainer(CONSUL_DOCKER_IMAGE_NAME)
+                .withEnv("CONSUL_LOCAL_CONFIG", """
+                        { "enable_script_checks": true }
+                        """);
         consulContainer.start();
     }
 
@@ -79,7 +75,7 @@ public abstract class BaseIntegrationTest {
     private static String createDeregistrationErrorMessage(ConsulException e) {
         return String.format(
             """
-                    Unable to degister service. The serviceId was created using\
+                    Unable to deregister service. The serviceId was created using\
                      createAutoDeregisterServiceId, but maybe it should not have been.\
                      For example, using the /agent/services endpoint only returns\
                      services registered against the specific local agent with\
