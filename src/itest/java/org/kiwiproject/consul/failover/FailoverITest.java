@@ -13,7 +13,7 @@ import org.kiwiproject.consul.util.failover.MaxFailoverAttemptsExceededException
 import java.net.SocketTimeoutException;
 import java.util.List;
 
-class FailoverTest extends BaseIntegrationTest {
+class FailoverITest extends BaseIntegrationTest {
 
     /**
      * @implNote Without modifying the production code to allow inspection of interception results, there is no
