@@ -5,6 +5,7 @@ import static java.util.Objects.nonNull;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
+import org.jspecify.annotations.Nullable;
 
 import java.math.BigInteger;
 import java.util.Optional;
@@ -56,22 +57,39 @@ public class ConsulResponse<T> {
     private final long lastContact;
     private final boolean knownLeader;
     private final BigInteger index;
-    private final Optional<CacheResponseInfo> cacheResponseInfo;
+    private final CacheResponseInfo cacheResponseInfo;
 
+    @Nullable
     @VisibleForTesting
     static CacheResponseInfo buildCacheResponseInfo(String headerHitMiss, String headerAge) throws NumberFormatException {
-        ConsulResponse.CacheResponseInfo cacheInfo = null;
         if (nonNull(headerHitMiss)) {
-            cacheInfo = new CacheResponseInfoImpl(headerHitMiss, headerAge);
+            return new CacheResponseInfoImpl(headerHitMiss, headerAge);
         }
-        return cacheInfo;
+        return null;
     }
 
-    public ConsulResponse(T response, long lastContact, boolean knownLeader, BigInteger index, String headerHitMiss, String headerAge) throws NumberFormatException {
-        this(response, lastContact, knownLeader, index, Optional.ofNullable(buildCacheResponseInfo(headerHitMiss, headerAge)));
+    public ConsulResponse(T response,
+                          long lastContact,
+                          boolean knownLeader,
+                          BigInteger index,
+                          String headerHitMiss,
+                          String headerAge) throws NumberFormatException {
+        this(response, lastContact, knownLeader, index, buildCacheResponseInfo(headerHitMiss, headerAge));
     }
 
-    public ConsulResponse(T response, long lastContact, boolean knownLeader, BigInteger index, Optional<CacheResponseInfo> cacheInfo) {
+    public ConsulResponse(T response,
+                          long lastContact,
+                          boolean knownLeader,
+                          BigInteger index,
+                          Optional<CacheResponseInfo> cacheInfo) {
+        this(response, lastContact, knownLeader, index, cacheInfo.orElse(null));
+    }
+
+    public ConsulResponse(T response,
+                          long lastContact,
+                          boolean knownLeader,
+                          BigInteger index,
+                          @Nullable CacheResponseInfo cacheInfo) {
         this.response = response;
         this.lastContact = lastContact;
         this.knownLeader = knownLeader;
@@ -111,7 +129,7 @@ public class ConsulResponse<T> {
      * @see <a href="https://developer.hashicorp.com/consul/api-docs/features/caching#background-refresh-caching">Background Refresh Caching</a>
      */
     public Optional<CacheResponseInfo> getCacheResponseInfo() {
-        return cacheResponseInfo;
+        return Optional.ofNullable(cacheResponseInfo);
     }
 
     @Override
