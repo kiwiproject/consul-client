@@ -18,7 +18,7 @@ class ConsulResponseTest {
             var cacheMissResponse = new ConsulResponse<>(null, 0, false, null, "MISS", null);
             assertThat(cacheMissResponse.getCacheReponseInfo()).isPresent();
             assertThat(cacheMissResponse.getCacheResponseInfo()).isPresent();
-            assertThat(cacheMissResponse.getCacheReponseInfo()).isSameAs(cacheMissResponse.getCacheResponseInfo());
+            assertThat(cacheMissResponse.getCacheReponseInfo()).isEqualTo(cacheMissResponse.getCacheResponseInfo());
 
             var cacheResponseInfo = cacheMissResponse.getCacheResponseInfo().orElseThrow();
             assertThat(cacheResponseInfo.isCacheHit()).isFalse();
@@ -31,7 +31,7 @@ class ConsulResponseTest {
             var cacheHitResponse = new ConsulResponse<>(null, 0, false, null, "HIT", "42");
             assertThat(cacheHitResponse.getCacheReponseInfo()).isPresent();
             assertThat(cacheHitResponse.getCacheResponseInfo()).isPresent();
-            assertThat(cacheHitResponse.getCacheReponseInfo()).isSameAs(cacheHitResponse.getCacheResponseInfo());
+            assertThat(cacheHitResponse.getCacheReponseInfo()).isEqualTo(cacheHitResponse.getCacheResponseInfo());
 
             var cacheResponseInfo = cacheHitResponse.getCacheReponseInfo().orElseThrow();
             assertThat(cacheResponseInfo.isCacheHit()).isTrue();
