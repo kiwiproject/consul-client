@@ -263,12 +263,28 @@ public class ConsulCache<K, V> implements AutoCloseable {
                 Math.round(Math.random() * (cacheConfig.getMaximumBackOffDelay().minus(cacheConfig.getMinimumBackOffDelay()).toMillis()));
     }
 
+    /**
+     * Starts the cache and begins asynchronous polling of Consul data.
+     * <p>
+     * Transitions the cache from the {@link State#LATENT} state to {@link State#STARTING} and triggers
+     * the first Consul request. Once the initial response is received, the cache transitions to
+     * {@link State#STARTED}.
+     *
+     * @throws IllegalStateException if the cache is not in the {@link State#LATENT} state
+     */
     public void start() {
-        checkState(state.compareAndSet(State.LATENT, State.STARTING),"Cannot transition from state %s to %s", state.get(), State.STARTING);
+        checkState(state.compareAndSet(State.LATENT, State.STARTING),
+                "Cannot transition from state %s to %s", state.get(), State.STARTING);
         eventHandler.cacheStart(cacheDescriptor);
         runCallback();
     }
 
+    /**
+     * Stops the cache and terminates any scheduled polling of Consul.
+     * <p>
+     * Transitions the cache to the {@link State#STOPPED} state, shuts down its internal scheduler,
+     * and notifies the event handler that the cache has stopped.
+     */
     public void stop() {
         try {
             eventHandler.cacheStop(cacheDescriptor);
@@ -285,6 +301,11 @@ public class ConsulCache<K, V> implements AutoCloseable {
         }
     }
 
+    /**
+     * Closes this cache by delegating to {@link #stop()}.
+     * <p>
+     * Provided for use with try-with-resources and other {@link AutoCloseable} patterns.
+     */
     @Override
     public void close() {
         stop();
@@ -301,16 +322,68 @@ public class ConsulCache<K, V> implements AutoCloseable {
         return state.get() == State.STARTED || state.get() == State.STARTING;
     }
 
+    /**
+     * Waits for the cache to complete its initial population.
+     * <p>
+     * When {@link #start()} is called, the cache begins asynchronously fetching
+     * data from Consul. This method allows callers to block until that initial
+     * fetch completes (that is, until the cache reaches the {@link State#STARTED}
+     * state) or until the specified timeout elapses.
+     *
+     * @param timeout the maximum time to wait
+     * @param unit    the time unit of the {@code timeout} argument
+     * @return {@code true} if the cache initialized before the timeout expired;
+     * {@code false} if the wait timed out
+     * @throws InterruptedException if the current thread is interrupted while waiting
+     * @implNote This method delegates to an internal {@link CountDownLatch} that is
+     * decremented once the first successful Consul response is received.
+     */
     public boolean awaitInitialized(long timeout, TimeUnit unit) throws InterruptedException {
         return initLatch.await(timeout, unit);
     }
 
+    /**
+     * Returns the most recent snapshot of key–value data held by this cache.
+     * <p>
+     * The returned map is an immutable view of the last successfully fetched
+     * Consul data. If no data has yet been fetched, an empty map is returned.
+     *
+     * @return an immutable map of the most recently cached Consul data, or an
+     * empty map if the cache has not yet been initialized
+     * @see #getMapWithMetadata()
+     */
     public ImmutableMap<K, V> getMap() {
         return Optional.ofNullable(lastResponse.get()).orElseGet(ImmutableMap::of);
     }
 
+    /**
+     * Returns the most recent cached data along with Consul response metadata.
+     * <p>
+     * This includes additional information from the last Consul response such as
+     * the {@code X-Consul-Index}, last contact time, and leader status.
+     * <p>
+     * The response’s {@link ConsulResponse#getResponse()} contains the same map
+     * as {@link #getMap()} and is never {@code null}; until the cache is initialized,
+     * it will be an empty map.
+     * <p>
+     * <strong>Metadata before initialization:</strong> until the first successful fetch,
+     * metadata fields may be unset or defaulted; specifically, {@code getIndex()} may be
+     * {@code null}, {@code getCacheResponseInfo()} may be empty, {@code getLastContact()}
+     * will be {@code 0}, and {@code isKnownLeader()} will be {@code false}.
+     *
+     * @return a {@link ConsulResponse} containing the cached data (never {@code null},
+     * but possibly empty) and associated metadata; prior to initialization some
+     * metadata fields may be absent or hold default values as described above
+     * @see #getMap()
+     */
     public ConsulResponse<ImmutableMap<K,V>> getMapWithMetadata() {
-        return new ConsulResponse<>(lastResponse.get(), lastContact.get(), isKnownLeader.get(), latestIndex.get(), Optional.ofNullable(lastCacheInfo.get()));
+        return new ConsulResponse<>(
+                Optional.ofNullable(lastResponse.get()).orElseGet(ImmutableMap::of),
+                lastContact.get(),
+                isKnownLeader.get(),
+                latestIndex.get(),
+                Optional.ofNullable(lastCacheInfo.get())
+        );
     }
 
     @VisibleForTesting
@@ -369,22 +442,55 @@ public class ConsulCache<K, V> implements AutoCloseable {
     }
 
     /**
-     * passed in by creators to vary the content of the cached values
+     * Strategy interface that issues a single Consul request (e.g., enqueues a Retrofit call) and
+     * delegates result handling to the provided callback.
+     * <p>
+     * Implementations typically pass the {@code callback} through to the HTTP layer (e.g., via
+     * {@code Http#extractConsulResponse(...)}), which wires a Retrofit callback that will invoke
+     * {@link ConsulResponseCallback#onComplete(ConsulResponse)} or
+     * {@link ConsulResponseCallback#onFailure(Throwable)} when the network response arrives.
+     * Implementations themselves should not invoke {@code onComplete} or {@code onFailure}
+     * synchronously; they are responsible for initiating the request and propagating the callback.
+     * <p>
+     * <strong>Contract:</strong>
+     * <ul>
+     *   <li>May be invoked repeatedly; implementations should be idempotent and thread-safe.</li>
+     *   <li>{@code index} may be {@code null} on the first call and must be handled.</li>
+     *   <li>Must not throw; report failures by delegating to the HTTP layer so the callback is invoked.</li>
+     *   <li>Should honor any timeouts provided by {@link CacheConfig}.</li>
+     * </ul>
      *
-     * @param <V> the type of values to be consumed
+     * @param <V> the element type contained in the Consul response payload
      */
     protected interface CallbackConsumer<V> {
         void consume(BigInteger index, ConsulResponseCallback<List<V>> callback);
     }
 
     /**
-     * Implementers can register a listener to receive
-     * a new map when it changes
+     * Callback interface notified when the cached data changes.
+     * <p>
+     * A listener is invoked after the cache processes a successful Consul response and
+     * detects that the computed map has changed since the previous update. If a listener
+     * is added while the cache is already {@link State#STARTED}, it will immediately
+     * receive a snapshot of the current values.
+     * <p>
+     * <strong>Threading & performance:</strong> notifications are dispatched on the cache's
+     * internal scheduler thread. Implementations should return quickly and offload any
+     * expensive work to another thread to avoid delaying later polling cycles.
+     * <p>
+     * The {@code newValues} map provided to {@link #notify(Map)} is an immutable snapshot;
+     * callers must not attempt to modify it.
      *
-     * @param <K> the type of keys
-     * @param <V> the type of values
+     * @param <K> the type of keys in the cached map
+     * @param <V> the type of values in the cached map
      */
     public interface Listener<K, V> {
+
+        /**
+         * Called when the cache publishes a new immutable snapshot of its contents.
+         *
+         * @param newValues the latest immutable snapshot of the cached key–value map; never {@code null}
+         */
         void notify(Map<K, V> newValues);
     }
 
@@ -427,14 +533,33 @@ public class ConsulCache<K, V> implements AutoCloseable {
         }
     }
 
+    /**
+     * Returns an immutable snapshot of the currently registered listeners.
+     * <p>
+     * The returned list is a copy and will not reflect later additions or removals.
+     *
+     * @return an unmodifiable list of registered listeners in registration order
+     */
     public List<Listener<K, V>> getListeners() {
         return List.copyOf(listeners);
     }
 
+    /**
+     * Unregisters a previously added listener.
+     *
+     * @param listener the listener to remove
+     * @return {@code true} if the listener was present and removed; {@code false} otherwise
+     */
     public boolean removeListener(Listener<K, V> listener) {
         return listeners.remove(listener);
     }
 
+    /**
+     * Returns the current lifecycle {@link State} of this cache.
+     *
+     * @return the current state; one of {@link State#LATENT}, {@link State#STARTING},
+     * {@link State#STARTED}, or {@link State#STOPPED}
+     */
     public State getState() {
         return state.get();
     }
