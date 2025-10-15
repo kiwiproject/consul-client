@@ -57,11 +57,11 @@ import java.util.function.Supplier;
  *   <li>Register {@link Listener}s to be notified when the snapshot changes.</li>
  * </ul>
  *
- * <h3>Threading & notifications</h3>
+ * <strong>Threading &amp; notifications</strong><br />
  * All public methods are safe for concurrent use. Listener callbacks are invoked on the cache’s internal
  * scheduler thread; implementations should return quickly and offload expensive work.
- *
- * <h3>Subclassing</h3>
+ * <p>
+ * <strong>Subclassing</strong><br />
  * This class is intended to be subclassed: constructors are {@code protected}. Typical subclasses bind a
  * specific Consul endpoint by supplying:
  * <ul>
@@ -500,7 +500,7 @@ public class ConsulCache<K, V> implements AutoCloseable {
      * is added while the cache is already {@link State#STARTED}, it will immediately
      * receive a snapshot of the current values.
      * <p>
-     * <strong>Threading & performance:</strong> notifications are dispatched on the cache's
+     * <strong>Threading &amp; performance:</strong> notifications are dispatched on the cache's
      * internal scheduler thread. Implementations should return quickly and offload any
      * expensive work to another thread to avoid delaying later polling cycles.
      * <p>
