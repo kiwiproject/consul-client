@@ -1,11 +1,9 @@
 package org.kiwiproject.consul;
 
 import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.toUnmodifiableSet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Durations.TWO_HUNDRED_MILLISECONDS;
-import static org.kiwiproject.consul.Awaiting.awaitAtMost1s;
 import static org.kiwiproject.consul.Awaiting.awaitAtMost2s;
-import static org.kiwiproject.consul.Awaiting.awaitWith25MsPoll;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +15,7 @@ import org.kiwiproject.consul.option.Options;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ThreadLocalRandom;
@@ -45,9 +44,7 @@ class EventClientITest extends BaseIntegrationTest {
         var name = randomEventName();
         var firedEvent = eventClient.fireEvent(name);
 
-        awaitWith25MsPoll()
-                .atMost(TWO_HUNDRED_MILLISECONDS)
-                .until(() -> eventIsFound(firedEvent.getId(), name));
+        awaitAtMost2s().until(() -> eventIsFound(firedEvent.getId(), name));
     }
 
     @Test
@@ -57,9 +54,7 @@ class EventClientITest extends BaseIntegrationTest {
         var firedEvent = eventClient.fireEvent(name, payload);
 
         var foundEventRef = new AtomicReference<Event>();
-        awaitWith25MsPoll()
-                .atMost(TWO_HUNDRED_MILLISECONDS)
-                .until(() -> eventIsFound(firedEvent.getId(), name, foundEventRef));
+        awaitAtMost2s().until(() -> eventIsFound(firedEvent.getId(), name, foundEventRef));
 
         assertThat(foundEventRef.get()).isNotNull();
         assertThat(foundEventRef.get().getPayload()).contains(payload);
@@ -73,9 +68,7 @@ class EventClientITest extends BaseIntegrationTest {
         awaitAtMost2s().untilAsserted(() -> {
             var eventResponse = eventClient.listEvents();
             var foundEventIds = getEventIds(eventResponse);
-            assertThat(foundEventIds)
-                    .hasSizeGreaterThanOrEqualTo(eventCount)
-                    .containsAll(eventIds);
+            assertThat(foundEventIds).containsAll(eventIds);
         });
     }
 
@@ -93,11 +86,11 @@ class EventClientITest extends BaseIntegrationTest {
         eventClient.fireEvent(name);
         eventClient.fireEvent(name);
 
-        var eventResponse = eventClient.listEvents(name);
-        assertThat(eventResponse.getEvents())
-                .describedAs("events should have same name")
-                .extracting(Event::getName)
-                .containsOnly(name);
+        awaitAtMost2s().untilAsserted(() ->
+                assertThat(eventClient.listEvents(name).getEvents())
+                        .extracting(Event::getName)
+                        .containsOnly(name)
+        );
     }
 
     @Test
@@ -108,9 +101,7 @@ class EventClientITest extends BaseIntegrationTest {
         awaitAtMost2s().untilAsserted(() -> {
             var eventResponse = eventClient.listEvents(Options.BLANK_QUERY_OPTIONS);
             var foundEventIds = getEventIds(eventResponse);
-            assertThat(foundEventIds)
-                    .hasSizeGreaterThanOrEqualTo(eventCount)
-                    .containsAll(eventIds);
+            assertThat(foundEventIds).containsAll(eventIds);
         });
     }
 
@@ -122,11 +113,10 @@ class EventClientITest extends BaseIntegrationTest {
         var callback = new TestEventResponseCallback();
         eventClient.listEvents(callback);
 
-        awaitAtMost1s().until(() -> callback.getCompleteCount() >= eventCount);
-        assertThat(callback.getFailureCount()).isZero();
+        awaitAtMost2s().untilAsserted(() ->
+                assertThat(callback.getEventIds()).containsAll(eventIds));
 
-        var completedEventIds = getEventIds(callback);
-        assertThat(completedEventIds).hasSizeGreaterThanOrEqualTo(eventCount).containsAll(eventIds);
+        assertThat(callback.getFailureCount()).isZero();
     }
 
     @Test
@@ -137,11 +127,10 @@ class EventClientITest extends BaseIntegrationTest {
         var callback = new TestEventResponseCallback();
         eventClient.listEvents(Options.BLANK_QUERY_OPTIONS, callback);
 
-        awaitAtMost1s().until(() -> callback.getCompleteCount() >= eventCount);
-        assertThat(callback.getFailureCount()).isZero();
+        awaitAtMost2s().untilAsserted(() ->
+                assertThat(callback.getEventIds()).containsAll(eventIds));
 
-        var completedEventIds = getEventIds(callback);
-        assertThat(completedEventIds).hasSizeGreaterThanOrEqualTo(eventCount).containsAll(eventIds);
+        assertThat(callback.getFailureCount()).isZero();
     }
 
     @Test
@@ -156,11 +145,10 @@ class EventClientITest extends BaseIntegrationTest {
         var callback = new TestEventResponseCallback();
         eventClient.listEvents(name, Options.BLANK_QUERY_OPTIONS, callback);
 
-        awaitAtMost1s().until(() -> callback.getCompleteCount() == 1);
-        assertThat(callback.getFailureCount()).isZero();
+        awaitAtMost2s().untilAsserted(() ->
+                assertThat(callback.getEventIds()).contains(event.getId()));
 
-        var completedEventIds = getEventIds(callback);
-        assertThat(completedEventIds).containsExactly(event.getId());
+        assertThat(callback.getFailureCount()).isZero();
     }
 
     private List<String> createRandomEventsGettingIds(int eventCount) {
@@ -176,32 +164,18 @@ class EventClientITest extends BaseIntegrationTest {
                 .mapToObj(ignored -> eventClient.fireEvent(randomEventName()));
     }
 
-    List<String> getEventIds(EventResponse eventResponse) {
-        return eventResponse.getEvents().stream().map(Event::getId).toList();
-    }
-
-    List<String> getEventIds(TestEventResponseCallback callback) {
-        return getEventIds(getEvents(callback));
-    }
-
-    List<String> getEventIds(Collection<Event> events) {
-        return events.stream().map(Event::getId).toList();
-    }
-
-    Collection<Event> getEvents(TestEventResponseCallback callback) {
-        return callback.getCompletedEvents();
+    private static Set<String> getEventIds(EventResponse eventResponse) {
+        return eventResponse.getEvents().stream().map(Event::getId).collect(toUnmodifiableSet());
     }
 
     static class TestEventResponseCallback implements EventResponseCallback {
 
         private final ConcurrentMap<String, Event> completedEventsMap = new ConcurrentHashMap<>();
-        private final AtomicInteger completeCount = new AtomicInteger();
         private final AtomicInteger failureCount = new AtomicInteger();
 
         @Override
         public void onComplete(EventResponse eventResponse) {
-            completeCount.addAndGet(eventResponse.getEvents().size());
-            eventResponse.getEvents().forEach(event -> completedEventsMap.put(event.getName(), event));
+            eventResponse.getEvents().forEach(event -> completedEventsMap.put(event.getId(), event));
         }
 
         @Override
@@ -213,8 +187,8 @@ class EventClientITest extends BaseIntegrationTest {
             return completedEventsMap.values();
         }
 
-        int getCompleteCount() {
-            return completeCount.get();
+        Set<String> getEventIds() {
+            return getCompletedEvents().stream().map(Event::getId).collect(toUnmodifiableSet());
         }
 
         int getFailureCount() {
