@@ -1,5 +1,7 @@
 package org.kiwiproject.consul.util;
 
+import com.google.common.annotations.VisibleForTesting;
+
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
@@ -14,8 +16,21 @@ public class TrustManagerUtils {
     }
 
     public static X509TrustManager getDefaultTrustManager() {
+        return getTrustManager(TrustManagerFactory.getDefaultAlgorithm());
+    }
+
+    @VisibleForTesting
+    static X509TrustManager getTrustManager(String algorithm) {
         try {
-            TrustManagerFactory factory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            return getTrustManager(TrustManagerFactory.getInstance(algorithm));
+        } catch (NoSuchAlgorithmException e) {
+            throw new UncheckedGeneralSecurityException(e);
+        }
+    }
+
+    @VisibleForTesting
+    static X509TrustManager getTrustManager(TrustManagerFactory factory) {
+        try {
             factory.init((KeyStore) null);
             for (TrustManager manager : factory.getTrustManagers()) {
                 if (manager instanceof X509TrustManager trustManager) {
@@ -23,9 +38,8 @@ public class TrustManagerUtils {
                 }
             }
             throw new IllegalStateException("Default X509TrustManager not found");
-        } catch (NoSuchAlgorithmException | KeyStoreException e) {
+        } catch (KeyStoreException e) {
             throw new UncheckedGeneralSecurityException(e);
         }
     }
-
 }
