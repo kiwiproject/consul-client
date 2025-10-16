@@ -13,6 +13,8 @@ import org.kiwiproject.consul.model.EventResponse;
 import org.kiwiproject.consul.model.event.Event;
 import org.kiwiproject.consul.option.Options;
 
+import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -150,6 +152,31 @@ class EventClientITest extends BaseIntegrationTest {
 
         assertThat(callback.getFailureCount()).isZero();
     }
+
+    @Test
+    void shouldInvokeOnFailureWhenConsulIsUnreachable() throws Exception {
+        // Reserve an unused loopback port, then close it so nothing is listening there
+        int freePort;
+        try (var socket = new ServerSocket(0, 1, InetAddress.getLoopbackAddress())) {
+            freePort = socket.getLocalPort();
+        }
+
+        // Build a Consul client pointing at the now-unused port on localhost
+        var badEventClient = Consul.builder()
+                .withUrl("http://127.0.0.1:" + freePort)
+                .withConnectTimeoutMillis(50)
+                .withReadTimeoutMillis(50)
+                .withPing(false)
+                .build()
+                .eventClient();
+
+        var callback = new TestEventResponseCallback();
+        badEventClient.listEvents(callback);
+
+        awaitAtMost2s().untilAsserted(() ->
+                assertThat(callback.getFailureCount()).isPositive());
+    }
+
 
     private List<String> createRandomEventsGettingIds(int eventCount) {
         return createRandomEventsAsStream(eventCount).map(Event::getId).toList();
