@@ -55,7 +55,6 @@
         <!-- Versions for required dependencies -->
         <immutables.version>2.11.6</immutables.version>
         <kiwi-bom.version>2.2.0</kiwi-bom.version>
-        <okhttp.version>5.2.1</okhttp.version>
         <retrofit.version>3.0.0</retrofit.version>
 
         <!-- Versions for test dependencies -->
@@ -72,15 +71,6 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- IMPORTANT: Override the okhttp-bom version from kiwi-bom. -->
-            <dependency>
-                <groupId>com.squareup.okhttp3</groupId>
-                <artifactId>okhttp-bom</artifactId>
-                <version>${okhttp.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
             <dependency>
                 <groupId>org.kiwiproject</groupId>
                 <artifactId>kiwi-bom</artifactId>
