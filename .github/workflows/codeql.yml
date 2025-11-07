@@ -52,9 +52,6 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
 
-    - name: Delombok
-      uses: sleberknight/delombok-action@v0.8.0
-
     - name: Autobuild
       uses: github/codeql-action/autobuild@v4
 
