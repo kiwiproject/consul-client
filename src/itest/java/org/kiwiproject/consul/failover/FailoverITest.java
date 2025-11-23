@@ -69,6 +69,7 @@ class FailoverITest extends BaseIntegrationTest {
         // Create our consul instance
         var blacklistTimeInMillis = 200;
         var consulBuilder = Consul.builder()
+                .withPing(true)  // force it to fail (because the eager ping will fail)
                 .withMultipleHostAndPort(targets, blacklistTimeInMillis)
                 .withConnectTimeoutMillis(50)
                 .withMaxFailoverAttempts(2);  // this means we won't get to localhost!

@@ -1,14 +1,17 @@
 package org.kiwiproject.consul;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.kiwiproject.consul.TestUtils.findFirstOpenPortFromOrThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.google.common.net.HostAndPort;
 import okhttp3.OkHttpClient;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -21,6 +24,10 @@ import org.kiwiproject.consul.util.failover.strategy.ConsulFailoverStrategy;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.X509TrustManager;
+import java.net.ConnectException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
@@ -223,12 +230,12 @@ class ConsulTest {
     public static class NonProductionX509TrustManager implements X509TrustManager {
 
         @Override
-        public void checkClientTrusted(X509Certificate[] x509Certificates, String s) {
+        public void checkClientTrusted(X509Certificate[] x509Certificates, String authType) {
             // Trust all clients
         }
 
         @Override
-        public void checkServerTrusted(X509Certificate[] x509Certificates, String s) {
+        public void checkServerTrusted(X509Certificate[] x509Certificates, String authType) {
             // Trust all servers
         }
 
@@ -236,6 +243,41 @@ class ConsulTest {
         public X509Certificate[] getAcceptedIssuers() {
             // Return an empty array of certificate authorities
             return new X509Certificate[0];
+        }
+    }
+
+    @Nested
+    class WithPing {
+
+        private URL agentURL;
+
+        @BeforeEach
+        void setUp() throws MalformedURLException {
+            // Find an open port where nothing is running
+            var openPort = findFirstOpenPortFromOrThrow(1024);
+            agentURL = URI.create("http://localhost:" + openPort).toURL();
+        }
+
+        @Test
+        void shouldBuild_ByDefaultWithNoPing_WhenConsulNotRunning() {
+            var consul = Consul.builder()
+                    .withUrl(agentURL)
+                    .build();
+
+            assertThat(consul).isNotNull();
+        }
+
+        @Test
+        void shouldFailToBuild_WhenPingEnabled_AndConsulNotRunning() {
+            var builder = Consul.builder()
+                    .withUrl(agentURL)
+                    .withPing(true);
+
+            assertThatExceptionOfType(ConsulException.class)
+                    .isThrownBy(builder::build)
+                    .withMessage("Error connecting to Consul agent")
+                    .havingCause()
+                    .isExactlyInstanceOf(ConnectException.class);
         }
     }
 }

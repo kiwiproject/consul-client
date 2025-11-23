@@ -319,7 +319,7 @@ public class Consul {
         private X509TrustManager trustManager;
         private HostnameVerifier hostnameVerifier;
         private Proxy proxy;
-        private boolean ping = true;
+        private boolean ping;
         private Interceptor authInterceptor;
         private Interceptor aclTokenInterceptor;
         private Interceptor headerInterceptor;
@@ -374,11 +374,16 @@ public class Consul {
         }
 
         /**
-        * Instructs the builder that the AgentClient should attempt a ping before returning the Consul instance
-        *
-        * @param ping Whether the ping should be done or not
-        * @return The builder.
-        */
+         * Instructs the builder that the AgentClient should attempt a ping before returning the Consul instance.
+         * <p>
+         * The default value is {@code false} starting with version 1.9.0.
+         * <p>
+         * If you need immediate validation of Consul availability when the Consul instance is built,
+         * set this to {@code true}.
+         *
+         * @param ping Whether the ping should be done or not
+         * @return The builder.
+         */
         public Builder withPing(boolean ping) {
             this.ping = ping;
 
