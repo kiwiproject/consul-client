@@ -7,8 +7,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 public class TestUtils {
+
+    private static final int MAX_PORT_NUMBER = 65_535;
 
     private TestUtils() {
         // utility class
@@ -40,5 +43,34 @@ public class TestUtils {
 
         var message = String.format("Unable to load resource %s using charset %s", resourceName, charset);
         throw new RuntimeException(message, t);
+    }
+
+    public static int findFirstOpenPortFromOrThrow(int startPort) {
+        checkValidPort(startPort);
+
+        return IntStream.rangeClosed(startPort, MAX_PORT_NUMBER)
+                .filter(TestUtils::isPortAvailable)
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No open port available starting at " + startPort));
+    }
+
+    // Copied with slight modifications from kiwi's LocalPortChecker.
+    public static boolean isPortAvailable(int port) {
+        checkValidPort(port);
+
+        try (var serverSocket = new java.net.ServerSocket(port);
+             var datagramSocket = new java.net.DatagramSocket(port)) {
+            serverSocket.setReuseAddress(true);
+            datagramSocket.setReuseAddress(true);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private static void checkValidPort(int port) {
+        if (port < 1 || port > MAX_PORT_NUMBER) {
+            throw new IllegalArgumentException("Invalid port: " + port);
+        }
     }
 }

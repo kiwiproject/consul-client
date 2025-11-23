@@ -12,4 +12,24 @@ class ConsulITest extends BaseIntegrationTest {
 
         assertThat(client.isDestroyed()).isTrue();
     }
+
+    @Test
+    void shouldBuildWithNoPing() {
+        var consul = Consul.builder()
+                .withHostAndPort(defaultClientHostAndPort)
+                .withPing(false)
+                .build();
+
+        assertThat(consul).isNotNull();
+    }
+
+    @Test
+    void shouldBuildWithPing() {
+        var consul = Consul.builder()
+                .withHostAndPort(defaultClientHostAndPort)
+                .withPing(true)
+                .build();
+
+        assertThat(consul).isNotNull();
+    }
 }
