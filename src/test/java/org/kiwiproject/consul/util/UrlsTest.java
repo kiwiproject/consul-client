@@ -45,9 +45,10 @@ class UrlsTest {
     }
 
     @Test
-    void createNewUrl_FromString_ShouldThrow_WhenPathNotAbsolute() {
-        assertThatExceptionOfType(UncheckedURISyntaxException.class)
-                .isThrownBy(() -> Urls.newUrl("https", "acme.com", 61000, "path"));
+    void shouldCreateNewUrl_FromComponents_ResolvingRelativePaths() {
+        var url = Urls.newUrl("https", "acme.com", 61000, "path");
+
+        assertThat(url).hasToString("https://acme.com:61000/path");
     }
 
     @ParameterizedTest
