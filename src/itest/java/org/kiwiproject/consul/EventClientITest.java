@@ -111,12 +111,16 @@ class EventClientITest extends BaseIntegrationTest {
     void shouldListEventsAsyncWithCallback() {
         var eventCount = randomNumberOfEvents();
         var eventIds = createRandomEventsGettingIds(eventCount);
+        assertThat(eventIds)
+                .describedAs("Precondition: Event IDs should not be empty")
+                .isNotEmpty();
 
         var callback = new TestEventResponseCallback();
         eventClient.listEvents(callback);
 
         awaitAtMost2s().untilAsserted(() ->
-                assertThat(callback.getEventIds()).containsAll(eventIds));
+                assertThat(eventIds)
+                        .allMatch(id -> callback.getEventIds().contains(id)));
 
         assertThat(callback.getFailureCount()).isZero();
     }
@@ -125,12 +129,16 @@ class EventClientITest extends BaseIntegrationTest {
     void shouldListEventsAsyncWithQueryOptionsAndCallback() {
         var eventCount = randomNumberOfEvents();
         var eventIds = createRandomEventsGettingIds(eventCount);
+        assertThat(eventIds)
+                .describedAs("Precondition: Event IDs should not be empty")
+                .isNotEmpty();
 
         var callback = new TestEventResponseCallback();
         eventClient.listEvents(Options.BLANK_QUERY_OPTIONS, callback);
 
         awaitAtMost2s().untilAsserted(() ->
-                assertThat(callback.getEventIds()).containsAll(eventIds));
+                assertThat(eventIds)
+                        .allMatch(id -> callback.getEventIds().contains(id)));
 
         assertThat(callback.getFailureCount()).isZero();
     }
