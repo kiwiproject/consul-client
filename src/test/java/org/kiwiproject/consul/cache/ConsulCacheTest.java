@@ -276,6 +276,7 @@ class ConsulCacheTest {
                 .addTag("someTag")
                 .token("186596")
                 .near("156892")
+                .filter("someFilter")
                 .build();
 
         var expectedQueryOptions = ImmutableQueryOptions.builder()
@@ -285,6 +286,7 @@ class ConsulCacheTest {
                 .addTag("someTag")
                 .token("186596")
                 .near("156892")
+                .filter("someFilter")
                 .build();
 
         var actualQueryOptions = ConsulCache.watchParams(index, 10, additionalQueryOptions);

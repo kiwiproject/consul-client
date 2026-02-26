@@ -38,6 +38,7 @@ public abstract class QueryOptions implements ParamAdder {
     public abstract Optional<String> getReason();
     public abstract List<String> getNodeMeta();
     public abstract List<String> getTag();
+    public abstract Optional<String> getPeer();
 
     @Value.Default
     public ConsistencyMode getConsistencyMode() {
@@ -123,6 +124,7 @@ public abstract class QueryOptions implements ParamAdder {
         Options.optionallyAdd(result, "note", getNote());
         Options.optionallyAdd(result, "enable", getEnable());
         Options.optionallyAdd(result, "reason", getReason());
+        Options.optionallyAdd(result, "peer", getPeer());
 
         return result;
     }
