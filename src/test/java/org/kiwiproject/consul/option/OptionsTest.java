@@ -56,6 +56,7 @@ class OptionsTest {
                     .namespace("ns1")
                     .datacenter("dc42")
                     .reason("why not?")
+                    .peer("dc2")
                     .build();
 
             var options = Options.from(queryOptions);
