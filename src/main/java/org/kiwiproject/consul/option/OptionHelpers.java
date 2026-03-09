@@ -62,12 +62,15 @@ public class OptionHelpers {
     }
 
     /**
-     * Convert one or more options to a map.
+     * Aggregates the query parameters from one or more {@link ParamAdder} objects into a single map
+     * by calling {@link ParamAdder#toQuery()} on each non-null element and merging the results.
+     * Null elements in the varargs are silently ignored.
      *
-     * @param options the options to convert
-     * @return a map containing the aggregated query options
+     * @param options one or more {@link ParamAdder} objects whose query parameters will be merged
+     * @return a map containing the merged query parameters from all non-null options
+     * @throws IllegalArgumentException if the varargs array itself is null
      */
-    public static Map<String, Object> from(ParamAdder... options) {
+    public static Map<String, Object> toQueryMap(ParamAdder... options) {
         checkArgument(nonNull(options), "the options vararg must not be null");
         return Arrays.stream(options)
                 .filter(Objects::nonNull)

@@ -56,11 +56,11 @@ public class Options {
      *
      * @param options the options to convert
      * @return a map containing the aggregated query options
-     * @deprecated use {@link OptionHelpers#from(ParamAdder...)} directly; will be removed in 2.0.0
+     * @deprecated use {@link OptionHelpers#toQueryMap(ParamAdder...)} directly; will be removed in 2.0.0
      */
     @Deprecated(since = "1.11.0", forRemoval = true)
     public static Map<String, Object> from(ParamAdder... options) {
-        return OptionHelpers.from(options);
+        return OptionHelpers.toQueryMap(options);
     }
 
     /**
