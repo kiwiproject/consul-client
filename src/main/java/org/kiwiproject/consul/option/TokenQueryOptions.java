@@ -29,11 +29,11 @@ public abstract class TokenQueryOptions implements ParamAdder {
     public Map<String, Object> toQuery() {
         Map<String, Object> result = new HashMap<>();
 
-        Options.optionallyAdd(result, "policy", getPolicy());
-        Options.optionallyAdd(result, "role", getRole());
-        Options.optionallyAdd(result, "authmethod", getAuthMethod());
-        Options.optionallyAdd(result, "authmethod-ns", getAuthMethodNamespace());
-        Options.optionallyAdd(result, "ns", getNamespace());
+        OptionHelpers.optionallyAdd(result, "policy", getPolicy());
+        OptionHelpers.optionallyAdd(result, "role", getRole());
+        OptionHelpers.optionallyAdd(result, "authmethod", getAuthMethod());
+        OptionHelpers.optionallyAdd(result, "authmethod-ns", getAuthMethodNamespace());
+        OptionHelpers.optionallyAdd(result, "ns", getNamespace());
 
         return result;
     }

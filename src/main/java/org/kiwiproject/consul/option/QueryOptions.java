@@ -109,22 +109,22 @@ public abstract class QueryOptions implements ParamAdder {
         consistency.ifPresent(s -> result.put(s, ""));
 
         if (isBlocking()) {
-            Options.optionallyAdd(result, "wait", getWait());
-            Options.optionallyAdd(result, "index", getIndex());
-            Options.optionallyAdd(result, "hash", getHash());
+            OptionHelpers.optionallyAdd(result, "wait", getWait());
+            OptionHelpers.optionallyAdd(result, "index", getIndex());
+            OptionHelpers.optionallyAdd(result, "hash", getHash());
         }
 
-        Options.optionallyAdd(result, "token", getToken());
-        Options.optionallyAdd(result, "near", getNear());
-        Options.optionallyAdd(result, "dc", getDatacenter());
-        Options.optionallyAdd(result, "filter", getFilter());
-        Options.optionallyAdd(result, "ns", getNamespace());
-        Options.optionallyAdd(result, "wan", getWan());
-        Options.optionallyAdd(result, "segment", getSegment());
-        Options.optionallyAdd(result, "note", getNote());
-        Options.optionallyAdd(result, "enable", getEnable());
-        Options.optionallyAdd(result, "reason", getReason());
-        Options.optionallyAdd(result, "peer", getPeer());
+        OptionHelpers.optionallyAdd(result, "token", getToken());
+        OptionHelpers.optionallyAdd(result, "near", getNear());
+        OptionHelpers.optionallyAdd(result, "dc", getDatacenter());
+        OptionHelpers.optionallyAdd(result, "filter", getFilter());
+        OptionHelpers.optionallyAdd(result, "ns", getNamespace());
+        OptionHelpers.optionallyAdd(result, "wan", getWan());
+        OptionHelpers.optionallyAdd(result, "segment", getSegment());
+        OptionHelpers.optionallyAdd(result, "note", getNote());
+        OptionHelpers.optionallyAdd(result, "enable", getEnable());
+        OptionHelpers.optionallyAdd(result, "reason", getReason());
+        OptionHelpers.optionallyAdd(result, "peer", getPeer());
 
         return result;
     }

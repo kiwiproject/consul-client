@@ -62,12 +62,12 @@ public class KeyValueClient extends BaseCacheableClient {
      *
      * @param retrofit The {@link Retrofit} to build a client from.
      */
-    KeyValueClient(Retrofit retrofit, ClientConfig config, ClientEventCallback eventCallback, Consul.NetworkTimeoutConfig networkTimeoutConfig) {
+    KeyValueClient(Retrofit retrofit, ClientConfig config, ClientEventCallback eventCallback, NetworkTimeoutConfig networkTimeoutConfig) {
         super(CLIENT_NAME, config, eventCallback, networkTimeoutConfig);
         this.api = retrofit.create(Api.class);
     }
 
-    KeyValueClient(Api api, ClientConfig config, ClientEventCallback eventCallback, Consul.NetworkTimeoutConfig networkTimeoutConfig) {
+    KeyValueClient(Api api, ClientConfig config, ClientEventCallback eventCallback, NetworkTimeoutConfig networkTimeoutConfig) {
         super(CLIENT_NAME, config, eventCallback, networkTimeoutConfig);
         this.api = api;
     }

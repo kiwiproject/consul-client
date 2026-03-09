@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.kiwiproject.consul.Consul;
 import org.kiwiproject.consul.KeyValueClient;
+import org.kiwiproject.consul.NetworkTimeoutConfig;
 import org.kiwiproject.consul.KeyValueClientFactory;
 import org.kiwiproject.consul.MockApiService;
 import org.kiwiproject.consul.config.CacheConfig;
@@ -102,7 +102,7 @@ class KVCacheTest {
                 mockApiService,
                 new ClientConfig(cacheConfig),
                 new NoOpClientEventCallback(),
-                new Consul.NetworkTimeoutConfig.Builder().withReadTimeout(10500).build()
+                new NetworkTimeoutConfig.Builder().withReadTimeout(10500).build()
         );
 
 

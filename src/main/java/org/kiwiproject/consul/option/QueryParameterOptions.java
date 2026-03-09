@@ -1,6 +1,6 @@
 package org.kiwiproject.consul.option;
 
-import static org.kiwiproject.consul.option.Options.optionallyAdd;
+import static org.kiwiproject.consul.option.OptionHelpers.optionallyAdd;
 
 import org.immutables.value.Value;
 

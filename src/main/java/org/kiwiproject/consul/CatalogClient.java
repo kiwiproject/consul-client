@@ -38,7 +38,7 @@ public class CatalogClient extends BaseCacheableClient {
      *
      * @param retrofit The {@link Retrofit} to build a client from.
      */
-    CatalogClient(Retrofit retrofit, ClientConfig config, ClientEventCallback eventCallback, Consul.NetworkTimeoutConfig networkTimeoutConfig) {
+    CatalogClient(Retrofit retrofit, ClientConfig config, ClientEventCallback eventCallback, NetworkTimeoutConfig networkTimeoutConfig) {
         super(CLIENT_NAME, config, eventCallback, networkTimeoutConfig);
         this.api = retrofit.create(Api.class);
     }

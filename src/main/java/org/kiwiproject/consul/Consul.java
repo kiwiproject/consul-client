@@ -850,7 +850,7 @@ public class Consul {
                     localExecutorService,
                     connectionPool,
                     config);
-            var networkTimeoutConfig = new NetworkTimeoutConfig.Builder()
+            var networkTimeoutConfig = new org.kiwiproject.consul.NetworkTimeoutConfig.Builder()
                 .withConnectTimeout(okHttpClient::connectTimeoutMillis)
                 .withReadTimeout(okHttpClient::readTimeoutMillis)
                 .withWriteTimeout(okHttpClient::writeTimeoutMillis)
@@ -1023,63 +1023,58 @@ public class Consul {
 
     }
 
-    public static class NetworkTimeoutConfig {
-        private final IntSupplier readTimeoutMillisSupplier;
-        private final IntSupplier writeTimeoutMillisSupplier;
-        private final IntSupplier connectTimeoutMillisSupplier;
+    /**
+     * @deprecated Use {@link org.kiwiproject.consul.NetworkTimeoutConfig} directly.
+     *             This nested class will be removed in a future major release.
+     */
+    @Deprecated(since = "2.0.0", forRemoval = true)
+    public static class NetworkTimeoutConfig extends org.kiwiproject.consul.NetworkTimeoutConfig {
 
-        private NetworkTimeoutConfig(
-                IntSupplier readTimeoutMillisSupplier,
-                IntSupplier writeTimeoutMillisSupplier,
-                IntSupplier connectTimeoutMillisSupplier) {
-            this.readTimeoutMillisSupplier = readTimeoutMillisSupplier;
-            this.writeTimeoutMillisSupplier = writeTimeoutMillisSupplier;
-            this.connectTimeoutMillisSupplier = connectTimeoutMillisSupplier;
+        NetworkTimeoutConfig(IntSupplier readTimeoutMillisSupplier,
+                             IntSupplier writeTimeoutMillisSupplier,
+                             IntSupplier connectTimeoutMillisSupplier) {
+            super(readTimeoutMillisSupplier, writeTimeoutMillisSupplier, connectTimeoutMillisSupplier);
         }
 
-        public int getClientReadTimeoutMillis() {
-            return readTimeoutMillisSupplier.getAsInt();
-        }
-        public int getClientWriteTimeoutMillis() {
-            return writeTimeoutMillisSupplier.getAsInt();
-        }
-        public int getClientConnectTimeoutMillis() {
-            return connectTimeoutMillisSupplier.getAsInt();
-        }
+        /**
+         * @deprecated Use {@link org.kiwiproject.consul.NetworkTimeoutConfig.Builder} directly.
+         *             This nested class will be removed in a future major release.
+         */
+        @Deprecated(since = "2.0.0", forRemoval = true)
         public static class Builder {
             private IntSupplier readTimeoutMillisSupplier = () -> -1;
             private IntSupplier writeTimeoutMillisSupplier = () -> -1;
             private IntSupplier connectTimeoutMillisSupplier = () -> -1;
 
-            public NetworkTimeoutConfig.Builder withReadTimeout(IntSupplier timeoutSupplier) {
+            public Builder withReadTimeout(IntSupplier timeoutSupplier) {
                 this.readTimeoutMillisSupplier = timeoutSupplier;
                 return this;
             }
 
-            public NetworkTimeoutConfig.Builder withReadTimeout(int millis) {
+            public Builder withReadTimeout(int millis) {
                 return withReadTimeout(() -> millis);
             }
 
-            public NetworkTimeoutConfig.Builder withWriteTimeout(IntSupplier timeoutSupplier) {
+            public Builder withWriteTimeout(IntSupplier timeoutSupplier) {
                 this.writeTimeoutMillisSupplier = timeoutSupplier;
                 return this;
             }
 
-            public NetworkTimeoutConfig.Builder withWriteTimeout(int millis) {
+            public Builder withWriteTimeout(int millis) {
                 return withWriteTimeout(() -> millis);
             }
 
-            public NetworkTimeoutConfig.Builder withConnectTimeout(IntSupplier timeoutSupplier) {
+            public Builder withConnectTimeout(IntSupplier timeoutSupplier) {
                 this.connectTimeoutMillisSupplier = timeoutSupplier;
                 return this;
             }
 
-            public NetworkTimeoutConfig.Builder withConnectTimeout(int millis) {
+            public Builder withConnectTimeout(int millis) {
                 return withConnectTimeout(() -> millis);
             }
 
-            public NetworkTimeoutConfig build() {
-                return new NetworkTimeoutConfig(readTimeoutMillisSupplier, writeTimeoutMillisSupplier, connectTimeoutMillisSupplier);
+            public Consul.NetworkTimeoutConfig build() {
+                return new Consul.NetworkTimeoutConfig(readTimeoutMillisSupplier, writeTimeoutMillisSupplier, connectTimeoutMillisSupplier);
             }
         }
     }

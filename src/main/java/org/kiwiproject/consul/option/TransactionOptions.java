@@ -33,7 +33,7 @@ public abstract class TransactionOptions implements ParamAdder {
         Optional<String> consistencyMode = getConsistencyMode().toParam();
         consistencyMode.ifPresent(s -> result.put(s, "true"));
 
-        Options.optionallyAdd(result, "dc", getDatacenter());
+        OptionHelpers.optionallyAdd(result, "dc", getDatacenter());
 
         return result;
     }
