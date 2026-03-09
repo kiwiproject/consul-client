@@ -327,7 +327,7 @@ public class Consul {
         private ConsulFailoverInterceptor consulFailoverInterceptor;
         private int numTimesConsulFailoverInterceptorSet;
         private int maxFailoverAttempts;
-        private final NetworkTimeoutConfig.Builder networkTimeoutConfigBuilder = new NetworkTimeoutConfig.Builder();
+        private final org.kiwiproject.consul.NetworkTimeoutConfig.Builder networkTimeoutConfigBuilder = new org.kiwiproject.consul.NetworkTimeoutConfig.Builder();
         private ExecutorService executorService;
         private ConnectionPool connectionPool;
         private ClientConfig clientConfig;
@@ -991,7 +991,7 @@ public class Consul {
         }
 
         private static void addTimeouts(OkHttpClient.Builder builder,
-                                        NetworkTimeoutConfig networkTimeoutConfig) {
+                                        org.kiwiproject.consul.NetworkTimeoutConfig networkTimeoutConfig) {
 
             if (networkTimeoutConfig.getClientConnectTimeoutMillis() >= 0) {
                 builder.connectTimeout(networkTimeoutConfig.getClientConnectTimeoutMillis(), TimeUnit.MILLISECONDS);
