@@ -43,7 +43,7 @@ public class Options {
      * @throws UnsupportedOperationException if {@code val} contains a value but {@code data} is an unmodifiable Map
      * @deprecated use {@link OptionHelpers#optionallyAdd(Map, String, Optional)} directly
      */
-    @Deprecated(since = "2.0.0", forRemoval = true)
+    @Deprecated(since = "1.11.0", forRemoval = true)
     static void optionallyAdd(Map<String, Object> data,
                               String key,
                               @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<?> val) {
@@ -73,7 +73,7 @@ public class Options {
      * but {@code data} is an unmodifiable List
      * @deprecated use {@link OptionHelpers#optionallyAdd(List, String, Optional)} directly
      */
-    @Deprecated(since = "2.0.0", forRemoval = true)
+    @Deprecated(since = "1.11.0", forRemoval = true)
     static void optionallyAdd(List<String> data,
                               String key,
                               @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<Boolean> val) {

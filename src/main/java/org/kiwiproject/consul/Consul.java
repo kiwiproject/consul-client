@@ -1024,10 +1024,10 @@ public class Consul {
     }
 
     /**
-     * @deprecated Use {@link org.kiwiproject.consul.NetworkTimeoutConfig} directly.
-     *             This nested class will be removed in a future major release.
+     * @deprecated use {@link org.kiwiproject.consul.NetworkTimeoutConfig} directly;
+     *             this nested class will be removed in 2.0.0
      */
-    @Deprecated(since = "2.0.0", forRemoval = true)
+    @Deprecated(since = "1.11.0", forRemoval = true)
     public static class NetworkTimeoutConfig extends org.kiwiproject.consul.NetworkTimeoutConfig {
 
         NetworkTimeoutConfig(IntSupplier readTimeoutMillisSupplier,
@@ -1037,10 +1037,10 @@ public class Consul {
         }
 
         /**
-         * @deprecated Use {@link org.kiwiproject.consul.NetworkTimeoutConfig.Builder} directly.
-         *             This nested class will be removed in a future major release.
+         * @deprecated use {@link org.kiwiproject.consul.NetworkTimeoutConfig.Builder} directly;
+         *             this nested class will be removed in 2.0.0
          */
-        @Deprecated(since = "2.0.0", forRemoval = true)
+        @Deprecated(since = "1.11.0", forRemoval = true)
         public static class Builder {
             private IntSupplier readTimeoutMillisSupplier = () -> -1;
             private IntSupplier writeTimeoutMillisSupplier = () -> -1;
