@@ -11,12 +11,12 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Package-private helper methods used by option classes to build query parameter maps and lists.
+ * Helper methods used by option classes to build query parameter maps and lists.
  * <p>
  * These methods are extracted here so that option classes do not need to reference {@link Options},
  * which would create a circular dependency (Options references the option classes via its constants).
  */
-class OptionHelpers {
+public class OptionHelpers {
 
     private OptionHelpers() {
         // utility class
@@ -67,7 +67,7 @@ class OptionHelpers {
      * @param options the options to convert
      * @return a map containing the aggregated query options
      */
-    static Map<String, Object> from(ParamAdder... options) {
+    public static Map<String, Object> from(ParamAdder... options) {
         checkArgument(nonNull(options), "the options vararg must not be null");
         return Arrays.stream(options)
                 .filter(Objects::nonNull)
