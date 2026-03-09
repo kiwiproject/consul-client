@@ -42,7 +42,8 @@ public class ConsulException extends RuntimeException {
     /**
      * Constructs an instance for the given status code and Retrofit {@link Response}.
      * 
-     * @deprecated use {@link #ConsulException(Call, Response)}
+     * @deprecated use {@link #ConsulException(Call, Response)};
+     *             will be removed in 2.0.0
      */
     @Deprecated(since = "1.7.0", forRemoval = true)
     public ConsulException(int code, Response<?> response) {

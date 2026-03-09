@@ -78,7 +78,8 @@ public class ConsulResponse<T> {
     }
 
     /**
-     * @deprecated replaced by {@link #ConsulResponse(Object, long, boolean, BigInteger, CacheResponseInfo)}
+     * @deprecated replaced by {@link #ConsulResponse(Object, long, boolean, BigInteger, CacheResponseInfo)};
+     *             will be removed in 2.0.0
      */
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     @Deprecated(since = "1.8.0", forRemoval = true)
@@ -120,7 +121,8 @@ public class ConsulResponse<T> {
 
     /**
      * @return an Optional containing the CacheResponseInfo, or empty Optional if it does not exist
-     * @deprecated replaced by {@link #getCacheResponseInfo()}
+     * @deprecated replaced by {@link #getCacheResponseInfo()};
+     *             will be removed in 2.0.0
      * @see <a href="https://developer.hashicorp.com/consul/api-docs/features/caching#background-refresh-caching">Background Refresh Caching</a>
      */
     @SuppressWarnings("DeprecatedIsStillUsed")

@@ -625,7 +625,8 @@ public class Consul {
          *
          * @param strategy The strategy to use.
          * @return The builder.
-         * @deprecated replaced by {@link #withFailoverInterceptorUsingStrategy(ConsulFailoverStrategy)}
+         * @deprecated replaced by {@link #withFailoverInterceptorUsingStrategy(ConsulFailoverStrategy)};
+         *             will be removed in 2.0.0
          */
         @SuppressWarnings("DeprecatedIsStillUsed")
         @Deprecated(since = "1.3.0", forRemoval = true)
