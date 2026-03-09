@@ -41,7 +41,8 @@ public class Options {
      * @param key the key for the new entry
      * @param val an Optional that may contain a value
      * @throws UnsupportedOperationException if {@code val} contains a value but {@code data} is an unmodifiable Map
-     * @deprecated use {@link OptionHelpers#optionallyAdd(Map, String, Optional)} directly
+     * @deprecated use {@link OptionHelpers#optionallyAdd(Map, String, Optional)} directly;
+     *             will be removed in 2.0.0
      */
     @Deprecated(since = "1.11.0", forRemoval = true)
     static void optionallyAdd(Map<String, Object> data,
@@ -71,7 +72,8 @@ public class Options {
      * @param val a "flag" indicating whether the value of {@code key} should be added
      * @throws UnsupportedOperationException if {@code val} contains a {@code true} value
      * but {@code data} is an unmodifiable List
-     * @deprecated use {@link OptionHelpers#optionallyAdd(List, String, Optional)} directly
+     * @deprecated use {@link OptionHelpers#optionallyAdd(List, String, Optional)} directly;
+     *             will be removed in 2.0.0
      */
     @Deprecated(since = "1.11.0", forRemoval = true)
     static void optionallyAdd(List<String> data,
