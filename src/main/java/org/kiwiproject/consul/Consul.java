@@ -1038,6 +1038,20 @@ public class Consul {
         }
 
         /**
+         * Returns {@code ntc} as a {@link Consul.NetworkTimeoutConfig}, wrapping it if necessary.
+         * Used by public cacheable clients to preserve binary-compatible return types.
+         */
+        static NetworkTimeoutConfig from(org.kiwiproject.consul.NetworkTimeoutConfig ntc) {
+            if (ntc instanceof NetworkTimeoutConfig consulNtc) {
+                return consulNtc;
+            }
+            return new NetworkTimeoutConfig(
+                    ntc::getClientReadTimeoutMillis,
+                    ntc::getClientWriteTimeoutMillis,
+                    ntc::getClientConnectTimeoutMillis);
+        }
+
+        /**
          * @deprecated use {@link org.kiwiproject.consul.NetworkTimeoutConfig.Builder} directly;
          *             this nested class will be removed in 2.0.0
          */

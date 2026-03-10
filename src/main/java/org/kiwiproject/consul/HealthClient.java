@@ -51,17 +51,10 @@ public class HealthClient extends BaseCacheableClient {
      *             {@link NetworkTimeoutConfig} in 2.0.0
      */
     @Deprecated(since = "1.11.0", forRemoval = true)
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("removal")
     @Override
     public Consul.NetworkTimeoutConfig getNetworkTimeoutConfig() {
-        var ntc = super.getNetworkTimeoutConfig();
-        if (ntc instanceof Consul.NetworkTimeoutConfig consulNtc) {
-            return consulNtc;
-        }
-        return new Consul.NetworkTimeoutConfig(
-                ntc::getClientReadTimeoutMillis,
-                ntc::getClientWriteTimeoutMillis,
-                ntc::getClientConnectTimeoutMillis);
+        return Consul.NetworkTimeoutConfig.from(super.getNetworkTimeoutConfig());
     }
 
     /**
