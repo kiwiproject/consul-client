@@ -44,6 +44,30 @@ public class CatalogClient extends BaseCacheableClient {
     }
 
     /**
+     * Returns the network timeout configuration.
+     * <p>
+     * Overrides with a covariant return type to maintain binary compatibility with code compiled
+     * against earlier releases where this method returned {@link Consul.NetworkTimeoutConfig}.
+     *
+     * @deprecated the return type {@link Consul.NetworkTimeoutConfig} is deprecated; the method
+     *             itself is not going away, but the return type will change to
+     *             {@link NetworkTimeoutConfig} in 2.0.0
+     */
+    @Deprecated(since = "1.11.0", forRemoval = true)
+    @SuppressWarnings("deprecation")
+    @Override
+    public Consul.NetworkTimeoutConfig getNetworkTimeoutConfig() {
+        var ntc = super.getNetworkTimeoutConfig();
+        if (ntc instanceof Consul.NetworkTimeoutConfig consulNtc) {
+            return consulNtc;
+        }
+        return new Consul.NetworkTimeoutConfig(
+                ntc::getClientReadTimeoutMillis,
+                ntc::getClientWriteTimeoutMillis,
+                ntc::getClientConnectTimeoutMillis);
+    }
+
+    /**
      * Retrieves all datacenters.
      * <p>
      * GET /v1/catalog/datacenters
