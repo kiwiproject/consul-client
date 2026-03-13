@@ -316,6 +316,19 @@ class ConsulTest {
                     .isThrownBy(() -> Consul.builder().withTokenAuth((AuthTokenProvider) null))
                     .withMessage("tokenProvider must not be null");
         }
+
+        @Test
+        void shouldThrowNullPointerException_WhenTokenProviderReturnsNull() {
+            server.enqueue(new MockResponse.Builder().code(200).body(LEADER_RESPONSE_BODY).build());
+
+            var consul = Consul.builder()
+                    .withUrl(server.url("/").toString())
+                    .withTokenAuth(() -> null)
+                    .build();
+
+            assertThatExceptionOfType(NullPointerException.class)
+                    .isThrownBy(() -> consul.statusClient().getLeader());
+        }
     }
 
     @Nested
