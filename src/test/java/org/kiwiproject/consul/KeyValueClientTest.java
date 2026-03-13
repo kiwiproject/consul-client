@@ -27,7 +27,7 @@ class KeyValueClientTest {
     @BeforeEach
     void setUp() {
         api = mock(KeyValueClient.Api.class);
-        var networkTimeoutConfig = new Consul.NetworkTimeoutConfig.Builder().build();
+        var networkTimeoutConfig = new NetworkTimeoutConfig.Builder().build();
         keyValueClient = new KeyValueClient(api, new ClientConfig(), new NoOpClientEventCallback(), networkTimeoutConfig);
     }
 

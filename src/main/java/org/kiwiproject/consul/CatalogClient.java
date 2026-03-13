@@ -38,9 +38,26 @@ public class CatalogClient extends BaseCacheableClient {
      *
      * @param retrofit The {@link Retrofit} to build a client from.
      */
-    CatalogClient(Retrofit retrofit, ClientConfig config, ClientEventCallback eventCallback, Consul.NetworkTimeoutConfig networkTimeoutConfig) {
+    CatalogClient(Retrofit retrofit, ClientConfig config, ClientEventCallback eventCallback, NetworkTimeoutConfig networkTimeoutConfig) {
         super(CLIENT_NAME, config, eventCallback, networkTimeoutConfig);
         this.api = retrofit.create(Api.class);
+    }
+
+    /**
+     * Returns the network timeout configuration.
+     * <p>
+     * Overrides with a covariant return type to maintain binary compatibility with code compiled
+     * against earlier releases where this method returned {@link Consul.NetworkTimeoutConfig}.
+     *
+     * @deprecated the return type {@link Consul.NetworkTimeoutConfig} is deprecated; the method
+     *             itself is not going away, but the return type will change to
+     *             {@link NetworkTimeoutConfig} in 2.0.0
+     */
+    @Deprecated(since = "1.11.0", forRemoval = true)
+    @SuppressWarnings("removal")
+    @Override
+    public Consul.NetworkTimeoutConfig getNetworkTimeoutConfig() {
+        return Consul.NetworkTimeoutConfig.from(super.getNetworkTimeoutConfig());
     }
 
     /**

@@ -16,35 +16,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@SuppressWarnings("removal")
-@DisplayName("Options")
-class OptionsTest {
+@DisplayName("OptionHelpers")
+class OptionHelpersTest {
 
     @Nested
-    class From {
+    class ToQueryMap {
 
         @Test
         void shouldThrowIllegalArgument_WhenGivenNullVarArgs() {
             assertThatIllegalArgumentException()
-                    .isThrownBy(() -> Options.from((ParamAdder[]) null))
+                    .isThrownBy(() -> OptionHelpers.toQueryMap((ParamAdder[]) null))
                     .withMessage("the options vararg must not be null");
         }
 
         @Test
         void shouldReturnEmptyMap_WhenGivenNoOptions() {
-            assertThat(Options.from()).isEmpty();
+            assertThat(OptionHelpers.toQueryMap()).isEmpty();
         }
 
         @Test
         void shouldReturnEmptyMap_WhenOneNullArgument() {
-            var options = Options.from((ParamAdder) null);
+            var options = OptionHelpers.toQueryMap((ParamAdder) null);
 
             assertThat(options).isEmpty();
         }
 
         @Test
         void shouldReturnEmptyMap_WhenAllOptionsAreNull() {
-            var options = Options.from(null, null);
+            var options = OptionHelpers.toQueryMap(null, null);
 
             assertThat(options).isEmpty();
         }
@@ -60,7 +59,7 @@ class OptionsTest {
                     .peer("dc2")
                     .build();
 
-            var options = Options.from(queryOptions);
+            var options = OptionHelpers.toQueryMap(queryOptions);
 
             assertThat(options).containsAllEntriesOf(queryOptions.toQuery());
         }
@@ -75,7 +74,7 @@ class OptionsTest {
                     .reason("why not?")
                     .build();
 
-            var options = Options.from(null, queryOptions, null);
+            var options = OptionHelpers.toQueryMap(null, queryOptions, null);
 
             assertThat(options).containsAllEntriesOf(queryOptions.toQuery());
         }
@@ -96,14 +95,14 @@ class OptionsTest {
         @Test
         void shouldDoNothing_WhenOptionalIsEmpty() {
             var value = Optional.empty();
-            Options.optionallyAdd(data, key, value);
+            OptionHelpers.optionallyAdd(data, key, value);
             assertThat(data).isEmpty();
         }
 
         @Test
         void shouldPutValueAsString_ForKey_WhenOptionalContainsValue() {
             var value = Optional.of(42);
-            Options.optionallyAdd(data, key, value);
+            OptionHelpers.optionallyAdd(data, key, value);
             assertThat(data).hasSize(1).containsEntry(key, "42");
         }
 
@@ -112,7 +111,7 @@ class OptionsTest {
             var unmodifiableData = Map.<String, Object>of();
             var optionalValue = Optional.of(42);
             assertThatExceptionOfType(UnsupportedOperationException.class)
-                    .isThrownBy(() -> Options.optionallyAdd(unmodifiableData, "theKey", optionalValue));
+                    .isThrownBy(() -> OptionHelpers.optionallyAdd(unmodifiableData, "theKey", optionalValue));
         }
     }
 
@@ -131,21 +130,21 @@ class OptionsTest {
         @Test
         void shouldDoNothing_WhenOptionalIsEmpty() {
             var value = Optional.<Boolean>empty();
-            Options.optionallyAdd(data, key, value);
+            OptionHelpers.optionallyAdd(data, key, value);
             assertThat(data).isEmpty();
         }
 
         @Test
         void shouldDoNothing_WhenOptionalContainsFalseBoolean() {
             var value = Optional.of(false);
-            Options.optionallyAdd(data, key, value);
+            OptionHelpers.optionallyAdd(data, key, value);
             assertThat(data).isEmpty();
         }
 
         @Test
         void shouldAddKey_WhenOptionalContainsTrueBoolean() {
             var value = Optional.of(true);
-            Options.optionallyAdd(data, key, value);
+            OptionHelpers.optionallyAdd(data, key, value);
             assertThat(data).containsExactly(key);
         }
 
@@ -154,7 +153,7 @@ class OptionsTest {
             var unmodifiableData = List.<String>of();
             var optionalValue = Optional.of(true);
             assertThatExceptionOfType(UnsupportedOperationException.class)
-                    .isThrownBy(() -> Options.optionallyAdd(unmodifiableData, "theKey", optionalValue));
+                    .isThrownBy(() -> OptionHelpers.optionallyAdd(unmodifiableData, "theKey", optionalValue));
         }
     }
 }

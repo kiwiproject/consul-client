@@ -41,8 +41,8 @@ public abstract class DeleteOptions implements ParamAdder {
             result.put("recurse", "");
         }
 
-        Options.optionallyAdd(result, "cas", getCas());
-        Options.optionallyAdd(result, "dc", getDatacenter());
+        OptionHelpers.optionallyAdd(result, "cas", getCas());
+        OptionHelpers.optionallyAdd(result, "dc", getDatacenter());
 
         return result;
     }

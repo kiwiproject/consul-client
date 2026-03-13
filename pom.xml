@@ -67,6 +67,11 @@
         <sonar.projectKey>kiwiproject_consul-client</sonar.projectKey>
         <sonar.organization>kiwiproject</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <!-- Exclude Consul.java from duplication analysis because it contains deprecated inner classes
+             (Consul.NetworkTimeoutConfig and its Builder) that intentionally duplicate the top-level
+             NetworkTimeoutConfig class for backward compatibility. Remove this exclusion in 2.0.0
+             when those deprecated inner classes are removed. -->
+        <sonar.cpd.exclusions>**/Consul.java</sonar.cpd.exclusions>
     </properties>
 
     <dependencyManagement>

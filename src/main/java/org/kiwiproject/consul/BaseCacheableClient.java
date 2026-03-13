@@ -5,15 +5,15 @@ import org.kiwiproject.consul.monitoring.ClientEventCallback;
 
 abstract class BaseCacheableClient extends BaseClient {
 
-    private final Consul.NetworkTimeoutConfig networkTimeoutConfig;
+    private final NetworkTimeoutConfig networkTimeoutConfig;
 
     protected BaseCacheableClient(String name, ClientConfig config, ClientEventCallback eventCallback,
-                                  Consul.NetworkTimeoutConfig networkTimeoutConfig) {
+                                  NetworkTimeoutConfig networkTimeoutConfig) {
         super(name, config, eventCallback);
         this.networkTimeoutConfig = networkTimeoutConfig;
     }
 
-    public Consul.NetworkTimeoutConfig getNetworkTimeoutConfig() {
+    public NetworkTimeoutConfig getNetworkTimeoutConfig() {
         return networkTimeoutConfig;
     }
 }

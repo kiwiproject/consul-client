@@ -1,6 +1,6 @@
 package org.kiwiproject.consul.option;
 
-import static org.kiwiproject.consul.option.Options.optionallyAdd;
+import static org.kiwiproject.consul.option.OptionHelpers.optionallyAdd;
 
 import org.immutables.value.Value;
 
@@ -16,7 +16,7 @@ import java.util.Optional;
 public abstract class QueryParameterOptions implements ParamAdder {
 
     /**
-     * @deprecated for removal in 2.0.0 (replacd by {@link Options#BLANK_QUERY_PARAMETER_OPTIONS} in 1.4.0)
+     * @deprecated for removal in 2.0.0 (replaced by {@link Options#BLANK_QUERY_PARAMETER_OPTIONS} in 1.4.0)
      */
     @Deprecated(since = "1.3.3", forRemoval = true)
     public static final QueryParameterOptions BLANK = ImmutableQueryParameterOptions.builder().build();

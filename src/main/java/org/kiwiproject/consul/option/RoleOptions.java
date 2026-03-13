@@ -27,8 +27,8 @@ public abstract class RoleOptions implements ParamAdder {
     public Map<String, Object> toQuery() {
         Map<String, Object> result = new HashMap<>();
 
-        Options.optionallyAdd(result, "policy", getPolicy());
-        Options.optionallyAdd(result, "ns", getNamespace());
+        OptionHelpers.optionallyAdd(result, "policy", getPolicy());
+        OptionHelpers.optionallyAdd(result, "ns", getNamespace());
 
         return result;
     }

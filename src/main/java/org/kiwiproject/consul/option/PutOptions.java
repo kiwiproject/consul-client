@@ -26,11 +26,11 @@ public abstract class PutOptions implements ParamAdder {
     public final Map<String, Object> toQuery() {
         Map<String, Object> result = new HashMap<>();
 
-        Options.optionallyAdd(result, "dc", getDc());
-        Options.optionallyAdd(result, "cas", getCas());
-        Options.optionallyAdd(result, "acquire", getAcquire());
-        Options.optionallyAdd(result, "release", getRelease());
-        Options.optionallyAdd(result, "token", getToken());
+        OptionHelpers.optionallyAdd(result, "dc", getDc());
+        OptionHelpers.optionallyAdd(result, "cas", getCas());
+        OptionHelpers.optionallyAdd(result, "acquire", getAcquire());
+        OptionHelpers.optionallyAdd(result, "release", getRelease());
+        OptionHelpers.optionallyAdd(result, "token", getToken());
 
         return result;
     }

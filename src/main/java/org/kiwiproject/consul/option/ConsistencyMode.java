@@ -69,7 +69,8 @@ public class ConsistencyMode {
      * @param maxStaleInSeconds Optional duration in seconds for which data can be stale if the server cannot be reached
      * @return a not null ConsistencyMode
      * @see <a href="https://developer.hashicorp.com/consul/api-docs/features/caching#simple-caching">Simple Caching</a>
-     * @deprecated replaced by {@link #createCachedConsistencyWithMaxAgeAndStale(Long, Long)}
+     * @deprecated replaced by {@link #createCachedConsistencyWithMaxAgeAndStale(Long, Long)};
+     *             will be removed in 2.0.0
      */
     @SuppressWarnings({ "OptionalUsedAsFieldOrParameterType", "java:S1133", "DeprecatedIsStillUsed" })
     @Deprecated(since = "1.8.0", forRemoval = true)
