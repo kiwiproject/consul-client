@@ -58,7 +58,7 @@
         <retrofit.version>3.0.0</retrofit.version>
 
         <!-- Versions for test dependencies -->
-        <mockwebserver3.version>5.3.2</mockwebserver3.version>
+        <!-- nothing to see here yet...move along...move along... -->
 
         <!-- Versions for plugins -->
         <build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
@@ -198,7 +198,6 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>mockwebserver3-junit5</artifactId>
-            <version>${mockwebserver3.version}</version>
             <scope>test</scope>
         </dependency>
 
