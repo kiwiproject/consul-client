@@ -415,17 +415,37 @@ public class Consul {
         }
 
         /**
-         * Sets the token used for authentication
+         * Sets the token used for authentication.
+         * <p>
+         * The token is captured at build time and sent as the X-Consul-Token header
+         * on every request. For tokens that may expire and need to be refreshed
+         * dynamically, use {@link #withTokenAuth(AuthTokenProvider)} instead.
          *
          * @param token the token
          * @return The builder.
          */
         public Builder withTokenAuth(String token) {
+            return withTokenAuth(() -> token);
+        }
+
+        /**
+         * Sets a dynamic token provider used for authentication.
+         * <p>
+         * The provider is called on every request, allowing the token to be
+         * refreshed without rebuilding the {@link Consul} client. This is useful
+         * when tokens expire and must be reloaded periodically.
+         * <p>
+         * For static tokens, use {@link #withTokenAuth(String)}.
+         *
+         * @param tokenProvider the provider that supplies the current token
+         * @return The builder.
+         */
+        public Builder withTokenAuth(AuthTokenProvider tokenProvider) {
             authInterceptor = chain -> {
                 Request original = chain.request();
 
                 Request.Builder requestBuilder = original.newBuilder()
-                        .header("X-Consul-Token", token)
+                        .header("X-Consul-Token", tokenProvider.getToken())
                         .method(original.method(), original.body());
 
                 Request request = requestBuilder.build();
