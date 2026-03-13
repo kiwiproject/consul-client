@@ -195,6 +195,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>mockwebserver3-junit5</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

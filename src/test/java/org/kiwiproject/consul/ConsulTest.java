@@ -3,6 +3,7 @@ package org.kiwiproject.consul;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.kiwiproject.consul.TestUtils.findFirstOpenPortFromOrThrow;
@@ -10,6 +11,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.google.common.net.HostAndPort;
+import mockwebserver3.MockResponse;
+import mockwebserver3.MockWebServer;
+import mockwebserver3.junit5.StartStop;
 import okhttp3.OkHttpClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,6 +38,7 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 @DisplayName("Consul")
@@ -243,6 +248,87 @@ class ConsulTest {
         public X509Certificate[] getAcceptedIssuers() {
             // Return an empty array of certificate authorities
             return new X509Certificate[0];
+        }
+    }
+
+    @Nested
+    class WithTokenAuth {
+
+        private static final String LEADER_RESPONSE_BODY = "\"127.0.0.1:8300\"";
+
+        @StartStop
+        public final MockWebServer server = new MockWebServer();
+
+        @Test
+        void shouldSendStaticTokenAsHeader() throws Exception {
+            server.enqueue(new MockResponse.Builder().code(200).body(LEADER_RESPONSE_BODY).build());
+
+            var consul = Consul.builder()
+                    .withUrl(server.url("/").toString())
+                    .withTokenAuth("static-token")
+                    .build();
+
+            consul.statusClient().getLeader();
+
+            var recordedRequest = server.takeRequest();
+            assertThat(recordedRequest.getHeaders().get("X-Consul-Token")).isEqualTo("static-token");
+        }
+
+        @Test
+        void shouldSendTokenFromProviderAsHeader() throws Exception {
+            server.enqueue(new MockResponse.Builder().code(200).body(LEADER_RESPONSE_BODY).build());
+
+            var consul = Consul.builder()
+                    .withUrl(server.url("/").toString())
+                    .withTokenAuth(() -> "provider-token")
+                    .build();
+
+            consul.statusClient().getLeader();
+
+            var recordedRequest = server.takeRequest();
+            assertThat(recordedRequest.getHeaders().get("X-Consul-Token")).isEqualTo("provider-token");
+        }
+
+        @Test
+        void shouldUseCurrentTokenOnEachRequest() {
+            server.enqueue(new MockResponse.Builder().code(200).body(LEADER_RESPONSE_BODY).build());
+            server.enqueue(new MockResponse.Builder().code(200).body(LEADER_RESPONSE_BODY).build());
+
+            var tokens = new String[]{"token-v1", "token-v2"};
+            var callCount = new AtomicInteger();
+
+            var consul = Consul.builder()
+                    .withUrl(server.url("/").toString())
+                    .withTokenAuth(() -> tokens[callCount.getAndIncrement()])
+                    .build();
+
+            consul.statusClient().getLeader();
+            consul.statusClient().getLeader();
+
+            assertAll(
+                () -> assertThat(server.takeRequest().getHeaders().get("X-Consul-Token")).isEqualTo("token-v1"),
+                () -> assertThat(server.takeRequest().getHeaders().get("X-Consul-Token")).isEqualTo("token-v2")
+            );
+        }
+
+        @Test
+        void shouldRejectNullTokenProvider() {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> Consul.builder().withTokenAuth((AuthTokenProvider) null))
+                    .withMessage("tokenProvider must not be null");
+        }
+
+        @Test
+        void shouldThrowNullPointerException_WhenTokenProviderReturnsNull() {
+            server.enqueue(new MockResponse.Builder().code(200).body(LEADER_RESPONSE_BODY).build());
+
+            var consul = Consul.builder()
+                    .withUrl(server.url("/").toString())
+                    .withTokenAuth(() -> null)
+                    .build();
+
+            assertThatNullPointerException()
+                    .isThrownBy(() -> consul.statusClient().getLeader());
         }
     }
 
