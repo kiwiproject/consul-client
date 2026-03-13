@@ -437,8 +437,10 @@ public class Consul {
          * <p>
          * For static tokens, use {@link #withTokenAuth(String)}.
          *
-         * @param tokenProvider the provider that supplies the current token
+         * @param tokenProvider the provider that supplies the current token; must not be null,
+         *                      and {@link AuthTokenProvider#getToken()} must not return null
          * @return The builder.
+         * @throws IllegalArgumentException if tokenProvider is null
          */
         public Builder withTokenAuth(AuthTokenProvider tokenProvider) {
             checkArgument(nonNull(tokenProvider), "tokenProvider must not be null");
