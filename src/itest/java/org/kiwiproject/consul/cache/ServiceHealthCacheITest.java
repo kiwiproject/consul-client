@@ -166,6 +166,7 @@ class ServiceHealthCacheITest extends BaseIntegrationTest {
     }
 
     @Test
+    @SuppressWarnings("resource")
     void shouldNotifyLateListenersRaceCondition() throws Exception {
         var serviceId = createAutoDeregisterServiceId();
         var serviceName = randomUUIDString();
