@@ -306,6 +306,7 @@ class KVCacheITest extends BaseIntegrationTest {
 
     @ParameterizedTest(name = "queries of {0} seconds")
     @MethodSource("getBlockingQueriesDuration")
+    @SuppressWarnings("resource")
     void checkUpdateNotifications(int queryDurationSec) throws InterruptedException {
         var scheduledExecutor = Executors.newSingleThreadScheduledExecutor(
                 new ThreadFactoryBuilder().setDaemon(true).setNameFormat("kvcache-itest-%d").build()

@@ -29,6 +29,7 @@ class TimeoutInterceptorTest {
 
     @ParameterizedTest(name = "expected timeout of {4} ms for url {0} with timeout of {1} ms and margin of {3} ms (enabled: {2})")
     @MethodSource("getInterceptParameters")
+    @SuppressWarnings("resource")
     void checkIntercept(String url, int defaultTimeout, boolean enabled, int margin, int expectedTimeoutMs)
             throws IOException {
 
