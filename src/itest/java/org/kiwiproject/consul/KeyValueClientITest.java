@@ -315,6 +315,34 @@ class KeyValueClientITest extends BaseIntegrationTest {
     }
 
     @Test
+    void acquireAndReleaseLockWithValue() {
+        var key = randomUUIDString();
+        var acquireValue = "acquired_by_" + randomUUIDString();
+        var releaseValue = "released_by_" + randomUUIDString();
+
+        SessionCreatedResponse response = sessionClient.createSession(ImmutableSession.builder().name(acquireValue).build());
+        String sessionId = response.getId();
+
+        try {
+            assertThat(keyValueClient.acquireLock(key, acquireValue, sessionId)).isTrue();
+
+            var valueAfterAcquireLock = keyValueClient.getValue(key).orElseThrow();
+            assertThat(valueAfterAcquireLock.getSession()).as("SessionId must be present.").isPresent();
+            assertThat(valueAfterAcquireLock.getValueAsString()).contains(acquireValue);
+
+            assertThat(keyValueClient.releaseLock(key, releaseValue, sessionId)).isTrue();
+
+            var valueAfterReleaseLock = keyValueClient.getValue(key).orElseThrow();
+            assertThat(valueAfterReleaseLock.getSession()).as("SessionId in the key value should be absent.").isEmpty();
+            assertThat(valueAfterReleaseLock.getValueAsString()).contains(releaseValue);
+
+            keyValueClient.deleteKey(key);
+        } finally {
+            sessionClient.destroySession(sessionId);
+        }
+    }
+
+    @Test
     void testGetSession() {
         var key = randomUUIDString();
         var value = randomUUIDString();
