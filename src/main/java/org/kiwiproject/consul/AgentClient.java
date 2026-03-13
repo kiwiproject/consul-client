@@ -582,10 +582,14 @@ public class AgentClient extends BaseClient {
     }
 
     /**
-     * Prepends the default TTL prefix to the serviceId to produce a check id,
-     * then delegates to {@link #check(String, State, String)}.
+     * Constructs the check ID as {@code "service:" + serviceId} and delegates to
+     * {@link #check(String, State, String)}.
      * <p>
-     * <em>This method only works with TTL checks that have not been given a custom name.</em>
+     * This method assumes the service was registered without a custom {@code CheckID},
+     * in which case Consul auto-generates a check ID using the {@code service:<serviceId>}
+     * convention. If a custom {@code CheckID} was provided during service registration,
+     * use {@link #passCheck(String)}, {@link #warnCheck(String)}, or
+     * {@link #failCheck(String)} instead, passing the exact check ID.
      *
      * @param serviceId the ID of the service to check
      * @param state     the state to use in the check-in
@@ -597,7 +601,12 @@ public class AgentClient extends BaseClient {
     }
 
     /**
-     * Sets a TTL service check to "passing" state
+     * Sets a TTL service check to "passing" state.
+     * <p>
+     * Delegates to {@link #checkTtl(String, State, String)}, which constructs the check ID
+     * as {@code "service:" + serviceId}. This only works when the service was registered
+     * without a custom {@code CheckID}. If a custom {@code CheckID} was provided during
+     * registration, use {@link #passCheck(String)} instead, passing the exact check ID.
      *
      * @param serviceId the ID of the service to set as passing
      * @throws NotRegisteredException if the service has not registered
@@ -607,7 +616,12 @@ public class AgentClient extends BaseClient {
     }
 
     /**
-     * Sets a TTL service check to "passing" state with a note
+     * Sets a TTL service check to "passing" state with a note.
+     * <p>
+     * Delegates to {@link #checkTtl(String, State, String)}, which constructs the check ID
+     * as {@code "service:" + serviceId}. This only works when the service was registered
+     * without a custom {@code CheckID}. If a custom {@code CheckID} was provided during
+     * registration, use {@link #passCheck(String, String)} instead, passing the exact check ID.
      *
      * @param serviceId the ID of the service to set as passing
      * @param note      the note to set on the check
@@ -619,8 +633,13 @@ public class AgentClient extends BaseClient {
 
     /**
      * Sets a TTL service check to "warning" state.
+     * <p>
+     * Delegates to {@link #checkTtl(String, State, String)}, which constructs the check ID
+     * as {@code "service:" + serviceId}. This only works when the service was registered
+     * without a custom {@code CheckID}. If a custom {@code CheckID} was provided during
+     * registration, use {@link #warnCheck(String)} instead, passing the exact check ID.
      *
-     * @param serviceId serviceId the ID of the service to set as warn
+     * @param serviceId the ID of the service to set as warning
      * @throws NotRegisteredException if the service has not registered
      */
     public void warn(String serviceId) throws NotRegisteredException {
@@ -629,8 +648,13 @@ public class AgentClient extends BaseClient {
 
     /**
      * Sets a TTL service check to "warning" state with a note.
+     * <p>
+     * Delegates to {@link #checkTtl(String, State, String)}, which constructs the check ID
+     * as {@code "service:" + serviceId}. This only works when the service was registered
+     * without a custom {@code CheckID}. If a custom {@code CheckID} was provided during
+     * registration, use {@link #warnCheck(String, String)} instead, passing the exact check ID.
      *
-     * @param serviceId serviceId the ID of the service to set as warn
+     * @param serviceId the ID of the service to set as warning
      * @param note      the note to set on the check
      * @throws NotRegisteredException if the service has not registered
      */
@@ -640,8 +664,13 @@ public class AgentClient extends BaseClient {
 
     /**
      * Sets a TTL service check to "critical" state.
+     * <p>
+     * Delegates to {@link #checkTtl(String, State, String)}, which constructs the check ID
+     * as {@code "service:" + serviceId}. This only works when the service was registered
+     * without a custom {@code CheckID}. If a custom {@code CheckID} was provided during
+     * registration, use {@link #failCheck(String)} instead, passing the exact check ID.
      *
-     * @param serviceId serviceId the ID of the service to set as critical/fail
+     * @param serviceId the ID of the service to set as critical
      * @throws NotRegisteredException if the service has not registered
      */
     public void fail(String serviceId) throws NotRegisteredException {
@@ -650,8 +679,13 @@ public class AgentClient extends BaseClient {
 
     /**
      * Sets a TTL service check to "critical" state with a note.
+     * <p>
+     * Delegates to {@link #checkTtl(String, State, String)}, which constructs the check ID
+     * as {@code "service:" + serviceId}. This only works when the service was registered
+     * without a custom {@code CheckID}. If a custom {@code CheckID} was provided during
+     * registration, use {@link #failCheck(String, String)} instead, passing the exact check ID.
      *
-     * @param serviceId serviceId the ID of the service to set as critical/fail
+     * @param serviceId the ID of the service to set as critical
      * @param note      the note to set on the check
      * @throws NotRegisteredException if the service has not registered
      */
@@ -660,21 +694,31 @@ public class AgentClient extends BaseClient {
     }
 
     /**
-     * Sets a TTL check to "passing" state
+     * Sets a TTL check to "passing" state.
+     * <p>
+     * The {@code checkId} is passed directly to the Consul API without modification.
+     * Use this method when the service was registered with a custom {@code CheckID};
+     * for services registered without a custom {@code CheckID}, {@link #pass(String)}
+     * may be used instead.
      *
-     * @param checkId the ID of the check to set as passing
-     * @throws NotRegisteredException if the service has not registered
+     * @param checkId the exact check ID as registered with Consul
+     * @throws NotRegisteredException if the check has not been registered
      */
     public void passCheck(String checkId) throws NotRegisteredException {
         check(checkId, State.PASS, null);
     }
 
     /**
-     * Sets a TTL check to "passing" state with a note
+     * Sets a TTL check to "passing" state with a note.
+     * <p>
+     * The {@code checkId} is passed directly to the Consul API without modification.
+     * Use this method when the service was registered with a custom {@code CheckID};
+     * for services registered without a custom {@code CheckID}, {@link #pass(String, String)}
+     * may be used instead.
      *
-     * @param checkId the ID of the check to set as passing
+     * @param checkId the exact check ID as registered with Consul
      * @param note    the note to set on the check
-     * @throws NotRegisteredException if the service has not registered
+     * @throws NotRegisteredException if the check has not been registered
      */
     public void passCheck(String checkId, String note) throws NotRegisteredException {
         check(checkId, State.PASS, note);
@@ -682,9 +726,14 @@ public class AgentClient extends BaseClient {
 
     /**
      * Sets a TTL check to "warning" state.
+     * <p>
+     * The {@code checkId} is passed directly to the Consul API without modification.
+     * Use this method when the service was registered with a custom {@code CheckID};
+     * for services registered without a custom {@code CheckID}, {@link #warn(String)}
+     * may be used instead.
      *
-     * @param checkId the ID of the check to set as "warning"
-     * @throws NotRegisteredException if the service has not registered
+     * @param checkId the exact check ID as registered with Consul
+     * @throws NotRegisteredException if the check has not been registered
      */
     public void warnCheck(String checkId) throws NotRegisteredException {
         check(checkId, State.WARN, null);
@@ -692,10 +741,15 @@ public class AgentClient extends BaseClient {
 
     /**
      * Sets a TTL check to "warning" state with a note.
+     * <p>
+     * The {@code checkId} is passed directly to the Consul API without modification.
+     * Use this method when the service was registered with a custom {@code CheckID};
+     * for services registered without a custom {@code CheckID}, {@link #warn(String, String)}
+     * may be used instead.
      *
-     * @param checkId the ID of the check to set as "warning"
+     * @param checkId the exact check ID as registered with Consul
      * @param note    the note to set on the check
-     * @throws NotRegisteredException if the service has not registered
+     * @throws NotRegisteredException if the check has not been registered
      */
     public void warnCheck(String checkId, String note) throws NotRegisteredException {
         check(checkId, State.WARN, note);
@@ -703,9 +757,14 @@ public class AgentClient extends BaseClient {
 
     /**
      * Sets a TTL check to "critical" state.
+     * <p>
+     * The {@code checkId} is passed directly to the Consul API without modification.
+     * Use this method when the service was registered with a custom {@code CheckID};
+     * for services registered without a custom {@code CheckID}, {@link #fail(String)}
+     * may be used instead.
      *
-     * @param checkId the ID of the check to set as critical/fail
-     * @throws NotRegisteredException if the service has not registered
+     * @param checkId the exact check ID as registered with Consul
+     * @throws NotRegisteredException if the check has not been registered
      */
     public void failCheck(String checkId) throws NotRegisteredException {
         check(checkId, State.FAIL, null);
@@ -713,10 +772,15 @@ public class AgentClient extends BaseClient {
 
     /**
      * Sets a TTL check to "critical" state with a note.
+     * <p>
+     * The {@code checkId} is passed directly to the Consul API without modification.
+     * Use this method when the service was registered with a custom {@code CheckID};
+     * for services registered without a custom {@code CheckID}, {@link #fail(String, String)}
+     * may be used instead.
      *
-     * @param checkId the ID of the check to set as critical/fail
+     * @param checkId the exact check ID as registered with Consul
      * @param note    the note to set on the check
-     * @throws NotRegisteredException if the service has not registered
+     * @throws NotRegisteredException if the check has not been registered
      */
     public void failCheck(String checkId, String note) throws NotRegisteredException {
         check(checkId, State.FAIL, note);
