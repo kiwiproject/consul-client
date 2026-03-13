@@ -16,7 +16,6 @@ import org.kiwiproject.consul.model.ConsulResponse;
 import org.kiwiproject.consul.model.kv.Operation;
 import org.kiwiproject.consul.model.kv.TxResponse;
 import org.kiwiproject.consul.model.kv.Value;
-import org.kiwiproject.consul.model.session.SessionInfo;
 import org.kiwiproject.consul.monitoring.ClientEventCallback;
 import org.kiwiproject.consul.option.ConsistencyMode;
 import org.kiwiproject.consul.option.DeleteOptions;
