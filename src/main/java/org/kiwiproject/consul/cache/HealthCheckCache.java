@@ -12,6 +12,9 @@ import java.util.function.Function;
 
 public class HealthCheckCache extends ConsulCache<String, HealthCheck> {
 
+    // The getNetworkTimeoutConfig() override in HealthClient returns the deprecated Consul.NetworkTimeoutConfig
+    // (the inner class). This suppression can be removed when that override is removed in 2.0.0.
+    @SuppressWarnings("removal")
     private HealthCheckCache(HealthClient healthClient,
                              org.kiwiproject.consul.model.State checkState,
                              int watchSeconds,

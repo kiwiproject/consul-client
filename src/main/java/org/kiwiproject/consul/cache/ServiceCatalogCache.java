@@ -11,6 +11,9 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class ServiceCatalogCache extends ConsulCache<String, CatalogService> {
 
+    // The getNetworkTimeoutConfig() override in CatalogClient returns the deprecated Consul.NetworkTimeoutConfig
+    // (the inner class). This suppression can be removed when that override is removed in 2.0.0.
+    @SuppressWarnings("removal")
     private ServiceCatalogCache(CatalogClient catalogClient,
                                 String serviceName,
                                 QueryOptions queryOptions,

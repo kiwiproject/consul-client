@@ -15,6 +15,9 @@ import java.util.function.Function;
 
 public class KVCache extends ConsulCache<String, Value> {
 
+    // The getNetworkTimeoutConfig() override in KeyValueClient returns the deprecated Consul.NetworkTimeoutConfig
+    // (the inner class). This suppression can be removed when that override is removed in 2.0.0.
+    @SuppressWarnings("removal")
     private KVCache(KeyValueClient kvClient,
                     String rootPath,
                     String keyPath,

@@ -13,6 +13,9 @@ import java.util.function.Function;
 
 public class ServiceHealthCache extends ConsulCache<ServiceHealthKey, ServiceHealth> {
 
+    // The getNetworkTimeoutConfig() override in HealthClient returns the deprecated Consul.NetworkTimeoutConfig
+    // (the inner class). This suppression can be removed when that override is removed in 2.0.0.
+    @SuppressWarnings("removal")
     private ServiceHealthCache(HealthClient healthClient,
                                String serviceName,
                                boolean passing,
