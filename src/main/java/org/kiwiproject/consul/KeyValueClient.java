@@ -16,7 +16,6 @@ import org.kiwiproject.consul.model.ConsulResponse;
 import org.kiwiproject.consul.model.kv.Operation;
 import org.kiwiproject.consul.model.kv.TxResponse;
 import org.kiwiproject.consul.model.kv.Value;
-import org.kiwiproject.consul.model.session.SessionInfo;
 import org.kiwiproject.consul.monitoring.ClientEventCallback;
 import org.kiwiproject.consul.option.ConsistencyMode;
 import org.kiwiproject.consul.option.DeleteOptions;
@@ -606,16 +605,37 @@ public class KeyValueClient extends BaseCacheableClient {
     }
 
     /**
-     * Releases the lock for a given service and session.
+     * Releases the lock for a given key and session.
      * <p>
-     * GET /v1/kv/{key}?release={sessionId}
+     * PUT /v1/kv/{key}?release={sessionId}
+     * <p>
+     * The key value is set to an empty string. To preserve or update the value stored
+     * in the key when releasing the lock, use {@link #releaseLock(String, String, String)}.
      *
-     * @param key       identifying the service.
+     * @param key       the key identifying the lock
      * @param sessionId the session ID
-     * @return {@link SessionInfo}.
+     * @return true if the lock is released successfully, false otherwise
      */
     public boolean releaseLock(final String key, final String sessionId) {
-        return putValue(key, "", 0, ImmutablePutOptions.builder().release(sessionId).build());
+        return releaseLock(key, "", sessionId);
+    }
+
+    /**
+     * Releases the lock for a given key and session, storing a value in the key.
+     * <p>
+     * PUT /v1/kv/{key}?release={sessionId}
+     * <p>
+     * This overload mirrors {@link #acquireLock(String, String, String)}, allowing the
+     * caller to store application-specific data in the key (e.g., information about
+     * who released the lock) at the same time as releasing it.
+     *
+     * @param key       the key identifying the lock
+     * @param value     the value to store in the key (usually application-specific info)
+     * @param sessionId the session ID
+     * @return true if the lock is released successfully, false otherwise
+     */
+    public boolean releaseLock(final String key, final String value, final String sessionId) {
+        return putValue(key, value, 0, ImmutablePutOptions.builder().release(sessionId).build());
     }
 
     /**
