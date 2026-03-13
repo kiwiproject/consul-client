@@ -3,6 +3,7 @@ package org.kiwiproject.consul;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.kiwiproject.consul.TestUtils.findFirstOpenPortFromOrThrow;
@@ -326,7 +327,7 @@ class ConsulTest {
                     .withTokenAuth(() -> null)
                     .build();
 
-            assertThatExceptionOfType(NullPointerException.class)
+            assertThatNullPointerException()
                     .isThrownBy(() -> consul.statusClient().getLeader());
         }
     }
