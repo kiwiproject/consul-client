@@ -441,6 +441,7 @@ public class Consul {
          * @return The builder.
          */
         public Builder withTokenAuth(AuthTokenProvider tokenProvider) {
+            checkArgument(nonNull(tokenProvider), "tokenProvider must not be null");
             authInterceptor = chain -> {
                 Request original = chain.request();
 

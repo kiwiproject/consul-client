@@ -309,6 +309,13 @@ class ConsulTest {
                 () -> assertThat(server.takeRequest().getHeaders().get("X-Consul-Token")).isEqualTo("token-v2")
             );
         }
+
+        @Test
+        void shouldRejectNullTokenProvider() {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> Consul.builder().withTokenAuth((AuthTokenProvider) null))
+                    .withMessage("tokenProvider must not be null");
+        }
     }
 
     @Nested
