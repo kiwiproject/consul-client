@@ -51,10 +51,17 @@ class UnixDomainSocketITest {
         var socketAddress = CONTAINER_SOCKET_DIR + "/" + SOCKET_FILE_NAME;
 
         consulContainer = new GenericContainer<>(CONSUL_DOCKER_IMAGE_NAME)
-                .withCommand(
-                        "agent", "-dev",
-                        "-hcl", "addresses { http = \"unix://" + socketAddress + "\" }",
-                        "-hcl", "ports { http = -1 }")
+                .withCommand("agent", "-dev")
+                .withEnv("CONSUL_LOCAL_CONFIG", """
+                        {
+                            "addresses": {
+                                "http": "unix://%s"
+                            },
+                            "ports": {
+                                "http": -1
+                            }
+                        }
+                        """.formatted(socketAddress))
                 .withFileSystemBind(socketDir.toAbsolutePath().toString(),
                         CONTAINER_SOCKET_DIR, BindMode.READ_WRITE)
                 .waitingFor(Wait.forLogMessage(".*agent: Synced node info.*", 1));
