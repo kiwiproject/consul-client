@@ -32,6 +32,7 @@ import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
@@ -329,6 +330,86 @@ class ConsulTest {
 
             assertThatNullPointerException()
                     .isThrownBy(() -> consul.statusClient().getLeader());
+        }
+    }
+
+    @Nested
+    class WithUnixDomainSocket {
+
+        @Test
+        void shouldReturnBuilder_WhenGivenPath() {
+            var builder = Consul.builder();
+            assertThat(builder.withUnixDomainSocket(Path.of("/tmp/consul.sock"))).isSameAs(builder);
+        }
+
+        @Test
+        void shouldReturnBuilder_WhenGivenString() {
+            var builder = Consul.builder();
+            assertThat(builder.withUnixDomainSocket("/tmp/consul.sock")).isSameAs(builder);
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = { "", "   ", "\t" })
+        void shouldRejectBlankPath(String socketPath) {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> Consul.builder().withUnixDomainSocket(socketPath))
+                    .withMessage("socketPath must not be null or blank");
+        }
+
+        @Test
+        void shouldRejectNullStringPath() {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> Consul.builder().withUnixDomainSocket((String) null))
+                    .withMessage("socketPath must not be null or blank");
+        }
+
+        @Test
+        void shouldThrowIllegalStateException_WhenBothUdsAndSslAreConfigured()
+                throws NoSuchAlgorithmException {
+            var builder = Consul.builder()
+                    .withUnixDomainSocket("/tmp/consul.sock")
+                    .withSslContext(SSLContext.getDefault());
+
+            assertThatExceptionOfType(IllegalStateException.class)
+                    .isThrownBy(builder::build)
+                    .withMessage("Cannot use a Unix domain socket with SSL/TLS; " +
+                            "configure withUnixDomainSocket or an SSL context, not both");
+        }
+
+        @Test
+        void shouldBuildSuccessfully_WhenOnlyUdsIsConfigured() {
+            var consul = Consul.builder()
+                    .withUnixDomainSocket("/tmp/consul.sock")
+                    .build();
+
+            assertThat(consul).isNotNull();
+        }
+    }
+
+    @Nested
+    class AddUnixDomainSocketFactory {
+
+        @Test
+        void shouldDoNothing_WhenSocketPathIsNull() {
+            var okHttpClientBuilder = new OkHttpClient.Builder();
+
+            Consul.Builder.addUnixDomainSocketFactory(null, okHttpClientBuilder);
+
+            var okHttpClient = okHttpClientBuilder.build();
+            assertThat(okHttpClient.socketFactory()).isNotInstanceOf(UnixDomainSocketFactory.class);
+            assertThat(okHttpClient.proxy()).isNull();
+        }
+
+        @Test
+        void shouldSetSocketFactoryAndNoProxy_WhenPathIsProvided() {
+            var okHttpClientBuilder = new OkHttpClient.Builder();
+            var socketPath = Path.of("/tmp/consul.sock");
+
+            Consul.Builder.addUnixDomainSocketFactory(socketPath, okHttpClientBuilder);
+
+            var okHttpClient = okHttpClientBuilder.build();
+            assertThat(okHttpClient.socketFactory()).isInstanceOf(UnixDomainSocketFactory.class);
+            assertThat(okHttpClient.proxy()).isEqualTo(java.net.Proxy.NO_PROXY);
         }
     }
 

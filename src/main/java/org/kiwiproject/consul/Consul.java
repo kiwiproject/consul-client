@@ -36,6 +36,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.X509TrustManager;
 import java.net.Proxy;
 import java.net.URL;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Collection;
@@ -319,6 +320,7 @@ public class Consul {
         private X509TrustManager trustManager;
         private HostnameVerifier hostnameVerifier;
         private Proxy proxy;
+        private Path unixSocketPath;
         private boolean ping;
         private Interceptor authInterceptor;
         private Interceptor aclTokenInterceptor;
@@ -745,6 +747,40 @@ public class Consul {
         }
 
         /**
+         * Connects to the local Consul agent via a Unix domain socket at the given path.
+         * <p>
+         * Requires the {@code junixsocket-core} dependency on the classpath.
+         * <p>
+         * Cannot be combined with an SSL context; {@link #build()} throws
+         * {@link IllegalStateException} if both are configured.
+         *
+         * @param socketPath path to the Unix domain socket file
+         * @return The builder.
+         */
+        public Builder withUnixDomainSocket(Path socketPath) {
+            this.unixSocketPath = socketPath;
+            return this;
+        }
+
+        /**
+         * Connects to the local Consul agent via a Unix domain socket at the given path.
+         * <p>
+         * Requires the {@code junixsocket-core} dependency on the classpath.
+         * <p>
+         * Cannot be combined with an SSL context; {@link #build()} throws
+         * {@link IllegalStateException} if both are configured.
+         *
+         * @param socketPath path to the Unix domain socket file; must not be null or blank
+         * @return The builder.
+         * @throws IllegalArgumentException if socketPath is null or blank
+         */
+        public Builder withUnixDomainSocket(String socketPath) {
+            checkArgument(nonNull(socketPath) && !socketPath.isBlank(),
+                    "socketPath must not be null or blank");
+            return withUnixDomainSocket(Path.of(socketPath));
+        }
+
+        /**
         * Connect timeout for OkHttpClient
         * @param timeoutMillis timeout values in milliseconds
         * @return The builder
@@ -864,6 +900,12 @@ public class Consul {
                 connectionPool = new ConnectionPool();
             }
 
+            if (nonNull(unixSocketPath) && nonNull(sslContext)) {
+                throw new IllegalStateException(
+                        "Cannot use a Unix domain socket with SSL/TLS; " +
+                                "configure withUnixDomainSocket or an SSL context, not both");
+            }
+
             ClientConfig config = nonNull(clientConfig) ? clientConfig : new ClientConfig();
 
             var okHttpClient = createOkHttpClient(
@@ -968,6 +1010,8 @@ public class Consul {
                 builder.proxy(proxy);
             }
 
+            addUnixDomainSocketFactory(unixSocketPath, builder);
+
             var networkTimeoutConfig = networkTimeoutConfigBuilder.build();
             addTimeouts(builder, networkTimeoutConfig);
 
@@ -1011,6 +1055,16 @@ public class Consul {
             } else {
                 builder.sslSocketFactory(socketFactory, TrustManagerUtils.getDefaultTrustManager());
             }
+        }
+
+        @VisibleForTesting
+        static void addUnixDomainSocketFactory(@Nullable Path unixSocketPath,
+                                               OkHttpClient.Builder builder) {
+            if (isNull(unixSocketPath)) {
+                return;
+            }
+            builder.socketFactory(new UnixDomainSocketFactory(unixSocketPath));
+            builder.proxy(Proxy.NO_PROXY);
         }
 
         private static void addTimeouts(OkHttpClient.Builder builder,
