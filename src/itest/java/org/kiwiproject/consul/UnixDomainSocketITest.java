@@ -2,6 +2,7 @@ package org.kiwiproject.consul;
 
 import static java.util.Objects.nonNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.kiwiproject.consul.ConsulTestcontainers.CONSUL_DOCKER_IMAGE_NAME;
 import static org.kiwiproject.consul.TestUtils.randomUUIDString;
 
@@ -17,6 +18,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 
 /**
  * Integration test for Unix domain socket support.
@@ -55,6 +57,10 @@ class UnixDomainSocketITest {
                 .waitingFor(Wait.forLogMessage(".*agent: Synced node info.*", 1));
 
         consulContainer.start();
+
+        await().atMost(Duration.ofSeconds(30))
+                .pollInterval(Duration.ofMillis(500))
+                .until(() -> Files.exists(socketPath));
 
         client = Consul.builder()
                 .withUnixDomainSocket(socketPath)
