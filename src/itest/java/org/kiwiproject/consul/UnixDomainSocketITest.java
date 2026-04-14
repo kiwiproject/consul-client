@@ -18,6 +18,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
 
 /**
@@ -42,7 +43,9 @@ class UnixDomainSocketITest {
     @BeforeAll
     @SuppressWarnings("resource")
     static void beforeAll() throws IOException {
-        socketDir = Files.createTempDirectory("consul-uds-itest-");
+        socketDir = Files.createTempDirectory(
+                null,
+                PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrwxrwx")));
         socketPath = socketDir.resolve(SOCKET_FILE_NAME);
 
         var socketAddress = CONTAINER_SOCKET_DIR + "/" + SOCKET_FILE_NAME;
