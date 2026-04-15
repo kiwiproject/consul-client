@@ -92,6 +92,10 @@ class UnixDomainSocketITest {
             throw e;
         }
 
+        LOG.info("Socket file: {} (permissions: {})",
+                socketPath,
+                Files.getPosixFilePermissions(socketPath));
+
         client = Consul.builder()
                 .withUnixDomainSocket(socketPath)
                 .build();
