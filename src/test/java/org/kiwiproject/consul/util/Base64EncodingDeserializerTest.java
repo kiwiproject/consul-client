@@ -32,6 +32,24 @@ class Base64EncodingDeserializerTest {
     }
 
     @Test
+    void shouldDeserialize_WithNonAsciiCharacters() throws IOException {
+        var value = "café naïve éàü";
+        var encoded = Base64.getEncoder().encodeToString(value.getBytes(StandardCharsets.UTF_8));
+        var event = ImmutableEvent.builder()
+                .id("1")
+                .lTime(1L)
+                .name("name")
+                .version(1)
+                .payload(encoded)
+                .build();
+
+        String serializedEvent = Jackson.MAPPER.writeValueAsString(event);
+        Event deserializedEvent = Jackson.MAPPER.readValue(serializedEvent, Event.class);
+
+        assertThat(deserializedEvent.getPayload()).contains(value);
+    }
+
+    @Test
     void shouldReturnEmpty_WhenPayloadIsNull() throws IOException {
         var json = """
                 {

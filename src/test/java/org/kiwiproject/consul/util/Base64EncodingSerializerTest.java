@@ -42,6 +42,20 @@ class Base64EncodingSerializerTest {
     }
 
     @Test
+    void shouldSerializePresent_WithNonAsciiCharacters() throws IOException {
+        var value = "café naïve éàü";
+        var operation = ImmutableOperation.builder()
+                .verb("set")
+                .value(value)
+                .build();
+
+        String json = Jackson.MAPPER.writeValueAsString(operation);
+        Operation deserialized = Jackson.MAPPER.readValue(json, Operation.class);
+
+        assertThat(deserialized.value()).contains(value);
+    }
+
+    @Test
     void shouldSerializeEmptyAsNull() throws IOException {
         var operation = ImmutableOperation.builder()
                 .verb("set")
