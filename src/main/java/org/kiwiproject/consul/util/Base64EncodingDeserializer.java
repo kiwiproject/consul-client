@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Optional;
 
@@ -22,7 +23,7 @@ public class Base64EncodingDeserializer extends JsonDeserializer<Optional<String
         String value = p.getValueAsString();
 
         if (StringUtils.isNotEmpty(value)) {
-            return Optional.of(new String(Base64.getDecoder().decode(value)));
+            return Optional.of(new String(Base64.getDecoder().decode(value), StandardCharsets.UTF_8));
         }
         return Optional.empty();
     }
