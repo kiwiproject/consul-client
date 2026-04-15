@@ -148,25 +148,25 @@ class UnixDomainSocketFactoryTest {
 
         @Test
         void shouldReturnConnectedSocket_WhenGivenHostAndPort() throws IOException {
-            assertThat(factory.createSocket("localhost", 8500)).isSameAs(mockConnectedSocket);
+            assertThat(factory.createSocket("ignored-host", 0)).isSameAs(mockConnectedSocket);
         }
 
         @Test
         void shouldReturnConnectedSocket_WhenGivenHostPortAndLocalAddress() throws IOException {
-            assertThat(factory.createSocket("localhost", 8500, InetAddress.getLoopbackAddress(), 0))
+            assertThat(factory.createSocket("ignored-host", 0, InetAddress.getLoopbackAddress(), 0))
                     .isSameAs(mockConnectedSocket);
         }
 
         @Test
         void shouldReturnConnectedSocket_WhenGivenInetAddressAndPort() throws IOException {
-            assertThat(factory.createSocket(InetAddress.getLoopbackAddress(), 8500))
+            assertThat(factory.createSocket(InetAddress.getLoopbackAddress(), 0))
                     .isSameAs(mockConnectedSocket);
         }
 
         @Test
         void shouldReturnConnectedSocket_WhenGivenTwoInetAddressesAndPorts() throws IOException {
             var addr = InetAddress.getLoopbackAddress();
-            assertThat(factory.createSocket(addr, 8500, addr, 0)).isSameAs(mockConnectedSocket);
+            assertThat(factory.createSocket(addr, 0, addr, 0)).isSameAs(mockConnectedSocket);
         }
     }
 
@@ -211,7 +211,7 @@ class UnixDomainSocketFactoryTest {
         @Test
         void shouldReturnConnectedSocket() throws IOException {
             var realFactory = new UnixDomainSocketFactory(socketPath);
-            try (var socket = realFactory.createSocket("localhost", 8500)) {
+            try (var socket = realFactory.createSocket("ignored-host", 0)) {
                 assertThat(socket.isConnected()).isTrue();
             }
         }
