@@ -50,9 +50,8 @@ class UnixDomainSocketITest {
     @BeforeAll
     @SuppressWarnings("resource")
     static void beforeAll() throws IOException {
-        socketDir = Files.createTempDirectory(
-                null,
-                PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrwxrwx")));
+        socketDir = Files.createTempDirectory("consul-uds-itest-");
+        Files.setPosixFilePermissions(socketDir, PosixFilePermissions.fromString("rwxrwxrwx"));
         socketPath = socketDir.resolve(SOCKET_FILE_NAME);
 
         LOG.info("Socket dir: {} (permissions: {})",
@@ -67,9 +66,6 @@ class UnixDomainSocketITest {
                         {
                             "addresses": {
                                 "http": "unix://%s"
-                            },
-                            "ports": {
-                                "http": -1
                             }
                         }
                         """.formatted(socketAddress))
