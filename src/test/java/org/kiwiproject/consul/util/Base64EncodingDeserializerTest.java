@@ -51,7 +51,7 @@ class Base64EncodingDeserializerTest {
 
     @Test
     void shouldReturnEmpty_WhenPayloadIsNull() throws IOException {
-        var json = """
+        @Language("JSON") var json = """
                 {
                   "ID": "1",
                   "LTime": 1,
