@@ -1,16 +1,14 @@
 package org.kiwiproject.consul;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.newsclub.net.unix.AFSocketFactory;
 import org.newsclub.net.unix.AFUNIXSocket;
 import org.newsclub.net.unix.AFUNIXSocketAddress;
 
 import javax.net.SocketFactory;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.nio.file.Path;
 
 /**
@@ -20,12 +18,12 @@ import java.nio.file.Path;
  * All {@code createSocket} overloads ignore the host and port arguments and
  * connect to the configured socket path.
  * <p>
- * The no-arg {@link #createSocket()} returns an unconnected socket wrapper
- * whose {@code connect()} method redirects to the Unix socket path. This is
- * required because OkHttp calls the no-arg {@code createSocket()} and then
- * calls {@code connect(InetSocketAddress)} separately; returning an
- * already-connected {@code AFUNIXSocket} there would cause junixsocket to
- * attempt (and fail) to map the TCP address via {@code AFSocketAddress.mapOrFail}.
+ * The no-arg {@link #createSocket()} delegates to
+ * {@link AFSocketFactory.FixedAddressSocketFactory}, which returns a real
+ * {@link AFUNIXSocket} configured via {@code forceConnectAddress}. This means
+ * OkHttp's standard {@code createSocket()} + {@code connect(InetSocketAddress)}
+ * flow transparently connects to the Unix domain socket path, and all socket
+ * options (including {@code setSoTimeout}) work natively on the underlying socket.
  * <p>
  * The overloads that accept a host/port return an already-connected socket
  * directly, since callers of those variants do not make a separate
@@ -50,70 +48,15 @@ public class UnixDomainSocketFactory extends SocketFactory {
     }
 
     /**
-     * Returns a socket wrapper backed by an unconnected {@link AFUNIXSocket}.
-     * The wrapper's {@code connect()} methods ignore the supplied address and
-     * always connect to {@link #socketPath}, so that OkHttp's standard
-     * {@code createSocket()} + {@code connect(InetSocketAddress)} flow works
-     * correctly with Unix domain sockets.
+     * Returns an unconnected {@link AFUNIXSocket} whose {@code connect()} methods
+     * ignore the supplied address and always connect to the configured socket path.
+     * This allows OkHttp's standard {@code createSocket()} +
+     * {@code connect(InetSocketAddress)} flow to work correctly with Unix domain sockets.
      */
     @Override
     public Socket createSocket() throws IOException {
-        var unixSocket = newAFUNIXSocket();
-        var unixAddress = AFUNIXSocketAddress.of(socketPath);
-        return new Socket() {
-            @Override
-            public void connect(SocketAddress endpoint) throws IOException {
-                unixSocket.connect(unixAddress);
-            }
-
-            @Override
-            public void connect(SocketAddress endpoint, int timeout) throws IOException {
-                unixSocket.connect(unixAddress, timeout);
-            }
-
-            @Override
-            public InputStream getInputStream() throws IOException {
-                return unixSocket.getInputStream();
-            }
-
-            @Override
-            public OutputStream getOutputStream() throws IOException {
-                return unixSocket.getOutputStream();
-            }
-
-            @Override
-            public boolean isConnected() {
-                return unixSocket.isConnected();
-            }
-
-            @Override
-            public boolean isClosed() {
-                return unixSocket.isClosed();
-            }
-
-            @Override
-            public boolean isInputShutdown() {
-                return unixSocket.isInputShutdown();
-            }
-
-            @Override
-            public boolean isOutputShutdown() {
-                return unixSocket.isOutputShutdown();
-            }
-
-            @Override
-            public synchronized void close() throws IOException {
-                unixSocket.close();
-            }
-        };
-    }
-
-    /**
-     * Creates a new, unconnected {@link AFUNIXSocket}.
-     */
-    @VisibleForTesting
-    protected AFUNIXSocket newAFUNIXSocket() throws IOException {
-        return AFUNIXSocket.newInstance();
+        return new AFSocketFactory.FixedAddressSocketFactory(AFUNIXSocketAddress.of(socketPath))
+                .createSocket();
     }
 
     @Override
