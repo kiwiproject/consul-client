@@ -3,6 +3,7 @@ package org.kiwiproject.consul.util;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
 import org.kiwiproject.consul.model.event.Event;
 import org.kiwiproject.consul.model.event.ImmutableEvent;
@@ -28,5 +29,33 @@ class Base64EncodingDeserializerTest {
         Event deserializedEvent = Jackson.MAPPER.readValue(serializedEvent, Event.class);
 
         assertThat(deserializedEvent.getPayload()).contains(value);
+    }
+
+    @Test
+    void shouldReturnEmpty_WhenPayloadIsNull() throws IOException {
+        var json = """
+                {
+                  "ID": "1",
+                  "LTime": 1,
+                  "Name": "name",
+                  "Version": 1,
+                  "Payload": null
+                }""";
+        var event = Jackson.MAPPER.readValue(json, Event.class);
+        assertThat(event.getPayload()).isEmpty();
+    }
+
+    @Test
+    void shouldReturnEmpty_WhenPayloadIsEmptyString() throws IOException {
+        @Language("JSON") var json = """
+                {
+                  "ID": "1",
+                  "LTime": 1,
+                  "Name": "name",
+                  "Version": 1,
+                  "Payload": ""
+                }""";
+        var event = Jackson.MAPPER.readValue(json, Event.class);
+        assertThat(event.getPayload()).isEmpty();
     }
 }
