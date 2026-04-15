@@ -754,10 +754,12 @@ public class Consul {
          * Cannot be combined with an SSL context; {@link #build()} throws
          * {@link IllegalStateException} if both are configured.
          *
-         * @param socketPath path to the Unix domain socket file
+         * @param socketPath path to the Unix domain socket file; must not be null
          * @return The builder.
+         * @throws IllegalArgumentException if socketPath is null
          */
         public Builder withUnixDomainSocket(Path socketPath) {
+            checkArgument(nonNull(socketPath), "socketPath must not be null");
             this.unixSocketPath = socketPath;
             return this;
         }

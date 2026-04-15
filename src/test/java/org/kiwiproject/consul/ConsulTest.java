@@ -364,6 +364,13 @@ class ConsulTest {
         }
 
         @Test
+        void shouldRejectNullPath() {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> Consul.builder().withUnixDomainSocket((Path) null))
+                    .withMessage("socketPath must not be null");
+        }
+
+        @Test
         void shouldThrowIllegalStateException_WhenBothUdsAndSslAreConfigured()
                 throws NoSuchAlgorithmException {
             var builder = Consul.builder()
