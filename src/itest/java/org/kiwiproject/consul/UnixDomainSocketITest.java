@@ -61,7 +61,6 @@ class UnixDomainSocketITest {
         var socketAddress = CONTAINER_SOCKET_DIR + "/" + SOCKET_FILE_NAME;
 
         consulContainer = new GenericContainer<>(CONSUL_DOCKER_IMAGE_NAME)
-                .withCommand("agent", "-dev")
                 .withEnv("CONSUL_LOCAL_CONFIG", """
                         {
                             "addresses": {
