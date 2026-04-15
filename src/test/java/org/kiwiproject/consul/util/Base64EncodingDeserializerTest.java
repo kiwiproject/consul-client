@@ -8,6 +8,7 @@ import org.kiwiproject.consul.model.event.Event;
 import org.kiwiproject.consul.model.event.ImmutableEvent;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 class Base64EncodingDeserializerTest {
@@ -20,7 +21,7 @@ class Base64EncodingDeserializerTest {
                 .lTime(1L)
                 .name("name")
                 .version(1)
-                .payload(Base64.getEncoder().encodeToString(value.getBytes()))
+                .payload(Base64.getEncoder().encodeToString(value.getBytes(StandardCharsets.UTF_8)))
                 .build();
 
         String serializedEvent = Jackson.MAPPER.writeValueAsString(event);
