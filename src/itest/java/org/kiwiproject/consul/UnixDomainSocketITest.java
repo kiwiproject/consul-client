@@ -6,13 +6,17 @@ import static org.awaitility.Awaitility.await;
 import static org.kiwiproject.consul.ConsulTestcontainers.CONSUL_DOCKER_IMAGE_NAME;
 import static org.kiwiproject.consul.TestUtils.randomUUIDString;
 
+import org.awaitility.core.ConditionTimeoutException;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.io.IOException;
@@ -20,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
+import java.util.stream.Collectors;
 
 /**
  * Integration test for Unix domain socket support.
@@ -31,6 +36,8 @@ import java.time.Duration;
  */
 @EnabledOnOs(OS.LINUX)
 class UnixDomainSocketITest {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UnixDomainSocketITest.class);
 
     private static final String SOCKET_FILE_NAME = "consul.sock";
     private static final String CONTAINER_SOCKET_DIR = "/consul-socket";
@@ -48,6 +55,10 @@ class UnixDomainSocketITest {
                 PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwxrwxrwx")));
         socketPath = socketDir.resolve(SOCKET_FILE_NAME);
 
+        LOG.info("Socket dir: {} (permissions: {})",
+                socketDir,
+                Files.getPosixFilePermissions(socketDir));
+
         var socketAddress = CONTAINER_SOCKET_DIR + "/" + SOCKET_FILE_NAME;
 
         consulContainer = new GenericContainer<>(CONSUL_DOCKER_IMAGE_NAME)
@@ -64,13 +75,24 @@ class UnixDomainSocketITest {
                         """.formatted(socketAddress))
                 .withFileSystemBind(socketDir.toAbsolutePath().toString(),
                         CONTAINER_SOCKET_DIR, BindMode.READ_WRITE)
+                .withLogConsumer(new Slf4jLogConsumer(LOG).withPrefix("consul"))
                 .waitingFor(Wait.forLogMessage(".*agent: Synced node info.*", 1));
 
         consulContainer.start();
 
-        await().atMost(Duration.ofSeconds(30))
-                .pollInterval(Duration.ofMillis(500))
-                .until(() -> Files.exists(socketPath));
+        try {
+            await().atMost(Duration.ofSeconds(30))
+                    .pollInterval(Duration.ofMillis(500))
+                    .until(() -> Files.exists(socketPath));
+        } catch (ConditionTimeoutException e) {
+            try (var entries = Files.list(socketDir)) {
+                var contents = entries.map(Path::toString).collect(Collectors.joining(", "));
+                LOG.error("Socket file not found at {} after 30s. Directory contents: [{}]",
+                        socketPath, contents.isEmpty() ? "<empty>" : contents);
+            }
+            LOG.error("Container logs:\n{}", consulContainer.getLogs());
+            throw e;
+        }
 
         client = Consul.builder()
                 .withUnixDomainSocket(socketPath)
