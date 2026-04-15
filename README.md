@@ -222,6 +222,76 @@ StatusClient statusClient = client.statusClient();
 System.out.println(statusClient.getLeader()); // 127.0.0.1:8300
 ```
 
+Unix Domain Socket Support
+--------------------------
+
+Starting in version 1.12.0, the Consul client can be configured to communicate
+with the local Consul agent via a Unix domain socket instead of TCP. This
+bypasses the TCP/IP network stack entirely and can improve reliability in environments
+where loopback networking may be disrupted (e.g., during infrastructure
+maintenance windows).
+
+To enable it, configure the Consul agent with a socket address:
+
+```hcl
+addresses {
+  http = "unix:///var/run/consul/consul.sock"
+}
+```
+
+Then configure the client with the socket path instead of a host/port:
+
+```java
+Consul client = Consul.builder()
+        .withUnixDomainSocket("/var/run/consul/consul.sock")
+        .build();
+```
+
+### Dependency
+
+Unix domain socket support depends on `junixsocket-core`, which is an
+**optional** dependency and must be added explicitly if you want to use this
+feature.
+
+If you are using [kiwi-bom](https://github.com/kiwiproject/kiwi-bom) for
+dependency management, the version is managed for you:
+
+```xml
+<dependency>
+    <groupId>com.kohlschutter.junixsocket</groupId>
+    <artifactId>junixsocket-core</artifactId>
+    <type>pom</type>
+</dependency>
+```
+
+Otherwise, specify the version explicitly (see
+[Maven Central](https://central.sonatype.com/artifact/com.kohlschutter.junixsocket/junixsocket-core)
+for the latest version):
+
+```xml
+<dependency>
+    <groupId>com.kohlschutter.junixsocket</groupId>
+    <artifactId>junixsocket-core</artifactId>
+    <version>[latest-version]</version>
+    <type>pom</type>
+</dependency>
+```
+
+### JVM Requirements
+
+On Java 24+, you must explicitly enable native access for junixsocket at JVM
+startup. The correct flag depends on whether your application is modularized:
+
+**Non-modularized applications** (fat JARs, most Dropwizard/Spring Boot apps):
+```
+--enable-native-access=ALL-UNNAMED
+```
+
+**Modularized applications:**
+```
+--enable-native-access=org.newsclub.net.unix
+```
+
 Development Notes
 -----------
 
