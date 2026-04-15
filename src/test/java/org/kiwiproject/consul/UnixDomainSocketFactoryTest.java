@@ -6,21 +6,31 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.newsclub.net.unix.AFUNIXSocket;
 import org.newsclub.net.unix.AFUNIXSocketAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.StandardProtocolFamily;
+import java.net.UnixDomainSocketAddress;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.UUID;
 
 @DisplayName("UnixDomainSocketFactory")
 class UnixDomainSocketFactoryTest {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UnixDomainSocketFactoryTest.class);
 
     private static final Path TEST_SOCKET_PATH = Path.of("/tmp/test-consul.sock");
 
@@ -157,6 +167,53 @@ class UnixDomainSocketFactoryTest {
         void shouldReturnConnectedSocket_WhenGivenTwoInetAddressesAndPorts() throws IOException {
             var addr = InetAddress.getLoopbackAddress();
             assertThat(factory.createSocket(addr, 8500, addr, 0)).isSameAs(mockConnectedSocket);
+        }
+    }
+
+    @Nested
+    class NewConnectedSocket {
+
+        private Path socketPath;
+        private ServerSocketChannel serverChannel;
+        private Thread acceptThread;
+
+        @BeforeEach
+        void setUp() throws IOException {
+            // Use /tmp directly — java.io.tmpdir on macOS expands to a long /var/folders/...
+            // path. Unix domain socket paths are limited to 104 bytes on macOS (the
+            // sockaddr_un sun_path field in sys/un.h) and 108 bytes on Linux.
+            socketPath = Path.of("/tmp", "consul-uds-" + UUID.randomUUID().toString().substring(0, 8) + ".sock");
+
+            serverChannel = ServerSocketChannel.open(StandardProtocolFamily.UNIX);
+            serverChannel.bind(UnixDomainSocketAddress.of(socketPath));
+            LOG.info("Test server listening on: {}", socketPath);
+
+            acceptThread = new Thread(() -> {
+                try {
+                    while (!Thread.currentThread().isInterrupted()) {
+                        serverChannel.accept().close();
+                    }
+                } catch (IOException e) {
+                    // server channel closed — expected on teardown
+                }
+            });
+            acceptThread.setDaemon(true);
+            acceptThread.start();
+        }
+
+        @AfterEach
+        void tearDown() throws IOException {
+            acceptThread.interrupt();
+            serverChannel.close();
+            Files.deleteIfExists(socketPath);
+        }
+
+        @Test
+        void shouldReturnConnectedSocket() throws IOException {
+            var realFactory = new UnixDomainSocketFactory(socketPath);
+            try (var socket = realFactory.createSocket("localhost", 8500)) {
+                assertThat(socket.isConnected()).isTrue();
+            }
         }
     }
 }
