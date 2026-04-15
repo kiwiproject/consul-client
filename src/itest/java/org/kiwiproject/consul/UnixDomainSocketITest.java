@@ -66,6 +66,9 @@ class UnixDomainSocketITest {
                         {
                             "addresses": {
                                 "http": "unix://%s"
+                            },
+                            "unix_sockets": {
+                                "mode": "0777"
                             }
                         }
                         """.formatted(socketAddress))
