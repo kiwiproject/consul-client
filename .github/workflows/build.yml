@@ -18,30 +18,14 @@ jobs:
         java-version: [ '17', '21', '25' ]
         # Need to quote versions ending in 0, otherwise they're truncated
         # such that 1.20 becomes 1.2. For correctness and consistency, quote everything.
-        consul-version: [ '1.16', '1.18', '1.19', '1.20', '1.21', '1.22' ]
+        consul-version: [ '1.21', '1.22' ]
 
         # Only test against one Consul version when using JDK 21 and 25. If they
         # all worked with JDK 17, it's probably good enough to only test
         # against the latest Consul version on JDK 21 and 25.
         exclude:
           - java-version: '21'
-            consul-version: '1.16'
-          - java-version: '21'
-            consul-version: '1.18'
-          - java-version: '21'
-            consul-version: '1.19'
-          - java-version: '21'
-            consul-version: '1.20'
-          - java-version: '21'
             consul-version: '1.21'
-          - java-version: '25'
-            consul-version: '1.16'
-          - java-version: '25'
-            consul-version: '1.18'
-          - java-version: '25'
-            consul-version: '1.19'
-          - java-version: '25'
-            consul-version: '1.20'
           - java-version: '25'
             consul-version: '1.21'
 
@@ -65,7 +49,7 @@ jobs:
       # Cache all the things
       - name: Cache SonarCloud packages
         uses: actions/cache@v5
-        if: ${{ env.SONAR_TOKEN != null && env.SONAR_TOKEN != '' && matrix.java-version == '17' && matrix.consul-version == '1.20' }}
+        if: ${{ env.SONAR_TOKEN != null && env.SONAR_TOKEN != '' && matrix.java-version == '17' && matrix.consul-version == '1.22' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
@@ -86,16 +70,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         run: mvn -B -V compile
 
-      # Run tests except on JDK 17 and Consul 1.20 (Sonar runs tests and analysis on JDK 17 / Consul 1.20)
+      # Run tests except on JDK 17 and Consul 1.22 (Sonar runs tests and analysis on JDK 17 / Consul 1.22)
       - name: Run tests
-        if: ${{ !(matrix.java-version == '17' && matrix.consul-version == '1.20') }}
+        if: ${{ !(matrix.java-version == '17' && matrix.consul-version == '1.22') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         run: mvn -B -V verify
 
-      # Run Sonar Analysis (on Java version 17 / Consul 1.20 only)
+      # Run Sonar Analysis (on Java version 17 / Consul 1.22 only)
       - name: Analyze with SonarCloud
-        if: ${{ env.SONAR_TOKEN != null && env.SONAR_TOKEN != '' && matrix.java-version == '17' && matrix.consul-version == '1.20' }}
+        if: ${{ env.SONAR_TOKEN != null && env.SONAR_TOKEN != '' && matrix.java-version == '17' && matrix.consul-version == '1.22' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
