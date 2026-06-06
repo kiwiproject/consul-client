@@ -44,7 +44,6 @@ jobs:
         with:
           java-version: ${{ matrix.java-version }}
           distribution: 'temurin'
-          check-latest: true
 
       # Cache all the things
       - name: Cache SonarCloud packages
