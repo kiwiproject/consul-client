@@ -115,6 +115,12 @@ class EventClientITest extends BaseIntegrationTest {
                 .describedAs("Precondition: Event IDs should not be empty")
                 .isNotEmpty();
 
+        // Confirm all events are visible synchronously before exercising the async path.
+        // The async callback fires once; if Consul hasn't indexed all events yet that
+        // response is frozen with an incomplete set and the assertion can never recover.
+        awaitAtMost2s().untilAsserted(() ->
+                assertThat(getEventIds(eventClient.listEvents())).containsAll(eventIds));
+
         var callback = new TestEventResponseCallback();
         eventClient.listEvents(callback);
 
@@ -132,6 +138,12 @@ class EventClientITest extends BaseIntegrationTest {
         assertThat(eventIds)
                 .describedAs("Precondition: Event IDs should not be empty")
                 .isNotEmpty();
+
+        // Confirm all events are visible synchronously before exercising the async path.
+        // The async callback fires once; if Consul hasn't indexed all events yet that
+        // response is frozen with an incomplete set and the assertion can never recover.
+        awaitAtMost2s().untilAsserted(() ->
+                assertThat(getEventIds(eventClient.listEvents())).containsAll(eventIds));
 
         var callback = new TestEventResponseCallback();
         eventClient.listEvents(Options.BLANK_QUERY_OPTIONS, callback);
