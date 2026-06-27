@@ -292,6 +292,8 @@ startup. The correct flag depends on whether your application is modularized:
 --enable-native-access=org.newsclub.net.unix
 ```
 
+See junixsocket [Compatibility Considerations](https://kohlschutter.github.io/junixsocket/compatibility.html) for more information.
+
 Development Notes
 -----------
 
