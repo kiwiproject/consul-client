@@ -27,11 +27,11 @@ jobs:
           - java-version: '21'
             consul-version: '1.21'
           - java-version: '21'
-            consul-version: '2.0.1'
+            consul-version: '1.22'
           - java-version: '25'
             consul-version: '1.21'
           - java-version: '25'
-            consul-version: '2.0.1'
+            consul-version: '1.22'
 
     env:
       CONSUL_IMAGE_VERSION: ${{ matrix.consul-version }}
