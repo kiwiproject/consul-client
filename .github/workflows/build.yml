@@ -73,16 +73,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         run: mvn -B -V compile
 
-      # Run tests except on JDK 21 and Consul 1.22 (Sonar runs tests and analysis on JDK 21 / Consul 1.22)
+      # Run tests except on JDK 21 and Consul 2.0 (Sonar runs tests and analysis on JDK 21 / Consul 2.0)
       - name: Run tests
-        if: ${{ !(matrix.java-version == '21' && matrix.consul-version == '1.22') }}
+        if: ${{ !(matrix.java-version == '21' && matrix.consul-version == '2.0') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         run: mvn -B -V verify
 
-      # Run Sonar Analysis (on Java version 21 / Consul 1.22 only)
+      # Run Sonar Analysis (on Java version 21 / Consul 2.0 only)
       - name: Analyze with SonarCloud
-        if: ${{ env.SONAR_TOKEN != null && env.SONAR_TOKEN != '' && matrix.java-version == '21' && matrix.consul-version == '1.22' }}
+        if: ${{ env.SONAR_TOKEN != null && env.SONAR_TOKEN != '' && matrix.java-version == '21' && matrix.consul-version == '2.0' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
