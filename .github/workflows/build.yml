@@ -18,7 +18,7 @@ jobs:
         java-version: [ '17', '21', '25' ]
         # Need to quote versions ending in 0, otherwise they're truncated
         # such that 1.20 becomes 1.2. For correctness and consistency, quote everything.
-        consul-version: [ '1.21', '1.22' ]
+        consul-version: [ '1.21', '1.22', '2.0.1' ]
 
         # Only test against one Consul version when using JDK 21 and 25. If they
         # all worked with JDK 17, it's probably good enough to only test
@@ -26,8 +26,12 @@ jobs:
         exclude:
           - java-version: '21'
             consul-version: '1.21'
+          - java-version: '21'
+            consul-version: '2.0.1'
           - java-version: '25'
             consul-version: '1.21'
+          - java-version: '25'
+            consul-version: '2.0.1'
 
     env:
       CONSUL_IMAGE_VERSION: ${{ matrix.consul-version }}
