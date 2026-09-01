@@ -34,13 +34,13 @@ jobs:
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
     - name: Set up Java 17
-      uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961  # v5
+      uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c  # v6.0.0
       with:
         distribution: zulu
         java-version: 17
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd  # v4
+      uses: github/codeql-action/init@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28  # v4
       with:
         languages: ${{ matrix.language }}
         queries: security-extended,security-and-quality
@@ -53,9 +53,9 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
 
     - name: Autobuild
-      uses: github/codeql-action/autobuild@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd  # v4
+      uses: github/codeql-action/autobuild@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28  # v4
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd  # v4
+      uses: github/codeql-action/analyze@db488ddef3bf6cb639b32c2e9a7c0a7ea8271d28  # v4
       with:
         category: "/language:${{matrix.language}}"
