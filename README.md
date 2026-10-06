@@ -24,7 +24,7 @@ Background
 ----------
 This library was imported from [rickfast/consul-client](https://github.com/rickfast/consul-client), which is no longer
 being maintained per a [note](https://github.com/rickfast/consul-client#notes-from-the-maintainer) from the original
-maintainer.
+maintainer (and it was archived on Jul 27, 2023).
 
 Since we are still using this library in services which use Dropwizard and Consul, we decided to import the original
 repository and continue maintaining it for our own use, and anyone else who might want to use it. We make no guarantees
