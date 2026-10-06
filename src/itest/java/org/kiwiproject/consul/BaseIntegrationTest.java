@@ -1,5 +1,6 @@
 package org.kiwiproject.consul;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.kiwiproject.consul.Awaiting.awaitWithPollingMs;
 import static org.kiwiproject.consul.ConsulTestcontainers.CONSUL_DOCKER_IMAGE_NAME;
 import static org.kiwiproject.consul.TestUtils.randomUUIDString;
@@ -75,7 +76,7 @@ public abstract class BaseIntegrationTest {
         awaitWithPollingMs(50)
                 .atMost(Duration.ofSeconds(15))
                 .alias("Consul leader to be elected")
-                .until(() -> !client.statusClient().getLeader().isBlank());
+                .until(() -> isNotBlank(client.statusClient().getLeader()));
     }
 
     @AfterEach
