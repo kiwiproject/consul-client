@@ -1,5 +1,6 @@
 package org.kiwiproject.consul;
 
+import static org.kiwiproject.consul.Awaiting.awaitWithPollingMs;
 import static org.kiwiproject.consul.ConsulTestcontainers.CONSUL_DOCKER_IMAGE_NAME;
 import static org.kiwiproject.consul.TestUtils.randomUUIDString;
 
@@ -62,6 +63,19 @@ public abstract class BaseIntegrationTest {
                 .withReadTimeoutMillis(Duration.ofSeconds(2).toMillis())
                 .withWriteTimeoutMillis(Duration.ofMillis(500).toMillis())
                 .build();
+
+        waitForLeader();
+    }
+
+    // A newly started Consul server needs a moment to elect itself leader, and until
+    // it does /v1/status/leader returns an empty string. Wait so tests that run first
+    // against the shared container don't race with leader election. After the first
+    // test class this returns on the first poll.
+    private static void waitForLeader() {
+        awaitWithPollingMs(50)
+                .atMost(Duration.ofSeconds(15))
+                .alias("Consul leader to be elected")
+                .until(() -> !client.statusClient().getLeader().isBlank());
     }
 
     @AfterEach
