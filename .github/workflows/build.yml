@@ -51,7 +51,7 @@ jobs:
 
       # Cache all the things
       - name: Cache SonarCloud packages
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         if: ${{ env.SONAR_TOKEN != null && env.SONAR_TOKEN != '' && matrix.java-version == '21' && matrix.consul-version == '1.22' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -61,7 +61,7 @@ jobs:
           restore-keys: ${{ runner.os }}-sonar
 
       - name: Cache Maven packages
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v5
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
